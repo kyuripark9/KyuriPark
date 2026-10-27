@@ -1,0 +1,472 @@
+[
+  {
+    "slug": "typelab",
+    "title": "TypeLab",
+    "oneLiner": "Font design playground",
+    "cover": {
+      "src": "cover.webp",
+      "alt": "[PLACEHOLDER] TypeLab: cover image"
+    },
+    "meta": {
+      "role": "[PLACEHOLDER]",
+      "timeline": "[PLACEHOLDER]",
+      "tools": "[PLACEHOLDER]",
+      "link": {
+        "label": "typelab.ink",
+        "url": "https://typelab.ink"
+      }
+    },
+    "hero": {
+      "type": "image",
+      "src": "hero.webp",
+      "alt": "[PLACEHOLDER] TypeLab: hero image"
+    },
+    "blocks": [
+      {
+        "type": "text",
+        "heading": "Context",
+        "body": [
+          "[PLACEHOLDER] The problem, who it was for, and why it mattered. Two or three sentences."
+        ]
+      },
+      {
+        "type": "image",
+        "src": "context.webp",
+        "alt": "[PLACEHOLDER] TypeLab: context image"
+      },
+      {
+        "type": "text",
+        "heading": "Explore",
+        "body": [
+          "[PLACEHOLDER] What you tried first and the directions you compared."
+        ]
+      },
+      {
+        "type": "text",
+        "heading": "What broke",
+        "body": [
+          "[PLACEHOLDER] One or two attempts that failed, and what each one taught you."
+        ],
+        "variant": "note"
+      },
+      {
+        "type": "imagePair",
+        "images": [
+          {
+            "src": "explore-1.webp",
+            "alt": "[PLACEHOLDER] TypeLab: exploration 1"
+          },
+          {
+            "src": "explore-2.webp",
+            "alt": "[PLACEHOLDER] TypeLab: exploration 2"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "heading": "Build",
+        "body": [
+          "[PLACEHOLDER] What you made and the key decisions behind it."
+        ]
+      },
+      {
+        "type": "image",
+        "src": "build.webp",
+        "alt": "[PLACEHOLDER] TypeLab: build image"
+      },
+      {
+        "type": "text",
+        "heading": "Result",
+        "body": [
+          "[PLACEHOLDER] Where it ended up. Only real outcomes: shipped, tested, adopted, or measured."
+        ]
+      },
+      {
+        "type": "image",
+        "src": "result.webp",
+        "alt": "[PLACEHOLDER] TypeLab: result image"
+      },
+      {
+        "type": "text",
+        "heading": "Reflection",
+        "body": [
+          "[PLACEHOLDER] What you would do differently, or what you are taking into the next project."
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "clack",
+    "title": "Clack",
+    "oneLiner": "Staying focused while AI works",
+    "cover": {
+      "src": "cover.webp",
+      "alt": "[PLACEHOLDER] Clack: cover image"
+    },
+    "meta": {
+      "role": "[PLACEHOLDER]",
+      "timeline": "[PLACEHOLDER]",
+      "tools": "[PLACEHOLDER]",
+      "link": null
+    },
+    "hero": {
+      "type": "video",
+      "src": "demo.mp4",
+      "poster": "demo-poster.webp",
+      "alt": "Clack demo video",
+      "caption": "Demo video"
+    },
+    "blocks": [
+      {
+        "type": "text",
+        "heading": "Context",
+        "body": [
+          "[PLACEHOLDER] The problem, who it was for, and why it mattered. Two or three sentences."
+        ]
+      },
+      {
+        "type": "image",
+        "src": "context.webp",
+        "alt": "[PLACEHOLDER] Clack: context image"
+      },
+      {
+        "type": "text",
+        "heading": "Explore",
+        "body": [
+          "[PLACEHOLDER] What you tried first and the directions you compared."
+        ]
+      },
+      {
+        "type": "text",
+        "heading": "What broke",
+        "body": [
+          "[PLACEHOLDER] One or two attempts that failed, and what each one taught you."
+        ],
+        "variant": "note"
+      },
+      {
+        "type": "imagePair",
+        "images": [
+          {
+            "src": "explore-1.webp",
+            "alt": "[PLACEHOLDER] Clack: exploration 1"
+          },
+          {
+            "src": "explore-2.webp",
+            "alt": "[PLACEHOLDER] Clack: exploration 2"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "heading": "Build",
+        "body": [
+          "[PLACEHOLDER] What you made and the key decisions behind it."
+        ]
+      },
+      {
+        "type": "image",
+        "src": "build.webp",
+        "alt": "[PLACEHOLDER] Clack: build image"
+      },
+      {
+        "type": "text",
+        "heading": "Result",
+        "body": [
+          "[PLACEHOLDER] Where it ended up. Only real outcomes: shipped, tested, adopted, or measured."
+        ]
+      },
+      {
+        "type": "image",
+        "src": "result.webp",
+        "alt": "[PLACEHOLDER] Clack: result image"
+      },
+      {
+        "type": "text",
+        "heading": "Reflection",
+        "body": [
+          "[PLACEHOLDER] What you would do differently, or what you are taking into the next project."
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "nbcuniversal",
+    "title": "NBCUniversal",
+    "oneLiner": "[PLACEHOLDER one-liner]",
+    "cover": {
+      "src": "cover.webp",
+      "alt": "[PLACEHOLDER] NBCUniversal: cover image"
+    },
+    "meta": {
+      "role": "[PLACEHOLDER]",
+      "timeline": "[PLACEHOLDER]",
+      "tools": "[PLACEHOLDER]",
+      "link": null
+    },
+    "hero": {
+      "type": "image",
+      "src": "hero.webp",
+      "alt": "[PLACEHOLDER] NBCUniversal: hero image"
+    },
+    "blocks": [
+      {
+        "type": "text",
+        "heading": "Context",
+        "body": [
+          "[PLACEHOLDER] The problem, who it was for, and why it mattered. Two or three sentences."
+        ]
+      },
+      {
+        "type": "image",
+        "src": "context.webp",
+        "alt": "[PLACEHOLDER] NBCUniversal: context image"
+      },
+      {
+        "type": "text",
+        "heading": "Explore",
+        "body": [
+          "[PLACEHOLDER] What you tried first and the directions you compared."
+        ]
+      },
+      {
+        "type": "text",
+        "heading": "What broke",
+        "body": [
+          "[PLACEHOLDER] One or two attempts that failed, and what each one taught you."
+        ],
+        "variant": "note"
+      },
+      {
+        "type": "imagePair",
+        "images": [
+          {
+            "src": "explore-1.webp",
+            "alt": "[PLACEHOLDER] NBCUniversal: exploration 1"
+          },
+          {
+            "src": "explore-2.webp",
+            "alt": "[PLACEHOLDER] NBCUniversal: exploration 2"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "heading": "Build",
+        "body": [
+          "[PLACEHOLDER] What you made and the key decisions behind it."
+        ]
+      },
+      {
+        "type": "image",
+        "src": "build.webp",
+        "alt": "[PLACEHOLDER] NBCUniversal: build image"
+      },
+      {
+        "type": "text",
+        "heading": "Result",
+        "body": [
+          "[PLACEHOLDER] Where it ended up. Only real outcomes: shipped, tested, adopted, or measured."
+        ]
+      },
+      {
+        "type": "image",
+        "src": "result.webp",
+        "alt": "[PLACEHOLDER] NBCUniversal: result image"
+      },
+      {
+        "type": "text",
+        "heading": "Reflection",
+        "body": [
+          "[PLACEHOLDER] What you would do differently, or what you are taking into the next project."
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "project-4",
+    "title": "[PLACEHOLDER: Palette or Self-checkout]",
+    "oneLiner": "[PLACEHOLDER one-liner]",
+    "cover": {
+      "src": "cover.webp",
+      "alt": "[PLACEHOLDER] this project: cover image"
+    },
+    "meta": {
+      "role": "[PLACEHOLDER]",
+      "timeline": "[PLACEHOLDER]",
+      "tools": "[PLACEHOLDER]",
+      "link": null
+    },
+    "hero": {
+      "type": "image",
+      "src": "hero.webp",
+      "alt": "[PLACEHOLDER] this project: hero image"
+    },
+    "blocks": [
+      {
+        "type": "text",
+        "heading": "Context",
+        "body": [
+          "[PLACEHOLDER] The problem, who it was for, and why it mattered. Two or three sentences."
+        ]
+      },
+      {
+        "type": "image",
+        "src": "context.webp",
+        "alt": "[PLACEHOLDER] this project: context image"
+      },
+      {
+        "type": "text",
+        "heading": "Explore",
+        "body": [
+          "[PLACEHOLDER] What you tried first and the directions you compared."
+        ]
+      },
+      {
+        "type": "text",
+        "heading": "What broke",
+        "body": [
+          "[PLACEHOLDER] One or two attempts that failed, and what each one taught you."
+        ],
+        "variant": "note"
+      },
+      {
+        "type": "imagePair",
+        "images": [
+          {
+            "src": "explore-1.webp",
+            "alt": "[PLACEHOLDER] this project: exploration 1"
+          },
+          {
+            "src": "explore-2.webp",
+            "alt": "[PLACEHOLDER] this project: exploration 2"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "heading": "Build",
+        "body": [
+          "[PLACEHOLDER] What you made and the key decisions behind it."
+        ]
+      },
+      {
+        "type": "image",
+        "src": "build.webp",
+        "alt": "[PLACEHOLDER] this project: build image"
+      },
+      {
+        "type": "text",
+        "heading": "Result",
+        "body": [
+          "[PLACEHOLDER] Where it ended up. Only real outcomes: shipped, tested, adopted, or measured."
+        ]
+      },
+      {
+        "type": "image",
+        "src": "result.webp",
+        "alt": "[PLACEHOLDER] this project: result image"
+      },
+      {
+        "type": "text",
+        "heading": "Reflection",
+        "body": [
+          "[PLACEHOLDER] What you would do differently, or what you are taking into the next project."
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "light-life",
+    "title": "Light Life",
+    "oneLiner": "[PLACEHOLDER one-liner]",
+    "cover": {
+      "src": "cover.webp",
+      "alt": "[PLACEHOLDER] Light Life: cover image"
+    },
+    "meta": {
+      "role": "[PLACEHOLDER]",
+      "timeline": "[PLACEHOLDER]",
+      "tools": "[PLACEHOLDER]",
+      "link": null
+    },
+    "hero": {
+      "type": "image",
+      "src": "hero.webp",
+      "alt": "[PLACEHOLDER] Light Life: hero image"
+    },
+    "blocks": [
+      {
+        "type": "text",
+        "heading": "Context",
+        "body": [
+          "[PLACEHOLDER] The problem, who it was for, and why it mattered. Two or three sentences."
+        ]
+      },
+      {
+        "type": "image",
+        "src": "context.webp",
+        "alt": "[PLACEHOLDER] Light Life: context image"
+      },
+      {
+        "type": "text",
+        "heading": "Explore",
+        "body": [
+          "[PLACEHOLDER] What you tried first and the directions you compared."
+        ]
+      },
+      {
+        "type": "text",
+        "heading": "What broke",
+        "body": [
+          "[PLACEHOLDER] One or two attempts that failed, and what each one taught you."
+        ],
+        "variant": "note"
+      },
+      {
+        "type": "imagePair",
+        "images": [
+          {
+            "src": "explore-1.webp",
+            "alt": "[PLACEHOLDER] Light Life: exploration 1"
+          },
+          {
+            "src": "explore-2.webp",
+            "alt": "[PLACEHOLDER] Light Life: exploration 2"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "heading": "Build",
+        "body": [
+          "[PLACEHOLDER] What you made and the key decisions behind it."
+        ]
+      },
+      {
+        "type": "image",
+        "src": "build.webp",
+        "alt": "[PLACEHOLDER] Light Life: build image"
+      },
+      {
+        "type": "text",
+        "heading": "Result",
+        "body": [
+          "[PLACEHOLDER] Where it ended up. Only real outcomes: shipped, tested, adopted, or measured."
+        ]
+      },
+      {
+        "type": "image",
+        "src": "result.webp",
+        "alt": "[PLACEHOLDER] Light Life: result image"
+      },
+      {
+        "type": "text",
+        "heading": "Reflection",
+        "body": [
+          "[PLACEHOLDER] What you would do differently, or what you are taking into the next project."
+        ]
+      }
+    ]
+  }
+]

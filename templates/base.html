@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page_title }}</title>
+  <meta name="description" content="{{ description }}">
+  {{ head_meta }}
+  <link rel="preload" href="/assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/css/style.css?v={{ css_version }}">
+  <script src="/assets/js/main.js?v={{ js_version }}" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header wrap">
+    <a class="identity" href="/">
+      <span class="identity-name">{{ site_name }}</span>
+      <span class="identity-role">{{ site_role }}</span>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+        <li><a href="/"{{ nav_work }}>Work</a></li>
+        <li><a href="/about/"{{ nav_about }}>About</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main" class="wrap {{ main_class }}">
+{{ content }}
+  </main>
+
+  <footer class="site-footer wrap" id="contact">
+    <h2 class="visually-hidden">Contact</h2>
+    <ul class="footer-links">
+{{ contact_links }}
+    </ul>
+    <p class="copyright">{{ copyright }}</p>
+  </footer>
+</body>
+</html>

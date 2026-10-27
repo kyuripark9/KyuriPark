@@ -1,0 +1,34 @@
+{
+  "name": "Kyuri Park",
+  "role": "Brand & Product Designer",
+  "title": "Kyuri Park — Brand & Product Designer",
+  "description": "Kyuri Park is a Brand & Product Designer in Chicago working across brand identity, typefaces, digital products, and physical objects.",
+  "siteUrl": "",
+  "ogImage": {
+    "src": "assets/images/og.png",
+    "alt": "Kyuri Park, Brand & Product Designer"
+  },
+
+  "email": "kyuripark9@gmail.com",
+  "linkedin": "https://www.linkedin.com/in/kyuri-park-739151274/",
+  "resume": "assets/Kyuri-Park-Resume.pdf",
+  "copyright": "© 2026 Kyuri Park",
+
+  "about": {
+    "portrait": {
+      "src": "assets/images/about/portrait.webp",
+      "alt": "[PLACEHOLDER] Portrait of Kyuri Park"
+    },
+    "paragraphs": [
+      "I'm a Brand & Product Designer. I started in Industrial and Graphic Design, and drifted into UX and branding.",
+      "I work by trying things. I explore, see what breaks, build things, and keep going until it solves the problem. That has meant designing brand identities and typefaces, prototyping digital products and interfaces, and shaping physical objects, often with AI as part of how I build.",
+      "Based in Chicago. Studying HCI at DePaul University."
+    ],
+    "experience": [
+      { "company": "DePaul University", "role": "Graduate Research Assistant", "dates": "Jan 2026 – Present" },
+      { "company": "NBC Universal", "role": "Product Designer Intern", "dates": "May – Aug 2025" },
+      { "company": "Philly Fashion Week", "role": "Digital Design Intern", "dates": "Jul – Sep 2023" },
+      { "company": "KTM Technology", "role": "UX Designer", "dates": "Mar 2020 – Dec 2022" }
+    ]
+  }
+}

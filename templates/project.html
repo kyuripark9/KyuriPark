@@ -1,0 +1,23 @@
+    <article class="project">
+      <header class="project-header">
+        <h1 class="project-title">{{ title }}</h1>
+        <dl class="project-meta">
+{{ meta }}
+        </dl>
+      </header>
+
+      <div class="project-hero">
+{{ hero }}
+      </div>
+
+      <div class="project-blocks">
+{{ blocks }}
+      </div>
+    </article>
+
+    <nav class="next-project" aria-label="Next project">
+      <a href="{{ next_url }}">
+        <span class="next-label">Next project</span>
+        <span class="next-title">{{ next_title }}</span>
+      </a>
+    </nav>

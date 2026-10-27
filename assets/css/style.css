@@ -557,9 +557,19 @@ mark.placeholder {
   text-align: right;
 }
 
-@media (min-width: 1024px) {
+/* Wide screens: one row per job. Rows share the list's columns (subgrid)
+   so company, role, and dates line up from row to row. */
+@media (min-width: 1240px) {
+  .experience {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr) max-content;
+    column-gap: var(--space-4);
+  }
+
   .experience li {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    column-gap: var(--space-4);
   }
 
   .experience-role {

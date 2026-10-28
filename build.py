@@ -306,8 +306,8 @@ def _svg_size(f):
 
 def validate(site, projects):
     """Stop on content problems that would break the site; return softer warnings."""
-    for key in ("name", "role", "title", "description", "email", "linkedin", "resume",
-                "copyright", "about"):
+    for key in ("name", "role", "title", "description", "email", "linkedin", "github",
+                "resume", "copyright", "about"):
         need(site, key, "content/site.json")
     if not isinstance(projects, list) or not projects:
         raise BuildError("content/projects.json should be a list of projects: [ {...}, {...} ].")
@@ -458,6 +458,7 @@ class Builder:
         items = [
             link(esc("mailto:" + s["email"]), esc(s["email"])),
             link(esc(s["linkedin"]), "LinkedIn"),
+            link(esc(s["github"]), "GitHub"),
             link(url_for(s["resume"]), esc(resume_label)),
         ]
         return "\n".join(f"{indent}<li>{item}</li>" for item in items)

@@ -19,7 +19,7 @@ If something in the JSON is broken, the browser shows what and where. Ctrl+C sto
 
 ```
 content/projects.json   every project: order, title, one-liner, metadata, page blocks
-content/site.json       name, email, LinkedIn, resume, About text, experience, SEO text
+content/site.json       name, email, LinkedIn, GitHub, resume, About text, experience, SEO text
 assets/images/<slug>/   images and videos for each project
 assets/images/about/    About portrait
 assets/images/og.png    link-preview image (1200×630)

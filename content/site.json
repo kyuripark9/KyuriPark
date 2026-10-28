@@ -15,11 +15,6 @@
   "resume": "assets/Kyuri-Park-Resume.pdf",
   "copyright": "© 2026 Kyuri Park",
 
-  "clock": {
-    "city": "Chicago",
-    "timeZone": "America/Chicago"
-  },
-
   "about": {
     "portrait": {
       "src": "assets/images/about/portrait.webp",

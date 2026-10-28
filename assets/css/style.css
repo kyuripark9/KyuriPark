@@ -239,9 +239,8 @@ button {
   font-weight: 400;
 }
 
-/* Mono: numbers, years, labels, the clock, the footer. */
+/* Mono: numbers, years, labels, the footer. */
 .index,
-.clock,
 .work-count,
 .work-year,
 .bracket-link,
@@ -303,14 +302,14 @@ mark.placeholder {
 
 /* Header ---------------------------------------------------------------- */
 
-/* Phones: name on the left, then the clock and the Menu button.
-   768px and up: name, nav in the middle, clock on the far right. */
+/* Phones: name on the left, then the Menu button.
+   768px and up: name, then the nav in the middle. */
 .site-header {
   position: relative;
   z-index: 20;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  grid-template-areas: "identity clock nav";
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "identity nav";
   align-items: baseline;
   column-gap: var(--space-3);
   padding-block: var(--space-3);
@@ -356,20 +355,6 @@ mark.placeholder {
   padding: var(--space-1);
 }
 
-.clock {
-  grid-area: clock;
-  justify-self: end;
-  white-space: nowrap;
-}
-
-.clock:not(.is-ready) {
-  visibility: hidden;
-}
-
-html:not(.js) .clock {
-  display: none;
-}
-
 @media (max-width: 767px) {
   .js .menu-button {
     display: block;
@@ -397,16 +382,10 @@ html:not(.js) .clock {
   }
 }
 
-@media (max-width: 359px) {
-  .clock {
-    display: none;
-  }
-}
-
 @media (min-width: 768px) {
   .site-header {
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    grid-template-areas: "identity nav clock";
+    grid-template-areas: "identity nav .";
     column-gap: var(--space-4);
     padding-block: var(--space-4);
   }

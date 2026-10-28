@@ -405,7 +405,6 @@ class Builder:
     def page(self, rel, label, path, title, description, content, main_class,
              current=None, image=(None, None), noindex=False):
         s = self.site
-        clock = s.get("clock") or {}
         out = render(
             "base.html",
             page_title=esc(title),
@@ -418,8 +417,6 @@ class Builder:
             site_role=esc(s["role"]),
             nav_work={"work": ' aria-current="page"', "project": ' aria-current="true"'}.get(current, ""),
             nav_about=' aria-current="page"' if current == "about" else "",
-            clock_city=esc(clock.get("city") or "Chicago"),
-            clock_zone=esc(clock.get("timeZone") or "America/Chicago"),
             main_class=main_class,
             content=content,
             contact_links=self.contact_links("      "),

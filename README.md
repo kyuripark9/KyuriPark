@@ -32,14 +32,14 @@ Contact is the footer on every page (the header's "Contact" link scrolls to it) 
 
 ```
 content/projects.json   every project: order, title, one-liner, category, year, page blocks
-content/site.json       name, email, LinkedIn, GitHub, resume, clock city, About text, experience, SEO text
+content/site.json       name, email, LinkedIn, GitHub, resume, About text, experience, SEO text
 assets/images/<slug>/   images and videos for each project
 assets/images/about/    About portrait
 assets/images/og.png    link-preview image (1200×630)
 assets/fonts/           Inter, Geist Mono, and (optional) your wordmark font
 assets/Kyuri-Park-Resume.pdf
 assets/css/style.css    all styling; colors, type sizes, and spacing are at the top
-assets/js/main.js       clock, phone menu, Work preview, fade-ups, count-up
+assets/js/main.js       phone menu, Work preview, fade-ups, count-up
 assets/js/track.js      the home project loop
 templates/              page structure (header, footer, home, work, project, about, 404)
 dist/                   the generated site. Never edit; it's rebuilt every time.
@@ -51,7 +51,6 @@ dist/                   the generated site. Never edit; it's rebuilt every time.
   prints how many are left on each page.
 - To link words inside a paragraph: `[typelab.ink](https://typelab.ink)`.
 - JSON is strict: every item except the last in a list needs a comma, and text goes in "double quotes".
-- The header clock's city and time zone are under `"clock"` in `content/site.json`.
 
 ## Add a project
 
@@ -158,9 +157,8 @@ in `assets/css/style.css`.
 
 ## Motion
 
-The site keeps motion to a short list: the home loop, the Work hover preview, the header
-clock, images fading up on project pages, a 300 ms fade between pages (in browsers that support
-it; others switch pages instantly), and impact numbers counting up. If a visitor has reduced
+The site keeps motion to a short list: the home loop, the Work hover preview, images
+fading up on project pages, a 300 ms fade between pages (in browsers that support it; others switch pages instantly), and impact numbers counting up. If a visitor has reduced
 motion turned on, all of it is off, and the home loop jumps from card to card without easing.
 
 Home loop: the home page fills the screen and doesn't scroll; after the last project comes the

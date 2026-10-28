@@ -1,38 +1,9 @@
 // Enhancements on top of pages that already work without JavaScript:
-// the header clock, the phone menu, Work previews, and project-page motion
+// the phone menu, Work previews, and project-page motion
 // (image fade-up, count-up numbers, looping videos). The home track is in track.js.
 (() => {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const fineHover = window.matchMedia("(hover: hover) and (pointer: fine)");
-
-  // Header clock: "Chicago 14:32" in the site's time zone, updated on the minute.
-  const clock = document.querySelector(".clock");
-  if (clock) {
-    const time = clock.querySelector("time");
-    let format = null;
-    try {
-      format = new Intl.DateTimeFormat("en-US", {
-        timeZone: clock.dataset.timeZone, hour: "2-digit", minute: "2-digit", hourCycle: "h23",
-      });
-    } catch (e) {
-      // Unknown time zone in site.json: the clock stays hidden.
-    }
-    let timer;
-    const tick = () => {
-      const now = Date.now();
-      time.textContent = format.format(now);
-      clock.classList.add("is-ready");
-      clearTimeout(timer);
-      timer = setTimeout(tick, 60000 - (now % 60000) + 50);
-    };
-    if (format) {
-      tick();
-      // Background tabs delay timers, so catch up when the tab comes back.
-      document.addEventListener("visibilitychange", () => {
-        if (!document.hidden) tick();
-      });
-    }
-  }
 
   // Phone menu.
   const menuButton = document.querySelector(".menu-button");

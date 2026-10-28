@@ -82,9 +82,11 @@ def link(href, label_html, cls=""):
     """An <a> tag. href and label_html must already be escaped.
     External links and PDFs open in a new tab and say so to screen readers."""
     attrs = f' class="{cls}"' if cls else ""
-    if href.startswith(("http://", "https://")) or href.lower().endswith(".pdf"):
+    is_pdf = href.lower().endswith(".pdf")
+    if is_pdf or href.startswith(("http://", "https://")):
+        note = "PDF, opens in a new tab" if is_pdf else "opens in a new tab"
         return (f'<a{attrs} href="{href}" target="_blank" rel="noopener">{label_html}'
-                '<span class="visually-hidden"> (opens in a new tab)</span></a>')
+                f'<span class="visually-hidden"> ({note})</span></a>')
     return f'<a{attrs} href="{href}">{label_html}</a>'
 
 
@@ -410,7 +412,7 @@ class Builder:
             nav_about=' aria-current="page"' if current == "about" else "",
             main_class=main_class,
             content=content,
-            contact_links=self.contact_links("      ", "Resume"),
+            contact_links=self.contact_links("      "),
             copyright=esc(s["copyright"]),
         )
         self.write(rel, out)
@@ -453,13 +455,13 @@ class Builder:
         og = self.site.get("ogImage") or {}
         return og.get("src"), og.get("alt")
 
-    def contact_links(self, indent, resume_label):
+    def contact_links(self, indent):
         s = self.site
         items = [
             link(esc("mailto:" + s["email"]), esc(s["email"])),
             link(esc(s["linkedin"]), "LinkedIn"),
             link(esc(s["github"]), "GitHub"),
-            link(url_for(s["resume"]), esc(resume_label)),
+            link(url_for(s["resume"]), "Resume"),
         ]
         return "\n".join(f"{indent}<li>{item}</li>" for item in items)
 
@@ -640,7 +642,7 @@ class Builder:
                 '</li>')
         content = render("about.html", portrait="        " + img,
                          paragraphs="\n".join(paragraphs), experience="\n".join(experience),
-                         contact_links=self.contact_links("        ", "Resume (PDF)"))
+                         contact_links=self.contact_links("        "))
         self.page("about/index.html", "about", "/about/", f"About — {s['name']}",
                   s["description"], content, "page-about", current="about",
                   image=self.og_image())

@@ -4,19 +4,135 @@
         <ul class="track-row" id="track-row" role="list">
 {{ cards }}
         </ul>
-      </div>
-
-      <div class="track-bar wrap">
-        <div class="track-controls">
-          <button class="track-arrow" type="button" aria-label="Previous project" aria-controls="track-row">
-            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M13 8H3M7 4 3 8l4 4"/></svg>
-          </button>
-          <button class="track-arrow" type="button" aria-label="Next project" aria-controls="track-row">
-            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-          </button>
-        </div>
         <p class="track-caption" aria-live="polite">{{ caption }}</p>
-        <a class="bracket-link" href="/work/" aria-label="View all projects">[ view all ]</a>
       </div>
     </section>
     <script src="/assets/js/track.js?v={{ track_version }}" defer></script>
+    <script>
+      // The intro, on the first visit to Home in a browser session: the name in the middle and the
+      // first cover in the corner, then both move to their places in the header and the track
+      // while the rest fades in. A click, key, or wheel skips to the end; with reduced motion
+      // there's no intro. Until it ends, style.css keeps the header and the track hidden.
+      (() => {
+        const FADE_IN = 400;   // ms: the name and the image fade in
+        const HOLD = 1200;     // ms from the start until they move
+        const MOVE = 700;      // ms: the move into place
+        const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";  // --ease-out in style.css
+        const SEEN = "home-intro-seen";  // sessionStorage key
+
+        const html = document.documentElement;
+        let show = false;
+        try {
+          show = !sessionStorage.getItem(SEEN) && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+        } catch (e) {
+          // Storage blocked: no intro, rather than one on every visit.
+        }
+        if (!show) {
+          html.classList.add("intro-done");
+          return;
+        }
+
+        const name = document.querySelector(".wordmark");
+        const role = document.querySelector(".identity-role");
+        const item = document.querySelector(".track-item");  // the first project, in the middle
+        const media = item.querySelector(".track-media");
+
+        // The centered line is copies of the header's name and role. When it moves, the real
+        // ones take over from the copies and go back to their places, so they end up exactly
+        // home. The image stays a copy (the real card can't leave the track) until the end.
+        const intro = document.createElement("div");
+        intro.className = "intro";
+        intro.setAttribute("aria-hidden", "true");
+        const line = document.createElement("p");
+        line.className = "intro-line";
+        const dash = document.createElement("span");
+        dash.className = "identity-role";
+        dash.textContent = "—";
+        const copies = [name.cloneNode(true), role.cloneNode(true)];
+        line.append(copies[0], dash, copies[1]);
+        const image = document.createElement("div");
+        image.className = "intro-image";
+        image.append(media.cloneNode(true));
+        intro.append(line, image);
+        document.body.append(intro);
+        [line, image].forEach((el) =>
+          el.animate({ opacity: [0, 1] }, { duration: FADE_IN, easing: "ease-out" }));
+
+        const timing = { duration: MOVE, easing: EASE, fill: "forwards" };
+        const anims = [];
+        const play = (el, keyframes) => anims.push(el.animate(keyframes, timing));
+        let timer;
+
+        // FLIP: the transform that puts the box `from` over the box `to` (scaled from the center).
+        const between = (from, to, scale = to.width / from.width) => {
+          const x = to.left + to.width / 2 - (from.left + from.width / 2);
+          const y = to.top + to.height / 2 - (from.top + from.height / 2);
+          return `translate(${x}px, ${y}px) scale(${scale})`;
+        };
+
+        const move = () => {
+          // The real name and role start over their copies and go back to their places.
+          const n = name.getBoundingClientRect();
+          const r = role.getBoundingClientRect();
+          const [cn, cr] = copies.map((copy) => copy.getBoundingClientRect());
+          copies.forEach((copy) => { copy.style.visibility = "hidden"; });
+          play(document.querySelector(".identity"), { opacity: [1, 1] });
+          play(name, { transform: [between(n, cn), "none"] });
+          play(role, { transform: [between(r, cr), "none"] });
+          // The dash fades out on its way to the gap between them, shrinking like the role.
+          const d = dash.getBoundingClientRect();
+          const s = r.width / cr.width;
+          const gap = new DOMRect((n.right + r.left - d.width * s) / 2, r.top + (r.height - d.height * s) / 2,
+            d.width * s, d.height * s);
+
+          // The image is laid out over the middle card (rounded to whole pixels, as the card is
+          // drawn), then scaled and cropped back to the corner, and the animation lets it go.
+          const from = image.getBoundingClientRect();
+          const c = media.getBoundingClientRect();
+          const left = Math.round(c.left);
+          const top = Math.round(c.top);
+          const to = new DOMRect(left, top, Math.round(c.right) - left, Math.round(c.bottom) - top);
+          Object.assign(image.style, {
+            inset: `${to.top}px auto auto ${to.left}px`, width: `${to.width}px`, height: `${to.height}px`,
+          });
+          const scale = Math.max(from.width / to.width, from.height / to.height);
+          const x = (to.width - from.width / scale) / 2;   // cropped off each side at the start
+          const y = (to.height - from.height / scale) / 2;
+
+          play(dash, { transform: ["none", between(d, gap)], opacity: [1, 0] });
+          play(image, {
+            transform: [between(to, from, scale), "none"],
+            clipPath: [`inset(${y}px ${x}px)`, "inset(0px 0px)"],
+          });
+          [".site-nav", ".track-row", ".track-caption"].forEach((selector) =>
+            play(document.querySelector(selector), { opacity: [0, 1] }));
+          play(item, { opacity: [0, 0] });  // the middle card waits under its copy
+          anims.at(-1).onfinish = end;
+        };
+
+        // The name and role are already home; the card takes over from its copy, in the same spot.
+        const end = () => {
+          clearTimeout(timer);
+          removeEventListener("keydown", skipKey, true);
+          removeEventListener("wheel", end);
+          html.classList.add("intro-done");
+          anims.forEach((a) => a.cancel());
+          intro.remove();
+          try {
+            sessionStorage.setItem(SEEN, "1");
+          } catch (e) {
+            // Storage blocked: nothing to remember it in.
+          }
+        };
+
+        // While it runs, a key only skips it: the track doesn't move.
+        const skipKey = (e) => {
+          e.stopPropagation();
+          end();
+        };
+        addEventListener("keydown", skipKey, true);
+        addEventListener("wheel", end, { passive: true });
+        intro.addEventListener("click", end);
+        timer = setTimeout(move, HOLD);
+      })();
+    </script>

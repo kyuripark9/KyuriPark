@@ -1,8 +1,8 @@
-// Home: an endless row of project cards. Wheel, trackpad, drag, swipe, arrow keys, and the
-// arrow buttons all move a target position, and each frame the row eases toward it.
+// Home: an endless row of project cards. Wheel, trackpad, drag, swipe, and the arrow keys
+// all move a target position, and each frame the row eases toward it.
 // Each card is placed by its distance from the position, wrapped around the loop; when the
 // projects alone can't fill the screen, copies of them extend it. Card size, spacing, and
-// side-card scale/opacity are set in style.css.
+// the scale/opacity one, two, and three steps out are set in style.css.
 (() => {
   const WHEEL_SPEED = 1 / 600;   // cards moved per pixel of wheel or trackpad scroll
   const WHEEL_MAX = 30;          // pixels: one wheel event never counts for more than this
@@ -17,7 +17,6 @@
   const items = [...originals];   // the loop: the originals, then any copies
   const cards = items.map((item) => item.querySelector(".track-card"));
   const caption = root.querySelector(".track-caption");
-  const [prev, next] = root.querySelectorAll(".track-arrow");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const count = originals.length;
   let n = count;       // cards on the loop, copies included
@@ -25,7 +24,7 @@
   let position = 0;    // the card in the middle; 1.5 = halfway between the 2nd and 3rd
   let target = 0;
   let direction = 0;   // which way the last input moved: 1, -1, or 0
-  let near, far, sideScale, sideOpacity;
+  let scales, opacities, stops, far;
   let shown = 0;       // the project whose caption is showing
   let frame = 0;
   let settleTimer;
@@ -69,36 +68,54 @@
     render();
   };
 
-  // The gap is measured between cards as drawn, after the side cards shrink.
-  // near: from the middle card's center to the next card's. far: between side cards.
-  const measure = () => {
-    const style = getComputedStyle(stage);
-    const width = items[0].offsetWidth;
-    const gap = parseFloat(style.getPropertyValue("--card-gap"));
-    sideScale = parseFloat(style.getPropertyValue("--side-scale"));
-    sideOpacity = parseFloat(style.getPropertyValue("--side-opacity"));
-    near = (1 + sideScale) / 2 * width + gap;
-    // The card that crosses from one end of the loop to the other has to be off screen
-    // when it does. Copies make the loop long enough; past four rounds of them, the
-    // side cards spread out instead.
-    const least = () => (stage.clientWidth + sideScale * width - 2 * near) / (n - 2);
-    while (least() > sideScale * width + gap && n < 4 * count) addCopies();
-    far = Math.max(sideScale * width + gap, least());
+  // values[k] is for a card k whole steps from the middle; in between, a straight line.
+  // Past the last one, cards keep its value.
+  const at = (values, a) => {
+    const k = Math.min(Math.floor(a), values.length - 1);
+    return k === values.length - 1 ? values[k] : values[k] + (values[k + 1] - values[k]) * (a - k);
   };
 
-  // Card centers, d cards from the middle. Moving one step while shrinking
-  // keeps the gap the same the whole way.
+  // stops[k]: from the middle card's center to the center of the card k steps out.
+  // The gap is measured between cards as drawn, after they shrink. far: between cards
+  // past the last step.
+  const measure = () => {
+    const style = getComputedStyle(stage);
+    const width = parseFloat(getComputedStyle(items[0]).width);  // unrounded, unscaled
+    const css = (name) => parseFloat(style.getPropertyValue(name));
+    const gap = css("--card-gap");
+    scales = [1, css("--scale-1"), css("--scale-2")];
+    opacities = [1, css("--opacity-1"), css("--opacity-2"), css("--opacity-3")];
+    stops = [0];
+    for (let k = 1; k < scales.length; k++) {
+      stops.push(stops[k - 1] + (scales[k - 1] + scales[k]) / 2 * width + gap);
+    }
+    const last = scales.length - 1;
+    const rest = scales[last] * width + gap;
+    // The card that crosses from one end of the loop to the other (n/2 steps out) has to be
+    // off screen when it does. Copies make the loop long enough; past four rounds of them,
+    // the outer cards spread out instead.
+    const least = () =>
+      (stage.clientWidth / 2 + scales[last] * width / 2 - stops[last]) / (n / 2 - last);
+    while ((n / 2 <= last || least() > rest) && n < 4 * count) addCopies();
+    far = n / 2 > last ? Math.max(rest, least()) : rest;
+  };
+
+  // Card centers, d cards from the middle. Size and position both move in straight lines
+  // between whole steps, which keeps the gap the same the whole way.
   const x = (d) => {
     const a = Math.abs(d);
-    return Math.sign(d) * (Math.min(a, 1) * near + Math.max(a - 1, 0) * far);
+    const last = stops.length - 1;
+    return Math.sign(d) * (a < last ? at(stops, a) : stops[last] + (a - last) * far);
   };
 
   const render = () => {
     items.forEach((item, i) => {
       const d = offset(i, position);
-      const side = Math.min(Math.abs(d), 1);
-      item.style.transform = `translateX(${x(d)}px) scale(${1 - (1 - sideScale) * side})`;
-      item.style.opacity = 1 - (1 - sideOpacity) * side;
+      const a = Math.abs(d);
+      const opacity = at(opacities, a);
+      item.style.transform = `translateX(${x(d)}px) scale(${at(scales, a)})`;
+      item.style.opacity = opacity;
+      item.style.pointerEvents = opacity > 0 ? "" : "none";  // no clicks on a hidden card
     });
     const middle = wrap(Math.round(position)) % count;
     if (middle !== shown) {
@@ -165,7 +182,7 @@
       stage.setPointerCapture(e.pointerId);
       clearTimeout(settleTimer);
     }
-    move(drag.from + (drag.x - e.clientX) / near);
+    move(drag.from + (drag.x - e.clientX) / stops[1]);
   });
 
   const endDrag = (e) => {
@@ -220,9 +237,6 @@
       cards[i].focus({ preventScroll: true });
     }
   });
-
-  prev.addEventListener("click", () => go(-1));
-  next.addEventListener("click", () => go(1));
 
   window.addEventListener("resize", () => {
     measure();

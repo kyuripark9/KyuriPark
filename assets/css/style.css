@@ -42,11 +42,11 @@
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --font-wordmark: "Wordmark", var(--font);
 
-  /* Three sans sizes, plus one size for mono labels. */
+  /* Three sizes, site-wide: titles, body text (and the nav), and labels (mono, and the
+     small sans text next to them: the role in the header, image captions). */
   --size-title: clamp(1.75rem, 1.2rem + 2.2vw, 3rem);   /* 28px on phones, up to 48px */
   --size-body: 1rem;           /* 16px */
-  --size-caption: 0.8125rem;   /* 13px */
-  --size-mono: 0.75rem;        /* 12px */
+  --size-label: 0.75rem;       /* 12px */
 
   /* 8px spacing scale. */
   --space-1: 8px;
@@ -216,7 +216,7 @@ button {
 .caption,
 .identity-role,
 .note-heading {
-  font-size: var(--size-caption);
+  font-size: var(--size-label);
   line-height: 1.4;
   color: var(--color-muted);
 }
@@ -243,12 +243,14 @@ button {
 .index,
 .work-count,
 .work-year,
-.bracket-link,
 .project-meta dt,
 .project-nav-label,
+.archive-title,
+.archive-meta,
+.lightbox-meta,
 .site-footer {
   font-family: var(--font-mono);
-  font-size: var(--size-mono);
+  font-size: var(--size-label);
   font-weight: 300;
   line-height: 1.5;
   letter-spacing: 0.02em;
@@ -271,9 +273,9 @@ button {
 .text-link,
 .project-meta a,
 .link-list a,
-.bracket-link,
-.track-arrow,
-.project-nav a {
+.project-nav a,
+.lightbox-close,
+.lightbox-arrow {
   transition: color var(--fade);
 }
 
@@ -285,9 +287,9 @@ button {
 .text-link:hover,
 .project-meta a:hover,
 .link-list a:hover,
-.bracket-link:hover,
-.track-arrow:hover,
-.project-nav a:hover {
+.project-nav a:hover,
+.lightbox-close:hover,
+.lightbox-arrow:hover {
   color: var(--color-muted);
 }
 
@@ -302,8 +304,8 @@ mark.placeholder {
 
 /* Header ---------------------------------------------------------------- */
 
-/* Phones: name on the left, then the Menu button.
-   768px and up: name, then the nav in the middle. */
+/* Name and role on one line at the left (on phones the role wraps under the name).
+   On the right: the Menu button on phones; from 768px, the nav. */
 .site-header {
   position: relative;
   z-index: 20;
@@ -319,7 +321,9 @@ mark.placeholder {
 .identity {
   grid-area: identity;
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: var(--space-1);
   justify-self: start;
   min-width: 0;
 }
@@ -384,9 +388,7 @@ mark.placeholder {
 
 @media (min-width: 768px) {
   .site-header {
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    grid-template-areas: "identity nav .";
-    column-gap: var(--space-4);
+    column-gap: var(--space-6);
     padding-block: var(--space-4);
   }
 
@@ -412,6 +414,7 @@ mark.placeholder {
   max-width: 28rem;
 }
 
+/* A card without its cover yet is a plain gray block. */
 .track-media {
   display: block;
   aspect-ratio: 3 / 4;
@@ -425,50 +428,46 @@ mark.placeholder {
   object-fit: cover;
 }
 
+/* The title at the card's left edge, the one-liner at its right. */
+.card-caption,
+.js .track-caption {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+
 .card-caption {
-  display: block;
   margin-top: var(--space-2);
 }
 
-.card-title {
-  font-weight: 500;
-}
-
 .card-text {
-  color: var(--color-muted);
+  text-align: right;
 }
 
 .index {
   margin-right: var(--space-1);
 }
 
-.track-bar {
-  margin-top: var(--space-6);
-}
-
-.bracket-link {
-  white-space: nowrap;
-}
-
-.track-controls,
+/* The caption under the middle card needs track.js. */
 .track-caption {
   display: none;
 }
 
-.track-arrow {
-  display: grid;
-  place-items: center;
-  width: var(--space-5);
-  height: var(--space-5);
-}
-
 /* With JavaScript, Home fills the screen and doesn't scroll. The cards sit on a loop
    that track.js turns; these rules size them and set where they start.
-     --card-w        card width (height follows at 3:4)
-     --card-gap      space between cards as drawn (after side cards shrink), in px
-     --side-scale, --side-opacity   cards one step or more from the middle
-   Before track.js runs, each card sits at its --d (a whole number of steps out);
-   clamp(-1, --d, 1) is its side: -1, 0, or 1. */
+     --card-w        the middle card's width: 62vh tall at 3:4, but from 1024px never so
+                     wide that the five cards don't fit across; nearly full width on phones
+                     (--peek is how much of each neighbor shows there)
+     --card-gap      space between cards as drawn, whatever their size
+     --caption-room  kept free under the middle card (and so over it) for the caption,
+                     two lines of it
+     --scale-1, --opacity-1   one step from the middle
+     --scale-2, --opacity-2   two steps or more
+     --opacity-3     three steps or more: hidden, so five cards show at most
+   track.js eases between the steps.
+   Before track.js runs, each card sits at its --d (a whole number of steps out), split
+   into its first step --d1 and second --d2 (each -1, 0, or 1) and any further ones --dn. */
 .js body:has(> .page-home) {
   height: 100vh;
   height: 100dvh;
@@ -483,14 +482,20 @@ mark.placeholder {
 }
 
 .js .track {
+  --card-gap: var(--space-2);
+  --peek: var(--space-2);
+  --caption-room: var(--space-12);
+  --card-w: min(min(62vh, 100cqh - 2 * var(--caption-room)) * 0.75,
+                100cqw - 2 * (var(--card-gap) + var(--peek)));
+  --scale-1: 0.52;
+  --opacity-1: 0.55;
+  --scale-2: 0.52;
+  --opacity-2: 0.3;
+  --opacity-3: 0;
   flex: 1;
 }
 
 .js .track-stage {
-  --card-w: min((100cqh - var(--space-4)) * 0.75, 60cqw, 600px);
-  --card-gap: var(--space-2);
-  --side-scale: 0.52;
-  --side-opacity: 0.45;
   flex: 1;
   position: relative;
   container-type: size;
@@ -508,21 +513,24 @@ mark.placeholder {
 }
 
 .js .track-item {
+  --d1: clamp(-1, var(--d), 1);
+  --d2: clamp(-1, var(--d) - var(--d1), 1);
+  --dn: calc(var(--d) - var(--d1) - var(--d2));
   position: absolute;
   top: 50%;
   left: 50%;
   width: var(--card-w);
   margin: calc(var(--card-w) * -2 / 3) 0 0 calc(var(--card-w) * -0.5);
-  opacity: var(--side-opacity);
+  opacity: calc(1 - var(--d1) * var(--d1) * (1 - var(--opacity-1))
+                  - var(--d2) * var(--d2) * (var(--opacity-1) - var(--opacity-2))
+                  - var(--dn) * var(--dn) * (var(--opacity-2) - var(--opacity-3)));
   transform:
-    translateX(calc(var(--d) * (var(--side-scale) * var(--card-w) + var(--card-gap))
-                    + clamp(-1, var(--d), 1) * (1 - var(--side-scale)) * var(--card-w) / 2))
-    scale(var(--side-scale));
-}
-
-.js .track-item:first-child {
-  opacity: 1;
-  transform: none;
+    translateX(calc(var(--d) * var(--card-gap) + var(--card-w) * (
+      var(--d1) * (1 + var(--scale-1)) / 2
+      + var(--d2) * (var(--scale-1) + var(--scale-2)) / 2
+      + var(--dn) * var(--scale-2))))
+    scale(calc(1 - var(--d1) * var(--d1) * (1 - var(--scale-1))
+                 - var(--d2) * var(--d2) * (var(--scale-1) - var(--scale-2))));
 }
 
 .js .track-card {
@@ -540,72 +548,90 @@ mark.placeholder {
   white-space: nowrap;
 }
 
-.js .track-bar {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas:
-    "caption caption"
-    "controls link";
-  align-items: center;
-  row-gap: var(--space-1);
-  margin-top: var(--space-2);
-}
-
+/* The middle card's caption hangs 16px under it, as wide as the card, with a small
+   triangle pointing up at the card from the middle of the caption's top edge. */
 .js .track-caption {
-  grid-area: caption;
-  display: block;
-  min-height: 3em;   /* room for two lines, so nothing jumps */
+  position: absolute;
+  top: calc(50% + var(--card-w) * 2 / 3 + var(--space-2));
+  left: 50%;
+  width: var(--card-w);
+  margin: 0 0 0 calc(var(--card-w) * -0.5);
+  padding-top: 10px;  /* the triangle, and 2px under it */
 }
 
-.js .track-controls {
-  grid-area: controls;
-  display: flex;
-  margin-left: calc(-1 * (var(--space-5) - 16px) / 2);   /* line the arrow up with the text */
-}
-
-.js .track-bar .bracket-link {
-  grid-area: link;
-}
-
-/* The footer becomes one small line at the bottom of the screen
-   (two on phones: the links, then the copyright). */
-.js .page-home ~ .site-footer {
-  row-gap: var(--space-1);
-  margin-top: 0;
-  padding-block: var(--space-2);
-}
-
-.js .page-home ~ .site-footer::before {
-  content: none;
-}
-
-@media (max-width: 639px) {
-  .js .page-home ~ .site-footer .footer-links {
-    flex-direction: row;
-    column-gap: 12px;
-  }
+.js .track-caption::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  margin-left: -4px;
+  border: solid transparent;
+  border-width: 0 4px 8px;
+  border-bottom-color: currentColor;
+  forced-color-adjust: none;  /* keeps the transparent sides transparent */
 }
 
 @media (min-width: 768px) {
-  .js .track-stage {
+  .js .track {
     --card-gap: var(--space-3);
   }
+}
 
-  .js .track-bar {
-    grid-template-columns: minmax(max-content, 1fr) minmax(0, 40rem) minmax(max-content, 1fr);
-    grid-template-areas: "controls caption link";
-    column-gap: var(--space-3);
-    margin-top: var(--space-3);
+/* The middle card and two on each side, with a gap's room left at either edge. */
+@media (min-width: 1024px) {
+  .js .track {
+    --card-w: min(min(62vh, 100cqh - 2 * var(--caption-room)) * 0.75,
+                  (100cqw - 6 * var(--card-gap)) / (1 + 2 * var(--scale-1) + 2 * var(--scale-2)));
   }
+}
 
-  .js .track-caption {
-    min-height: 0;
-    text-align: center;
-  }
+/* Home intro ------------------------------------------------------------ */
 
-  .js .track-bar .bracket-link {
-    justify-self: end;
-  }
+/* First visit to Home in a browser session: the name in the middle of the screen and the
+   first cover in the corner, then both move into the header and the middle card while the
+   rest fades in (the script and its timing are at the end of templates/home.html).
+   Until the script adds .intro-done, the header and the track stay hidden.
+     --intro-size      the centered line's type size (shrinks on phones to stay one line)
+     --intro-image-h   the corner image's height; it's 4:5
+     --intro-margin    the corner image's distance from the bottom and right edges */
+.js:not(.intro-done) body:has(> .page-home) :is(.identity, .site-nav, .track-row, .track-caption) {
+  opacity: 0;
+}
+
+.intro {
+  --intro-size: min(1.5rem, 4.4vw);
+  --intro-image-h: 15vh;
+  --intro-margin: var(--space-3);
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+}
+
+/* Copies of the header's name and role, at one size. */
+.intro-line {
+  display: flex;
+  align-items: baseline;
+  column-gap: 0.3em;
+  font-size: var(--intro-size);
+}
+
+.intro-line .identity-role {
+  font-size: inherit;
+}
+
+.intro-image {
+  position: fixed;
+  right: var(--intro-margin);
+  bottom: var(--intro-margin);
+  height: var(--intro-image-h);
+  aspect-ratio: 4 / 5;
+}
+
+.intro-image .track-media {
+  height: 100%;
+  aspect-ratio: auto;
 }
 
 /* Work index ------------------------------------------------------------ */
@@ -619,7 +645,7 @@ mark.placeholder {
 
 .work-count {
   padding-top: 0.5em;
-  font-size: var(--size-mono);
+  font-size: var(--size-label);
   letter-spacing: 0.02em;
 }
 
@@ -733,6 +759,189 @@ mark.placeholder {
   .work-preview-item video {
     position: absolute;
     inset: 0;
+  }
+}
+
+/* Work: archive --------------------------------------------------------- */
+
+/* A grid of 4:5 thumbnails: 2 across on phones, 3 from 768px, 4 from 1024px.
+   Each thumbnail is a button; its click area stretches over the caption too. */
+.archive {
+  margin-top: var(--section-gap);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-line);
+}
+
+.archive-title {
+  margin-bottom: var(--space-4);
+}
+
+.archive-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5) var(--media-gap);
+}
+
+@media (min-width: 768px) {
+  .archive-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .archive-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.archive-item {
+  position: relative;
+}
+
+.archive-thumb {
+  display: block;
+  width: 100%;
+}
+
+.archive-thumb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.archive-media {
+  display: block;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--color-fill);
+}
+
+.archive-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.archive-caption {
+  margin-top: var(--space-1);
+}
+
+.archive-name {
+  display: block;
+  font-weight: 500;
+  transition: color var(--fade);
+}
+
+.archive-meta {
+  display: block;
+  color: var(--color-muted);
+}
+
+@media (hover: hover) {
+  .archive-item:hover .archive-name {
+    color: var(--color-muted);
+  }
+}
+
+/* The lightbox (main.js opens it): the item's images, scrolling if there are several,
+   with Close above and the caption between Previous / Next below. Fades in and out. */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+  opacity: 0;
+  transition: opacity var(--fade);
+}
+
+.lightbox[hidden] {
+  display: none;
+}
+
+.lightbox.is-open {
+  opacity: 1;
+}
+
+.lightbox:focus {
+  outline: none;
+}
+
+.lightbox-open {
+  overflow: hidden;
+}
+
+.lightbox-top {
+  display: flex;
+  justify-content: flex-end;
+  padding-block: var(--space-3);
+}
+
+.lightbox-close {
+  /* A bigger tap target without moving the text, like the Menu button. */
+  margin: calc(-1 * var(--space-1));
+  padding: var(--space-1);
+}
+
+.lightbox-stage {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  container-type: size;
+}
+
+.lightbox-stage:focus-visible {
+  outline-offset: -2px;
+}
+
+.lightbox-images {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: var(--media-gap);
+  min-height: 100%;
+}
+
+/* Each image as large as fits, never cropped. */
+.lightbox-images img {
+  width: auto;
+  max-height: 100cqh;
+  background: var(--color-fill);
+}
+
+.lightbox-bar {
+  display: grid;
+  grid-template-columns: var(--space-5) minmax(0, 1fr) var(--space-5);
+  grid-template-rows: minmax(3em, auto);
+  align-items: center;
+  column-gap: var(--space-1);
+  padding-block: var(--space-2) var(--space-3);
+}
+
+.lightbox-arrow {
+  display: grid;
+  place-items: center;
+  width: var(--space-5);
+  height: var(--space-5);
+}
+
+.lightbox-caption {
+  text-align: center;
+}
+
+.lightbox-meta {
+  color: var(--color-muted);
+}
+
+@media (min-width: 768px) {
+  .lightbox-top {
+    padding-block: var(--space-4);
+  }
+
+  .lightbox-bar {
+    padding-bottom: var(--space-4);
   }
 }
 
@@ -936,8 +1145,8 @@ mark.placeholder {
   color: var(--color-muted);
 }
 
-.track-arrow svg,
-.project-nav-label svg {
+.project-nav-label svg,
+.lightbox-arrow svg {
   fill: none;
   stroke: currentColor;
   stroke-width: 1.25;

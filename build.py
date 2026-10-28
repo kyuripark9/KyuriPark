@@ -36,11 +36,14 @@ PLACEHOLDER_SIZES = {
     "wide": (2400, 1350),      # 16:9, hero and full-width images and videos
     "pair": (1200, 1500),      # 4:5, each image in a two-image row
     "portrait": (1200, 1500),  # 4:5, the About portrait
+    "archive": (1200, 1500),   # 4:5, Archive thumbnails and their lightbox images
 }
+ARCHIVE_FOLDER = "assets/images/archive"
 COVER_VIDEO_EXTS = (".mp4", ".webm")
 OG_IMAGE_EXTS = (".jpg", ".jpeg", ".png")
 WORDMARK_FONT = "assets/fonts/wordmark.woff2"  # optional; the header name uses it once it exists
 MAX_ONE_LINER_WORDS = 8
+MAX_ARCHIVE_ITEMS = 10
 LOADING_ATTRS = {"lazy": 'loading="lazy"', "eager": "", "high": 'fetchpriority="high"'}
 
 PLACEHOLDER_RE = re.compile(r"\[PLACEHOLDER[^\]]*\]")
@@ -309,7 +312,7 @@ def _svg_size(f):
 # ---------------------------------------------------------------------------
 # Content checks
 
-def validate(site, projects):
+def validate(site, projects, archive):
     """Stop on content problems that would break the site; return softer warnings."""
     for key in ("name", "role", "title", "description", "email", "linkedin", "github",
                 "resume", "copyright", "about"):
@@ -337,6 +340,20 @@ def validate(site, projects):
         for key in ("category", "year"):
             if not p.get(key):
                 warnings.append(f'{slug}: "{key}" is empty, so the Work list shows a gap there.')
+
+    if not isinstance(archive, list):
+        raise BuildError("content/archive.json should be a list of items: [ {...}, {...} ].")
+    if len(archive) > MAX_ARCHIVE_ITEMS:
+        warnings.append(f"The archive has {len(archive)} items "
+                        f"(aim for {MAX_ARCHIVE_ITEMS} or fewer).")
+    for i, item in enumerate(archive, 1):
+        where = f"content/archive.json (item {i})"
+        need(item, "title", where)
+        images = need(item, "images", where)
+        if not isinstance(images, list) or not images:
+            raise BuildError(f'{where}: "images" should list one or more files, '
+                             'like ["poster.webp"].')
+
     if not exists(site["resume"]):
         warnings.append(f"{site['resume']} not found, so the Resume link won't work yet.")
     if not site.get("siteUrl"):
@@ -349,9 +366,10 @@ def validate(site, projects):
 # The build
 
 class Builder:
-    def __init__(self, site, projects):
+    def __init__(self, site, projects, archive):
         self.site = site
         self.projects = projects
+        self.archive = archive
         self.written = set()           # dist-relative paths this build produced
         self.missing_media = set()     # files the content mentions that don't exist yet
         self.placeholder_counts = {}   # page -> number of [PLACEHOLDER] notes left
@@ -403,7 +421,8 @@ class Builder:
                 os.rmdir(dirpath)
 
     def page(self, rel, label, path, title, description, content, main_class,
-             current=None, image=(None, None), noindex=False):
+             current=None, image=(None, None), noindex=False, footer=True):
+        """footer=False leaves the contact footer off; Contact in the header then goes to About's."""
         s = self.site
         out = render(
             "base.html",
@@ -417,10 +436,11 @@ class Builder:
             site_role=esc(s["role"]),
             nav_work={"work": ' aria-current="page"', "project": ' aria-current="true"'}.get(current, ""),
             nav_about=' aria-current="page"' if current == "about" else "",
+            contact_href="#contact" if footer else "/about/#contact",
             main_class=main_class,
             content=content,
-            contact_links=self.contact_links("      "),
-            copyright=esc(s["copyright"]),
+            footer=render("footer.html", contact_links=self.contact_links("      "),
+                          copyright=esc(s["copyright"])) if footer else "",
         )
         self.write(rel, out)
         self.placeholder_counts[label] = len(PLACEHOLDER_RE.findall(content))
@@ -637,24 +657,28 @@ class Builder:
         video = next((stem + ext for ext in COVER_VIDEO_EXTS if exists(stem + ext)), None)
         return rel, video
 
-    def card_caption(self, p, index):
-        """'001  TypeLab — Font design playground', on each home card and under the track."""
-        return (f'<span class="index">{index + 1:03d}</span> '
-                f'<span class="card-title">{inline(p["title"])}</span> '
-                f'<span class="card-text">— {inline(p["oneLiner"])}</span>')
+    def card_caption(self, p):
+        """'TypeLab' on the left, 'Font design playground' on the right: on each home card,
+        and under the middle one."""
+        return (f'<span class="card-title">{inline(p["title"])}</span> '
+                f'<span class="card-text">{inline(p["oneLiner"])}</span>')
 
     def home_card(self, p, index, total):
         rel, _ = self.cover(p)
-        # All eager: the stage clips the cards, so lazy ones would only load once on screen.
-        loading = "high" if index == 0 else "eager"
-        img = self.img(rel, p["cover"].get("alt"), "cover", p["title"], loading)
+        if exists(rel):
+            # All eager: the stage clips the cards, so lazy ones would only load once on screen.
+            loading = "high" if index == 0 else "eager"
+            img = self.img(rel, p["cover"].get("alt"), "cover", p["title"], loading)
+        else:
+            img = ""  # a plain gray card until the cover exists; no label on Home
+            self.missing_media.add(rel)
         # Where the card sits before track.js runs: first card in the middle, the rest
         # around it as on a loop (with five: 0, 1, 2, -2, -1).
         offset = index if index <= total / 2 else index - total
         return (f'          <li class="track-item" style="--d: {offset}">\n'
                 f'            <a class="track-card" href="/work/{p["slug"]}/">\n'
                 f'              <span class="track-media">{img}</span>\n'
-                f'              <span class="card-caption">{self.card_caption(p, index)}</span>\n'
+                f'              <span class="card-caption">{self.card_caption(p)}</span>\n'
                 f'            </a>\n'
                 f'          </li>')
 
@@ -662,10 +686,10 @@ class Builder:
         total = len(self.projects)
         cards = "\n".join(self.home_card(p, i, total) for i, p in enumerate(self.projects))
         content = render("home.html", cards=cards,
-                         caption=self.card_caption(self.projects[0], 0),
+                         caption=self.card_caption(self.projects[0]),
                          track_version=file_version("assets/js/track.js"))
         self.page("index.html", "home", "/", self.site["title"], self.site["description"],
-                  content, "page-home", image=self.og_image())
+                  content, "page-home", image=self.og_image(), footer=False)
 
     def work_row(self, p, index):
         return (f'        <li>\n'
@@ -684,6 +708,36 @@ class Builder:
         data = f' data-video="{url_for(video)}"' if video else ""
         return f'        <div class="work-preview-item" data-index="{index}"{data}>{img}</div>'
 
+    def archive_item(self, item):
+        """A thumbnail button and its caption. The item's images wait in a <template>
+        until main.js copies them into the lightbox; the first is also the thumbnail."""
+        title, alt = item["title"], item.get("alt")
+        rels = [media_path(src, ARCHIVE_FOLDER) for src in item["images"]]
+        thumb = self.img(rels[0], alt, "archive", title)
+        large = "".join(
+            self.img(rel, f"{alt} ({n} of {len(rels)})" if alt and len(rels) > 1 else alt,
+                     "archive", title, "eager" if n == 1 else "lazy")
+            for n, rel in enumerate(rels, 1))
+        meta = " · ".join(inline(item[k]) for k in ("category", "year") if item.get(k))
+        return (f'        <li class="archive-item">\n'
+                f'          <button class="archive-thumb" type="button" aria-label="Open {esc(title)}" '
+                f'aria-haspopup="dialog">\n'
+                f'            <span class="archive-media">{thumb}</span>\n'
+                f'          </button>\n'
+                f'          <p class="archive-caption"><span class="archive-name">{inline(title)}</span> '
+                f'<span class="archive-meta">{meta}</span></p>\n'
+                f'          <template>{large}</template>\n'
+                f'        </li>')
+
+    def archive_section(self):
+        """The Archive under the Work index, with its lightbox. Nothing when the list is empty."""
+        total = len(self.archive)
+        if not total:
+            return ""
+        return render("archive.html", count=f"{total:02d}",
+                      count_label=f"{total} item{'' if total == 1 else 's'}",
+                      items="\n".join(self.archive_item(item) for item in self.archive))
+
     def build_work(self):
         s = self.site
         total = len(self.projects)
@@ -693,7 +747,7 @@ class Builder:
             count_label=f"{total} project{'' if total == 1 else 's'}",
             rows="\n".join(self.work_row(p, i) for i, p in enumerate(self.projects)),
             previews="\n".join(self.work_preview(p, i) for i, p in enumerate(self.projects)),
-        )
+        ) + self.archive_section()
         self.page("work/index.html", "work", "/work/", f"Work — {s['name']}", s["description"],
                   content, "wrap page-work", current="work", image=self.og_image())
 
@@ -766,11 +820,12 @@ def build(local_url=None):
     start = time.time()
     site = load_json("site.json")
     projects = load_json("projects.json")
+    archive = load_json("archive.json")
     if local_url and not site.get("siteUrl"):
         site["siteUrl"] = local_url  # local preview: full links point at this server
 
-    builder = Builder(site, projects)
-    builder.warnings += validate(site, projects)
+    builder = Builder(site, projects, archive)
+    builder.warnings += validate(site, projects, archive)
     os.makedirs(DIST_DIR, exist_ok=True)
     builder.copy_assets()
     builder.build_home()

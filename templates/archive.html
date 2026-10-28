@@ -1,0 +1,28 @@
+
+    <section class="archive" aria-labelledby="archive-title">
+      <h2 class="archive-title" id="archive-title">Archive <span aria-hidden="true">[{{ count }}]</span><span class="visually-hidden">, {{ count_label }}</span></h2>
+      <ul class="archive-grid">
+{{ items }}
+      </ul>
+    </section>
+
+    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-labelledby="lightbox-title" tabindex="-1" hidden>
+      <div class="lightbox-top wrap">
+        <button class="lightbox-close" type="button">Close</button>
+      </div>
+      <div class="lightbox-stage" role="group" aria-label="Images">
+        <div class="lightbox-images wrap"></div>
+      </div>
+      <div class="lightbox-bar wrap">
+        <button class="lightbox-arrow" type="button" aria-label="Previous item" data-step="-1">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M13 8H3M7 4 3 8l4 4"/></svg>
+        </button>
+        <div class="lightbox-caption" aria-live="polite">
+          <h2 class="lightbox-name" id="lightbox-title"></h2>
+          <p class="lightbox-meta"></p>
+        </div>
+        <button class="lightbox-arrow" type="button" aria-label="Next item" data-step="1">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+        </button>
+      </div>
+    </div>

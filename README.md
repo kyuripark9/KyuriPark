@@ -22,26 +22,29 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 | Address | What it is |
 | --- | --- |
 | `/` | Home: one card per project on an endless loop, filling the screen |
-| `/work/` | Work: numbered list of every project, with an image preview on hover |
+| `/work/` | Work: numbered list of every project, with an image preview on hover; the Archive grid below it |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html` |
 | `/about/` | Portrait, About text, experience, contact links |
 
-Contact is the footer on every page (the header's "Contact" link scrolls to it) and a section on About.
+Contact is the footer on every page except Home (the header's "Contact" link scrolls to it; on
+Home, which has no footer, it goes to About's) and a section on About.
 
 ## Where things live
 
 ```
 content/projects.json   every project: order, title, one-liner, category, year, page blocks
+content/archive.json    Archive items on the Work page (see "Archive" below)
 content/site.json       name, email, LinkedIn, GitHub, resume, About text, experience, SEO text
 assets/images/<slug>/   images and videos for each project
 assets/images/about/    About portrait
+assets/images/archive/  Archive images
 assets/images/og.png    link-preview image (1200×630)
 assets/fonts/           Inter, Geist Mono, and (optional) your wordmark font
 assets/Kyuri-Park-Resume.pdf
 assets/css/style.css    all styling; colors, type sizes, and spacing are at the top
-assets/js/main.js       phone menu, Work preview, fade-ups, count-up
+assets/js/main.js       phone menu, Work preview, Archive lightbox, fade-ups, count-up
 assets/js/track.js      the home project loop
-templates/              page structure (header, footer, home, work, project, about, 404)
+templates/              page structure (header, footer, home, work, archive, project, about, 404)
 dist/                   the generated site. Never edit; it's rebuilt every time.
 ```
 
@@ -113,10 +116,36 @@ Blocks appear in the order you list them. The template uses Context → Explore 
   A `value` that isn't a plain number (empty, `[PLACEHOLDER]`, "TBD") is left out, and if no numbers
   are left the whole block disappears, so it's safe to leave a draft in place. No project has one yet.
 
+## Archive
+
+Smaller pieces, shown as a grid of thumbnails under the Work list. Clicking one opens it larger
+in a lightbox (Esc, Close, or a click outside the image closes it; ← and → step through the
+items). Archive items don't get their own pages and don't appear on Home or in the menu.
+
+They live in `content/archive.json`, their images in `assets/images/archive/`:
+
+```json
+{
+  "title": "Editorial Projects",
+  "category": "Editorial",
+  "year": "2025",
+  "images": ["editorial-1.webp", "editorial-2.webp"],
+  "alt": "What the images show"
+}
+```
+
+- **Add one:** copy an item (from its `{` to its matching `}`), paste it where it should go,
+  and fill it in. The count in "Archive [06]" updates on its own. Keep it to about 10;
+  the build prints a note past that.
+- **Reorder:** move items up or down in the file. The file's order is the order of the grid and of ← / →.
+- **Remove:** delete the item. With none left (`[]`), the whole section disappears.
+- **Images:** the first one is the thumbnail. The lightbox shows all of them, one under the other.
+  `alt` describes them for screen readers; with several images, each gets "(1 of 3)" and so on added.
+
 ## Swap in real images and videos
 
 Every gray placeholder shows the project name and the filename it's waiting for (for example
-`hero.webp`). Save your image with that name in that project's folder, refresh, and it replaces the
+`hero.webp`), except on Home, where a card without its cover is a plain gray block. Save your image with that name in that project's folder, refresh, and it replaces the
 placeholder. To use a different name or format, change `src` in `projects.json`.
 
 Recommended exports (WebP, or AVIF; JPG and PNG work too):
@@ -127,6 +156,7 @@ Recommended exports (WebP, or AVIF; JPG and PNG work too):
 | Hero and full-width | 2400 px wide | Any height; the hero runs edge to edge |
 | Two-image row | 1200 px wide each | Same ratio for both looks best |
 | About portrait | 1200 × 1500 | |
+| Archive image | 1200 × 1500 | The thumbnail is cropped to 4:5; the lightbox shows the whole image |
 
 Aim for under ~500 KB per image. [Squoosh](https://squoosh.app) or Figma's export both make WebP.
 Width and height are read from the file automatically, so the page doesn't jump while loading,
@@ -157,14 +187,14 @@ in `assets/css/style.css`.
 
 ## Motion
 
-The site keeps motion to a short list: the home loop, the Work hover preview, images
-fading up on project pages, a 300 ms fade between pages (in browsers that support it; others switch pages instantly), and impact numbers counting up. If a visitor has reduced
+The site keeps motion to a short list: the home loop and its intro, the Work hover preview, images
+fading up on project pages, a 300 ms fade between pages (in browsers that support it; others switch pages instantly), the Archive lightbox fading in and out (200 ms), and impact numbers counting up. If a visitor has reduced
 motion turned on, all of it is off, and the home loop jumps from card to card without easing.
 
 Home loop: the home page fills the screen and doesn't scroll; after the last project comes the
-first again, both ways. Mouse wheel or trackpad (down/right = next), drag, swipe, the arrow
-buttons, and the left/right arrow keys all move it; after a short pause it settles with one card
-in the middle. Click the middle card to open it; click a side card to bring it to the middle.
+first again, both ways. Mouse wheel or trackpad (down/right = next), drag, swipe, and the
+left/right arrow keys all move it; after a short pause it settles with one card in the middle,
+its title and one-liner under it (title at the card's left edge, one-liner at its right). Click the middle card to open it; click a side card to bring it to the middle.
 Tab moves through the cards, bringing each to the middle. Without JavaScript, the home page is a
 plain list of the projects.
 
@@ -173,7 +203,20 @@ To tune it:
   `WHEEL_MAX` (the most one wheel event can count for, which tames trackpad flicks),
   `SETTLE_DELAY` (ms of no input before it settles), `EASE` (how quickly it glides).
 - `assets/css/style.css`, "Home: project track": `--card-gap` (space between cards, in px;
-  one value for phones, one from 768px), `--card-w`, `--side-scale`, `--side-opacity`.
+  one value for phones, one from 768px), `--card-w`, `--peek`, `--caption-room` (kept free under
+  the middle card for its caption; on short screens the card shrinks to keep it), `--scale-1` / `--opacity-1` (cards
+  one step from the middle), `--scale-2` / `--opacity-2` (two steps or more), `--opacity-3` (three
+  or more; 0 keeps it to five cards on screen).
+
+Home intro: the first time Home opens in a browser tab, the name and role show in the middle of
+the screen and the first project's cover in the bottom-right corner. After 1.2 s they move into
+the header and the middle card (0.7 s) while the rest of the page fades in. A click, a key, or
+the mouse wheel skips to the end. After that, Home opens straight away in that tab, including
+on refresh; with reduced motion there's no intro at all. To tune it:
+- The script at the end of `templates/home.html`, at the top: `FADE_IN` (ms for the name and
+  image to fade in), `HOLD` (ms before they move), `MOVE` (ms the move takes), `EASE`.
+- `assets/css/style.css`, "Home intro": `--intro-size` (the centered line's type size),
+  `--intro-image-h` (the corner image's height), `--intro-margin` (its distance from the edges).
 
 ## Deploy
 

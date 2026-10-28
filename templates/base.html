@@ -6,7 +6,10 @@
   <title>{{ page_title }}</title>
   <meta name="description" content="{{ description }}">
   {{ head_meta }}
+  <script>document.documentElement.classList.add("js")</script>
   <link rel="preload" href="/assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/geist-mono-latin-300.woff2" as="font" type="font/woff2" crossorigin>
+  {{ wordmark_font }}
   <link rel="stylesheet" href="/assets/css/style.css?v={{ css_version }}">
   <script src="/assets/js/main.js?v={{ js_version }}" defer></script>
 </head>
@@ -15,19 +18,23 @@
 
   <header class="site-header wrap">
     <a class="identity" href="/">
-      <span class="identity-name">{{ site_name }}</span>
+      <span class="wordmark">{{ site_name }}</span>
       <span class="identity-role">{{ site_role }}</span>
     </a>
     <nav class="site-nav" aria-label="Main">
-      <ul>
-        <li><a href="/"{{ nav_work }}>Work</a></li>
+      <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-menu">Menu</button>
+      <ul class="site-menu" id="site-menu">
+        <li><a href="/work/"{{ nav_work }}>Work</a></li>
         <li><a href="/about/"{{ nav_about }}>About</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
     </nav>
+    <p class="clock" data-time-zone="{{ clock_zone }}">
+      <span class="visually-hidden">Local time:</span> {{ clock_city }} <time class="clock-time"></time>
+    </p>
   </header>
 
-  <main id="main" class="wrap {{ main_class }}">
+  <main id="main" class="{{ main_class }}">
 {{ content }}
   </main>
 

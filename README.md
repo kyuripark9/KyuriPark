@@ -15,17 +15,32 @@ If something in the JSON is broken, the browser shows what and where. Ctrl+C sto
 
 `python3 build.py` (without `serve`) just builds the site into `dist/`.
 
+If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
+
+## Pages
+
+| Address | What it is |
+| --- | --- |
+| `/` | Home: the focus carousel, one card per project |
+| `/work/` | Work: numbered list of every project, with an image preview on hover |
+| `/work/<slug>/` | One page per project, all built from `templates/project.html` |
+| `/about/` | Portrait, About text, experience, contact links |
+
+Contact is the footer on every page (the header's "Contact" link scrolls to it) and a section on About.
+
 ## Where things live
 
 ```
-content/projects.json   every project: order, title, one-liner, metadata, page blocks
-content/site.json       name, email, LinkedIn, GitHub, resume, About text, experience, SEO text
+content/projects.json   every project: order, title, one-liner, category, year, page blocks
+content/site.json       name, email, LinkedIn, GitHub, resume, clock city, About text, experience, SEO text
 assets/images/<slug>/   images and videos for each project
 assets/images/about/    About portrait
 assets/images/og.png    link-preview image (1200×630)
+assets/fonts/           Inter, Geist Mono, and (optional) your wordmark font
 assets/Kyuri-Park-Resume.pdf
 assets/css/style.css    all styling; colors, type sizes, and spacing are at the top
-templates/              page structure (header, footer, home, project, about, 404)
+assets/js/main.js       clock, phone menu, carousel, Work preview, fade-ups, count-up
+templates/              page structure (header, footer, home, work, project, about, 404)
 dist/                   the generated site. Never edit; it's rebuilt every time.
 ```
 
@@ -35,19 +50,37 @@ dist/                   the generated site. Never edit; it's rebuilt every time.
   prints how many are left on each page.
 - To link words inside a paragraph: `[typelab.ink](https://typelab.ink)`.
 - JSON is strict: every item except the last in a list needs a comma, and text goes in "double quotes".
+- The header clock's city and time zone are under `"clock"` in `content/site.json`.
 
 ## Add a project
 
 1. In `content/projects.json`, copy an existing project (from its `{` to its matching `}`) and paste it
-   where it should appear. The order in the file is the order on the home page, and "Next project"
-   follows the same order (the last one loops back to the first).
+   where it should appear. The order in the file is the order everywhere: the carousel, the
+   numbers (001, 002, ...), the Work list, and Previous / Next (which loop around at the ends).
+   The count in "Work [05]" updates on its own.
 2. Give it a new `slug`: lowercase letters, numbers, and hyphens. Its page will be `/work/<slug>/`.
 3. Create the folder `assets/images/<slug>/`.
-4. Fill in `title`, `oneLiner` (8 words max), `meta`, `hero`, and `blocks`.
+4. Fill in the fields:
+
+| Field | Where it shows |
+| --- | --- |
+| `title` | Everywhere |
+| `oneLiner` | Under the carousel (8 words max) |
+| `category` | Work list, and as "Type" on the project page |
+| `year` | Work list and the project page |
+| `statement` | The one big sentence under the project's metadata (leave it out to hide it) |
+| `cover` | Carousel card and Work preview |
+| `meta.role`, `meta.tools` | Project page metadata row |
+| `meta.link` | `{ "label": "typelab.ink", "url": "https://typelab.ink" }`, or `null` to hide it |
+| `hero` | The large image or video at the top of the project page (same format as a block below) |
+| `blocks` | Everything after the hero, in order |
+
+Empty metadata fields are left out of the row.
 
 ### Block types
 
-Blocks appear in the order you list them. A `text` block with a `heading` starts a new section.
+Blocks appear in the order you list them. The template uses Context → Explore (with a
+"What broke" note) → Build → Result → Reflection. A `text` block with a `heading` starts a new section.
 
 ```json
 { "type": "text", "heading": "Context", "body": ["First paragraph.", "Second paragraph."] }
@@ -66,39 +99,72 @@ Blocks appear in the order you list them. A `text` block with a `heading` starts
 { "type": "video", "src": "loop.mp4", "loop": true, "alt": "..." }
 
 { "type": "video", "embed": "https://www.youtube.com/watch?v=...", "alt": "..." }
+
+{ "type": "impact", "items": [
+    { "value": 1250, "suffix": "+", "label": "What the number counts" },
+    { "value": 4.5, "prefix": "$", "label": "..." }
+  ] }
 ```
 
 - `"loop": true` plays the video muted on repeat while it's on screen, like a GIF.
   Visitors with reduced motion turned on get a normal player instead.
 - `embed` accepts YouTube or Vimeo links.
-- `hero` uses the same format as an `image` or `video` block.
-- `meta.link` is optional: `{ "label": "typelab.ink", "url": "https://typelab.ink" }`, or `null` to hide it.
+- **Impact numbers** count up when they scroll into view. Use only real, verifiable numbers.
+  A `value` that isn't a plain number (empty, `[PLACEHOLDER]`, "TBD") is left out, and if no numbers
+  are left the whole block disappears, so it's safe to leave a draft in place. No project has one yet.
 
-## Swap in real images
+## Swap in real images and videos
 
-Every gray placeholder shows the filename it's waiting for (for example `hero.webp`).
-Save your image with that name in that project's folder, refresh, and it replaces the placeholder.
-To use a different name or format, change `src` in `projects.json`.
+Every gray placeholder shows the project name and the filename it's waiting for (for example
+`hero.webp`). Save your image with that name in that project's folder, refresh, and it replaces the
+placeholder. To use a different name or format, change `src` in `projects.json`.
 
 Recommended exports (WebP, or AVIF; JPG and PNG work too):
 
 | Slot | Size | Notes |
 | --- | --- | --- |
-| Home cover | 1600 × 1200 | Always shown at 4:3, cropped to fill |
-| Hero and full-width | 2400 px wide | Any height |
+| Cover (carousel + Work preview) | 1600 × 2000 | Always shown at 4:5, cropped to fill |
+| Hero and full-width | 2400 px wide | Any height; the hero runs edge to edge |
 | Two-image row | 1200 px wide each | Same ratio for both looks best |
 | About portrait | 1200 × 1500 | |
 
 Aim for under ~500 KB per image. [Squoosh](https://squoosh.app) or Figma's export both make WebP.
-Width and height are read from the file automatically, so the page doesn't jump while loading.
+Width and height are read from the file automatically, so the page doesn't jump while loading,
+and images further down the page load only when they're about to be seen.
 
-**Hover video on a home card:** put `cover.mp4` next to the cover image (same name, `.mp4`).
-Keep it short (3–8 s), silent, H.264, and under ~3 MB. Without it, hover is a slight fade.
+**Video on the Work preview:** put `cover.mp4` next to the cover image (same name, `.mp4`).
+Hovering that project's row on the Work page then plays it muted on a loop instead of showing the
+image. Keep it short (3–8 s), silent, H.264, and under ~3 MB.
+
+**Clack demo:** Clack's hero is a video slot labeled "Demo video" (`demo.mp4`, with an optional
+`demo-poster.webp`). When the demo has a public address, add it as `meta.link`.
 
 **Link previews (LinkedIn, Slack, iMessage):** a project uses its cover if the cover is a JPG or PNG.
 Otherwise, and for the other pages, it uses `assets/images/og.png`.
 
 **Resume:** replace `assets/Kyuri-Park-Resume.pdf`, keeping the same name.
+
+## Use a custom font for the wordmark
+
+"Kyuri Park" in the header is set in Inter until you add your own font:
+
+1. Export the font as WOFF2 (Glyphhanger, FontSquirrel's generator, or your type tool can do this).
+2. Save it as `assets/fonts/wordmark.woff2`.
+3. Refresh. The build sees the file and switches the header name to it; nothing else changes.
+
+To go back to Inter, delete the file. To fine-tune size or weight for that font, edit `.wordmark`
+in `assets/css/style.css`.
+
+## Motion
+
+The site keeps motion to a short list: the home carousel, the Work hover preview, the header
+clock, images fading up on project pages, a 300 ms fade between pages (in browsers that support
+it; others switch pages instantly), and impact numbers counting up. If a visitor has reduced
+motion turned on, all of it is off and the home page shows a plain list of the projects.
+
+Carousel controls: click a side card to bring it to the middle and click the middle card to open
+it; drag or swipe; left and right arrow keys (Home / End jump to the ends) with Enter to open;
+sideways trackpad swipes or Shift + mouse wheel. Plain up/down scrolling always scrolls the page.
 
 ## Deploy
 

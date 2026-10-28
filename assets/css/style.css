@@ -1,5 +1,5 @@
 /* Kyuri Park portfolio. One stylesheet for every page.
-   Neutral by design: the project images bring the color. */
+   Quiet by design: no accent color, the project images bring the color. */
 
 @font-face {
   font-family: "Inter";
@@ -12,23 +12,41 @@
     U+FEFF, U+FFFD;
 }
 
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/assets/fonts/geist-mono-latin-300.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+
+/* The header name uses "Wordmark" once assets/fonts/wordmark.woff2 exists
+   (build.py adds the @font-face for it). Until then it falls back to Inter. */
+
 /* Tokens ---------------------------------------------------------------- */
 
 :root {
   color-scheme: light;
 
-  --color-bg: #ffffff;
-  --color-text: #141414;
-  --color-muted: #6b6b6b;      /* 5.3:1 on white */
-  --color-line: #e5e5e5;
-  --color-fill: #efefed;       /* behind media while it loads */
-  --color-mark: #f1f1ef;       /* [PLACEHOLDER] highlight; muted text on it stays above 4.5:1 */
+  --color-bg: #f5f4f0;
+  --color-text: #161616;
+  --color-muted: #62615d;      /* 5.6:1 on the background */
+  --color-line: #dcdbd5;
+  --color-fill: #e9e8e3;       /* behind media while it loads */
+  --color-mark: #e8e7e1;       /* [PLACEHOLDER] highlight; muted text on it stays at 5:1 */
 
-  /* One family, three sizes. */
   --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-  --size-title: 1.75rem;       /* 28px, 32px from 768px */
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-wordmark: "Wordmark", var(--font);
+
+  /* Three sans sizes, plus one size for mono labels. */
+  --size-title: clamp(1.75rem, 1.2rem + 2.2vw, 3rem);   /* 28px on phones, up to 48px */
   --size-body: 1rem;           /* 16px */
   --size-caption: 0.8125rem;   /* 13px */
+  --size-mono: 0.75rem;        /* 12px */
 
   /* 8px spacing scale. */
   --space-1: 8px;
@@ -43,21 +61,19 @@
 
   --page-max: 1280px;
   --gutter: var(--space-2);        /* page side padding */
-  --col-gap: var(--space-3);       /* between grid columns */
-  --row-gap: var(--space-6);       /* between rows of cards */
+  --col-gap: var(--space-3);       /* between columns */
   --section-gap: var(--space-8);   /* between page sections */
   --block-gap: var(--space-5);     /* between blocks inside a section */
   --media-gap: var(--space-2);     /* between images that follow each other */
 
   --fade: 200ms ease;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @media (min-width: 768px) {
   :root {
-    --size-title: 2rem;
     --gutter: var(--space-4);
     --col-gap: var(--space-4);
-    --row-gap: var(--space-8);
     --section-gap: var(--space-12);
     --block-gap: var(--space-8);
     --media-gap: var(--space-3);
@@ -118,7 +134,8 @@ video {
   height: auto;
 }
 
-ul {
+ul,
+ol {
   list-style: none;
   padding: 0;
 }
@@ -143,6 +160,15 @@ h3 {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
 }
 
 :focus-visible {
@@ -174,7 +200,7 @@ a {
   position: absolute;
   top: var(--space-1);
   left: var(--gutter);
-  z-index: 10;
+  z-index: 30;
   padding: var(--space-1) var(--space-2);
   background: var(--color-text);
   color: var(--color-bg);
@@ -189,28 +215,44 @@ a {
 
 .caption,
 .identity-role,
-.card-text,
-.project-meta dt,
-.note-heading,
-.next-label,
-.copyright {
+.note-heading {
   font-size: var(--size-caption);
   line-height: 1.4;
   color: var(--color-muted);
 }
 
 .project-title,
-.next-title,
+.project-statement,
+.work-title,
+.work-name,
+.impact-value,
 .about-text .lead,
 .not-found-title {
   font-size: var(--size-title);
-  line-height: 1.2;
+  line-height: 1.15;
   letter-spacing: -0.02em;
   font-weight: 500;
 }
 
+.project-statement,
 .about-text .lead {
   font-weight: 400;
+}
+
+/* Mono: numbers, years, labels, the clock, the footer. */
+.index,
+.clock,
+.work-count,
+.work-year,
+.bracket-link,
+.project-meta dt,
+.project-nav-label,
+.site-footer {
+  font-family: var(--font-mono);
+  font-size: var(--size-mono);
+  font-weight: 300;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
 }
 
 .text-body a,
@@ -224,23 +266,29 @@ a {
 
 .identity,
 .site-nav a,
+.menu-button,
 .footer-links a,
 .text-body a,
 .text-link,
 .project-meta a,
 .link-list a,
-.next-title {
+.bracket-link,
+.carousel-arrow,
+.project-nav a {
   transition: color var(--fade);
 }
 
 .identity:hover,
 .site-nav a:hover,
+.menu-button:hover,
 .footer-links a:hover,
 .text-body a:hover,
 .text-link:hover,
 .project-meta a:hover,
 .link-list a:hover,
-.next-project a:hover .next-title {
+.bracket-link:hover,
+.carousel-arrow:hover,
+.project-nav a:hover {
   color: var(--color-muted);
 }
 
@@ -255,25 +303,30 @@ mark.placeholder {
 
 /* Header ---------------------------------------------------------------- */
 
-/* Name and nav share the first line. The role sits on the line below, so it may
-   run under the nav's column on narrow phones without the two touching. */
+/* Phones: name on the left, then the clock and the Menu button.
+   768px and up: name, nav in the middle, clock on the far right. */
 .site-header {
+  position: relative;
+  z-index: 20;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-areas: "identity clock nav";
   align-items: baseline;
-  gap: var(--space-1) var(--space-3);
-  padding-block: var(--space-3) var(--space-5);
+  column-gap: var(--space-3);
+  padding-block: var(--space-3);
   view-transition-name: site-header;
 }
 
 .identity {
+  grid-area: identity;
   display: flex;
   flex-direction: column;
   justify-self: start;
   min-width: 0;
 }
 
-.identity-name {
+.wordmark {
+  font-family: var(--font-wordmark);
   font-weight: 500;
 }
 
@@ -281,7 +334,11 @@ mark.placeholder {
   white-space: nowrap;
 }
 
-.site-nav ul {
+.site-nav {
+  grid-area: nav;
+}
+
+.site-menu {
   display: flex;
   gap: var(--space-3);
 }
@@ -292,105 +349,447 @@ mark.placeholder {
   text-underline-offset: 0.3em;
 }
 
-@media (max-width: 413px) {
-  .site-nav ul {
-    gap: var(--space-2);
+.menu-button {
+  display: none;
+  /* A bigger tap target without moving the text. */
+  margin: calc(-1 * var(--space-1));
+  padding: var(--space-1);
+}
+
+.clock {
+  grid-area: clock;
+  justify-self: end;
+  white-space: nowrap;
+}
+
+.clock:not(.is-ready) {
+  visibility: hidden;
+}
+
+html:not(.js) .clock {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .js .menu-button {
+    display: block;
+  }
+
+  .js .site-menu {
+    display: none;
+  }
+
+  .js .site-menu.is-open {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    display: block;
+    padding: 0 var(--gutter) var(--space-2);
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .site-menu.is-open a {
+    display: block;
+    padding-block: var(--space-2);
+    border-top: 1px solid var(--color-line);
   }
 }
 
 @media (max-width: 359px) {
-  .site-header {
-    grid-template-columns: 1fr;
+  .clock {
+    display: none;
   }
 }
 
 @media (min-width: 768px) {
   .site-header {
-    padding-block: var(--space-4) var(--space-8);
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-areas: "identity nav clock";
+    column-gap: var(--space-4);
+    padding-block: var(--space-4);
+  }
+
+  .site-menu {
+    gap: var(--space-4);
   }
 }
 
-/* Home grid ------------------------------------------------------------- */
+/* Home: focus carousel -------------------------------------------------- */
 
-.project-grid {
+/* Without JavaScript, or with reduced motion on: a plain list of the projects. */
+.carousel-track {
   display: grid;
-  gap: var(--row-gap) var(--col-gap);
+  gap: var(--space-6);
+  width: 100%;
+  max-width: calc(var(--page-max) + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
 }
 
-@media (min-width: 640px) {
-  .project-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-.card {
+.carousel-card {
   display: block;
+  max-width: 28rem;
 }
 
-.card:focus-visible {
-  outline-offset: var(--space-1);
-}
-
-.card-media {
-  position: relative;
-  aspect-ratio: 4 / 3;
+.carousel-media {
+  display: block;
+  aspect-ratio: 4 / 5;
   overflow: hidden;
   background: var(--color-fill);
 }
 
-.card-media img,
-.card-media video {
+.carousel-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.card-media img {
-  transition: opacity var(--fade);
+.slide-caption {
+  display: block;
+  margin-top: var(--space-2);
 }
 
-.card-media video {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity var(--fade);
+.slide-title {
+  font-weight: 500;
 }
 
-.card.is-playing .card-media video {
-  opacity: 1;
+.slide-text {
+  color: var(--color-muted);
 }
 
-@media (hover: hover) {
-  .card:hover .card-media img {
-    opacity: 0.85;
+.index {
+  margin-right: var(--space-1);
+}
+
+.carousel-bar {
+  margin-top: var(--space-6);
+}
+
+.bracket-link {
+  white-space: nowrap;
+}
+
+.carousel-controls,
+.carousel-caption {
+  display: none;
+}
+
+.carousel-arrow {
+  display: grid;
+  place-items: center;
+  width: var(--space-5);
+  height: var(--space-5);
+}
+
+.carousel-arrow svg,
+.project-nav-label svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+}
+
+.carousel-arrow[aria-disabled="true"] {
+  opacity: 0.25;
+  cursor: default;
+}
+
+/* The carousel itself. Phones get one large card with the next one peeking in;
+   from 768px the focused card sits large in the middle with smaller, dimmed
+   neighbors. main.js moves the cards; these rules set their size and first position. */
+@media (prefers-reduced-motion: no-preference) {
+  .js .carousel {
+    container-type: inline-size;
+    --card-w: calc(100cqw - 2 * var(--gutter) - var(--space-6));
+    --slide-gap: var(--space-2);
+    --side-scale: 1;
+    --side-opacity: 1;
+  }
+
+  /* The extra height leaves room for the focus ring above and below the card. */
+  .js .carousel-viewport {
+    position: relative;
+    height: calc(var(--card-w) * 1.25 + 2 * var(--space-1));
+    overflow: hidden;
+    overflow: clip;
+    touch-action: pan-y;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .js .carousel-track {
+    display: block;
+    max-width: none;
+    padding: 0;
+  }
+
+  .js .carousel-slide {
+    position: absolute;
+    top: var(--space-1);
+    left: var(--gutter);
+    width: var(--card-w);
+    transform: translateX(calc(var(--n) * (var(--card-w) + var(--slide-gap))));
+    transition: transform 450ms var(--ease-out), opacity 450ms var(--ease-out);
+  }
+
+  .js .carousel.is-dragging .carousel-slide {
+    transition: none;
+  }
+
+  .js .carousel-card {
+    max-width: none;
+    -webkit-user-drag: none;
+  }
+
+  /* Screen readers still get each card's caption; sighted visitors see the shared one below. */
+  .js .carousel .slide-caption {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .js .carousel-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "caption caption"
+      "controls link";
+    align-items: center;
+    row-gap: var(--space-1);
+    margin-top: var(--space-3);
+  }
+
+  .js .carousel-caption {
+    grid-area: caption;
+    display: block;
+    min-height: 3em;   /* room for two lines, so the page doesn't jump */
+  }
+
+  .js .carousel-controls {
+    grid-area: controls;
+    display: flex;
+    margin-left: calc(-1 * (var(--space-5) - 16px) / 2);   /* line the arrow up with the text */
+  }
+
+  .js .carousel-bar .bracket-link {
+    grid-area: link;
+  }
+
+  @media (min-width: 768px) {
+    .js .carousel {
+      --card-w: clamp(240px, min((100svh - 18rem) * 0.8, 56cqw), 600px);
+      --slide-gap: var(--space-4);
+      --side-scale: 0.6;
+      --side-opacity: 0.35;
+    }
+
+    .js .carousel-slide {
+      left: calc(50% - var(--card-w) / 2);
+      opacity: var(--side-opacity);
+      transform:
+        translateX(calc(var(--card-w) * (1 + var(--side-scale)) / 2 + var(--slide-gap)
+          + (var(--n) - 1) * (var(--card-w) * var(--side-scale) + var(--slide-gap))))
+        scale(var(--side-scale));
+    }
+
+    .js .carousel-slide:first-child {
+      opacity: 1;
+      transform: none;
+    }
+
+    .js .carousel-bar {
+      grid-template-columns: minmax(max-content, 1fr) minmax(0, 40rem) minmax(max-content, 1fr);
+      grid-template-areas: "controls caption link";
+      column-gap: var(--space-3);
+    }
+
+    .js .carousel-caption {
+      min-height: 0;
+      text-align: center;
+    }
+
+    .js .carousel-bar .bracket-link {
+      justify-self: end;
+    }
   }
 }
 
-.card-title {
-  margin-top: var(--space-2);
+/* Work index ------------------------------------------------------------ */
+
+.work-title {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1);
+  margin-bottom: var(--space-6);
+}
+
+.work-count {
+  padding-top: 0.5em;
+  font-size: var(--size-mono);
+  letter-spacing: 0.02em;
+}
+
+.work {
+  position: relative;
+}
+
+.work-list {
+  border-top: 1px solid var(--color-line);
+}
+
+/* Phones: the title gets the full width; category and year share the line below. */
+.work-row {
+  display: grid;
+  grid-template-columns: var(--space-6) minmax(0, 1fr) auto;
+  grid-template-areas:
+    "num name name"
+    ". category year";
+  column-gap: var(--space-2);
+  align-items: baseline;
+  padding-block: var(--space-2);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.work-row .index {
+  grid-area: num;
+  margin: 0;
+}
+
+.work-name {
+  grid-area: name;
+}
+
+.work-category {
+  grid-area: category;
+  color: var(--color-muted);
+}
+
+.work-year {
+  grid-area: year;
+  text-align: right;
+}
+
+.work-row:focus-visible {
+  outline-offset: -2px;
+}
+
+@media (min-width: 768px) {
+  .work-row {
+    grid-template-columns: var(--space-8) minmax(0, 3fr) minmax(0, 2fr) minmax(var(--space-8), auto);
+    grid-template-areas: "num name category year";
+    column-gap: var(--space-3);
+    padding-block: var(--space-3);
+  }
+}
+
+/* Hover preview: wide screens with a mouse only. Rows leave room on the right
+   for the image, which fades in at a fixed spot. */
+.work-preview {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .work-row {
+    transition: color var(--fade);
+  }
+
+  .work-list:hover .work-row:not(:hover) {
+    color: var(--color-muted);
+  }
+}
+
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .js .work {
+    --preview-w: clamp(240px, 24vw, 340px);
+  }
+
+  .js .work-row {
+    padding-right: calc(var(--preview-w) + var(--space-6));
+  }
+
+  .js .work-preview {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: block;
+    width: var(--preview-w);
+    aspect-ratio: 4 / 5;
+    pointer-events: none;
+  }
+
+  .work-preview-item {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 250ms ease;
+  }
+
+  .work-preview-item.is-active {
+    opacity: 1;
+  }
+
+  .work-preview-item img,
+  .work-preview-item video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: var(--color-fill);
+  }
+
+  .work-preview-item video {
+    position: absolute;
+    inset: 0;
+  }
 }
 
 /* Project page ---------------------------------------------------------- */
 
 .project-header {
-  display: grid;
-  gap: var(--space-4);
+  padding-top: var(--space-3);
 }
 
 .project-meta {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-3) var(--col-gap);
+  margin-top: var(--space-5);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-line);
+}
+
+.project-meta dt {
+  color: var(--color-muted);
+}
+
+.project-meta dd {
+  margin-top: var(--space-1);
 }
 
 @media (min-width: 768px) {
   .project-meta {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
   }
 }
 
+.project-statement {
+  max-width: 20em;
+  margin-top: var(--space-8);
+}
+
+/* The hero runs edge to edge. */
 .project-hero {
-  margin-top: var(--block-gap);
+  max-width: 1920px;
+  margin: var(--space-8) auto 0;
+}
+
+.project-hero .caption {
+  padding-inline: var(--gutter);
 }
 
 .project-blocks {
@@ -479,19 +878,91 @@ mark.placeholder {
   border: 0;
 }
 
-.next-project {
-  margin-top: var(--section-gap);
-  padding-top: var(--space-4);
+/* Impact numbers: only built when the project lists real numbers. */
+.impact {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--space-4) var(--col-gap);
+  padding-top: var(--space-3);
   border-top: 1px solid var(--color-line);
 }
 
-.next-project a {
-  display: inline-flex;
+.impact-item {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--space-1);
+}
+
+.impact-value {
+  font-variant-numeric: tabular-nums;
+}
+
+.impact-label {
+  color: var(--color-muted);
+}
+
+/* Images fade up as they come on screen (main.js adds these classes). */
+.reveal {
+  opacity: 0;
+  transform: translateY(var(--space-3));
+  transition: opacity 700ms var(--ease-out), transform 700ms var(--ease-out);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.project-nav {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3) var(--col-gap);
+  margin-top: var(--section-gap);
+}
+
+/* The rule sits inside the padding so it lines up with the content edge. */
+.project-nav::before {
+  content: "";
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--color-line);
+}
+
+.project-nav a {
+  display: flex;
   flex-direction: column;
   gap: var(--space-1);
 }
 
+.project-nav-next {
+  grid-column: 2;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.project-nav-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-muted);
+}
+
+.project-nav-title {
+  font-weight: 500;
+}
+
+@media (min-width: 768px) {
+  .project-nav-title {
+    font-size: var(--size-title);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+}
+
 /* About ----------------------------------------------------------------- */
+
+.page-about {
+  padding-top: var(--space-3);
+}
 
 .about-intro {
   display: grid;
@@ -605,21 +1076,31 @@ mark.placeholder {
   align-items: baseline;
   gap: var(--space-2) var(--space-3);
   margin-top: var(--section-gap);
-  padding-bottom: var(--space-5);
+  padding-bottom: var(--space-4);
 }
 
 /* The rule sits inside the padding so it lines up with the content edge. */
 .site-footer::before {
   content: "";
   width: 100%;
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-1);
   border-top: 1px solid var(--color-line);
 }
 
 .footer-links {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-1) var(--space-3);
+  gap: var(--space-1) var(--space-2);
+}
+
+.footer-links li + li::before {
+  content: "·";
+  margin-right: var(--space-2);
+  color: var(--color-muted);
+}
+
+.copyright {
+  color: var(--color-muted);
 }
 
 @media (max-width: 639px) {
@@ -628,10 +1109,15 @@ mark.placeholder {
     flex-direction: column;
     align-items: flex-start;
   }
+
+  .footer-links li + li::before {
+    content: none;
+  }
 }
 
 /* Motion ---------------------------------------------------------------- */
 
+/* Pages fade into each other (browsers that support it; others just switch). */
 @media (prefers-reduced-motion: no-preference) {
   @view-transition {
     navigation: auto;
@@ -639,7 +1125,7 @@ mark.placeholder {
 
   ::view-transition-old(root),
   ::view-transition-new(root) {
-    animation-duration: 200ms;
+    animation-duration: 300ms;
   }
 }
 

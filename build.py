@@ -32,19 +32,21 @@ DIST_DIR = os.path.join(ROOT, "dist")
 
 # Size of the gray placeholder for each kind of slot, used until a real file exists.
 PLACEHOLDER_SIZES = {
-    "cover": (1600, 1200),     # 4:3, the home grid ratio
+    "cover": (1600, 2000),     # 4:5, home carousel cards and the Work preview
     "wide": (2400, 1350),      # 16:9, hero and full-width images and videos
     "pair": (1200, 1500),      # 4:5, each image in a two-image row
     "portrait": (1200, 1500),  # 4:5, the About portrait
 }
 COVER_VIDEO_EXTS = (".mp4", ".webm")
 OG_IMAGE_EXTS = (".jpg", ".jpeg", ".png")
+WORDMARK_FONT = "assets/fonts/wordmark.woff2"  # optional; the header name uses it once it exists
 MAX_ONE_LINER_WORDS = 8
 LOADING_ATTRS = {"lazy": 'loading="lazy"', "eager": "", "high": 'fetchpriority="high"'}
 
 PLACEHOLDER_RE = re.compile(r"\[PLACEHOLDER[^\]]*\]")
 LINK_RE = re.compile(r"\[([^\]]+)\]\(((?:https?://|mailto:|/)[^)\s]*)\)")
 SLUG_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+NUMBER_RE = re.compile(r"^-?\d+(?:\.\d+)?$")
 
 
 class BuildError(Exception):
@@ -123,16 +125,17 @@ def file_version(rel):
 
 
 def placeholder_svg(width, height, title, label):
-    size = round(width / 32)
+    """A soft gray block with the project name, and the file it's waiting for underneath."""
+    size = round(min(min(width, height) / 18, width * 1.5 / max(len(title), 1)))  # long names shrink
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
         f'viewBox="0 0 {width} {height}">\n'
-        '<rect width="100%" height="100%" fill="#ececea"/>\n'
-        '<g font-family="-apple-system, \'Helvetica Neue\', Arial, sans-serif" '
-        'fill="#6b6b69" text-anchor="middle">\n'
-        f'<text x="50%" y="50%" font-size="{size}">{esc(title)}</text>\n'
-        f'<text x="50%" y="50%" dy="{round(size * 1.6)}" font-size="{round(size * 0.55)}">'
-        f'{esc(label)}</text>\n'
+        '<rect width="100%" height="100%" fill="#e6e5df"/>\n'
+        '<g font-family="-apple-system, \'Helvetica Neue\', Arial, sans-serif" text-anchor="middle">\n'
+        f'<text x="50%" y="50%" font-size="{size}" font-weight="500" fill="#62615d">'
+        f'{esc(title)}</text>\n'
+        f'<text x="50%" y="50%" dy="{round(size * 1.4)}" font-size="{round(size * 0.45)}" '
+        f'fill="#8a8984">{esc(label)}</text>\n'
         '</g>\n</svg>\n'
     )
 
@@ -331,6 +334,9 @@ def validate(site, projects):
         if words > MAX_ONE_LINER_WORDS:
             warnings.append(f"{slug}: the one-liner is {words} words "
                             f"(aim for {MAX_ONE_LINER_WORDS} or fewer).")
+        for key in ("category", "year"):
+            if not p.get(key):
+                warnings.append(f'{slug}: "{key}" is empty, so the Work list shows a gap there.')
     if not exists(site["resume"]):
         warnings.append(f"{site['resume']} not found, so the Resume link won't work yet.")
     if not site.get("siteUrl"):
@@ -399,17 +405,21 @@ class Builder:
     def page(self, rel, label, path, title, description, content, main_class,
              current=None, image=(None, None), noindex=False):
         s = self.site
+        clock = s.get("clock") or {}
         out = render(
             "base.html",
             page_title=esc(title),
             description=esc(description),
             head_meta=self.head_meta(path, title, description, image, noindex),
+            wordmark_font=self.wordmark_font(),
             css_version=file_version("assets/css/style.css"),
             js_version=file_version("assets/js/main.js"),
             site_name=esc(s["name"]),
             site_role=esc(s["role"]),
-            nav_work={"home": ' aria-current="page"', "project": ' aria-current="true"'}.get(current, ""),
+            nav_work={"work": ' aria-current="page"', "project": ' aria-current="true"'}.get(current, ""),
             nav_about=' aria-current="page"' if current == "about" else "",
+            clock_city=esc(clock.get("city") or "Chicago"),
+            clock_zone=esc(clock.get("timeZone") or "America/Chicago"),
             main_class=main_class,
             content=content,
             contact_links=self.contact_links("      "),
@@ -445,6 +455,15 @@ class Builder:
         tags.append('<meta name="twitter:card" content="summary_large_image">')
         return "\n  ".join(tags)
 
+    def wordmark_font(self):
+        """Use assets/fonts/wordmark.woff2 for the name in the header, once that file exists."""
+        if not exists(WORDMARK_FONT):
+            return ""
+        href = f"{url_for(WORDMARK_FONT)}?v={file_version(WORDMARK_FONT)}"
+        return (f'<link rel="preload" href="{href}" as="font" type="font/woff2" crossorigin>\n'
+                f'  <style>@font-face {{ font-family: "Wordmark"; src: url("{href}") format("woff2"); '
+                'font-display: swap; }</style>')
+
     def og_image(self, project=None):
         """A project's cover if it's a JPG/PNG (what link previews accept), else the site image."""
         if project:
@@ -475,8 +494,9 @@ class Builder:
         self.missing_media.add(rel)
         return url_for(ph_rel), (width, height)
 
-    def img(self, rel, alt, slot, title, loading="lazy"):
-        if not alt:
+    def img(self, rel, alt, slot, title, loading="lazy", decorative=False):
+        """decorative=True is for a repeat of an image already described elsewhere (alt="")."""
+        if not alt and not decorative:
             self.warnings.append(f"{rel} has no alt text.")
         if exists(rel):
             size = media_size(rel)
@@ -538,7 +558,33 @@ class Builder:
         if kind == "video":
             return figure("media-full", self.video(b, folder, p["title"], loading, where),
                           b.get("caption"))
-        raise BuildError(f'{where}: unknown block type "{kind}". Use text, image, imagePair, or video.')
+        if kind == "impact":
+            return self.impact_block(b, where)
+        raise BuildError(f'{where}: unknown block type "{kind}". '
+                         'Use text, image, imagePair, video, or impact.')
+
+    def impact_block(self, b, where):
+        """Large numbers that count up on screen. Only real numbers are shown: an item whose
+        value isn't a plain number (empty, [PLACEHOLDER], "TBD") is left out, and so is the
+        whole block when nothing is left."""
+        items = []
+        for item in b.get("items") or []:
+            raw = str(item.get("value", "")).replace(",", "").strip()
+            if not NUMBER_RE.match(raw):
+                self.warnings.append(f'{where}: impact value "{item.get("value", "")}" is not a '
+                                     "number yet, so it is left out.")
+                continue
+            decimals = len(raw.partition(".")[2])
+            prefix, suffix = str(item.get("prefix", "")), str(item.get("suffix", ""))
+            shown = esc(f"{prefix}{float(raw):,.{decimals}f}{suffix}")
+            items.append(
+                '<div class="impact-item">'
+                f'<dt class="impact-label">{inline(need(item, "label", where))}</dt>'
+                f'<dd class="impact-value"><span class="visually-hidden">{shown}</span>'
+                f'<span class="impact-count" aria-hidden="true" data-value="{raw}" '
+                f'data-decimals="{decimals}" data-prefix="{esc(prefix)}" data-suffix="{esc(suffix)}">'
+                f'{shown}</span></dd></div>')
+        return f'<dl class="impact">{"".join(items)}</dl>' if items else ""
 
     def text_block(self, b):
         body = b.get("body") or []
@@ -557,9 +603,12 @@ class Builder:
         groups = []
         for b in blocks:
             starts = b.get("type") == "text" and b.get("heading") and b.get("variant") != "note"
+            rendered = self.block(b, p, folder)
+            if not rendered:  # an impact block with no real numbers
+                continue
             if starts or not groups:
                 groups.append((bool(starts), []))
-            groups[-1][1].append(self.block(b, p, folder))
+            groups[-1][1].append(rendered)
         out = []
         for headed, items in groups:
             tag = "section" if headed else "div"
@@ -567,10 +616,12 @@ class Builder:
             out.append(f'        <{tag} class="project-section">\n          {body}\n        </{tag}>')
         return "\n".join(out)
 
-    def meta_rows(self, meta):
+    def meta_rows(self, p):
+        """Role · Year · Type · Tools · Link. Empty fields are left out."""
+        meta = p.get("meta") or {}
         rows = []
-        for key, label in (("role", "Role"), ("timeline", "Timeline"), ("tools", "Tools")):
-            value = meta.get(key)
+        for label, value in (("Role", meta.get("role")), ("Year", p.get("year")),
+                             ("Type", p.get("category")), ("Tools", meta.get("tools"))):
             if isinstance(value, list):
                 value = ", ".join(value)
             if value:
@@ -582,36 +633,82 @@ class Builder:
 
     # Pages ------------------------------------------------------------------
 
-    def card(self, p, index):
-        folder = f"assets/images/{p['slug']}"
-        cover = media_path(p["cover"]["src"], folder)
-        img = self.img(cover, p["cover"].get("alt"), "cover", p["title"],
-                       "eager" if index < 2 else "lazy")
-        video = next((os.path.splitext(cover)[0] + ext for ext in COVER_VIDEO_EXTS
-                      if exists(os.path.splitext(cover)[0] + ext)), None)
-        data = f' data-video="{url_for(video)}"' if video else ""
-        return (f'      <li>\n'
-                f'        <a class="card" href="/work/{p["slug"]}/"{data}>\n'
-                f'          <div class="card-media">{img}</div>\n'
-                f'          <h2 class="card-title">{inline(p["title"])}</h2>\n'
-                f'          <p class="card-text">{inline(p["oneLiner"])}</p>\n'
-                f'        </a>\n'
-                f'      </li>')
+    def cover(self, p):
+        """Path of a project's cover image, and of its hover video if one sits next to it."""
+        rel = media_path(p["cover"]["src"], f"assets/images/{p['slug']}")
+        stem = os.path.splitext(rel)[0]
+        video = next((stem + ext for ext in COVER_VIDEO_EXTS if exists(stem + ext)), None)
+        return rel, video
+
+    def slide_caption(self, p, index):
+        """'001  TypeLab — Font design playground', shared by the slide and the caption below."""
+        return (f'<span class="index">{index + 1:03d}</span> '
+                f'<span class="slide-title">{inline(p["title"])}</span> '
+                f'<span class="slide-text">— {inline(p["oneLiner"])}</span>')
+
+    def slide(self, p, index, total):
+        rel, _ = self.cover(p)
+        loading = "high" if index == 0 else "eager" if index < 3 else "lazy"
+        img = self.img(rel, p["cover"].get("alt"), "cover", p["title"], loading)
+        return (f'          <div class="carousel-slide" style="--n: {index}" role="group" '
+                f'aria-roledescription="slide" aria-label="{index + 1} of {total}">\n'
+                f'            <a class="carousel-card" href="/work/{p["slug"]}/">\n'
+                f'              <span class="carousel-media">{img}</span>\n'
+                f'              <span class="slide-caption">{self.slide_caption(p, index)}</span>\n'
+                f'            </a>\n'
+                f'          </div>')
 
     def build_home(self):
-        cards = "\n".join(self.card(p, i) for i, p in enumerate(self.projects))
+        total = len(self.projects)
+        slides = "\n".join(self.slide(p, i, total) for i, p in enumerate(self.projects))
+        content = render("home.html", slides=slides,
+                         caption=self.slide_caption(self.projects[0], 0))
         self.page("index.html", "home", "/", self.site["title"], self.site["description"],
-                  render("home.html", cards=cards), "page-home", current="home",
-                  image=self.og_image())
+                  content, "page-home", image=self.og_image())
 
-    def build_project(self, p, next_p):
+    def work_row(self, p, index):
+        return (f'        <li>\n'
+                f'          <a class="work-row" href="/work/{p["slug"]}/" data-index="{index}">\n'
+                f'            <span class="index">{index + 1:03d}</span>\n'
+                f'            <span class="work-name">{inline(p["title"])}</span>\n'
+                f'            <span class="work-category">{inline(p.get("category") or "")}</span>\n'
+                f'            <span class="work-year">{inline(str(p.get("year") or ""))}</span>\n'
+                f'          </a>\n'
+                f'        </li>')
+
+    def work_preview(self, p, index):
+        rel, video = self.cover(p)
+        # A repeat of the cover; the row already names the project, so the image is decorative.
+        img = self.img(rel, "", "cover", p["title"], decorative=True)
+        data = f' data-video="{url_for(video)}"' if video else ""
+        return f'        <div class="work-preview-item" data-index="{index}"{data}>{img}</div>'
+
+    def build_work(self):
+        s = self.site
+        total = len(self.projects)
+        content = render(
+            "work.html",
+            count=f"{total:02d}",
+            count_label=f"{total} project{'' if total == 1 else 's'}",
+            rows="\n".join(self.work_row(p, i) for i, p in enumerate(self.projects)),
+            previews="\n".join(self.work_preview(p, i) for i, p in enumerate(self.projects)),
+        )
+        self.page("work/index.html", "work", "/work/", f"Work — {s['name']}", s["description"],
+                  content, "wrap page-work", current="work", image=self.og_image())
+
+    def build_project(self, p, prev_p, next_p):
         folder = f"assets/images/{p['slug']}"
+        statement = p.get("statement")
         content = render(
             "project.html",
             title=inline(p["title"]),
-            meta=self.meta_rows(p.get("meta") or {}),
+            meta=self.meta_rows(p),
+            statement=(f'<p class="project-statement">{inline(statement)}</p>'
+                       if statement else ""),
             hero=("        " + self.block(p["hero"], p, folder, hero=True)) if p.get("hero") else "",
             blocks=self.sections(p.get("blocks") or [], p, folder),
+            prev_url=f"/work/{prev_p['slug']}/",
+            prev_title=inline(prev_p["title"]),
             next_url=f"/work/{next_p['slug']}/",
             next_title=inline(next_p["title"]),
         )
@@ -644,13 +741,13 @@ class Builder:
                          paragraphs="\n".join(paragraphs), experience="\n".join(experience),
                          contact_links=self.contact_links("        "))
         self.page("about/index.html", "about", "/about/", f"About — {s['name']}",
-                  s["description"], content, "page-about", current="about",
+                  s["description"], content, "wrap page-about", current="about",
                   image=self.og_image())
 
     def build_404(self):
         s = self.site
         self.page("404.html", "404", "/404.html", f"Page not found — {s['name']}",
-                  s["description"], render("404.html"), "page-not-found", noindex=True)
+                  s["description"], render("404.html"), "wrap page-not-found", noindex=True)
 
     def report(self, seconds):
         pages = sum(1 for w in self.written if w.endswith(".html"))
@@ -676,8 +773,9 @@ def build(local_url=None):
     os.makedirs(DIST_DIR, exist_ok=True)
     builder.copy_assets()
     builder.build_home()
-    for i, p in enumerate(projects):
-        builder.build_project(p, projects[(i + 1) % len(projects)])
+    builder.build_work()
+    for i, p in enumerate(projects):  # Previous / Next loop around the ends
+        builder.build_project(p, projects[i - 1], projects[(i + 1) % len(projects)])
     builder.build_about()
     builder.build_404()
     builder.remove_stale()

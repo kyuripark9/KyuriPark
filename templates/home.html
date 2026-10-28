@@ -1,4 +1,21 @@
-    <h1 class="visually-hidden">Work</h1>
-    <ul class="project-grid">
-{{ cards }}
-    </ul>
+    <h1 class="visually-hidden">Selected work</h1>
+    <section class="carousel" aria-roledescription="carousel" aria-label="Selected work">
+      <div class="carousel-viewport">
+        <div class="carousel-track" id="carousel-track">
+{{ slides }}
+        </div>
+      </div>
+
+      <div class="carousel-bar wrap">
+        <div class="carousel-controls">
+          <button class="carousel-arrow" type="button" aria-label="Previous project" aria-controls="carousel-track" aria-disabled="true">
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M13 8H3M7 4 3 8l4 4"/></svg>
+          </button>
+          <button class="carousel-arrow" type="button" aria-label="Next project" aria-controls="carousel-track">
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+          </button>
+        </div>
+        <p class="carousel-caption" aria-live="polite">{{ caption }}</p>
+        <a class="bracket-link" href="/work/" aria-label="View all projects">[ view all ]</a>
+      </div>
+    </section>

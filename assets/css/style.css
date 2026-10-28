@@ -273,7 +273,7 @@ button {
 .project-meta a,
 .link-list a,
 .bracket-link,
-.carousel-arrow,
+.track-arrow,
 .project-nav a {
   transition: color var(--fade);
 }
@@ -287,7 +287,7 @@ button {
 .project-meta a:hover,
 .link-list a:hover,
 .bracket-link:hover,
-.carousel-arrow:hover,
+.track-arrow:hover,
 .project-nav a:hover {
   color: var(--color-muted);
 }
@@ -416,10 +416,10 @@ html:not(.js) .clock {
   }
 }
 
-/* Home: focus carousel -------------------------------------------------- */
+/* Home: project track -------------------------------------------------- */
 
-/* Without JavaScript, or with reduced motion on: a plain list of the projects. */
-.carousel-track {
+/* Without JavaScript: a plain list of the projects, and the page scrolls as usual. */
+.track-row {
   display: grid;
   gap: var(--space-6);
   width: 100%;
@@ -428,34 +428,34 @@ html:not(.js) .clock {
   padding-inline: var(--gutter);
 }
 
-.carousel-card {
+.track-card {
   display: block;
   max-width: 28rem;
 }
 
-.carousel-media {
+.track-media {
   display: block;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
   background: var(--color-fill);
 }
 
-.carousel-media img {
+.track-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.slide-caption {
+.card-caption {
   display: block;
   margin-top: var(--space-2);
 }
 
-.slide-title {
+.card-title {
   font-weight: 500;
 }
 
-.slide-text {
+.card-text {
   color: var(--color-muted);
 }
 
@@ -463,7 +463,7 @@ html:not(.js) .clock {
   margin-right: var(--space-1);
 }
 
-.carousel-bar {
+.track-bar {
   margin-top: var(--space-6);
 }
 
@@ -471,150 +471,161 @@ html:not(.js) .clock {
   white-space: nowrap;
 }
 
-.carousel-controls,
-.carousel-caption {
+.track-controls,
+.track-caption {
   display: none;
 }
 
-.carousel-arrow {
+.track-arrow {
   display: grid;
   place-items: center;
   width: var(--space-5);
   height: var(--space-5);
 }
 
-.carousel-arrow svg,
-.project-nav-label svg {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.25;
+/* With JavaScript, Home fills the screen and doesn't scroll. The cards sit on a loop
+   that track.js turns; these rules size them and set where they start.
+     --card-w        card width (height follows at 3:4)
+     --card-gap      space between cards as drawn (after side cards shrink), in px
+     --side-scale, --side-opacity   cards one step or more from the middle
+   Before track.js runs, each card sits at its --d (a whole number of steps out);
+   clamp(-1, --d, 1) is its side: -1, 0, or 1. */
+.js body:has(> .page-home) {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
 }
 
-.carousel-arrow[aria-disabled="true"] {
-  opacity: 0.25;
-  cursor: default;
+.js .page-home,
+.js .track {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
-/* The carousel itself. Phones get one large card with the next one peeking in;
-   from 768px the focused card sits large in the middle with smaller, dimmed
-   neighbors. main.js moves the cards; these rules set their size and first position. */
-@media (prefers-reduced-motion: no-preference) {
-  .js .carousel {
-    container-type: inline-size;
-    --card-w: calc(100cqw - 2 * var(--gutter) - var(--space-6));
-    --slide-gap: var(--space-2);
-    --side-scale: 1;
-    --side-opacity: 1;
+.js .track {
+  flex: 1;
+}
+
+.js .track-stage {
+  --card-w: min((100cqh - var(--space-4)) * 0.75, 60cqw, 600px);
+  --card-gap: var(--space-2);
+  --side-scale: 0.52;
+  --side-opacity: 0.45;
+  flex: 1;
+  position: relative;
+  container-type: size;
+  overflow: hidden;
+  overflow: clip;
+  touch-action: pan-y pinch-zoom;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.js .track-row {
+  display: block;
+  max-width: none;
+  padding: 0;
+}
+
+.js .track-item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--card-w);
+  margin: calc(var(--card-w) * -2 / 3) 0 0 calc(var(--card-w) * -0.5);
+  opacity: var(--side-opacity);
+  transform:
+    translateX(calc(var(--d) * (var(--side-scale) * var(--card-w) + var(--card-gap))
+                    + clamp(-1, var(--d), 1) * (1 - var(--side-scale)) * var(--card-w) / 2))
+    scale(var(--side-scale));
+}
+
+.js .track-item:first-child {
+  opacity: 1;
+  transform: none;
+}
+
+.js .track-card {
+  max-width: none;
+  -webkit-user-drag: none;
+}
+
+/* Screen readers still get each card's caption; sighted visitors see the one below. */
+.js .track .card-caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.js .track-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "caption caption"
+    "controls link";
+  align-items: center;
+  row-gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+
+.js .track-caption {
+  grid-area: caption;
+  display: block;
+  min-height: 3em;   /* room for two lines, so nothing jumps */
+}
+
+.js .track-controls {
+  grid-area: controls;
+  display: flex;
+  margin-left: calc(-1 * (var(--space-5) - 16px) / 2);   /* line the arrow up with the text */
+}
+
+.js .track-bar .bracket-link {
+  grid-area: link;
+}
+
+/* The footer becomes one small line at the bottom of the screen
+   (two on phones: the links, then the copyright). */
+.js .page-home ~ .site-footer {
+  row-gap: var(--space-1);
+  margin-top: 0;
+  padding-block: var(--space-2);
+}
+
+.js .page-home ~ .site-footer::before {
+  content: none;
+}
+
+@media (max-width: 639px) {
+  .js .page-home ~ .site-footer .footer-links {
+    flex-direction: row;
+    column-gap: 12px;
+  }
+}
+
+@media (min-width: 768px) {
+  .js .track-stage {
+    --card-gap: var(--space-3);
   }
 
-  /* The extra height leaves room for the focus ring above and below the card. */
-  .js .carousel-viewport {
-    position: relative;
-    height: calc(var(--card-w) * 1.25 + 2 * var(--space-1));
-    overflow: hidden;
-    overflow: clip;
-    touch-action: pan-y;
-    -webkit-user-select: none;
-    user-select: none;
-  }
-
-  .js .carousel-track {
-    display: block;
-    max-width: none;
-    padding: 0;
-  }
-
-  .js .carousel-slide {
-    position: absolute;
-    top: var(--space-1);
-    left: var(--gutter);
-    width: var(--card-w);
-    transform: translateX(calc(var(--n) * (var(--card-w) + var(--slide-gap))));
-    transition: transform 450ms var(--ease-out), opacity 450ms var(--ease-out);
-  }
-
-  .js .carousel.is-dragging .carousel-slide {
-    transition: none;
-  }
-
-  .js .carousel-card {
-    max-width: none;
-    -webkit-user-drag: none;
-  }
-
-  /* Screen readers still get each card's caption; sighted visitors see the shared one below. */
-  .js .carousel .slide-caption {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
-
-  .js .carousel-bar {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      "caption caption"
-      "controls link";
-    align-items: center;
-    row-gap: var(--space-1);
+  .js .track-bar {
+    grid-template-columns: minmax(max-content, 1fr) minmax(0, 40rem) minmax(max-content, 1fr);
+    grid-template-areas: "controls caption link";
+    column-gap: var(--space-3);
     margin-top: var(--space-3);
   }
 
-  .js .carousel-caption {
-    grid-area: caption;
-    display: block;
-    min-height: 3em;   /* room for two lines, so the page doesn't jump */
+  .js .track-caption {
+    min-height: 0;
+    text-align: center;
   }
 
-  .js .carousel-controls {
-    grid-area: controls;
-    display: flex;
-    margin-left: calc(-1 * (var(--space-5) - 16px) / 2);   /* line the arrow up with the text */
-  }
-
-  .js .carousel-bar .bracket-link {
-    grid-area: link;
-  }
-
-  @media (min-width: 768px) {
-    .js .carousel {
-      --card-w: clamp(240px, min((100svh - 18rem) * 0.8, 56cqw), 600px);
-      --slide-gap: var(--space-4);
-      --side-scale: 0.6;
-      --side-opacity: 0.35;
-    }
-
-    .js .carousel-slide {
-      left: calc(50% - var(--card-w) / 2);
-      opacity: var(--side-opacity);
-      transform:
-        translateX(calc(var(--card-w) * (1 + var(--side-scale)) / 2 + var(--slide-gap)
-          + (var(--n) - 1) * (var(--card-w) * var(--side-scale) + var(--slide-gap))))
-        scale(var(--side-scale));
-    }
-
-    .js .carousel-slide:first-child {
-      opacity: 1;
-      transform: none;
-    }
-
-    .js .carousel-bar {
-      grid-template-columns: minmax(max-content, 1fr) minmax(0, 40rem) minmax(max-content, 1fr);
-      grid-template-areas: "controls caption link";
-      column-gap: var(--space-3);
-    }
-
-    .js .carousel-caption {
-      min-height: 0;
-      text-align: center;
-    }
-
-    .js .carousel-bar .bracket-link {
-      justify-self: end;
-    }
+  .js .track-bar .bracket-link {
+    justify-self: end;
   }
 }
 
@@ -717,7 +728,7 @@ html:not(.js) .clock {
     right: 0;
     display: block;
     width: var(--preview-w);
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 3 / 4;
     pointer-events: none;
   }
 
@@ -944,6 +955,13 @@ html:not(.js) .clock {
   align-items: center;
   gap: 6px;
   color: var(--color-muted);
+}
+
+.track-arrow svg,
+.project-nav-label svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
 }
 
 .project-nav-title {

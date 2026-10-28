@@ -32,7 +32,7 @@ DIST_DIR = os.path.join(ROOT, "dist")
 
 # Size of the gray placeholder for each kind of slot, used until a real file exists.
 PLACEHOLDER_SIZES = {
-    "cover": (1600, 2000),     # 4:5, home carousel cards and the Work preview
+    "cover": (1500, 2000),     # 3:4, home cards and the Work preview
     "wide": (2400, 1350),      # 16:9, hero and full-width images and videos
     "pair": (1200, 1500),      # 4:5, each image in a two-image row
     "portrait": (1200, 1500),  # 4:5, the About portrait
@@ -640,29 +640,33 @@ class Builder:
         video = next((stem + ext for ext in COVER_VIDEO_EXTS if exists(stem + ext)), None)
         return rel, video
 
-    def slide_caption(self, p, index):
-        """'001  TypeLab — Font design playground', shared by the slide and the caption below."""
+    def card_caption(self, p, index):
+        """'001  TypeLab — Font design playground', on each home card and under the track."""
         return (f'<span class="index">{index + 1:03d}</span> '
-                f'<span class="slide-title">{inline(p["title"])}</span> '
-                f'<span class="slide-text">— {inline(p["oneLiner"])}</span>')
+                f'<span class="card-title">{inline(p["title"])}</span> '
+                f'<span class="card-text">— {inline(p["oneLiner"])}</span>')
 
-    def slide(self, p, index, total):
+    def home_card(self, p, index, total):
         rel, _ = self.cover(p)
-        loading = "high" if index == 0 else "eager" if index < 3 else "lazy"
+        # All eager: the stage clips the cards, so lazy ones would only load once on screen.
+        loading = "high" if index == 0 else "eager"
         img = self.img(rel, p["cover"].get("alt"), "cover", p["title"], loading)
-        return (f'          <div class="carousel-slide" style="--n: {index}" role="group" '
-                f'aria-roledescription="slide" aria-label="{index + 1} of {total}">\n'
-                f'            <a class="carousel-card" href="/work/{p["slug"]}/">\n'
-                f'              <span class="carousel-media">{img}</span>\n'
-                f'              <span class="slide-caption">{self.slide_caption(p, index)}</span>\n'
+        # Where the card sits before track.js runs: first card in the middle, the rest
+        # around it as on a loop (with five: 0, 1, 2, -2, -1).
+        offset = index if index <= total / 2 else index - total
+        return (f'          <li class="track-item" style="--d: {offset}">\n'
+                f'            <a class="track-card" href="/work/{p["slug"]}/">\n'
+                f'              <span class="track-media">{img}</span>\n'
+                f'              <span class="card-caption">{self.card_caption(p, index)}</span>\n'
                 f'            </a>\n'
-                f'          </div>')
+                f'          </li>')
 
     def build_home(self):
         total = len(self.projects)
-        slides = "\n".join(self.slide(p, i, total) for i, p in enumerate(self.projects))
-        content = render("home.html", slides=slides,
-                         caption=self.slide_caption(self.projects[0], 0))
+        cards = "\n".join(self.home_card(p, i, total) for i, p in enumerate(self.projects))
+        content = render("home.html", cards=cards,
+                         caption=self.card_caption(self.projects[0], 0),
+                         track_version=file_version("assets/js/track.js"))
         self.page("index.html", "home", "/", self.site["title"], self.site["description"],
                   content, "page-home", image=self.og_image())
 

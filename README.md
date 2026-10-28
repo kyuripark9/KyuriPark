@@ -21,7 +21,7 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 
 | Address | What it is |
 | --- | --- |
-| `/` | Home: the focus carousel, one card per project |
+| `/` | Home: one card per project on an endless loop, filling the screen |
 | `/work/` | Work: numbered list of every project, with an image preview on hover |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html` |
 | `/about/` | Portrait, About text, experience, contact links |
@@ -39,7 +39,8 @@ assets/images/og.png    link-preview image (1200×630)
 assets/fonts/           Inter, Geist Mono, and (optional) your wordmark font
 assets/Kyuri-Park-Resume.pdf
 assets/css/style.css    all styling; colors, type sizes, and spacing are at the top
-assets/js/main.js       clock, phone menu, carousel, Work preview, fade-ups, count-up
+assets/js/main.js       clock, phone menu, Work preview, fade-ups, count-up
+assets/js/track.js      the home project loop
 templates/              page structure (header, footer, home, work, project, about, 404)
 dist/                   the generated site. Never edit; it's rebuilt every time.
 ```
@@ -55,7 +56,7 @@ dist/                   the generated site. Never edit; it's rebuilt every time.
 ## Add a project
 
 1. In `content/projects.json`, copy an existing project (from its `{` to its matching `}`) and paste it
-   where it should appear. The order in the file is the order everywhere: the carousel, the
+   where it should appear. The order in the file is the order everywhere: the home cards, the
    numbers (001, 002, ...), the Work list, and Previous / Next (which loop around at the ends).
    The count in "Work [05]" updates on its own.
 2. Give it a new `slug`: lowercase letters, numbers, and hyphens. Its page will be `/work/<slug>/`.
@@ -65,11 +66,11 @@ dist/                   the generated site. Never edit; it's rebuilt every time.
 | Field | Where it shows |
 | --- | --- |
 | `title` | Everywhere |
-| `oneLiner` | Under the carousel (8 words max) |
+| `oneLiner` | Under the home loop when that project is in the middle (8 words max) |
 | `category` | Work list, and as "Type" on the project page |
 | `year` | Work list and the project page |
 | `statement` | The one big sentence under the project's metadata (leave it out to hide it) |
-| `cover` | Carousel card and Work preview |
+| `cover` | Home card and Work preview |
 | `meta.role`, `meta.tools` | Project page metadata row |
 | `meta.link` | `{ "label": "typelab.ink", "url": "https://typelab.ink" }`, or `null` to hide it |
 | `hero` | The large image or video at the top of the project page (same format as a block below) |
@@ -123,7 +124,7 @@ Recommended exports (WebP, or AVIF; JPG and PNG work too):
 
 | Slot | Size | Notes |
 | --- | --- | --- |
-| Cover (carousel + Work preview) | 1600 × 2000 | Always shown at 4:5, cropped to fill |
+| Cover (home card + Work preview) | 1500 × 2000 | Always shown at 3:4, cropped to fill |
 | Hero and full-width | 2400 px wide | Any height; the hero runs edge to edge |
 | Two-image row | 1200 px wide each | Same ratio for both looks best |
 | About portrait | 1200 × 1500 | |
@@ -157,14 +158,24 @@ in `assets/css/style.css`.
 
 ## Motion
 
-The site keeps motion to a short list: the home carousel, the Work hover preview, the header
+The site keeps motion to a short list: the home loop, the Work hover preview, the header
 clock, images fading up on project pages, a 300 ms fade between pages (in browsers that support
 it; others switch pages instantly), and impact numbers counting up. If a visitor has reduced
-motion turned on, all of it is off and the home page shows a plain list of the projects.
+motion turned on, all of it is off, and the home loop jumps from card to card without easing.
 
-Carousel controls: click a side card to bring it to the middle and click the middle card to open
-it; drag or swipe; left and right arrow keys (Home / End jump to the ends) with Enter to open;
-sideways trackpad swipes or Shift + mouse wheel. Plain up/down scrolling always scrolls the page.
+Home loop: the home page fills the screen and doesn't scroll; after the last project comes the
+first again, both ways. Mouse wheel or trackpad (down/right = next), drag, swipe, the arrow
+buttons, and the left/right arrow keys all move it; after a short pause it settles with one card
+in the middle. Click the middle card to open it; click a side card to bring it to the middle.
+Tab moves through the cards, bringing each to the middle. Without JavaScript, the home page is a
+plain list of the projects.
+
+To tune it:
+- `assets/js/track.js`, at the top: `WHEEL_SPEED` (cards per pixel of wheel/trackpad scroll),
+  `WHEEL_MAX` (the most one wheel event can count for, which tames trackpad flicks),
+  `SETTLE_DELAY` (ms of no input before it settles), `EASE` (how quickly it glides).
+- `assets/css/style.css`, "Home: project track": `--card-gap` (space between cards, in px;
+  one value for phones, one from 768px), `--card-w`, `--side-scale`, `--side-opacity`.
 
 ## Deploy
 

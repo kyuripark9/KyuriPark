@@ -459,8 +459,8 @@ mark.placeholder {
 
 /* With JavaScript, Home fills the screen and doesn't scroll. The cards sit on a loop
    that track.js turns; these rules size them and set where they start.
-     --card-w        the middle card's width: 62vh tall at 3:4, but from 1024px never so
-                     wide that the five cards don't fit across; nearly full width on phones
+     --card-w        the middle card's width: 62vh tall at 3:4 (the outer cards may run off
+                     the screen's edges); nearly full width on phones
                      (--peek is how much of each neighbor shows there)
      --card-gap      space between cards as drawn, whatever their size
      --caption-room  kept free under the middle card (and so over it) for the caption,
@@ -577,14 +577,6 @@ mark.placeholder {
 @media (min-width: 768px) {
   .js .track {
     --card-gap: var(--space-3);
-  }
-}
-
-/* The middle card and two on each side, with a gap's room left at either edge. */
-@media (min-width: 1024px) {
-  .js .track {
-    --card-w: min(min(62vh, 100cqh - 2 * var(--caption-room)) * 0.75,
-                  (100cqw - 6 * var(--card-gap)) / (1 + 2 * var(--scale-1) + 2 * var(--scale-2)));
   }
 }
 

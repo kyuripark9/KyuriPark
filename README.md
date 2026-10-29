@@ -220,15 +220,13 @@ on refresh; with reduced motion there's no intro at all. To tune it:
 
 ## Deploy
 
-Push this folder to GitHub (`dist/` is ignored; the host builds it). Then do one of these:
-
-- **Netlify:** Add new site → Import an existing project → pick the repo. `netlify.toml` already sets
-  the build command (`python3 build.py`) and the output folder (`dist`).
-  No Git? Run `python3 build.py` and drag the `dist` folder onto https://app.netlify.com/drop.
-- **Vercel:** Add New → Project → import the repo. `vercel.json` already sets the build and output.
+The site is hosted on Netlify. Push this folder to GitHub (`dist/` is ignored; Netlify builds it).
+On Netlify: Add new site → Import an existing project → pick the repo. `netlify.toml` already sets
+the build command (`python3 build.py`) and the output folder (`dist`).
+No Git? Run `python3 build.py` and drag the `dist` folder onto https://app.netlify.com/drop.
 
 After the first deploy, put the site's address in `"siteUrl"` in `content/site.json`
 (for example `"https://kyuripark.com"`) and push again. Link previews need the full address.
 Until then, `python3 build.py serve` uses the local address (http://localhost:...) in its place,
 and deployed builds simply leave those full-address tags out.
-Custom domains are set up in the host's domain settings.
+Custom domains are set up in Netlify's domain settings.

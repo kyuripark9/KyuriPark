@@ -223,8 +223,6 @@ button {
 
 .project-title,
 .project-statement,
-.work-title,
-.work-name,
 .impact-value,
 .about-text .lead,
 .not-found-title {
@@ -241,13 +239,15 @@ button {
 
 /* Mono: numbers, years, labels, the footer. */
 .index,
-.work-count,
-.work-year,
+.work-tab,
+.work-category,
+.work-to-archive,
+.work-back,
 .project-meta dt,
 .project-nav-label,
-.archive-title,
 .archive-meta,
 .lightbox-meta,
+.track-tab,
 .site-footer {
   font-family: var(--font-mono);
   font-size: var(--size-label);
@@ -409,8 +409,10 @@ mark.placeholder {
   padding-inline: var(--gutter);
 }
 
+/* A project's card is a link; an Archive item's is a button (it opens the lightbox). */
 .track-card {
   display: block;
+  width: 100%;
   max-width: 28rem;
 }
 
@@ -429,7 +431,9 @@ mark.placeholder {
 }
 
 /* The title at the card's left edge, the one-liner at its right, smaller and kept to the
-   right half (it wraps before it reaches the middle). */
+   right half (it wraps before it reaches the middle). Sizes as in the example
+   (focuscarouselpro.framer.website): 16px title, 14px one-liner, the Home caption's only
+   size outside the three. */
 .card-caption,
 .js .track-caption {
   display: flex;
@@ -442,9 +446,14 @@ mark.placeholder {
   margin-top: var(--space-2);
 }
 
+.card-title {
+  line-height: 1.3;
+}
+
 .card-text {
   max-width: calc(50% - var(--space-2));
-  font-size: var(--size-label);
+  font-size: 0.875rem;
+  line-height: 1.6;
   text-align: right;
 }
 
@@ -452,25 +461,29 @@ mark.placeholder {
   margin-right: var(--space-1);
 }
 
-/* The caption under the middle card needs track.js. */
-.track-caption {
+/* The caption under the middle card, and the Selected / Archive toggle, need track.js. */
+.track-caption,
+.track-tabs {
   display: none;
 }
 
 /* With JavaScript, Home fills the screen and doesn't scroll. The cards sit on a loop
    that track.js turns; these rules size them and set where they start.
-     --card-w        the middle card's width: 62vh tall at 3:4 (the outer cards may run off
-                     the screen's edges); nearly full width on phones
-                     (--peek is how much of each neighbor shows there)
+   Sizes and places match the example (focuscarouselpro.framer.website) from 768px.
+     --card-w        the middle card's width: --card-max (400px, so 533px tall at 3:4),
+                     smaller when the screen is too short for it; nearly full width on
+                     phones (--peek is how much of each neighbor shows there)
      --card-gap      space between cards as drawn, whatever their size
-     --caption-room  kept free under the middle card (and so over it) for the caption,
-                     two lines of it
-     --scale-1, --opacity-1   one step from the middle
-     --scale-2, --opacity-2   two steps or more
-     --opacity-3     three steps or more: hidden, so five cards show at most
+     --room-top      kept free over the middle card, under the header
+     --room-bottom   kept free under the middle card, for its caption
+     --scale-1       size one step from the middle; --scale-2 two steps or more
+     --opacity-1, --grayscale-1, --brightness-1   one step from the middle and beyond
+     --fade-step     each step past the first multiplies the opacity by this
+     --blur-step     and adds this much blur
    track.js eases between the steps.
    Before track.js runs, each card sits at its --d (a whole number of steps out), split
-   into its first step --d1 and second --d2 (each -1, 0, or 1) and any further ones --dn. */
+   into its first step --d1 and second --d2 (each -1, 0, or 1) and any further ones --dn;
+   --beyond counts the steps past the first. */
 .js body:has(> .page-home) {
   height: 100vh;
   height: 100dvh;
@@ -487,14 +500,20 @@ mark.placeholder {
 .js .track {
   --card-gap: var(--space-2);
   --peek: var(--space-2);
-  --caption-room: var(--space-12);
-  --card-w: min(min(62vh, 100cqh - 2 * var(--caption-room)) * 0.75,
+  --card-max: 400px;
+  --room-top: 39px;
+  --room-bottom: 72px;
+  --card-w: min(var(--card-max),
+                (100cqh - var(--room-top) - var(--room-bottom)) * 0.75,
                 100cqw - 2 * (var(--card-gap) + var(--peek)));
+  --card-y: calc(50% + (var(--room-top) - var(--room-bottom)) / 2);  /* its center */
   --scale-1: 0.52;
-  --opacity-1: 0.55;
   --scale-2: 0.52;
-  --opacity-2: 0.3;
-  --opacity-3: 0;
+  --opacity-1: 1;
+  --grayscale-1: 1;
+  --brightness-1: 0.92;
+  --fade-step: 0.86;
+  --blur-step: 2.5px;
   flex: 1;
 }
 
@@ -519,14 +538,17 @@ mark.placeholder {
   --d1: clamp(-1, var(--d), 1);
   --d2: clamp(-1, var(--d) - var(--d1), 1);
   --dn: calc(var(--d) - var(--d1) - var(--d2));
+  --beyond: calc(var(--d2) * var(--d2) + sqrt(var(--dn) * var(--dn)));
   position: absolute;
-  top: 50%;
+  top: var(--card-y);
   left: 50%;
   width: var(--card-w);
   margin: calc(var(--card-w) * -2 / 3) 0 0 calc(var(--card-w) * -0.5);
-  opacity: calc(1 - var(--d1) * var(--d1) * (1 - var(--opacity-1))
-                  - var(--d2) * var(--d2) * (var(--opacity-1) - var(--opacity-2))
-                  - var(--dn) * var(--dn) * (var(--opacity-2) - var(--opacity-3)));
+  opacity: calc((1 - var(--d1) * var(--d1) * (1 - var(--opacity-1)))
+                * pow(var(--fade-step), var(--beyond)));
+  filter: grayscale(calc(var(--d1) * var(--d1) * var(--grayscale-1)))
+          brightness(calc(1 - var(--d1) * var(--d1) * (1 - var(--brightness-1))))
+          blur(calc(var(--beyond) * var(--blur-step)));
   transform:
     translateX(calc(var(--d) * var(--card-gap) + var(--card-w) * (
       var(--d1) * (1 + var(--scale-1)) / 2
@@ -555,7 +577,7 @@ mark.placeholder {
    triangle pointing up at the card from the middle of the caption's top edge. */
 .js .track-caption {
   position: absolute;
-  top: calc(50% + var(--card-w) * 2 / 3 + var(--space-2));
+  top: calc(var(--card-y) + var(--card-w) * 2 / 3 + var(--space-2));
   left: 50%;
   width: var(--card-w);
   margin: 0 0 0 calc(var(--card-w) * -0.5);
@@ -574,9 +596,45 @@ mark.placeholder {
   forced-color-adjust: none;  /* keeps the transparent sides transparent */
 }
 
+/* Selected / Archive (once the Archive has three items or more), centered 16px over the
+   middle card. The one showing is underlined; the other is faint until hovered. */
+.js .track-tabs {
+  position: absolute;
+  z-index: 1;
+  right: 0;
+  bottom: calc(100% - var(--card-y) + var(--card-w) * 2 / 3 + var(--space-2));
+  left: 0;
+  display: flex;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.track-tab,
+.work-tab {
+  /* A bigger tap target without moving the text, like the Menu button. */
+  margin: calc(-1 * var(--space-1));
+  padding: var(--space-1);
+  opacity: 0.45;
+  transition: opacity var(--fade);
+}
+
+.track-tab:hover,
+.track-tab[aria-selected="true"],
+.work-tab:hover,
+.work-tab[aria-selected="true"] {
+  opacity: 1;
+}
+
+.track-tab[aria-selected="true"],
+.work-tab[aria-selected="true"] {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
 @media (min-width: 768px) {
   .js .track {
-    --card-gap: var(--space-3);
+    --card-gap: 22px;
   }
 }
 
@@ -592,7 +650,7 @@ mark.placeholder {
      --intro-size      the line's type size
      --intro-image     the corner image's width and height (it's square)
      --intro-margin    the corner image's distance from the bottom and right edges */
-.js:not(.intro-done) body:has(> .page-home) :is(.identity, .site-nav, .track-row, .track-caption) {
+.js:not(.intro-done) body:has(> .page-home) :is(.identity, .site-nav, .track-tabs, .track-row, .track-caption) {
   opacity: 0;
 }
 
@@ -636,152 +694,203 @@ mark.placeholder {
   aspect-ratio: auto;
 }
 
-/* Work index ------------------------------------------------------------ */
+/* Work ------------------------------------------------------------------ */
 
-.work-title {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-1);
-  margin-bottom: var(--space-6);
+/* Selected / Archive at the top, left on the page margin: the same toggle as Home's
+   (see .track-tab), with each group's count after it, smaller. main.js shows one grid at
+   a time; without JavaScript there's no toggle and the grids follow each other. */
+.page-work {
+  --tile-gap: var(--space-3);   /* between tiles, across and down */
+  --tile-fill: #eeede8;         /* the "Archive 06 →" tile */
 }
 
-.work-count {
-  padding-top: 0.5em;
-  font-size: var(--size-label);
-  letter-spacing: 0.02em;
-}
-
-.work {
-  position: relative;
-}
-
-.work-list {
-  border-top: 1px solid var(--color-line);
-}
-
-/* Phones: the title gets the full width; category and year share the line below. */
-.work-row {
-  display: grid;
-  grid-template-columns: var(--space-6) minmax(0, 1fr) auto;
-  grid-template-areas:
-    "num name name"
-    ". category year";
-  column-gap: var(--space-2);
-  align-items: baseline;
-  padding-block: var(--space-2);
-  border-bottom: 1px solid var(--color-line);
-}
-
-.work-row .index {
-  grid-area: num;
-  margin: 0;
-}
-
-.work-name {
-  grid-area: name;
-}
-
-.work-category {
-  grid-area: category;
-  color: var(--color-muted);
-}
-
-.work-year {
-  grid-area: year;
-  text-align: right;
-}
-
-.work-row:focus-visible {
-  outline-offset: -2px;
-}
-
-@media (min-width: 768px) {
-  .work-row {
-    grid-template-columns: var(--space-8) minmax(0, 3fr) minmax(0, 2fr) minmax(var(--space-8), auto);
-    grid-template-areas: "num name category year";
-    column-gap: var(--space-3);
-    padding-block: var(--space-3);
+@media (min-width: 1024px) {
+  .page-work {
+    --tile-gap: var(--space-5);
   }
 }
 
-/* Hover preview: wide screens with a mouse only. Rows leave room on the right
-   for the image, which fades in at a fixed spot. */
-.work-preview {
+.work-tabs {
   display: none;
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .work-row {
-    transition: color var(--fade);
-  }
-
-  .work-list:hover .work-row:not(:hover) {
-    color: var(--color-muted);
-  }
+.js .work-tabs {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--tile-gap);
 }
 
-@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
-  .js .work {
-    --preview-w: clamp(240px, 24vw, 340px);
-  }
-
-  .js .work-row {
-    padding-right: calc(var(--preview-w) + var(--space-6));
-  }
-
-  .js .work-preview {
-    position: absolute;
-    top: 0;
-    right: 0;
-    display: block;
-    width: var(--preview-w);
-    aspect-ratio: 3 / 4;
-    pointer-events: none;
-  }
-
-  .work-preview-item {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    transition: opacity 250ms ease;
-  }
-
-  .work-preview-item.is-active {
-    opacity: 1;
-  }
-
-  .work-preview-item img,
-  .work-preview-item video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    background: var(--color-fill);
-  }
-
-  .work-preview-item video {
-    position: absolute;
-    inset: 0;
-  }
+/* An inline block, so the active tab's underline stops at the label. */
+.work-count {
+  display: inline-block;
+  margin-left: 0.5em;
+  font-size: 0.625rem;  /* 10px */
+  color: var(--color-muted);
 }
 
-/* Work: archive --------------------------------------------------------- */
-
-/* A grid of 4:5 thumbnails: 2 across on phones, 3 from 768px, 4 from 1024px.
-   Each thumbnail is a button; its click area stretches over the caption too. */
-.archive {
+.work-panel + .work-panel {
   margin-top: var(--section-gap);
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--color-line);
 }
 
-.archive-title {
-  margin-bottom: var(--space-4);
+.js .work-panel + .work-panel {
+  margin-top: 0;
 }
 
+/* Selected: 1 across on phones, 2 from 768px, 3 from 1024px. Each tile is "001 TypeLab"
+   and the category over a 4:5 cover. A tile sits at the bottom of its row, so the covers
+   in a row line up even when a caption runs to two lines. */
+.work-grid,
 .archive-grid {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--tile-gap);
+}
+
+@media (min-width: 768px) {
+  .work-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .work-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.work-grid > li,
+.archive-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.work-card,
+.archive-tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  text-align: left;
+}
+
+.work-caption,
+.archive-caption {
+  display: flex;
+  align-items: baseline;
+}
+
+.work-caption .index {
+  flex: none;
+  margin-right: var(--space-2);
+}
+
+.work-name {
+  min-width: 0;
+  font-weight: 500;
+}
+
+.work-category {
+  margin-left: auto;
+  padding-left: var(--space-2);
+  color: var(--color-muted);
+  text-align: right;
+}
+
+/* The image fills a 4:5 frame (a plain gray block until it exists). */
+.work-media,
+.archive-media {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--color-fill);
+}
+
+.work-media img,
+.work-media video,
+.archive-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 250ms ease;
+}
+
+/* The cover's video (main.js adds it on hover) fades in over the image. */
+.work-media video {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 250ms ease, transform 250ms ease;
+}
+
+.work-media.is-playing video {
+  opacity: 1;
+}
+
+/* Hovered, the image grows a little inside its frame. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .work-card:hover :is(img, video),
+  .archive-tile:hover img {
+    transform: scale(1.03);
+  }
+}
+
+/* "Archive 06 →" in the empty spot after the projects: a plain tile the size of a cover.
+   Left out where it would sit alone in its row; on phones, just the words. */
+.work-to-archive {
+  display: flex;
+  align-items: flex-end;
+  aspect-ratio: 4 / 5;
+  padding: var(--space-2);
+  background: var(--tile-fill);
+  transition: background-color 250ms ease;
+}
+
+.work-to-archive svg,
+.work-back svg {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+}
+
+.work-to-archive svg {
+  margin-left: var(--space-1);
+}
+
+@media (hover: hover) {
+  .work-to-archive:hover {
+    background-color: var(--color-fill);
+  }
+}
+
+@media (max-width: 767px) {
+  .work-to-archive {
+    aspect-ratio: auto;
+    padding: 0;
+    background: none;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .work-more:nth-child(2n + 1) {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .work-more:nth-child(3n + 1) {
+    display: none;
+  }
+}
+
+/* Archive: smaller tiles, 2 across on phones, 3 from 768px, 4 from 1024px. The title and
+   "Category · Year" over the image, in label type. A tile opens the lightbox. */
+.archive-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-5) var(--media-gap);
 }
 
 @media (min-width: 768px) {
@@ -796,53 +905,31 @@ mark.placeholder {
   }
 }
 
-.archive-item {
-  position: relative;
-}
-
-.archive-thumb {
-  display: block;
-  width: 100%;
-}
-
-.archive-thumb::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-}
-
-.archive-media {
-  display: block;
-  aspect-ratio: 4 / 5;
-  overflow: hidden;
-  background: var(--color-fill);
-}
-
-.archive-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 .archive-caption {
-  margin-top: var(--space-1);
+  flex-wrap: wrap;
+  column-gap: var(--space-1);
+  font-size: var(--size-label);
+  line-height: 1.5;
 }
 
 .archive-name {
-  display: block;
   font-weight: 500;
-  transition: color var(--fade);
 }
 
 .archive-meta {
-  display: block;
+  margin-left: auto;
   color: var(--color-muted);
+  text-align: right;
 }
 
-@media (hover: hover) {
-  .archive-item:hover .archive-name {
-    color: var(--color-muted);
-  }
+/* After the Archive: "← Selected". */
+.work-back {
+  display: inline-block;
+  margin-top: var(--tile-gap);
+}
+
+.work-back svg {
+  margin-right: var(--space-1);
 }
 
 /* The lightbox (main.js opens it): the item's images, scrolling if there are several,

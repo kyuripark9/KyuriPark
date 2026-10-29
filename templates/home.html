@@ -1,12 +1,16 @@
     <h1 class="visually-hidden">Selected work</h1>
-    <section class="track" aria-roledescription="carousel" aria-label="Selected work">
+    <section class="track" aria-roledescription="carousel" aria-label="Work">
       <div class="track-stage">
-        <ul class="track-row" id="track-row" role="list">
+{{ tabs }}
+        <div class="track-panel"{{ panel }}>
+          <ul class="track-row" id="track-row" role="list">
 {{ cards }}
-        </ul>
-        <p class="track-caption" aria-live="polite">{{ caption }}</p>
+          </ul>
+          <p class="track-caption" aria-live="polite">{{ caption }}</p>
+        </div>
       </div>
     </section>
+{{ lightbox }}
     <script src="/assets/js/track.js?v={{ track_version }}" defer></script>
     <script>
       // The intro, on the first visit to Home in a browser session: a black screen with the name

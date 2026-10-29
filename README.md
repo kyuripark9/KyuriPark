@@ -21,8 +21,8 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 
 | Address | What it is |
 | --- | --- |
-| `/` | Home: one card per project on an endless loop, filling the screen |
-| `/work/` | Work: numbered list of every project, with an image preview on hover; the Archive grid below it |
+| `/` | Home: one card per project on an endless loop, filling the screen; "Selected   Archive" above it switches the loop to the Archive (`/#archive`) |
+| `/work/` | Work: "Selected 05   Archive 06" at the top switches between a grid of numbered tiles, one per project, and the Archive, a grid of smaller tiles (`/work/#archive`) |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html` |
 | `/about/` | Portrait, About text, experience, contact links |
 
@@ -32,8 +32,8 @@ Home, which has no footer, it goes to About's) and a section on About.
 ## Where things live
 
 ```
-content/projects.json   every project: order, title, one-liner, category, year, page blocks
-content/archive.json    Archive items on the Work page (see "Archive" below)
+content/projects.json   every project (order, title, one-liner, category, year, page blocks),
+                        then the Archive items (see "Archive" below)
 content/site.json       name, email, LinkedIn, GitHub, resume, About text, experience, SEO text
 assets/images/<slug>/   images and videos for each project
 assets/images/about/    About portrait
@@ -42,9 +42,10 @@ assets/images/og.png    link-preview image (1200×630)
 assets/fonts/           Inter, Geist Mono, and (optional) your wordmark font
 assets/Kyuri-Park-Resume.pdf
 assets/css/style.css    all styling; colors, type sizes, and spacing are at the top
-assets/js/main.js       phone menu, Work preview, Archive lightbox, fade-ups, count-up
+assets/js/main.js       phone menu, Work's Selected / Archive, Archive lightbox, fade-ups, count-up
 assets/js/track.js      the home project loop
-templates/              page structure (header, footer, home, work, archive, project, about, 404)
+templates/              page structure (header, footer, home and its toggle, work and its toggle,
+                        archive, lightbox, project, about, 404)
 dist/                   the generated site. Never edit; it's rebuilt every time.
 ```
 
@@ -59,20 +60,21 @@ dist/                   the generated site. Never edit; it's rebuilt every time.
 
 1. In `content/projects.json`, copy an existing project (from its `{` to its matching `}`) and paste it
    where it should appear. The order in the file is the order everywhere: the home cards, the
-   numbers (001, 002, ...), the Work list, and Previous / Next (which loop around at the ends).
-   The count in "Work [05]" updates on its own.
+   numbers (001, 002, ...), the Work cards, and Previous / Next (which loop around at the ends).
+   The count in "Selected 05" updates on its own.
 2. Give it a new `slug`: lowercase letters, numbers, and hyphens. Its page will be `/work/<slug>/`.
 3. Create the folder `assets/images/<slug>/`.
 4. Fill in the fields:
 
 | Field | Where it shows |
 | --- | --- |
+| `group` | `"selected"` for a project (the Archive's items say `"archive"`) |
 | `title` | Everywhere |
 | `oneLiner` | Under the home loop when that project is in the middle (8 words max) |
-| `category` | Work list, and as "Type" on the project page |
-| `year` | Work list and the project page |
+| `category` | Work card (right of the name), and as "Type" on the project page |
+| `year` | The project page |
 | `statement` | The one big sentence under the project's metadata (leave it out to hide it) |
-| `cover` | Home card and Work preview |
+| `cover` | Home card and Work card |
 | `meta.role`, `meta.tools` | Project page metadata row |
 | `meta.link` | `{ "label": "typelab.ink", "url": "https://typelab.ink" }`, or `null` to hide it |
 | `hero` | The large image or video at the top of the project page (same format as a block below) |
@@ -118,14 +120,20 @@ Blocks appear in the order you list them. The template uses Context → Explore 
 
 ## Archive
 
-Smaller pieces, shown as a grid of thumbnails under the Work list. Clicking one opens it larger
+Smaller pieces, shown as a grid of small tiles on the Work page's Archive tab (`/work/#archive`;
+the tile after the projects, "Archive 06 →", goes there too, and "← Selected" at the end of the
+Archive goes back). Each tile shows the title and "Category · Year" over the image. Clicking one opens it larger
 in a lightbox (Esc, Close, or a click outside the image closes it; ← and → step through the
-items). Archive items don't get their own pages and don't appear on Home or in the menu.
+items). Archive items don't get their own pages and aren't in the menu. On Home, the "Archive"
+toggle puts them on the loop instead of the projects (the middle card opens the same lightbox);
+the toggle shows once there are at least 3 items.
 
-They live in `content/archive.json`, their images in `assets/images/archive/`:
+They live in `content/projects.json` too, after the projects, each with `"group": "archive"`.
+Their images go in `assets/images/archive/`:
 
 ```json
 {
+  "group": "archive",
   "title": "Editorial Projects",
   "category": "Editorial",
   "year": "2025",
@@ -135,11 +143,12 @@ They live in `content/archive.json`, their images in `assets/images/archive/`:
 ```
 
 - **Add one:** copy an item (from its `{` to its matching `}`), paste it where it should go,
-  and fill it in. The count in "Archive [06]" updates on its own. Keep it to about 10;
+  and fill it in. The count in "Archive 06" updates on its own. Keep it to about 10;
   the build prints a note past that.
 - **Reorder:** move items up or down in the file. The file's order is the order of the grid and of ← / →.
-- **Remove:** delete the item. With none left (`[]`), the whole section disappears.
-- **Images:** the first one is the thumbnail. The lightbox shows all of them, one under the other.
+- **Remove:** delete the item. With none left, the whole section disappears (and with fewer than
+  3, Home's toggle).
+- **Images:** the first one is the thumbnail (on Home, the card, cropped to 3:4). The lightbox shows all of them, one under the other.
   `alt` describes them for screen readers; with several images, each gets "(1 of 3)" and so on added.
 
 ## Swap in real images and videos
@@ -152,7 +161,7 @@ Recommended exports (WebP, or AVIF; JPG and PNG work too):
 
 | Slot | Size | Notes |
 | --- | --- | --- |
-| Cover (home card + Work preview) | 1500 × 2000 | Always shown at 3:4, cropped to fill |
+| Cover (Home cards and Work tiles) | 1500 × 2000 | 3:4 on Home, 4:5 on Work, cropped to fill |
 | Hero and full-width | 2400 px wide | Any height; the hero runs edge to edge |
 | Two-image row | 1200 px wide each | Same ratio for both looks best |
 | About portrait | 1200 × 1500 | |
@@ -162,8 +171,8 @@ Aim for under ~500 KB per image. [Squoosh](https://squoosh.app) or Figma's expor
 Width and height are read from the file automatically, so the page doesn't jump while loading,
 and images further down the page load only when they're about to be seen.
 
-**Video on the Work preview:** put `cover.mp4` next to the cover image (same name, `.mp4`).
-Hovering that project's row on the Work page then plays it muted on a loop instead of showing the
+**Video on the Work tile:** put `cover.mp4` next to the cover image (same name, `.mp4`).
+Hovering that project's tile on the Work page then plays it muted on a loop over the
 image. Keep it short (3–8 s), silent, H.264, and under ~3 MB.
 
 **Clack demo:** Clack's hero is a video slot labeled "Demo video" (`demo.mp4`, with an optional
@@ -187,7 +196,7 @@ in `assets/css/style.css`.
 
 ## Motion
 
-The site keeps motion to a short list: the home loop and its intro, the Work hover preview, images
+The site keeps motion to a short list: the home loop and its intro, the Work toggle's fade, the Work tiles' images growing slightly (3%) and videos playing on hover, images
 fading up on project pages, a 300 ms fade between pages (in browsers that support it; others switch pages instantly), the Archive lightbox fading in and out (200 ms), and impact numbers counting up. If a visitor has reduced
 motion turned on, all of it is off, and the home loop jumps from card to card without easing.
 
@@ -198,15 +207,36 @@ its title and one-liner under it (title at the card's left edge, one-liner at it
 Tab moves through the cards, bringing each to the middle. Without JavaScript, the home page is a
 plain list of the projects.
 
+"Selected   Archive" over the middle card switches the loop between the projects and the
+Archive: the cards fade out, the other group comes on with its first card in the middle, and
+they fade in (with reduced motion, it just switches). The address shows `#selected` or
+`#archive`, so Back from another page returns to the same one; the intro always lands on
+Selected. Click it, or Tab to it and press Enter or Space. In the Archive, the middle card opens
+the lightbox and closing it brings the item you were looking at to the middle.
+
 To tune it:
 - `assets/js/track.js`, at the top: `WHEEL_SPEED` (cards per pixel of wheel/trackpad scroll),
   `WHEEL_MAX` (the most one wheel event can count for, which tames trackpad flicks),
-  `SETTLE_DELAY` (ms of no input before it settles), `EASE` (how quickly it glides).
+  `SETTLE_DELAY` (ms of no input before it settles), `EASE` (how quickly it glides),
+  `FADE_OUT` / `FADE_IN` (ms the cards take to fade out and in when the toggle switches groups).
 - `assets/css/style.css`, "Home: project track": `--card-gap` (space between cards, in px;
-  one value for phones, one from 768px), `--card-w`, `--peek`, `--caption-room` (kept free under
-  the middle card for its caption; on short screens the card shrinks to keep it), `--scale-1` / `--opacity-1` (cards
-  one step from the middle), `--scale-2` / `--opacity-2` (two steps or more), `--opacity-3` (three
-  or more; 0 keeps it to five cards on screen).
+  one value for phones, one from 768px), `--card-max` (the middle card's width, 400px),
+  `--card-w`, `--peek`, `--room-top` / `--room-bottom` (kept free over and under the middle card;
+  on short screens the card shrinks to keep them), `--scale-1` (card size one step from the
+  middle), `--scale-2` (two steps or more), `--opacity-1` / `--grayscale-1` / `--brightness-1`
+  (cards one step from the middle and beyond: full opacity, grey, a little darker),
+  `--fade-step` (each further step multiplies the opacity by this), `--blur-step` (and adds
+  this much blur).
+
+Work: "Selected 05   Archive 06" at the top (the same toggle as Home's, with the counts) switches
+between the two grids: the grid fades out (150 ms), the other comes on and fades in (250 ms);
+with reduced motion it just switches. The address shows `#selected` or `#archive`, as on Home.
+Selected is 1 column on phones, 2 from 768px, 3 from 1024px; the Archive 2, 3, 4. When there's
+an empty spot after the projects, the "Archive 06 →" tile fills it; where it would sit alone in a
+row it's left out, and on phones it's just the words. To tune it:
+- `assets/js/main.js`, the Work section: `FADE_OUT` / `FADE_IN`.
+- `assets/css/style.css`, "Work": `--tile-gap` (space between tiles: 24px, 40px from 1024px),
+  `--tile-fill` (the "Archive 06 →" tile's gray).
 
 Home intro: the first time Home opens in a browser tab, the screen is black, with the name and
 role in capitals in the middle and the projects' covers taking turns in the bottom-right corner.

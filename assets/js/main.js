@@ -1,6 +1,6 @@
 // Enhancements on top of pages that already work without JavaScript:
-// the phone menu, Work previews, the Archive lightbox, and project-page motion
-// (image fade-up, count-up numbers, looping videos). The home track is in track.js.
+// the phone menu, Work's Selected / Archive and card videos, the Archive lightbox, and
+// project-page motion (image fade-up, count-up numbers, looping videos). The home track is in track.js.
 (() => {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const fineHover = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -30,51 +30,125 @@
     });
   }
 
-  // Work index: hovering (or focusing) a row shows its cover, or its video if there is one.
-  const preview = document.querySelector(".work-preview");
-  if (preview) {
-    const items = [...preview.querySelectorAll(".work-preview-item")];
-    let shown = null;
-    const hide = () => {
-      if (!shown) return;
-      shown.classList.remove("is-active");
-      const video = shown.querySelector("video");
-      if (video) video.pause();
-      shown = null;
+  // Work: Selected or the Archive, one grid at a time, switched like Home's toggle (track.js):
+  // the grid fades out, the other comes on and fades in, and the address says which
+  // (#selected, #archive), so Back from a project page returns to the same one.
+  const workTabs = [...document.querySelectorAll(".work-tab")];
+  if (workTabs.length) {
+    const FADE_OUT = 150;  // ms
+    const FADE_IN = 250;   // ms
+    const grids = document.querySelector(".work-panels");
+    const panels = new Map(workTabs.map((tab) => {
+      const panel = document.getElementById(tab.getAttribute("aria-controls"));
+      // New ids, so the browser doesn't jump down to #archive on its own. (Without
+      // JavaScript, "Archive 06 →" and "← Selected" are links to these.)
+      panel.id = `panel-${tab.dataset.group}`;
+      tab.setAttribute("aria-controls", panel.id);
+      return [tab.dataset.group, panel];
+    }));
+    let shown;           // the grid on screen
+    let wanted;          // the grid picked last (it's on screen once a fade-out ends)
+    let fade = null;     // the fade under way
+    let fadingOut = false;
+    let toTop = false;   // scroll up to the tabs when the grids swap
+
+    const show = (name) => {
+      shown = name;
+      panels.forEach((panel, key) => { panel.hidden = key !== name; });
+      if (toTop) window.scrollTo(0, 0);
+      toTop = false;
     };
-    const show = (item) => {
-      if (shown === item) return;
-      hide();
-      if (!fineHover.matches) return;
-      shown = item;
-      item.classList.add("is-active");
-      if (!item.dataset.video || reduceMotion.matches) return;
-      let video = item.querySelector("video");
+    const mark = (name) => {
+      wanted = name;
+      workTabs.forEach((tab) => tab.setAttribute("aria-selected", String(tab.dataset.group === name)));
+    };
+
+    // Picking again while the grid fades out changes what comes on; while one fades in,
+    // it fades out from there.
+    const pick = (name) => {
+      if (!panels.has(name)) return;
+      mark(name);
+      history.replaceState(history.state, "", `#${name}`);
+      if (reduceMotion.matches) {
+        fade?.cancel();
+        fadingOut = false;
+        show(name);
+        return;
+      }
+      if (fadingOut) return;
+      if (name === shown) {
+        toTop = false;
+        return;
+      }
+      const from = Number(getComputedStyle(grids).opacity);
+      fade?.cancel();
+      fadingOut = true;
+      fade = grids.animate({ opacity: [from, 0] },
+        { duration: FADE_OUT * from, easing: "ease-in", fill: "forwards" });
+      fade.onfinish = () => {
+        fadingOut = false;
+        show(wanted);
+        fade.cancel();
+        fade = grids.animate({ opacity: [0, 1] }, { duration: FADE_IN, easing: "ease-out" });
+      };
+    };
+
+    workTabs.forEach((tab) => tab.addEventListener("click", () => pick(tab.dataset.group)));
+    // "Archive 06 →" after the projects and "← Selected" after the Archive: the grids swap,
+    // the page goes back up to the top, and focus moves to the tab (the link is gone).
+    document.querySelectorAll(".work-to-archive, .work-back").forEach((link) => {
+      link.addEventListener("click", (e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        e.preventDefault();
+        const name = link.hash.slice(1);
+        toTop = true;
+        pick(name);
+        workTabs.find((tab) => tab.dataset.group === name).focus({ preventScroll: true });
+      });
+    });
+    // A link or a typed address naming a grid (none: Selected).
+    window.addEventListener("hashchange", () => pick(location.hash.slice(1) || "selected"));
+
+    const start = panels.has(location.hash.slice(1)) ? location.hash.slice(1) : "selected";
+    mark(start);
+    show(start);
+  }
+
+  // Work tiles: hovering (or focusing) one plays its cover's video, if it has one.
+  document.querySelectorAll(".work-media[data-video]").forEach((media) => {
+    const card = media.closest(".work-card");
+    let video;
+    const play = () => {
+      if (!fineHover.matches || reduceMotion.matches) return;
       if (!video) {
         video = document.createElement("video");
-        video.src = item.dataset.video;
+        video.src = media.dataset.video;
         video.muted = true;
         video.loop = true;
         video.playsInline = true;
         video.setAttribute("muted", "");
-        item.appendChild(video);
+        media.appendChild(video);
       }
+      media.classList.add("is-playing");
       video.play().catch(() => {});
     };
-    document.querySelectorAll(".work-row").forEach((row) => {
-      const item = items[Number(row.dataset.index)];
-      row.addEventListener("mouseenter", () => show(item));
-      row.addEventListener("mouseleave", hide);
-      row.addEventListener("focus", () => show(item));
-      row.addEventListener("blur", hide);
-    });
-  }
+    const stop = () => {
+      if (!video) return;
+      media.classList.remove("is-playing");
+      video.pause();
+    };
+    card.addEventListener("mouseenter", play);
+    card.addEventListener("mouseleave", stop);
+    card.addEventListener("focus", play);
+    card.addEventListener("blur", stop);
+  });
 
-  // Archive lightbox: a thumbnail opens its item's images (copied from the item's <template>).
-  // Esc, Close, or a click outside the images and caption closes it, and focus goes back to
-  // the grid. Left/right arrow keys and buttons step through the items, looping at the ends.
+  // Archive lightbox: a thumbnail on Work, or the middle Archive card on Home, opens its item's
+  // images (copied from the item's <template>). Esc, Close, or a click outside the images and
+  // caption closes it, and focus goes back to that item's thumbnail or card. Left/right arrow
+  // keys and buttons step through the items, looping at the ends.
   const lightbox = document.getElementById("lightbox");
-  const thumbs = [...document.querySelectorAll(".archive-thumb")];
+  const thumbs = [...document.querySelectorAll("[data-item]")];  // one per item, in order
   if (lightbox && thumbs.length) {
     document.body.append(lightbox);  // out of <main>, so the rest of the page can go inert
     const stage = lightbox.querySelector(".lightbox-stage");
@@ -92,10 +166,10 @@
     };
     const show = (index) => {
       current = (index + thumbs.length) % thumbs.length;
-      const item = thumbs[current].closest(".archive-item");
+      const item = thumbs[current].closest("li");
       images.replaceChildren(item.querySelector("template").content.cloneNode(true));
-      name.innerHTML = item.querySelector(".archive-name").innerHTML;
-      meta.innerHTML = item.querySelector(".archive-meta").innerHTML;
+      name.innerHTML = item.querySelector(".archive-name, .card-title").innerHTML;
+      meta.innerHTML = item.querySelector(".archive-meta, .card-text").innerHTML;
       stage.scrollTop = 0;
       fit();
     };
@@ -117,6 +191,8 @@
       lightbox.classList.remove("is-open");
       setPageInert(false);
       thumbs[current].focus();
+      // On Home, track.js brings that card to the middle.
+      thumbs[current].dispatchEvent(new Event("lightboxclose", { bubbles: true }));
       current = -1;
       hiding = setTimeout(() => {
         lightbox.hidden = true;
@@ -124,7 +200,12 @@
       }, reduceMotion.matches ? 0 : 200);
     };
 
-    thumbs.forEach((thumb, i) => thumb.addEventListener("click", () => open(i)));
+    // Caught here rather than on each thumbnail because track.js copies the Home cards.
+    // track.js cancels the click on a side card (that card comes to the middle instead).
+    document.addEventListener("click", (e) => {
+      const thumb = e.target.closest("[data-item]");
+      if (thumb && !e.defaultPrevented) open(Number(thumb.dataset.item));
+    });
     lightbox.addEventListener("click", (e) => {
       const arrow = e.target.closest(".lightbox-arrow");
       if (arrow) show(current + Number(arrow.dataset.step));

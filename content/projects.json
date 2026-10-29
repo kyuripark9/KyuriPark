@@ -1,5 +1,6 @@
 [
   {
+    "group": "selected",
     "slug": "typelab",
     "title": "TypeLab",
     "oneLiner": "Font design playground",
@@ -98,6 +99,7 @@
     ]
   },
   {
+    "group": "selected",
     "slug": "clack",
     "title": "Clack",
     "oneLiner": "Staying focused while AI works",
@@ -195,6 +197,7 @@
     ]
   },
   {
+    "group": "selected",
     "slug": "nbcuniversal",
     "title": "NBCUniversal",
     "oneLiner": "[PLACEHOLDER one-liner]",
@@ -290,6 +293,7 @@
     ]
   },
   {
+    "group": "selected",
     "slug": "project-4",
     "title": "[PLACEHOLDER: Palette or Self-checkout]",
     "oneLiner": "[PLACEHOLDER one-liner]",
@@ -385,6 +389,7 @@
     ]
   },
   {
+    "group": "selected",
     "slug": "light-life",
     "title": "Light Life",
     "oneLiner": "[PLACEHOLDER one-liner]",
@@ -478,5 +483,65 @@
         ]
       }
     ]
+  },
+  {
+    "group": "archive",
+    "title": "[PLACEHOLDER title]",
+    "category": "[PLACEHOLDER category]",
+    "year": "[PLACEHOLDER year]",
+    "images": [
+      "item-1.webp"
+    ],
+    "alt": "[PLACEHOLDER] Archive item 1: image"
+  },
+  {
+    "group": "archive",
+    "title": "[PLACEHOLDER title]",
+    "category": "[PLACEHOLDER category]",
+    "year": "[PLACEHOLDER year]",
+    "images": [
+      "item-2.webp"
+    ],
+    "alt": "[PLACEHOLDER] Archive item 2: image"
+  },
+  {
+    "group": "archive",
+    "title": "[PLACEHOLDER title]",
+    "category": "[PLACEHOLDER category]",
+    "year": "[PLACEHOLDER year]",
+    "images": [
+      "item-3.webp"
+    ],
+    "alt": "[PLACEHOLDER] Archive item 3: image"
+  },
+  {
+    "group": "archive",
+    "title": "[PLACEHOLDER title]",
+    "category": "[PLACEHOLDER category]",
+    "year": "[PLACEHOLDER year]",
+    "images": [
+      "item-4.webp"
+    ],
+    "alt": "[PLACEHOLDER] Archive item 4: image"
+  },
+  {
+    "group": "archive",
+    "title": "[PLACEHOLDER title]",
+    "category": "[PLACEHOLDER category]",
+    "year": "[PLACEHOLDER year]",
+    "images": [
+      "item-5.webp"
+    ],
+    "alt": "[PLACEHOLDER] Archive item 5: image"
+  },
+  {
+    "group": "archive",
+    "title": "[PLACEHOLDER title]",
+    "category": "[PLACEHOLDER category]",
+    "year": "[PLACEHOLDER year]",
+    "images": [
+      "item-6.webp"
+    ],
+    "alt": "[PLACEHOLDER] Archive item 6: image"
   }
 ]

@@ -1,10 +1,11 @@
-    <h1 class="work-title">Work <span class="work-count" aria-hidden="true">[{{ count }}]</span><span class="visually-hidden">, {{ count_label }}</span></h1>
-
-    <div class="work">
-      <ol class="work-list">
-{{ rows }}
-      </ol>
-      <div class="work-preview" aria-hidden="true">
-{{ previews }}
-      </div>
+    <h1 class="visually-hidden">Work</h1>
+{{ tabs }}
+    <div class="work-panels">
+      <section class="work-panel" id="selected"{{ panel }}>
+        <h2 class="visually-hidden">Selected</h2>
+        <ol class="work-grid">
+{{ cards }}
+        </ol>
+      </section>
+{{ archive }}
     </div>

@@ -428,12 +428,13 @@ mark.placeholder {
   object-fit: cover;
 }
 
-/* The title at the card's left edge, the one-liner at its right. */
+/* The title at the card's left edge, the one-liner at its right, smaller and kept to the
+   right half (it wraps before it reaches the middle). */
 .card-caption,
 .js .track-caption {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: baseline;
   gap: var(--space-1);
 }
 
@@ -442,6 +443,8 @@ mark.placeholder {
 }
 
 .card-text {
+  max-width: calc(50% - var(--space-2));
+  font-size: var(--size-label);
   text-align: right;
 }
 

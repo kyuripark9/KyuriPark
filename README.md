@@ -208,15 +208,19 @@ To tune it:
   one step from the middle), `--scale-2` / `--opacity-2` (two steps or more), `--opacity-3` (three
   or more; 0 keeps it to five cards on screen).
 
-Home intro: the first time Home opens in a browser tab, the name and role show in the middle of
-the screen and the first project's cover in the bottom-right corner. After 1.2 s they move into
-the header and the middle card (0.7 s) while the rest of the page fades in. A click, a key, or
-the mouse wheel skips to the end. After that, Home opens straight away in that tab, including
-on refresh; with reduced motion there's no intro at all. To tune it:
-- The script at the end of `templates/home.html`, at the top: `FADE_IN` (ms for the name and
-  image to fade in), `HOLD` (ms before they move), `MOVE` (ms the move takes), `EASE`.
-- `assets/css/style.css`, "Home intro": `--intro-size` (the centered line's type size),
-  `--intro-image-h` (the corner image's height), `--intro-margin` (its distance from the edges).
+Home intro: the first time Home opens in a browser tab, the screen is black, with the name and
+role in capitals in the middle and the projects' covers taking turns in the bottom-right corner.
+Both come into focus, hold, and blur away; then the black blurs and fades and the page shows
+(about 3.7 s in all). A click, a key, or the mouse wheel skips to the end. After that, Home opens
+straight away in that tab, including on refresh; with reduced motion there's no intro at all.
+To tune it:
+- The script at the end of `templates/home.html`, at the top: `DELAY` (ms of black first),
+  `FADE_IN` (ms to come into focus), `HOLD` (ms in focus), `FADE_OUT` (ms to blur away),
+  `REVEAL` (ms for the black to go), `FLICK` (ms each cover stays), `BLUR` (px of blur on the
+  line and image at both ends), `REVEAL_BLUR` (px of blur on the black as it goes).
+- `assets/css/style.css`, "Home intro": `--intro-bg` / `--intro-color` (the screen and the
+  line), `--intro-size` (the line's type size), `--intro-image` (the corner image's size; it's
+  square), `--intro-margin` (its distance from the bottom and right edges).
 
 ## Deploy
 

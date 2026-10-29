@@ -582,50 +582,57 @@ mark.placeholder {
 
 /* Home intro ------------------------------------------------------------ */
 
-/* First visit to Home in a browser session: the name in the middle of the screen and the
-   first cover in the corner, then both move into the header and the middle card while the
-   rest fades in (the script and its timing are at the end of templates/home.html).
-   Until the script adds .intro-done, the header and the track stay hidden.
-     --intro-size      the centered line's type size (shrinks on phones to stay one line)
-     --intro-image-h   the corner image's height; it's 4:5
+/* First visit to Home in a browser session: a black screen with the name and role in the
+   middle and each project's cover in turn in the bottom-right corner. Both come into focus,
+   blur away, and then the black fades to show the page (the script and its timing are at
+   the end of templates/home.html). Until the page shows, the header and the track stay
+   hidden.
+     --intro-bg        the screen's color
+     --intro-color     the line's color
+     --intro-size      the line's type size
+     --intro-image     the corner image's width and height (it's square)
      --intro-margin    the corner image's distance from the bottom and right edges */
 .js:not(.intro-done) body:has(> .page-home) :is(.identity, .site-nav, .track-row, .track-caption) {
   opacity: 0;
 }
 
 .intro {
-  --intro-size: min(1.5rem, 4.4vw);
-  --intro-image-h: 15vh;
-  --intro-margin: var(--space-3);
+  --intro-bg: #000;
+  --intro-color: #fff;
+  --intro-size: 0.875rem;
+  --intro-image: 160px;
+  --intro-margin: 20px;
   position: fixed;
   inset: 0;
   z-index: 30;
   display: grid;
   place-items: center;
+  background: var(--intro-bg);
+  color: var(--intro-color);
 }
 
-/* Copies of the header's name and role, at one size. */
+/* One line, in capitals, set tight. */
 .intro-line {
-  display: flex;
-  align-items: baseline;
-  column-gap: 0.3em;
   font-size: var(--intro-size);
-}
-
-.intro-line .identity-role {
-  font-size: inherit;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .intro-image {
   position: fixed;
   right: var(--intro-margin);
   bottom: var(--intro-margin);
-  height: var(--intro-image-h);
-  aspect-ratio: 4 / 5;
+  width: var(--intro-image);
+  height: var(--intro-image);
 }
 
+/* The covers, stacked; the script shows one at a time. */
 .intro-image .track-media {
-  height: 100%;
+  position: absolute;
+  inset: 0;
   aspect-ratio: auto;
 }
 

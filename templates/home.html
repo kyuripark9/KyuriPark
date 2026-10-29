@@ -9,15 +9,21 @@
     </section>
     <script src="/assets/js/track.js?v={{ track_version }}" defer></script>
     <script>
-      // The intro, on the first visit to Home in a browser session: the name in the middle and the
-      // first cover in the corner, then both move to their places in the header and the track
-      // while the rest fades in. A click, key, or wheel skips to the end; with reduced motion
-      // there's no intro. Until it ends, style.css keeps the header and the track hidden.
+      // The intro, on the first visit to Home in a browser session: a black screen with the name
+      // and role in the middle and each project's cover in turn in the corner. They come into
+      // focus, hold, and blur away; then the black blurs and fades, and the page shows. Timing
+      // as in the preloader on titarvl.framer.website. A click, key, or wheel skips to the end;
+      // with reduced motion there's no intro. Until the page shows, style.css keeps the header
+      // and the track hidden.
       (() => {
-        const FADE_IN = 400;   // ms: the name and the image fade in
-        const HOLD = 1200;     // ms from the start until they move
-        const MOVE = 700;      // ms: the move into place
-        const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";  // --ease-out in style.css
+        const DELAY = 350;       // ms of plain black first
+        const FADE_IN = 500;     // ms: the line and the image come into focus
+        const HOLD = 800;        // ms they stay in focus
+        const FADE_OUT = 1000;   // ms: they blur and fade away
+        const REVEAL = 1000;     // ms: the black blurs and fades, and the page shows
+        const FLICK = 150;       // ms each cover stays in the corner
+        const BLUR = 10;         // px: how blurred the line and the image are at both ends
+        const REVEAL_BLUR = 20;  // px: how blurred the black is at the end
         const SEEN = "home-intro-seen";  // sessionStorage key
 
         const html = document.documentElement;
@@ -32,89 +38,63 @@
           return;
         }
 
-        const name = document.querySelector(".wordmark");
-        const role = document.querySelector(".identity-role");
-        const item = document.querySelector(".track-item");  // the first project, in the middle
-        const media = item.querySelector(".track-media");
-
-        // The centered line is copies of the header's name and role. When it moves, the real
-        // ones take over from the copies and go back to their places, so they end up exactly
-        // home. The image stays a copy (the real card can't leave the track) until the end.
         const intro = document.createElement("div");
         intro.className = "intro";
         intro.setAttribute("aria-hidden", "true");
         const line = document.createElement("p");
         line.className = "intro-line";
-        const dash = document.createElement("span");
-        dash.className = "identity-role";
-        dash.textContent = "—";
-        const copies = [name.cloneNode(true), role.cloneNode(true)];
-        line.append(copies[0], dash, copies[1]);
+        const text = (selector) => document.querySelector(selector).textContent.trim();
+        line.textContent = `${text(".wordmark")} — ${text(".identity-role")}`;
+        // Copies of the projects' covers (cards hidden for now, like the Archive's, are left
+        // out), stacked; one shows at a time, from the first project on.
         const image = document.createElement("div");
         image.className = "intro-image";
-        image.append(media.cloneNode(true));
+        const covers = [...document.querySelectorAll(".track-item:not([hidden]) .track-media")].map((media, i) => {
+          const copy = media.cloneNode(true);
+          if (i) copy.style.visibility = "hidden";
+          image.append(copy);
+          return copy;
+        });
         intro.append(line, image);
         document.body.append(intro);
-        [line, image].forEach((el) =>
-          el.animate({ opacity: [0, 1] }, { duration: FADE_IN, easing: "ease-out" }));
 
-        const timing = { duration: MOVE, easing: EASE, fill: "forwards" };
-        const anims = [];
-        const play = (el, keyframes) => anims.push(el.animate(keyframes, timing));
-        let timer;
+        // Into focus, held, out of focus: one animation for the whole time they're on screen.
+        const blur = `blur(${BLUR}px)`;
+        const onScreen = FADE_IN + HOLD + FADE_OUT;
+        const anims = [line, image].map((el) => el.animate([
+          { opacity: 0, filter: blur, easing: "ease-out" },
+          { opacity: 1, filter: "blur(0px)", offset: FADE_IN / onScreen },
+          { opacity: 1, filter: "blur(0px)", offset: (FADE_IN + HOLD) / onScreen, easing: "ease-in" },
+          { opacity: 0, filter: blur },
+        ], { duration: onScreen, delay: DELAY, fill: "both" }));
 
-        // FLIP: the transform that puts the box `from` over the box `to` (scaled from the center).
-        const between = (from, to, scale = to.width / from.width) => {
-          const x = to.left + to.width / 2 - (from.left + from.width / 2);
-          const y = to.top + to.height / 2 - (from.top + from.height / 2);
-          return `translate(${x}px, ${y}px) scale(${scale})`;
-        };
+        let shown = 0;
+        const flick = setInterval(() => {
+          covers[shown].style.visibility = "hidden";
+          shown = (shown + 1) % covers.length;
+          covers[shown].style.visibility = "";
+        }, FLICK);
 
-        const move = () => {
-          // The real name and role start over their copies and go back to their places.
-          const n = name.getBoundingClientRect();
-          const r = role.getBoundingClientRect();
-          const [cn, cr] = copies.map((copy) => copy.getBoundingClientRect());
-          copies.forEach((copy) => { copy.style.visibility = "hidden"; });
-          play(document.querySelector(".identity"), { opacity: [1, 1] });
-          play(name, { transform: [between(n, cn), "none"] });
-          play(role, { transform: [between(r, cr), "none"] });
-          // The dash fades out on its way to the gap between them, shrinking like the role.
-          const d = dash.getBoundingClientRect();
-          const s = r.width / cr.width;
-          const gap = new DOMRect((n.right + r.left - d.width * s) / 2, r.top + (r.height - d.height * s) / 2,
-            d.width * s, d.height * s);
-
-          // The image is laid out over the middle card (rounded to whole pixels, as the card is
-          // drawn), then scaled and cropped back to the corner, and the animation lets it go.
-          const from = image.getBoundingClientRect();
-          const c = media.getBoundingClientRect();
-          const left = Math.round(c.left);
-          const top = Math.round(c.top);
-          const to = new DOMRect(left, top, Math.round(c.right) - left, Math.round(c.bottom) - top);
-          Object.assign(image.style, {
-            inset: `${to.top}px auto auto ${to.left}px`, width: `${to.width}px`, height: `${to.height}px`,
-          });
-          const scale = Math.max(from.width / to.width, from.height / to.height);
-          const x = (to.width - from.width / scale) / 2;   // cropped off each side at the start
-          const y = (to.height - from.height / scale) / 2;
-
-          play(dash, { transform: ["none", between(d, gap)], opacity: [1, 0] });
-          play(image, {
-            transform: [between(to, from, scale), "none"],
-            clipPath: [`inset(${y}px ${x}px)`, "inset(0px 0px)"],
-          });
-          [".site-nav", ".track-row", ".track-caption"].forEach((selector) =>
-            play(document.querySelector(selector), { opacity: [0, 1] }));
-          play(item, { opacity: [0, 0] });  // the middle card waits under its copy
+        // The page shows under the black, which blurs and fades. From here, input reaches the
+        // page (and still ends the intro).
+        let revealing = false;
+        const reveal = () => {
+          clearInterval(flick);
+          revealing = true;
+          html.classList.add("intro-done");
+          intro.style.pointerEvents = "none";
+          addEventListener("pointerdown", end);
+          anims.push(intro.animate({ opacity: [1, 0], filter: ["blur(0px)", `blur(${REVEAL_BLUR}px)`] },
+            { duration: REVEAL, easing: "ease-in-out", fill: "forwards" }));
           anims.at(-1).onfinish = end;
         };
+        anims[0].onfinish = reveal;
 
-        // The name and role are already home; the card takes over from its copy, in the same spot.
         const end = () => {
-          clearTimeout(timer);
+          clearInterval(flick);
           removeEventListener("keydown", skipKey, true);
           removeEventListener("wheel", end);
+          removeEventListener("pointerdown", end);
           html.classList.add("intro-done");
           anims.forEach((a) => a.cancel());
           intro.remove();
@@ -125,14 +105,13 @@
           }
         };
 
-        // While it runs, a key only skips it: the track doesn't move.
+        // On the black screen, a key only skips the intro: the track doesn't move.
         const skipKey = (e) => {
-          e.stopPropagation();
+          if (!revealing) e.stopPropagation();
           end();
         };
         addEventListener("keydown", skipKey, true);
         addEventListener("wheel", end, { passive: true });
         intro.addEventListener("click", end);
-        timer = setTimeout(move, HOLD);
       })();
     </script>

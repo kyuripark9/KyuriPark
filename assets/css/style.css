@@ -239,7 +239,6 @@ button {
 
 /* Mono: numbers, years, labels, the footer. */
 .index,
-.work-tab,
 .work-category,
 .work-to-archive,
 .work-back,
@@ -247,7 +246,6 @@ button {
 .project-nav-label,
 .archive-meta,
 .lightbox-meta,
-.track-tab,
 .site-footer {
   font-family: var(--font-mono);
   font-size: var(--size-label);
@@ -501,7 +499,7 @@ mark.placeholder {
   --card-gap: var(--space-2);
   --peek: var(--space-2);
   --card-max: 400px;
-  --room-top: 39px;
+  --room-top: 56px;
   --room-bottom: 72px;
   --card-w: min(var(--card-max),
                 (100cqh - var(--room-top) - var(--room-bottom)) * 0.75,
@@ -597,39 +595,73 @@ mark.placeholder {
 }
 
 /* Selected / Archive (once the Archive has three items or more), centered 16px over the
-   middle card. The one showing is underlined; the other is faint until hovered. */
+   middle card. The switch matches the example's Image / Video: a gray pill with both
+   names on it, halves the same width, and a black pill under the one showing that
+   slides across when the other is picked. */
 .js .track-tabs {
   position: absolute;
   z-index: 1;
   right: 0;
   bottom: calc(100% - var(--card-y) + var(--card-w) * 2 / 3 + var(--space-2));
   left: 0;
-  display: flex;
-  justify-content: center;
-  gap: var(--space-3);
+  margin: 0 auto;
+}
+
+.js .track-tabs,
+.js .work-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: max-content;
+  border-radius: 100px;
+  background: var(--color-fill);
+}
+
+.js :is(.track-tabs, .work-tabs)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 50%;
+  border-radius: inherit;
+  background: var(--color-text);
+  transition: transform 420ms cubic-bezier(0.22, 0.9, 0.25, 1);
+}
+
+.js :is(.track-tabs, .work-tabs):has(> :last-child[aria-selected="true"])::before {
+  transform: translateX(100%);
 }
 
 .track-tab,
 .work-tab {
-  /* A bigger tap target without moving the text, like the Menu button. */
-  margin: calc(-1 * var(--space-1));
-  padding: var(--space-1);
-  opacity: 0.45;
-  transition: opacity var(--fade);
+  position: relative;  /* over the black pill */
+  padding: 9px 20px;
+  border-radius: 100px;
+  font-size: 0.875rem;  /* 14px */
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: var(--color-muted);
+  transition: color 280ms ease, opacity var(--fade);
 }
 
 .track-tab:hover,
-.track-tab[aria-selected="true"],
-.work-tab:hover,
-.work-tab[aria-selected="true"] {
-  opacity: 1;
+.work-tab:hover {
+  opacity: 0.85;
 }
 
 .track-tab[aria-selected="true"],
 .work-tab[aria-selected="true"] {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
+  color: var(--color-bg);
+  cursor: default;
+}
+
+.track-tab:focus-visible,
+.work-tab:focus-visible {
+  outline-color: currentColor;
+  outline-offset: -4px;
+  border-radius: 100px;
 }
 
 @media (min-width: 768px) {
@@ -715,17 +747,14 @@ mark.placeholder {
 }
 
 .js .work-tabs {
-  display: flex;
-  gap: var(--space-3);
+  position: relative;
   margin-bottom: var(--tile-gap);
 }
 
-/* An inline block, so the active tab's underline stops at the label. */
 .work-count {
-  display: inline-block;
   margin-left: 0.5em;
+  font-family: var(--font-mono);
   font-size: 0.625rem;  /* 10px */
-  color: var(--color-muted);
 }
 
 .work-panel + .work-panel {

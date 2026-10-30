@@ -450,7 +450,6 @@ class Builder:
             css_version=file_version("assets/css/style.css"),
             js_version=file_version("assets/js/main.js"),
             site_name=esc(s["name"]),
-            site_role=esc(s["role"]),
             nav_work={"work": ' aria-current="page"', "project": ' aria-current="true"'}.get(current, ""),
             nav_about=' aria-current="page"' if current == "about" else "",
             contact_href="#contact" if footer else "/about/#contact",
@@ -726,8 +725,10 @@ class Builder:
             lightbox = render("lightbox.html")
         cards = "\n".join(self.home_card(p, i, len(group))
                           for group in groups for i, p in enumerate(group))
+        s = self.site
         content = render("home.html", tabs=tabs, panel=panel, cards=cards,
                          caption=self.card_caption(self.projects[0]), lightbox=lightbox,
+                         intro_line=esc(f"{s['name']} — {s['role']}"),
                          track_version=file_version("assets/js/track.js"))
         self.page("index.html", "home", "/", self.site["title"], self.site["description"],
                   content, "page-home", image=self.og_image(), footer=False)

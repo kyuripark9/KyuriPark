@@ -1,5 +1,5 @@
     <h1 class="visually-hidden">Selected work</h1>
-    <section class="track" aria-roledescription="carousel" aria-label="Work">
+    <section class="track" aria-roledescription="carousel" aria-label="Work" data-intro="{{ intro_line }}">
       <div class="track-stage">
 {{ tabs }}
         <div class="track-panel"{{ panel }}>
@@ -47,8 +47,7 @@
         intro.setAttribute("aria-hidden", "true");
         const line = document.createElement("p");
         line.className = "intro-line";
-        const text = (selector) => document.querySelector(selector).textContent.trim();
-        line.textContent = `${text(".wordmark")} — ${text(".identity-role")}`;
+        line.textContent = document.querySelector(".track").dataset.intro;
         // Copies of the projects' covers (cards hidden for now, like the Archive's, are left
         // out), stacked; one shows at a time, from the first project on.
         const image = document.createElement("div");

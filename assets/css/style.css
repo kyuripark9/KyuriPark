@@ -214,7 +214,6 @@ button {
 /* Shared text styles */
 
 .caption,
-.identity-role,
 .note-heading {
   font-size: var(--size-label);
   line-height: 1.4;
@@ -302,8 +301,7 @@ mark.placeholder {
 
 /* Header ---------------------------------------------------------------- */
 
-/* Name and role on one line at the left (on phones the role wraps under the name).
-   On the right: the Menu button on phones; from 768px, the nav. */
+/* The name at the left. On the right: the Menu button on phones; from 768px, the nav. */
 .site-header {
   position: relative;
   z-index: 20;
@@ -318,10 +316,6 @@ mark.placeholder {
 
 .identity {
   grid-area: identity;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  column-gap: var(--space-1);
   justify-self: start;
   min-width: 0;
 }
@@ -329,10 +323,6 @@ mark.placeholder {
 .wordmark {
   font-family: var(--font-wordmark);
   font-weight: 500;
-}
-
-.identity-role {
-  white-space: nowrap;
 }
 
 .site-nav {

@@ -1,11 +1,9 @@
     <h1 class="visually-hidden">Work</h1>
 {{ tabs }}
-    <div class="work-panels">
-      <section class="work-panel" id="selected"{{ panel }}>
-        <h2 class="visually-hidden">Selected</h2>
-        <ol class="work-grid">
+    <section class="work-panel" id="work-panel" role="tabpanel" aria-labelledby="tab-all">
+      <ol class="work-grid">
 {{ cards }}
-        </ol>
-      </section>
-{{ archive }}
-    </div>
+      </ol>
+      <p class="work-empty" hidden>Coming soon</p>
+    </section>
+{{ lightbox }}

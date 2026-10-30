@@ -1,11 +1,12 @@
 // Enhancements on top of pages that already work without JavaScript:
-// the phone menu, Work's Selected / Archive and card videos, the Archive lightbox, and
+// the header menu, Work's filter and card videos, the lightbox, and
 // project-page motion (image fade-up, count-up numbers, looping videos). The home track is in track.js.
 (() => {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const fineHover = window.matchMedia("(hover: hover) and (pointer: fine)");
 
-  // Phone menu.
+  // Header menu: on phones, and at every width with the header-b class on <body>, where it
+  // covers the page, so the page under it stops scrolling and leaves the Tab order.
   const menuButton = document.querySelector(".menu-button");
   const menu = document.getElementById("site-menu");
   if (menuButton && menu) {
@@ -14,6 +15,9 @@
       menuButton.setAttribute("aria-expanded", String(open));
       menuButton.textContent = open ? "Close" : "Menu";
       menu.classList.toggle("is-open", open);
+      const covering = open && document.body.classList.contains("header-b");
+      document.documentElement.classList.toggle("menu-open", covering);
+      document.querySelectorAll("main, .site-footer").forEach((el) => { el.inert = covering; });
     };
     menuButton.addEventListener("click", () => setOpen(!isOpen()));
     menu.addEventListener("click", (e) => {
@@ -30,88 +34,116 @@
     });
   }
 
-  // Work: Selected or the Archive, one grid at a time, switched like Home's toggle (track.js):
-  // the grid fades out, the other comes on and fades in, and the address says which
-  // (#selected, #archive), so Back from a project page returns to the same one.
+  // Work: All or one category at a time, on one grid. The tiles fade out, the filter's tiles
+  // come on numbered from 001, and they fade in. The address says which (#all, #digital, ...),
+  // so a link opens that filter, Back and Forward step through the ones picked, and Back from
+  // a project page returns to the same one.
   const workTabs = [...document.querySelectorAll(".work-tab")];
   if (workTabs.length) {
     const FADE_OUT = 150;  // ms
     const FADE_IN = 250;   // ms
-    const grids = document.querySelector(".work-panels");
-    const panels = new Map(workTabs.map((tab) => {
-      const panel = document.getElementById(tab.getAttribute("aria-controls"));
-      // New ids, so the browser doesn't jump down to #archive on its own. (Without
-      // JavaScript, "Archive 06 →" and "← Selected" are links to these.)
-      panel.id = `panel-${tab.dataset.group}`;
-      tab.setAttribute("aria-controls", panel.id);
-      return [tab.dataset.group, panel];
-    }));
-    let shown;           // the grid on screen
-    let wanted;          // the grid picked last (it's on screen once a fade-out ends)
+    const tablist = workTabs[0].parentElement;
+    const panel = document.getElementById("work-panel");
+    const tiles = [...panel.querySelectorAll(".work-grid > li")];
+    const empty = panel.querySelector(".work-empty");
+    const filters = workTabs.map((tab) => tab.dataset.filter);
+    let shown;           // the filter on screen
+    let wanted;          // the filter picked last (it's on screen once a fade-out ends)
     let fade = null;     // the fade under way
     let fadingOut = false;
-    let toTop = false;   // scroll up to the tabs when the grids swap
 
     const show = (name) => {
       shown = name;
-      panels.forEach((panel, key) => { panel.hidden = key !== name; });
-      if (toTop) window.scrollTo(0, 0);
-      toTop = false;
+      let n = 0;
+      tiles.forEach((tile) => {
+        tile.hidden = name !== "all" && !tile.dataset.categories.split(" ").includes(name);
+        if (!tile.hidden) tile.querySelector(".index").textContent = String(++n).padStart(3, "0");
+      });
+      empty.hidden = n > 0;
+    };
+    // The white pill sits under the tab picked, as wide as that tab. Where the tabs scroll
+    // sideways, that tab comes into view.
+    const placeThumb = () => {
+      const tab = workTabs[filters.indexOf(wanted)];
+      tablist.style.setProperty("--thumb-x", `${tab.offsetLeft}px`);
+      tablist.style.setProperty("--thumb-w", `${tab.offsetWidth}px`);
+      tablist.scrollLeft = tab.offsetLeft + (tab.offsetWidth - tablist.clientWidth) / 2;
     };
     const mark = (name) => {
       wanted = name;
-      workTabs.forEach((tab) => tab.setAttribute("aria-selected", String(tab.dataset.group === name)));
+      workTabs.forEach((tab) => {
+        const on = tab.dataset.filter === name;
+        tab.setAttribute("aria-selected", String(on));
+        tab.tabIndex = on ? 0 : -1;
+      });
+      panel.setAttribute("aria-labelledby", `tab-${name}`);
+      placeThumb();
     };
 
-    // Picking again while the grid fades out changes what comes on; while one fades in,
-    // it fades out from there.
+    // Picking again while the tiles fade out changes what comes on; while they fade in,
+    // they fade out from there.
     const pick = (name) => {
-      if (!panels.has(name)) return;
       mark(name);
-      history.replaceState(history.state, "", `#${name}`);
       if (reduceMotion.matches) {
         fade?.cancel();
         fadingOut = false;
         show(name);
         return;
       }
-      if (fadingOut) return;
-      if (name === shown) {
-        toTop = false;
-        return;
-      }
-      const from = Number(getComputedStyle(grids).opacity);
+      if (fadingOut || name === shown) return;
+      const from = Number(getComputedStyle(panel).opacity);
       fade?.cancel();
       fadingOut = true;
-      fade = grids.animate({ opacity: [from, 0] },
+      fade = panel.animate({ opacity: [from, 0] },
         { duration: FADE_OUT * from, easing: "ease-in", fill: "forwards" });
       fade.onfinish = () => {
         fadingOut = false;
         show(wanted);
         fade.cancel();
-        fade = grids.animate({ opacity: [0, 1] }, { duration: FADE_IN, easing: "ease-out" });
+        fade = panel.animate({ opacity: [0, 1] }, { duration: FADE_IN, easing: "ease-out" });
       };
     };
 
-    workTabs.forEach((tab) => tab.addEventListener("click", () => pick(tab.dataset.group)));
-    // "Archive 06 →" after the projects and "← Selected" after the Archive: the grids swap,
-    // the page goes back up to the top, and focus moves to the tab (the link is gone).
-    document.querySelectorAll(".work-to-archive, .work-back").forEach((link) => {
-      link.addEventListener("click", (e) => {
-        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-        e.preventDefault();
-        const name = link.hash.slice(1);
-        toTop = true;
-        pick(name);
-        workTabs.find((tab) => tab.dataset.group === name).focus({ preventScroll: true });
-      });
+    // The filter the address names. No hash or an unknown one means All, and the address is
+    // set to say so. A hash for a spot on the page (#contact, the skip link's #main) isn't a
+    // filter at all: null, and the grid stays as it is.
+    const addressFilter = () => {
+      const hash = location.hash.slice(1);
+      if (filters.includes(hash)) return hash;
+      if (document.getElementById(hash)) return null;
+      history.replaceState(history.state, "", "#all");
+      return "all";
+    };
+    // A tab only changes the address; that's what switches the grid, so each pick is a step
+    // for Back and Forward.
+    window.addEventListener("hashchange", () => {
+      const name = addressFilter();
+      if (name) pick(name);
     });
-    // A link or a typed address naming a grid (none: Selected).
-    window.addEventListener("hashchange", () => pick(location.hash.slice(1) || "selected"));
+    workTabs.forEach((tab) => tab.addEventListener("click", () => {
+      location.hash = tab.dataset.filter;
+    }));
 
-    const start = panels.has(location.hash.slice(1)) ? location.hash.slice(1) : "selected";
+    // Left and right arrows go along the tabs, looping at the ends; Home and End go to the
+    // first and last. The tab they land on is picked. Only the picked tab is a Tab stop.
+    tablist.addEventListener("keydown", (e) => {
+      const last = workTabs.length - 1;
+      const i = workTabs.indexOf(e.target);
+      const to = { ArrowLeft: i ? i - 1 : last, ArrowRight: i === last ? 0 : i + 1, Home: 0, End: last }[e.key];
+      if (to === undefined || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      e.preventDefault();
+      workTabs[to].focus();
+      workTabs[to].click();
+    });
+
+    const start = addressFilter() || "all";
     mark(start);
     show(start);
+    // The pill keeps up if the tabs change size (the font loading, or a narrower window).
+    const resized = new ResizeObserver(placeThumb);
+    workTabs.forEach((tab) => resized.observe(tab));
+    void tablist.offsetWidth;  // apply its first place before it can slide, so it doesn't slide in
+    tablist.classList.add("is-ready");
   }
 
   // Work tiles: hovering (or focusing) one plays its cover's video, if it has one.
@@ -143,19 +175,20 @@
     card.addEventListener("blur", stop);
   });
 
-  // Archive lightbox: a thumbnail on Work, or the middle Archive card on Home, opens its item's
-  // images (copied from the item's <template>). Esc, Close, or a click outside the images and
-  // caption closes it, and focus goes back to that item's thumbnail or card. Left/right arrow
-  // keys and buttons step through the items, looping at the ends.
+  // Lightbox: a Work tile with no page of its own opens its item's images (copied from the
+  // item's <template>). Esc, Close, or a click outside the images and caption closes it, and
+  // focus goes back to that tile. Left/right arrow keys and buttons step through the items the
+  // filter is showing, looping at the ends.
   const lightbox = document.getElementById("lightbox");
-  const thumbs = [...document.querySelectorAll("[data-item]")];  // one per item, in order
-  if (lightbox && thumbs.length) {
+  if (lightbox) {
     document.body.append(lightbox);  // out of <main>, so the rest of the page can go inert
     const stage = lightbox.querySelector(".lightbox-stage");
     const images = lightbox.querySelector(".lightbox-images");
     const name = lightbox.querySelector(".lightbox-name");
     const meta = lightbox.querySelector(".lightbox-meta");
     const closeButton = lightbox.querySelector(".lightbox-close");
+    const allThumbs = [...document.querySelectorAll("[data-item]")];  // one per item, in order
+    let thumbs = allThumbs;  // the ones on screen when the lightbox opened
     let current = -1;  // the item shown, or -1 when closed
     let hiding;
 
@@ -168,8 +201,8 @@
       current = (index + thumbs.length) % thumbs.length;
       const item = thumbs[current].closest("li");
       images.replaceChildren(item.querySelector("template").content.cloneNode(true));
-      name.innerHTML = item.querySelector(".archive-name, .card-title").innerHTML;
-      meta.innerHTML = item.querySelector(".archive-meta, .card-text").innerHTML;
+      name.innerHTML = item.querySelector(".work-name").innerHTML;
+      meta.innerHTML = item.querySelector(".work-type").innerHTML;
       stage.scrollTop = 0;
       fit();
     };
@@ -191,8 +224,6 @@
       lightbox.classList.remove("is-open");
       setPageInert(false);
       thumbs[current].focus();
-      // On Home, track.js brings that card to the middle.
-      thumbs[current].dispatchEvent(new Event("lightboxclose", { bubbles: true }));
       current = -1;
       hiding = setTimeout(() => {
         lightbox.hidden = true;
@@ -200,12 +231,10 @@
       }, reduceMotion.matches ? 0 : 200);
     };
 
-    // Caught here rather than on each thumbnail because track.js copies the Home cards.
-    // track.js cancels the click on a side card (that card comes to the middle instead).
-    document.addEventListener("click", (e) => {
-      const thumb = e.target.closest("[data-item]");
-      if (thumb && !e.defaultPrevented) open(Number(thumb.dataset.item));
-    });
+    allThumbs.forEach((thumb) => thumb.addEventListener("click", () => {
+      thumbs = allThumbs.filter((other) => !other.closest("li").hidden);
+      open(thumbs.indexOf(thumb));
+    }));
     lightbox.addEventListener("click", (e) => {
       const arrow = e.target.closest(".lightbox-arrow");
       if (arrow) show(current + Number(arrow.dataset.step));

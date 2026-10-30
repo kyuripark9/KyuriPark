@@ -1,16 +1,12 @@
-    <h1 class="visually-hidden">Selected work</h1>
+    <h1 class="visually-hidden">Work</h1>
     <section class="track" aria-roledescription="carousel" aria-label="Work" data-intro="{{ intro_line }}">
       <div class="track-stage">
-{{ tabs }}
-        <div class="track-panel"{{ panel }}>
-          <ul class="track-row" id="track-row" role="list">
+        <ul class="track-row" id="track-row" role="list">
 {{ cards }}
-          </ul>
-          <p class="track-caption" aria-live="polite">{{ caption }}</p>
-        </div>
+        </ul>
+        <p class="track-caption" aria-live="polite">{{ caption }}</p>
       </div>
     </section>
-{{ lightbox }}
     <script src="/assets/js/track.js?v={{ track_version }}" defer></script>
     <script>
       // The intro, on the first visit to Home in a browser session: a black screen with the name
@@ -48,11 +44,10 @@
         const line = document.createElement("p");
         line.className = "intro-line";
         line.textContent = document.querySelector(".track").dataset.intro;
-        // Copies of the projects' covers (cards hidden for now, like the Archive's, are left
-        // out), stacked; one shows at a time, from the first project on.
+        // Copies of the projects' covers, stacked; one shows at a time, from the first project on.
         const image = document.createElement("div");
         image.className = "intro-image";
-        const covers = [...document.querySelectorAll(".track-item:not([hidden]) .track-media")].map((media, i) => {
+        const covers = [...document.querySelectorAll(".track-item .track-media")].map((media, i) => {
           const copy = media.cloneNode(true);
           if (i) copy.style.visibility = "hidden";
           image.append(copy);

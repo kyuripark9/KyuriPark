@@ -12,17 +12,6 @@
     U+FEFF, U+FFFD;
 }
 
-@font-face {
-  font-family: "Geist Mono";
-  src: url("/assets/fonts/geist-mono-latin-300.woff2") format("woff2");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
-    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
-    U+FEFF, U+FFFD;
-}
-
 /* The header name uses "Wordmark" once assets/fonts/wordmark.woff2 exists
    (build.py adds the @font-face for it). Until then it falls back to Inter. */
 
@@ -39,11 +28,10 @@
   --color-mark: #e8e7e1;       /* [PLACEHOLDER] highlight; muted text on it stays at 5:1 */
 
   --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --font-wordmark: "Wordmark", var(--font);
 
-  /* Three sizes, site-wide: titles, body text (and the nav), and labels (mono, and the
-     small sans text next to them: the role in the header, image captions). */
+  /* Three sizes, site-wide: titles, body text (and the nav), and labels (numbers, years,
+     the footer, image captions). */
   --size-title: clamp(1.75rem, 1.2rem + 2.2vw, 3rem);   /* 28px on phones, up to 48px */
   --size-body: 1rem;           /* 16px */
   --size-label: 0.75rem;       /* 12px */
@@ -59,8 +47,16 @@
   --space-12: 96px;
   --space-16: 128px;
 
+  /* The spacing around the work, Home and Work alike: card to caption, toggle to card, and
+     header to toggle (from the header's text, what the eye measures). */
+  --gap-1: 16px;
+  --gap-2: 32px;
+  --gap-3: 64px;
+
   --page-max: 1280px;
-  --gutter: var(--space-2);        /* page side padding */
+  --gutter: var(--space-2);        /* page side padding, the header's too */
+  --header-pad: var(--space-3);    /* over and under the header's text */
+  --header-gap: calc(var(--gap-3) - var(--header-pad));  /* the header's box to the toggle */
   --col-gap: var(--space-3);       /* between columns */
   --section-gap: var(--space-8);   /* between page sections */
   --block-gap: var(--space-5);     /* between blocks inside a section */
@@ -73,6 +69,7 @@
 @media (min-width: 768px) {
   :root {
     --gutter: var(--space-4);
+    --header-pad: var(--space-4);
     --col-gap: var(--space-4);
     --section-gap: var(--space-12);
     --block-gap: var(--space-8);
@@ -236,30 +233,23 @@ button {
   font-weight: 400;
 }
 
-/* Mono: numbers, years, labels, the footer. */
+/* Labels: numbers, years, the footer. */
 .index,
-.work-category,
-.work-to-archive,
-.work-back,
+.work-type,
 .project-meta dt,
 .project-nav-label,
-.archive-meta,
 .lightbox-meta,
 .site-footer {
-  font-family: var(--font-mono);
   font-size: var(--size-label);
-  font-weight: 300;
   line-height: 1.5;
-  letter-spacing: 0.02em;
 }
 
+/* Links in text stand out by weight, like the current page in the nav. */
 .text-body a,
 .text-link,
 .project-meta a,
 .link-list a {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
+  font-weight: 500;
 }
 
 .identity,
@@ -301,7 +291,9 @@ mark.placeholder {
 
 /* Header ---------------------------------------------------------------- */
 
-/* The name at the left. On the right: the Menu button on phones; from 768px, the nav. */
+/* The name at the left. On the right: the Menu button on phones; from 768px, the nav.
+   The class on <body> in templates/base.html picks the header: header-a is this one,
+   header-b is the Menu button at every width (see the end of this section). */
 .site-header {
   position: relative;
   z-index: 20;
@@ -310,7 +302,7 @@ mark.placeholder {
   grid-template-areas: "identity nav";
   align-items: baseline;
   column-gap: var(--space-3);
-  padding-block: var(--space-3);
+  padding-block: var(--header-pad);
   view-transition-name: site-header;
 }
 
@@ -335,9 +327,7 @@ mark.placeholder {
 }
 
 .site-nav [aria-current] {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.3em;
+  font-weight: 500;
 }
 
 .menu-button {
@@ -377,12 +367,64 @@ mark.placeholder {
 @media (min-width: 768px) {
   .site-header {
     column-gap: var(--space-6);
-    padding-block: var(--space-4);
   }
 
   .site-menu {
     gap: var(--space-4);
   }
+}
+
+/* header-b: the Menu button at every width. It opens the nav over the whole page in big type,
+   starting where the toggle sits, with the name and the button (now Close) staying put. It
+   fades and rises in; closed, it's out of the Tab order. Without JavaScript, the nav stays in
+   the header as in header-a. */
+.js .header-b .identity,
+.js .header-b .menu-button {
+  position: relative;
+  z-index: 1;
+}
+
+.js .header-b .menu-button {
+  display: block;
+}
+
+.js .header-b .site-menu {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: calc(var(--header-pad) + 1.5rem + var(--gap-3))  /* 1.5rem: the header's text */
+           max(var(--gutter), (100% - var(--page-max)) / 2) var(--gap-3);
+  overflow-y: auto;
+  background: var(--color-bg);
+  border: 0;
+  font-size: clamp(2.5rem, 1.75rem + 3.2vw, 4rem);   /* 40px on phones, up to 64px */
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  opacity: 0;
+  transform: translateY(var(--space-1));
+  visibility: hidden;
+  transition: opacity 250ms ease, transform 250ms ease, visibility 0s 250ms;
+}
+
+.js .header-b .site-menu.is-open {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.js .header-b .site-menu a {
+  display: inline;
+  padding: 0;
+  border: 0;
+}
+
+/* The page under it stops scrolling and keeps its width (Home doesn't scroll). */
+.menu-open:not(:has(.page-home)) {
+  overflow: hidden;
+  scrollbar-gutter: stable;
 }
 
 /* Home: project track -------------------------------------------------- */
@@ -397,7 +439,6 @@ mark.placeholder {
   padding-inline: var(--gutter);
 }
 
-/* A project's card is a link; an Archive item's is a button (it opens the lightbox). */
 .track-card {
   display: block;
   width: 100%;
@@ -431,7 +472,7 @@ mark.placeholder {
 }
 
 .card-caption {
-  margin-top: var(--space-2);
+  margin-top: var(--gap-1);
 }
 
 .card-title {
@@ -447,23 +488,28 @@ mark.placeholder {
 
 .index {
   margin-right: var(--space-1);
+  font-variant-numeric: tabular-nums;
 }
 
-/* The caption under the middle card, and the Selected / Archive toggle, need track.js. */
-.track-caption,
-.track-tabs {
+/* The caption under the middle card needs track.js. */
+.track-caption {
   display: none;
 }
 
 /* With JavaScript, Home fills the screen and doesn't scroll. The cards sit on a loop
    that track.js turns; these rules size them and set where they start.
-   Sizes and places match the example (focuscarouselpro.framer.website) from 768px.
-     --card-w        the middle card's width: --card-max (400px, so 533px tall at 3:4),
-                     smaller when the screen is too short for it; nearly full width on
-                     phones (--peek is how much of each neighbor shows there)
+   Sizes match the example (focuscarouselpro.framer.website) from 768px; the card's height
+   on the page comes from the --gap-* spacing, so it stays put on any screen.
+     --card-w        the middle card's width: --card-base (400px, so 533px tall at 3:4) up
+                     to a 900px-tall window, larger on taller ones, so the space under the
+                     card stays the same; smaller when the window is too short for it;
+                     nearly full width on phones (--peek is how much of each neighbor
+                     shows there)
      --card-gap      space between cards as drawn, whatever their size
-     --room-top      kept free over the middle card, under the header
-     --room-bottom   kept free under the middle card, for its caption
+     --toggle-h      the height of Work's toggle
+     --room-top      over the middle card, under the header: the room Work's toggle takes
+     --room-spare    under the middle card on a tall window (its caption goes in here)
+     --room-bottom   the least kept free under the middle card, for its caption
      --scale-1       size one step from the middle; --scale-2 two steps or more
      --opacity-1, --grayscale-1, --brightness-1   one step from the middle and beyond
      --fade-step     each step past the first multiplies the opacity by this
@@ -488,13 +534,15 @@ mark.placeholder {
 .js .track {
   --card-gap: var(--space-2);
   --peek: var(--space-2);
-  --card-max: 400px;
-  --room-top: 76px;
+  --card-base: 400px;
+  --toggle-h: 39px;
+  --room-top: calc(var(--header-gap) + var(--toggle-h) + var(--gap-2));
+  --room-spare: 176px;
   --room-bottom: 72px;
-  --card-w: min(var(--card-max),
+  --card-w: min(max(var(--card-base), (100cqh - var(--room-top) - var(--room-spare)) * 0.75),
                 (100cqh - var(--room-top) - var(--room-bottom)) * 0.75,
                 100cqw - 2 * (var(--card-gap) + var(--peek)));
-  --card-y: calc(50% + (var(--room-top) - var(--room-bottom)) / 2);  /* its center */
+  --card-y: calc(var(--room-top) + var(--card-w) * 2 / 3);  /* its center */
   --scale-1: 0.52;
   --scale-2: 0.52;
   --opacity-1: 1;
@@ -561,95 +609,13 @@ mark.placeholder {
   white-space: nowrap;
 }
 
-/* The middle card's caption hangs 16px under it, as wide as the card, with a small
-   triangle pointing up at the card from the middle of the caption's top edge. */
+/* The middle card's caption hangs 16px under it, as wide as the card. */
 .js .track-caption {
   position: absolute;
-  top: calc(var(--card-y) + var(--card-w) * 2 / 3 + var(--space-2));
+  top: calc(var(--card-y) + var(--card-w) * 2 / 3 + var(--gap-1));
   left: 50%;
   width: var(--card-w);
   margin: 0 0 0 calc(var(--card-w) * -0.5);
-  padding-top: 10px;  /* the triangle, and 2px under it */
-}
-
-.js .track-caption::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 50%;
-  margin-left: -4px;
-  border: solid transparent;
-  border-width: 0 4px 8px;
-  border-bottom-color: currentColor;
-  forced-color-adjust: none;  /* keeps the transparent sides transparent */
-}
-
-/* Selected / Archive (once the Archive has three items or more), centered 32px over the
-   middle card. The switch is a gray pill with both names on it, halves the same width,
-   and a white pill under the one showing that slides across when the other is picked. */
-.js .track-tabs {
-  position: absolute;
-  z-index: 1;
-  right: 0;
-  bottom: calc(100% - var(--card-y) + var(--card-w) * 2 / 3 + var(--space-4));
-  left: 0;
-  margin: 0 auto;
-}
-
-.js .track-tabs,
-.js .work-tabs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  width: max-content;
-  padding: 3px;
-  border-radius: 999px;
-  background: #ebeae6;  /* the same family as the card fill */
-}
-
-.js :is(.track-tabs, .work-tabs)::before {
-  content: "";
-  position: absolute;
-  top: 3px;
-  bottom: 3px;
-  left: 3px;
-  width: calc(50% - 3px);
-  border-radius: inherit;
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-  transition: transform 420ms cubic-bezier(0.22, 0.9, 0.25, 1);
-}
-
-.js :is(.track-tabs, .work-tabs):has(> :last-child[aria-selected="true"])::before {
-  transform: translateX(100%);
-}
-
-.track-tab,
-.work-tab {
-  position: relative;  /* over the white pill */
-  padding: 6px 16px;
-  border-radius: 999px;
-  font-size: 0.875rem;  /* 14px, a step under the nav */
-  white-space: nowrap;
-  color: rgba(0, 0, 0, 0.45);
-  transition: color 280ms ease, opacity var(--fade);
-}
-
-.track-tab:hover,
-.work-tab:hover {
-  opacity: 0.85;
-}
-
-.track-tab[aria-selected="true"],
-.work-tab[aria-selected="true"] {
-  color: #111;
-  cursor: default;
-}
-
-.track-tab:focus-visible,
-.work-tab:focus-visible {
-  outline-color: currentColor;
-  outline-offset: -4px;
-  border-radius: 999px;
 }
 
 @media (min-width: 768px) {
@@ -670,7 +636,7 @@ mark.placeholder {
      --intro-size      the line's type size
      --intro-image     the corner image's width and height (it's square)
      --intro-margin    the corner image's distance from the bottom and right edges */
-.js:not(.intro-done) body:has(> .page-home) :is(.identity, .site-nav, .track-tabs, .track-row, .track-caption) {
+.js:not(.intro-done) body:has(> .page-home) :is(.identity, .site-nav, .track-row, .track-caption) {
   opacity: 0;
 }
 
@@ -716,12 +682,11 @@ mark.placeholder {
 
 /* Work ------------------------------------------------------------------ */
 
-/* Selected / Archive at the top, left on the page margin: the same toggle as Home's
-   (see .track-tab), with each group's count after it, smaller. main.js shows one grid at
-   a time; without JavaScript there's no toggle and the grids follow each other. */
+/* All / Digital / Physical / Brand / Visual at the top, left on the page margin, each with
+   its count after it, smaller. main.js shows one filter at a time on the one grid; without
+   JavaScript there's no toggle and the grid shows everything. */
 .page-work {
   --tile-gap: var(--space-3);   /* between tiles, across and down */
-  --tile-fill: #eeede8;         /* the "Archive 06 →" tile */
 }
 
 @media (min-width: 1024px) {
@@ -736,28 +701,87 @@ mark.placeholder {
 
 .js .work-tabs {
   position: relative;
-  margin-bottom: var(--space-4);
+  display: flex;
+  width: max-content;
+  max-width: 100%;
+  margin-top: var(--header-gap);
+  margin-bottom: var(--gap-2);
+  padding: 3px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-radius: 999px;
+  background: #ebeae6;  /* the same family as the card fill */
+}
+
+/* The toggle is a gray pill with the names on it, and a white pill under the one showing that
+   slides across when another is picked; main.js sets where it sits and how wide it is. On a
+   screen too narrow for all five, the names scroll sideways inside the gray pill. */
+.js .work-tabs::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 0;
+  width: var(--thumb-w, 0);
+  border-radius: inherit;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  transform: translateX(var(--thumb-x, 0));
+}
+
+.js .work-tabs.is-ready::before {
+  transition: transform 420ms cubic-bezier(0.22, 0.9, 0.25, 1),
+              width 420ms cubic-bezier(0.22, 0.9, 0.25, 1);
+}
+
+.work-tab {
+  position: relative;  /* over the white pill */
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 0.875rem;  /* 14px, a step under the nav */
+  white-space: nowrap;
+  color: rgba(0, 0, 0, 0.45);
+  transition: color 280ms ease, opacity var(--fade);
+}
+
+.work-tab:hover {
+  opacity: 0.85;
+}
+
+.work-tab[aria-selected="true"] {
+  color: #111;
+  cursor: default;
+}
+
+.work-tab:focus-visible {
+  outline-color: currentColor;
+  outline-offset: -4px;
+  border-radius: 999px;
+}
+
+/* Too narrow for the tabs at their full padding: the pill runs the width of the page and
+   they share it, closer together. */
+@media (max-width: 499.98px) {
+  .js .work-tabs {
+    width: 100%;
+  }
+
+  .work-tab {
+    flex: 1 1 auto;
+    padding-inline: 4px;
+  }
 }
 
 .work-count {
   margin-left: 0.5em;
-  font-family: var(--font-mono);
   font-size: 0.625rem;  /* 10px */
 }
 
-.work-panel + .work-panel {
-  margin-top: var(--section-gap);
-}
-
-.js .work-panel + .work-panel {
-  margin-top: 0;
-}
-
-/* Selected: 1 across on phones, 2 from 768px, 3 from 1024px. Each tile is "001 TypeLab"
-   and the category over a 4:5 cover. A tile sits at the bottom of its row, so the covers
-   in a row line up even when a caption runs to two lines. */
-.work-grid,
-.archive-grid {
+/* 1 across on phones, 2 from 768px, 3 from 1024px. Each tile is "001 TypeLab" and the type
+   over a 4:5 image. A tile sits at the bottom of its row, so the covers in a row line up
+   even when a caption runs to two lines. A tile with no page is a button (it opens the
+   lightbox) and looks the same. */
+.work-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--tile-gap);
@@ -775,23 +799,24 @@ mark.placeholder {
   }
 }
 
-.work-grid > li,
-.archive-item {
+.work-grid > li {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
 }
 
-.work-card,
-.archive-tile {
+.work-grid > li[hidden] {
+  display: none;
+}
+
+.work-card {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--gap-1);
   text-align: left;
 }
 
-.work-caption,
-.archive-caption {
+.work-caption {
   display: flex;
   align-items: baseline;
 }
@@ -806,7 +831,7 @@ mark.placeholder {
   font-weight: 500;
 }
 
-.work-category {
+.work-type {
   margin-left: auto;
   padding-left: var(--space-2);
   color: var(--color-muted);
@@ -814,8 +839,7 @@ mark.placeholder {
 }
 
 /* The image fills a 4:5 frame (a plain gray block until it exists). */
-.work-media,
-.archive-media {
+.work-media {
   position: relative;
   display: block;
   aspect-ratio: 4 / 5;
@@ -824,8 +848,7 @@ mark.placeholder {
 }
 
 .work-media img,
-.work-media video,
-.archive-media img {
+.work-media video {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -846,107 +869,14 @@ mark.placeholder {
 
 /* Hovered, the image grows a little inside its frame. */
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .work-card:hover :is(img, video),
-  .archive-tile:hover img {
+  .work-card:hover :is(img, video) {
     transform: scale(1.03);
   }
 }
 
-/* "Archive 06 →" in the empty spot after the projects: a plain tile the size of a cover.
-   Left out where it would sit alone in its row; on phones, just the words. */
-.work-to-archive {
-  display: flex;
-  align-items: flex-end;
-  aspect-ratio: 4 / 5;
-  padding: var(--space-2);
-  background: var(--tile-fill);
-  transition: background-color 250ms ease;
-}
-
-.work-to-archive svg,
-.work-back svg {
-  display: inline-block;
-  width: 1em;
-  height: 1em;
-  vertical-align: -0.15em;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.25;
-}
-
-.work-to-archive svg {
-  margin-left: var(--space-1);
-}
-
-@media (hover: hover) {
-  .work-to-archive:hover {
-    background-color: var(--color-fill);
-  }
-}
-
-@media (max-width: 767px) {
-  .work-to-archive {
-    aspect-ratio: auto;
-    padding: 0;
-    background: none;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 1023.98px) {
-  .work-more:nth-child(2n + 1) {
-    display: none;
-  }
-}
-
-@media (min-width: 1024px) {
-  .work-more:nth-child(3n + 1) {
-    display: none;
-  }
-}
-
-/* Archive: smaller tiles, 2 across on phones, 3 from 768px, 4 from 1024px. The title and
-   "Category · Year" over the image, in label type. A tile opens the lightbox. */
-.archive-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-@media (min-width: 768px) {
-  .archive-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1024px) {
-  .archive-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-.archive-caption {
-  flex-wrap: wrap;
-  column-gap: var(--space-1);
-  font-size: var(--size-label);
-  line-height: 1.5;
-}
-
-.archive-name {
-  font-weight: 500;
-}
-
-.archive-meta {
-  margin-left: auto;
+/* A filter with nothing in it yet. */
+.work-empty {
   color: var(--color-muted);
-  text-align: right;
-}
-
-/* After the Archive: "← Selected". */
-.work-back {
-  display: inline-block;
-  margin-top: var(--tile-gap);
-}
-
-.work-back svg {
-  margin-right: var(--space-1);
 }
 
 /* The lightbox (main.js opens it): the item's images, scrolling if there are several,

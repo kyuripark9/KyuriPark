@@ -36,16 +36,14 @@ PLACEHOLDER_SIZES = {
     "wide": (2400, 1350),      # 16:9, hero and full-width images and videos
     "pair": (1200, 1500),      # 4:5, each image in a two-image row
     "portrait": (1200, 1500),  # 4:5, the About portrait
-    "archive": (1200, 1500),   # 4:5, Archive thumbnails and their lightbox images
+    "piece": (1200, 1500),     # 4:5, the images of an item with no page of its own
 }
-ARCHIVE_FOLDER = "assets/images/archive"
+PIECE_FOLDER = "assets/images/pieces"
 COVER_VIDEO_EXTS = (".mp4", ".webm")
 OG_IMAGE_EXTS = (".jpg", ".jpeg", ".png")
 WORDMARK_FONT = "assets/fonts/wordmark.woff2"  # optional; the header name uses it once it exists
 MAX_ONE_LINER_WORDS = 8
-MAX_ARCHIVE_ITEMS = 10
-MIN_HOME_ARCHIVE = 3   # Home shows the Selected / Archive toggle once the archive has this many
-GROUPS = ("selected", "archive")
+CATEGORIES = ("digital", "physical", "brand", "visual")  # Work's filters, in toggle order after All
 LOADING_ATTRS = {"lazy": 'loading="lazy"', "eager": "", "high": 'fetchpriority="high"'}
 
 PLACEHOLDER_RE = re.compile(r"\[PLACEHOLDER[^\]]*\]")
@@ -97,11 +95,9 @@ def link(href, label_html, cls=""):
     return f'<a{attrs} href="{href}">{label_html}</a>'
 
 
-def arrow(way):
-    """A thin left or right arrow, like the lightbox's, for Work's "Archive 06 →" and "← Selected"."""
-    path = {"left": "M13 8H3M7 4 3 8l4 4", "right": "M3 8h10M9 4l4 4-4 4"}[way]
-    return (f'<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" '
-            f'focusable="false"><path d="{path}"/></svg>')
+def categories(item):
+    """The filters an item shows under: its category, and its secondaryCategory if it has one."""
+    return list(dict.fromkeys(c for c in (item["category"], item.get("secondaryCategory")) if c))
 
 
 def inline(text):
@@ -329,15 +325,24 @@ def validate(site, items):
     if not isinstance(items, list) or not items:
         raise BuildError("content/projects.json should be a list of items: [ {...}, {...} ].")
 
-    warnings, seen, archived = [], set(), 0
+    warnings, seen = [], set()
+    allowed = ", ".join(f'"{c}"' for c in CATEGORIES)
     for i, p in enumerate(items, 1):
         where = f"content/projects.json (item {i})"
-        group = p.get("group") if isinstance(p, dict) else None
-        if group not in GROUPS:
-            raise BuildError(f'{where}: "group" should be "selected" (a project with its own page) '
-                             'or "archive" (shown in the Archive).')
-        if group == "archive":
-            archived += 1
+        if need(p, "category", where) not in CATEGORIES:
+            raise BuildError(f'{where}: "category" should be one of {allowed}.')
+        if p.get("secondaryCategory") not in (None, *CATEGORIES):
+            raise BuildError(f'{where}: "secondaryCategory" should be one of {allowed}, '
+                             'or left out.')
+        order = p.get("order")
+        if isinstance(order, bool) or not isinstance(order, (int, float)):
+            raise BuildError(f'{where}: "order" should be a number (lower numbers show first).')
+        roles = p.get("roles", [])
+        if not isinstance(roles, list) or not all(isinstance(r, str) for r in roles):
+            raise BuildError(f'{where}: "roles" should be a list, like ["Art Direction"].')
+        if p.get("todo"):
+            warnings.append(f'{where}: {p["todo"]}.')
+        if "slug" not in p:  # no page of its own: its tile opens the lightbox
             need(p, "title", where)
             images = need(p, "images", where)
             if not isinstance(images, list) or not images:
@@ -358,18 +363,12 @@ def validate(site, items):
         if words > MAX_ONE_LINER_WORDS:
             warnings.append(f"{slug}: the one-liner is {words} words "
                             f"(aim for {MAX_ONE_LINER_WORDS} or fewer).")
-        for key in ("category", "year"):
+        for key in ("type", "year"):
             if not p.get(key):
                 warnings.append(f'{slug}: "{key}" is empty, so the Work list shows a gap there.')
 
     if not seen:
-        raise BuildError('content/projects.json needs at least one item with "group": "selected".')
-    if archived > MAX_ARCHIVE_ITEMS:
-        warnings.append(f"The archive has {archived} items "
-                        f"(aim for {MAX_ARCHIVE_ITEMS} or fewer).")
-    elif 0 < archived < MIN_HOME_ARCHIVE:
-        warnings.append(f"The archive has {archived} item{'' if archived == 1 else 's'}, so Home "
-                        f"hides its Selected / Archive toggle until there are {MIN_HOME_ARCHIVE}.")
+        raise BuildError('content/projects.json needs at least one project with a "slug".')
 
     if not exists(site["resume"]):
         warnings.append(f"{site['resume']} not found, so the Resume link won't work yet.")
@@ -383,10 +382,10 @@ def validate(site, items):
 # The build
 
 class Builder:
-    def __init__(self, site, projects, archive):
+    def __init__(self, site, items):
         self.site = site
-        self.projects = projects
-        self.archive = archive
+        self.items = items             # everything on Work, in "order"
+        self.projects = [p for p in items if "slug" in p]  # the ones with their own page
         self.written = set()           # dist-relative paths this build produced
         self.missing_media = set()     # files the content mentions that don't exist yet
         self.placeholder_counts = {}   # page -> number of [PLACEHOLDER] notes left
@@ -653,8 +652,8 @@ class Builder:
         """Role · Year · Type · Tools · Link. Empty fields are left out."""
         meta = p.get("meta") or {}
         rows = []
-        for label, value in (("Role", meta.get("role")), ("Year", p.get("year")),
-                             ("Type", p.get("category")), ("Tools", meta.get("tools"))):
+        for label, value in (("Role", p.get("roles")), ("Year", p.get("year")),
+                             ("Type", p.get("type")), ("Tools", meta.get("tools"))):
             if isinstance(value, list):
                 value = ", ".join(value)
             if value:
@@ -674,60 +673,36 @@ class Builder:
         return rel, video
 
     def card_caption(self, p):
-        """'TypeLab' on the left, 'Font design playground' on the right (for an Archive item,
-        'Category · Year'): on each home card, and under the middle one."""
-        text = inline(p["oneLiner"]) if p["group"] == "selected" else self.archive_meta(p)
+        """'TypeLab' on the left, 'Font design playground' on the right: on each home card,
+        and under the middle one."""
         return (f'<span class="card-title">{inline(p["title"])}</span> '
-                f'<span class="card-text">{text}</span>')
+                f'<span class="card-text">{inline(p["oneLiner"])}</span>')
 
     def home_card(self, p, index, total):
-        """A project's card links to its page. An Archive item's card is a button that opens
-        the lightbox (main.js); it stays hidden until track.js puts the Archive on the loop."""
-        selected = p["group"] == "selected"
-        if selected:
-            rel, _ = self.cover(p)
-            alt, slot = p["cover"].get("alt"), "cover"
-        else:
-            rel, alt, slot = media_path(p["images"][0], ARCHIVE_FOLDER), p.get("alt"), "archive"
+        rel, _ = self.cover(p)
         if exists(rel):
             # All eager: the stage clips the cards, so lazy ones would only load once on screen.
-            loading = "high" if index == 0 and selected else "eager"
-            img = self.img(rel, alt, slot, p["title"], loading)
+            img = self.img(rel, p["cover"].get("alt"), "cover", p["title"],
+                           "high" if index == 0 else "eager")
         else:
             img = ""  # a plain gray card until the cover exists; no label on Home
             self.missing_media.add(rel)
         # Where the card sits before track.js runs: first card in the middle, the rest
         # around it as on a loop (with five: 0, 1, 2, -2, -1).
         offset = index if index <= total / 2 else index - total
-        inner = (f'              <span class="track-media">{img}</span>\n'
-                 f'              <span class="card-caption">{self.card_caption(p)}</span>\n')
-        if selected:
-            return (f'          <li class="track-item" data-group="selected" style="--d: {offset}">\n'
-                    f'            <a class="track-card" href="/work/{p["slug"]}/">\n{inner}'
-                    f'            </a>\n'
-                    f'          </li>')
-        return (f'          <li class="track-item" data-group="archive" style="--d: {offset}" hidden>\n'
-                f'            <button class="track-card" type="button" data-item="{index}" '
-                f'aria-haspopup="dialog">\n{inner}'
-                f'            </button>\n'
-                f'            {self.archive_images(p)}\n'
+        return (f'          <li class="track-item" style="--d: {offset}">\n'
+                f'            <a class="track-card" href="/work/{p["slug"]}/">\n'
+                f'              <span class="track-media">{img}</span>\n'
+                f'              <span class="card-caption">{self.card_caption(p)}</span>\n'
+                f'            </a>\n'
                 f'          </li>')
 
     def build_home(self):
-        """The project loop. With enough Archive items, a Selected / Archive toggle over it
-        (track.js switches the loop between the two) and the lightbox for the Archive cards."""
-        groups = [self.projects]
-        tabs = panel = lightbox = ""
-        if len(self.archive) >= MIN_HOME_ARCHIVE:
-            groups.append(self.archive)
-            tabs = render("track-tabs.html")
-            panel = ' id="track-panel" role="tabpanel" aria-labelledby="tab-selected"'
-            lightbox = render("lightbox.html")
-        cards = "\n".join(self.home_card(p, i, len(group))
-                          for group in groups for i, p in enumerate(group))
+        """The project loop: the items with their own page, in "order"."""
+        cards = "\n".join(self.home_card(p, i, len(self.projects))
+                          for i, p in enumerate(self.projects))
         s = self.site
-        content = render("home.html", tabs=tabs, panel=panel, cards=cards,
-                         caption=self.card_caption(self.projects[0]), lightbox=lightbox,
+        content = render("home.html", cards=cards, caption=self.card_caption(self.projects[0]),
                          intro_line=esc(f"{s['name']} — {s['role']}"),
                          track_version=file_version("assets/js/track.js"))
         self.page("index.html", "home", "/", self.site["title"], self.site["description"],
@@ -742,80 +717,72 @@ class Builder:
         return ""
 
     def work_card(self, p, index):
-        """'001 TypeLab' and the category over the 4:5 cover. If the cover has a video next to
-        it, main.js plays it while the tile is hovered."""
-        rel, video = self.cover(p)
-        img = self.tile_image(rel, "cover", p["title"], "eager" if index < 3 else "lazy")
-        data = f' data-video="{url_for(video)}"' if video else ""
-        return (f'          <li>\n'
-                f'            <a class="work-card" href="/work/{p["slug"]}/">\n'
+        """'001 TypeLab' and the type over a 4:5 image, for one item; main.js filters the tiles
+        on data-categories and renumbers the ones it shows. A project's tile links to its page,
+        and if the cover has a video next to it, main.js plays it while the tile is hovered.
+        An item with no page has 'Type · Year' instead, and its tile opens the lightbox."""
+        loading = "eager" if index < 3 else "lazy"
+        if "slug" in p:
+            rel, video = self.cover(p)
+            img = self.tile_image(rel, "cover", p["title"], loading)
+            data = f' data-video="{url_for(video)}"' if video else ""
+            tag, attrs = "a", f'href="/work/{p["slug"]}/"'
+            text, extra = inline(p.get("type") or ""), ""
+        else:
+            rel = media_path(p["images"][0], PIECE_FOLDER)
+            img = self.tile_image(rel, "piece", p["title"], loading)
+            data = ""
+            tag, attrs = "button", 'type="button" data-item aria-haspopup="dialog"'
+            text, extra = self.piece_meta(p), f'            {self.piece_images(p)}\n'
+        return (f'          <li data-categories="{" ".join(categories(p))}">\n'
+                f'            <{tag} class="work-card" {attrs}>\n'
                 f'              <span class="work-caption"><span class="index">{index + 1:03d}</span> '
                 f'<span class="work-name">{inline(p["title"])}</span> '
-                f'<span class="work-category">{inline(p.get("category") or "")}</span></span>\n'
+                f'<span class="work-type">{text}</span></span>\n'
                 f'              <span class="work-media"{data}>{img}</span>\n'
-                f'            </a>\n'
+                f'            </{tag}>\n'
+                f'{extra}'
                 f'          </li>')
 
     @staticmethod
-    def work_count(n, noun):
+    def work_count(n):
         """'05' on screen, ', 5 projects' for screen readers."""
         return (f'<span class="work-count" aria-hidden="true">{n:02d}</span>'
-                f'<span class="visually-hidden">, {n} {noun}{"" if n == 1 else "s"}</span>')
+                f'<span class="visually-hidden">, {n} project{"" if n == 1 else "s"}</span>')
 
-    def archive_meta(self, item):
-        """'Category · Year', leaving out what's empty."""
-        return " · ".join(inline(item[k]) for k in ("category", "year") if item.get(k))
+    def work_tab(self, name):
+        """One filter on Work's toggle, with how many items it shows: an item with a
+        secondaryCategory counts under both of its categories, and once under All."""
+        n = sum(name == "all" or name in categories(p) for p in self.items)
+        state = 'aria-selected="true"' if name == "all" else 'aria-selected="false" tabindex="-1"'
+        return (f'      <button class="work-tab" type="button" role="tab" id="tab-{name}" '
+                f'data-filter="{name}" {state} aria-controls="work-panel">'
+                f'{name.capitalize()}{self.work_count(n)}</button>')
 
-    def archive_images(self, item):
-        """An Archive item's images, waiting in a <template> until main.js copies them into
-        the lightbox. The first is also its thumbnail."""
+    def piece_meta(self, item):
+        """'Type · Year', leaving out what's empty."""
+        return " · ".join(inline(item[k]) for k in ("type", "year") if item.get(k))
+
+    def piece_images(self, item):
+        """The images of an item with no page, waiting in a <template> until main.js copies
+        them into the lightbox. The first is also its thumbnail."""
         title, alt = item["title"], item.get("alt")
-        rels = [media_path(src, ARCHIVE_FOLDER) for src in item["images"]]
+        rels = [media_path(src, PIECE_FOLDER) for src in item["images"]]
         large = "".join(
             self.img(rel, f"{alt} ({n} of {len(rels)})" if alt and len(rels) > 1 else alt,
-                     "archive", title, "eager" if n == 1 else "lazy")
+                     "piece", title, "eager" if n == 1 else "lazy")
             for n, rel in enumerate(rels, 1))
         return f"<template>{large}</template>"
 
-    def archive_item(self, item, index):
-        """A tile (the title and 'Category · Year' over the thumbnail) that opens the lightbox,
-        and the item's images for it. data-item is the item's place in the Archive, which the
-        lightbox opens at."""
-        title = item["title"]
-        thumb = self.tile_image(media_path(item["images"][0], ARCHIVE_FOLDER), "archive", title)
-        return (f'          <li class="archive-item">\n'
-                f'            <button class="archive-tile" type="button" data-item="{index}" '
-                f'aria-haspopup="dialog">\n'
-                f'              <span class="archive-caption"><span class="archive-name">{inline(title)}</span> '
-                f'<span class="archive-meta">{self.archive_meta(item)}</span></span>\n'
-                f'              <span class="archive-media">{thumb}</span>\n'
-                f'            </button>\n'
-                f'            {self.archive_images(item)}\n'
-                f'          </li>')
-
     def build_work(self):
-        """Selected: a tile per project. With an Archive: Selected / Archive over the tiles
-        (main.js shows one grid at a time), an "Archive 06 →" tile after the projects, and the
-        Archive's grid, ending in "← Selected", with its lightbox."""
+        """One grid of tiles under the All / Digital / Physical / Brand / Visual toggle (main.js
+        shows one filter at a time). Without JavaScript, there's no toggle and it shows them all."""
         s = self.site
-        cards = [self.work_card(p, i) for i, p in enumerate(self.projects)]
-        tabs = panel = archive = ""
-        if self.archive:
-            archive_count = self.work_count(len(self.archive), "item")
-            tabs = render("work-tabs.html",
-                          selected_count=self.work_count(len(self.projects), "project"),
-                          archive_count=archive_count)
-            panel = ' role="tabpanel" aria-labelledby="tab-selected"'
-            cards.append(f'          <li class="work-more">\n'
-                         f'            <a class="work-to-archive" href="#archive"><span>Archive'
-                         f'{archive_count}{arrow("right")}</span></a>\n'
-                         f'          </li>')
-            archive = render("archive.html", back=arrow("left"),
-                             items="\n".join(self.archive_item(item, i)
-                                             for i, item in enumerate(self.archive))
-                             ) + render("lightbox.html")
-        content = render("work.html", tabs=tabs, panel=panel, cards="\n".join(cards),
-                         archive=archive)
+        tabs = "\n".join(self.work_tab(name) for name in ("all", *CATEGORIES))
+        cards = "\n".join(self.work_card(p, i) for i, p in enumerate(self.items))
+        lightbox = render("lightbox.html") if len(self.items) > len(self.projects) else ""
+        content = render("work.html", tabs=render("work-tabs.html", tabs=tabs), cards=cards,
+                         lightbox=lightbox)
         self.page("work/index.html", "work", "/work/", f"Work — {s['name']}", s["description"],
                   content, "wrap page-work", current="work", image=self.og_image())
 
@@ -892,15 +859,14 @@ def build(local_url=None):
         site["siteUrl"] = local_url  # local preview: full links point at this server
 
     warnings = validate(site, items)
-    # "selected" items are the projects (own pages, the Work list); "archive" items are the Archive.
-    projects = [p for p in items if p["group"] == "selected"]
-    archive = [p for p in items if p["group"] == "archive"]
-    builder = Builder(site, projects, archive)
+    items.sort(key=lambda p: p["order"])  # stable: items with the same number keep the file's order
+    builder = Builder(site, items)
     builder.warnings += warnings
     os.makedirs(DIST_DIR, exist_ok=True)
     builder.copy_assets()
     builder.build_home()
     builder.build_work()
+    projects = builder.projects
     for i, p in enumerate(projects):  # Previous / Next loop around the ends
         builder.build_project(p, projects[i - 1], projects[(i + 1) % len(projects)])
     builder.build_about()

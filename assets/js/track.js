@@ -3,52 +3,35 @@
 // Each card is placed by its distance from the position, wrapped around the loop; when the
 // cards alone can't fill the screen, copies of them extend it. Card size, spacing, and
 // how the cards shrink, grey, fade, and blur away from the middle are set in style.css.
-// With the Selected / Archive toggle, the loop holds one group of cards at a time.
 (() => {
   const WHEEL_SPEED = 1 / 600;   // cards moved per pixel of wheel or trackpad scroll
   const WHEEL_MAX = 30;          // pixels: one wheel event never counts for more than this
   const SETTLE_DELAY = 150;      // ms without input before the row settles on one card
   const EASE = 0.15;             // share of the remaining distance covered each frame
-  const FADE_OUT = 150;          // ms: switching groups, the cards on the loop fade out
-  const FADE_IN = 250;           // ms: then the other group's cards fade in
 
   const root = document.querySelector(".track");
   if (!root) return;
   const stage = root.querySelector(".track-stage");
-  const panel = root.querySelector(".track-panel");
   const row = root.querySelector(".track-row");
   const caption = root.querySelector(".track-caption");
-  const tablist = root.querySelector("[role='tablist']");
-  const tabs = tablist ? [...tablist.querySelectorAll("[role='tab']")] : [];
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-  // The cards of each group, in order: "selected" (the projects), and "archive" when the
-  // toggle is there. Only the group on the loop is in the page.
-  const groups = new Map();
-  row.querySelectorAll(".track-item").forEach((item) => {
-    if (!groups.has(item.dataset.group)) groups.set(item.dataset.group, []);
-    groups.get(item.dataset.group).push(item);
-    item.hidden = false;
-    item.querySelector(".track-card").draggable = false;
-  });
-
-  let group;           // the group on the loop
-  let wanted;          // the group picked last (it's on the loop once a fade-out ends)
-  let originals;       // the group's cards
-  let items, cards;    // the loop: the originals, then any copies
-  let count, n;        // cards in the group; on the loop, copies included
+  const originals = [...row.querySelectorAll(".track-item")];
+  const items = [...originals];  // the loop: the originals, then any copies
+  const cards = items.map((item) => item.querySelector(".track-card"));
+  cards.forEach((card) => { card.draggable = false; });
+  const count = items.length;
+  let n = count;       // cards on the loop, copies included
 
   let position = 0;    // the card in the middle; 1.5 = halfway between the 2nd and 3rd
   let target = 0;
   let direction = 0;   // which way the last input moved: 1, -1, or 0
   let scales, look, stops, far;
-  let shown = groups.get("selected")[0];  // the card whose caption is showing
+  let shown = originals[0];  // the card whose caption is showing
   let frame = 0;
   let settleTimer;
   let drag = null;
   let dragged = false;
-  let fade = null;     // the fade under way when switching groups
-  let fadingOut = false;
 
   const wrap = (i) => ((i % n) + n) % n;
 
@@ -153,61 +136,6 @@
     }
   };
 
-  // Put a group's cards on the loop, its first card in the middle. Whatever the loop was
-  // doing (gliding, about to settle, being dragged) stops.
-  const load = (name) => {
-    group = name;
-    originals = groups.get(name);
-    items = [...originals];
-    cards = items.map((item) => item.querySelector(".track-card"));
-    count = n = items.length;
-    row.replaceChildren(...items);
-    cancelAnimationFrame(frame);
-    clearTimeout(settleTimer);
-    frame = 0;
-    drag = null;
-    position = target = direction = 0;
-    measure();
-    render();
-  };
-
-  // The tabs and the address show the group picked. In the address (#selected, #archive),
-  // so coming Back from another page shows the same group.
-  const mark = (name) => {
-    wanted = name;
-    tabs.forEach((tab) => {
-      const on = tab.dataset.group === name;
-      tab.setAttribute("aria-selected", String(on));
-      if (on) panel.setAttribute("aria-labelledby", tab.id);
-    });
-    history.replaceState(history.state, "", `#${name}`);
-  };
-
-  // The cards fade out, the other group comes on, and its cards fade in. Picking again while
-  // they fade out changes what comes on; while they fade in, it fades them out from there.
-  const pick = (name) => {
-    if (!groups.has(name)) return;
-    mark(name);
-    if (reduceMotion.matches) {
-      fade?.cancel();
-      fadingOut = false;
-      if (name !== group) load(name);
-      return;
-    }
-    if (fadingOut || name === group) return;
-    const from = Number(getComputedStyle(panel).opacity);
-    fade?.cancel();
-    fadingOut = true;
-    fade = panel.animate({ opacity: [from, 0] },
-      { duration: FADE_OUT * from, easing: "ease-in", fill: "forwards" });
-    fade.onfinish = () => {
-      fadingOut = false;
-      if (wanted !== group) load(wanted);
-      fade.cancel();
-      fade = panel.animate({ opacity: [0, 1] }, { duration: FADE_IN, easing: "ease-out" });
-    };
-  };
-
   const tick = () => {
     frame = 0;
     position = reduceMotion.matches ? Math.round(target) : position + (target - position) * EASE;
@@ -242,11 +170,11 @@
     settleTimer = setTimeout(settle, SETTLE_DELAY);
   }, { passive: false });
 
-  // Drag with a mouse, or swipe on a touch screen (not from the toggle).
+  // Drag with a mouse, or swipe on a touch screen.
   stage.addEventListener("dragstart", (e) => e.preventDefault());
 
   stage.addEventListener("pointerdown", (e) => {
-    if (!e.isPrimary || e.button !== 0 || tablist?.contains(e.target)) return;
+    if (!e.isPrimary || e.button !== 0) return;
     drag = { id: e.pointerId, x: e.clientX, from: target, moving: false };
   });
 
@@ -275,8 +203,7 @@
   stage.addEventListener("pointerup", endDrag);
   stage.addEventListener("pointercancel", endDrag);
 
-  // The middle card opens: a project's page, or an Archive item's lightbox (main.js).
-  // A side card comes to the middle first.
+  // The middle card opens its project's page. A side card comes to the middle first.
   root.addEventListener("click", (e) => {
     const card = e.target.closest(".track-card");
     if (!card) return;
@@ -285,17 +212,9 @@
       return;
     }
     const i = cards.indexOf(card);
-    const newTab = card.href && (e.metaKey || e.ctrlKey || e.shiftKey);
+    const newTab = e.metaKey || e.ctrlKey || e.shiftKey;
     if (Math.abs(offset(i, target)) < 0.5 || newTab) return;
     e.preventDefault();
-    center(i);
-  });
-
-  // Closing the lightbox brings the card of the item it showed last to the middle.
-  root.addEventListener("lightboxclose", (e) => {
-    const i = cards.indexOf(e.target);
-    if (i < 0) return;
-    swapIn(i);
     center(i);
   });
 
@@ -307,13 +226,6 @@
       center(i);
     }
   });
-
-  // The toggle: a click, Enter, or Space picks a group. Tab reaches both; left/right arrows
-  // turn the loop here too, as everywhere on Home.
-  tabs.forEach((tab) => tab.addEventListener("click", () => pick(tab.dataset.group)));
-
-  // A link or a typed address naming a group (none: Selected).
-  window.addEventListener("hashchange", () => pick(location.hash.slice(1) || "selected"));
 
   // Left/right arrows work while focus is on the track or nowhere in particular.
   // On a card, focus moves along with the row.
@@ -336,9 +248,6 @@
     render();
   });
 
-  // The group named in the address (#archive) comes on first, except under the intro,
-  // which always lands on Selected.
-  const intro = !document.documentElement.classList.contains("intro-done");
-  load(location.hash === "#archive" && groups.has("archive") && !intro ? "archive" : "selected");
-  if (groups.has(location.hash.slice(1))) mark(group);
+  measure();
+  render();
 })();

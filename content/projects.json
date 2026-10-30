@@ -1,18 +1,22 @@
 [
   {
-    "group": "selected",
+    "order": 1,
+    "category": "digital",
+    "secondaryCategory": "visual",
     "slug": "typelab",
     "title": "TypeLab",
     "oneLiner": "Font design playground",
-    "category": "Font design tool",
+    "type": "Font design tool",
     "year": "2026",
+    "roles": [
+      "[PLACEHOLDER]"
+    ],
     "statement": "[PLACEHOLDER] One sentence, in big type, on what this project is and why it matters.",
     "cover": {
       "src": "cover.webp",
       "alt": "[PLACEHOLDER] TypeLab: cover image"
     },
     "meta": {
-      "role": "[PLACEHOLDER]",
       "tools": "[PLACEHOLDER]",
       "link": {
         "label": "typelab.ink",
@@ -99,19 +103,22 @@
     ]
   },
   {
-    "group": "selected",
+    "order": 2,
+    "category": "digital",
     "slug": "clack",
     "title": "Clack",
     "oneLiner": "Staying focused while AI works",
-    "category": "[PLACEHOLDER]",
+    "type": "[PLACEHOLDER]",
     "year": "[PLACEHOLDER]",
+    "roles": [
+      "[PLACEHOLDER]"
+    ],
     "statement": "[PLACEHOLDER] One sentence, in big type, on what this project is and why it matters.",
     "cover": {
       "src": "cover.webp",
       "alt": "[PLACEHOLDER] Clack: cover image"
     },
     "meta": {
-      "role": "[PLACEHOLDER]",
       "tools": "[PLACEHOLDER]",
       "link": null
     },
@@ -197,19 +204,23 @@
     ]
   },
   {
-    "group": "selected",
+    "order": 3,
+    "category": "digital",
+    "secondaryCategory": "visual",
     "slug": "nbcuniversal",
     "title": "NBCUniversal",
     "oneLiner": "[PLACEHOLDER one-liner]",
-    "category": "[PLACEHOLDER]",
+    "type": "[PLACEHOLDER]",
     "year": "[PLACEHOLDER]",
+    "roles": [
+      "[PLACEHOLDER]"
+    ],
     "statement": "[PLACEHOLDER] One sentence, in big type, on what this project is and why it matters.",
     "cover": {
       "src": "cover.webp",
       "alt": "[PLACEHOLDER] NBCUniversal: cover image"
     },
     "meta": {
-      "role": "[PLACEHOLDER]",
       "tools": "[PLACEHOLDER]",
       "link": null
     },
@@ -293,19 +304,22 @@
     ]
   },
   {
-    "group": "selected",
+    "order": 4,
+    "category": "digital",
     "slug": "project-4",
     "title": "[PLACEHOLDER: Palette or Self-checkout]",
     "oneLiner": "[PLACEHOLDER one-liner]",
-    "category": "[PLACEHOLDER]",
+    "type": "[PLACEHOLDER]",
     "year": "[PLACEHOLDER]",
+    "roles": [
+      "[PLACEHOLDER]"
+    ],
     "statement": "[PLACEHOLDER] One sentence, in big type, on what this project is and why it matters.",
     "cover": {
       "src": "cover.webp",
       "alt": "[PLACEHOLDER] this project: cover image"
     },
     "meta": {
-      "role": "[PLACEHOLDER]",
       "tools": "[PLACEHOLDER]",
       "link": null
     },
@@ -389,19 +403,23 @@
     ]
   },
   {
-    "group": "selected",
+    "order": 5,
+    "category": "physical",
+    "secondaryCategory": "brand",
     "slug": "light-life",
     "title": "Light Life",
     "oneLiner": "[PLACEHOLDER one-liner]",
-    "category": "[PLACEHOLDER]",
+    "type": "[PLACEHOLDER]",
     "year": "[PLACEHOLDER]",
+    "roles": [
+      "[PLACEHOLDER]"
+    ],
     "statement": "[PLACEHOLDER] One sentence, in big type, on what this project is and why it matters.",
     "cover": {
       "src": "cover.webp",
       "alt": "[PLACEHOLDER] Light Life: cover image"
     },
     "meta": {
-      "role": "[PLACEHOLDER]",
       "tools": "[PLACEHOLDER]",
       "link": null
     },
@@ -485,63 +503,74 @@
     ]
   },
   {
-    "group": "archive",
-    "title": "[PLACEHOLDER title]",
-    "category": "[PLACEHOLDER category]",
+    "order": 6,
+    "category": "digital",
+    "secondaryCategory": "brand",
+    "title": "Lulu Walk",
+    "type": "[PLACEHOLDER type]",
     "year": "[PLACEHOLDER year]",
     "images": [
       "item-1.webp"
     ],
-    "alt": "[PLACEHOLDER] Archive item 1: image"
+    "alt": "[PLACEHOLDER] Lulu Walk: image"
   },
   {
-    "group": "archive",
-    "title": "[PLACEHOLDER title]",
-    "category": "[PLACEHOLDER category]",
+    "order": 7,
+    "category": "visual",
+    "secondaryCategory": "brand",
+    "title": "Editorial Projects",
+    "type": "[PLACEHOLDER type]",
     "year": "[PLACEHOLDER year]",
     "images": [
       "item-2.webp"
     ],
-    "alt": "[PLACEHOLDER] Archive item 2: image"
+    "alt": "[PLACEHOLDER] Editorial Projects: image"
   },
   {
-    "group": "archive",
-    "title": "[PLACEHOLDER title]",
-    "category": "[PLACEHOLDER category]",
+    "order": 8,
+    "category": "physical",
+    "title": "3D Product Projects",
+    "type": "[PLACEHOLDER type]",
     "year": "[PLACEHOLDER year]",
     "images": [
       "item-3.webp"
     ],
-    "alt": "[PLACEHOLDER] Archive item 3: image"
+    "alt": "[PLACEHOLDER] 3D Product Projects: image"
   },
   {
-    "group": "archive",
+    "order": 9,
+    "category": "digital",
+    "todo": "confirm category",
     "title": "[PLACEHOLDER title]",
-    "category": "[PLACEHOLDER category]",
+    "type": "[PLACEHOLDER type]",
     "year": "[PLACEHOLDER year]",
     "images": [
       "item-4.webp"
     ],
-    "alt": "[PLACEHOLDER] Archive item 4: image"
+    "alt": "[PLACEHOLDER] Item 4: image"
   },
   {
-    "group": "archive",
+    "order": 10,
+    "category": "digital",
+    "todo": "confirm category",
     "title": "[PLACEHOLDER title]",
-    "category": "[PLACEHOLDER category]",
+    "type": "[PLACEHOLDER type]",
     "year": "[PLACEHOLDER year]",
     "images": [
       "item-5.webp"
     ],
-    "alt": "[PLACEHOLDER] Archive item 5: image"
+    "alt": "[PLACEHOLDER] Item 5: image"
   },
   {
-    "group": "archive",
+    "order": 11,
+    "category": "digital",
+    "todo": "confirm category",
     "title": "[PLACEHOLDER title]",
-    "category": "[PLACEHOLDER category]",
+    "type": "[PLACEHOLDER type]",
     "year": "[PLACEHOLDER year]",
     "images": [
       "item-6.webp"
     ],
-    "alt": "[PLACEHOLDER] Archive item 6: image"
+    "alt": "[PLACEHOLDER] Item 6: image"
   }
 ]

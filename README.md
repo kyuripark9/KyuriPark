@@ -163,9 +163,9 @@ image; the page shows them in the file's order, with only `id` under each:
 
 | Field | Where it shows |
 | --- | --- |
-| `id` | Required. The number under the image. Each one has to be different |
-| `src` | Required. A file in `assets/images/archive/` |
-| `caption` | Optional. Only in the lightbox, on one line with the date. Leave it `""` to show nothing |
+| `id` | Required. The number under the image, in quotes (`"009"`). Each one has to be different |
+| `src` | Required. A file in `assets/images/archive/`. Each entry needs its own file name (not `009.jpg` and `009.webp`) |
+| `caption` | Optional. Only in the lightbox, on one line with the date; a caption too long for the screen is cut short with "…" (the date never is). Leave it `""` to show nothing |
 | `date` | Optional. Shown as you write it |
 | `alt` | What the image shows, for screen readers. The build reminds you if a real image has none |
 
@@ -177,9 +177,15 @@ image; the page shows them in the file's order, with only `id` under each:
 - **Reorder:** move the entries in the file. Columns fill from top to bottom, so 001, 002, and so
   on run down the first column, then the second.
 - **Remove:** delete the entry.
+- **Faster grid (optional):** the grid shows each image at a quarter to half of the page's
+  width, so a smaller copy saves a lot of loading, most of all on phones. Save one at about 800 px on the long side
+  next to the full one, with `-small` before the ending (`009-small.jpg` for `009.jpg`). The
+  grid then uses it where it's enough, and the lightbox always shows the full image. Leave
+  `src` as it is.
 
 Clicking an image opens it large: Esc, Close, or a click outside the image closes it, and ← and →
-step through the images. The gallery is 2 columns on phones, 3 from 768px, 4 from 1024px.
+step through the images. The gallery is 2 columns on phones, 3 from 768px, 4 from 1024px. Without
+JavaScript, an image opens on its own instead, and the caption and date show under its number.
 
 ## Swap in real images and videos
 
@@ -230,7 +236,8 @@ in `assets/css/style.css`.
 The name is at the left and Work, Archive, About, and Contact at the right, on one line at every
 width, from `templates/base.html` on every page. The current page's link is at full strength and
 the others are at 0.6 opacity (`.site-menu a` in `assets/css/style.css`). On phones the links close
-up, and under 360px the type steps down to 14px.
+up, and under 360px the type steps down to 14px. If a visitor has set larger text in their
+browser or phone and it still doesn't fit, the links move to a second line, at the right.
 
 ## Spacing
 
@@ -260,10 +267,11 @@ To tune it:
   `SETTLE_DELAY` (ms of no input before it settles), `EASE` (how quickly it glides).
 - `assets/css/style.css`, "Home: project track": `--card-gap` (space between cards, in px;
   one value for phones, one from 768px), `--card-base` (the middle card's width up to a
-  900px-tall window, 400px), `--card-w`, `--peek`, `--room-top` (over the middle card; it comes
-  from `--gap-*`, so the card's top stays put on any screen), `--room-spare` (under it on a taller
-  window, where the card grows to keep this), `--room-bottom` (the least under it, for the caption
-  and "View all work"; on short screens the card shrinks to keep this), `--scale-1` (card size one step from the
+  900px-tall window, 400px), `--card-w`, `--peek`, `--room-top` (over the middle card: 64px from
+  the header's text, like Work's filter and Archive's title, on any screen), `--room-spare` (under
+  it on a taller window, where the card grows to keep this), `--room-bottom` (the least under it,
+  room for a caption of up to three lines and "View all work"; on short screens the card shrinks
+  to keep this), `--scale-1` (card size one step from the
   middle), `--scale-2` (two steps or more), `--opacity-1` / `--grayscale-1` / `--brightness-1`
   (cards one step from the middle and beyond: full opacity, grey, a little darker),
   `--fade-step` (each further step multiplies the opacity by this), `--blur-step` (and adds

@@ -49,7 +49,8 @@
 
   /* The spacing around the work, on every page: the closer two things sit, the more they
      belong together. Image to caption, filter to grid, and header to filter or title (from
-     the header's text, what the eye measures). */
+     the header's text, what the eye measures). Until 2026-10-30 these names meant 8, 16, and
+     24px; those are --step-1, --step-2, and --step-3 now, so an older snippet needs updating. */
   --space-1: 16px;
   --space-2: 32px;
   --space-3: 64px;
@@ -291,23 +292,22 @@ mark.placeholder {
 /* Header ---------------------------------------------------------------- */
 
 /* The name at the left, the four links at the right, on one line at every width. On a phone
-   the links close up; under 360px, the type steps down to fit (the narrowest is 320px). */
+   the links close up; under 360px, the type steps down to fit (the narrowest is 320px). If they
+   still don't fit (larger text set in the browser or the phone), the links move to a second
+   line, at the right, instead of running into the name. */
 .site-header {
   position: relative;
   z-index: 20;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas: "identity nav";
+  display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  column-gap: var(--step-1);
+  gap: 0 var(--step-1);
   padding-block: var(--header-pad);
   view-transition-name: site-header;
 }
 
 .identity {
-  grid-area: identity;
-  justify-self: start;
-  min-width: 0;
+  flex: none;
 }
 
 .wordmark {
@@ -317,12 +317,13 @@ mark.placeholder {
 }
 
 .site-nav {
-  grid-area: nav;
+  margin-left: auto;
 }
 
 .site-menu {
   display: flex;
-  gap: min(3vw, var(--step-3));
+  flex-wrap: wrap;
+  gap: 0 min(3vw, var(--step-3));
 }
 
 /* The current page at full strength, the others a step back (0.6 keeps them at 4.5:1 on the
@@ -402,11 +403,18 @@ mark.placeholder {
   margin-top: var(--space-1);
 }
 
+/* The title stays on one line, cut short with "…" if it runs long, so the caption never grows
+   into the link under it; the one-liner keeps its half. */
 .card-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   line-height: 1.3;
 }
 
 .card-text {
+  flex: none;
   max-width: calc(50% - var(--step-2));
   font-size: 0.875rem;
   line-height: 1.6;
@@ -425,19 +433,19 @@ mark.placeholder {
 
 /* With JavaScript, Home fills the screen and doesn't scroll. The cards sit on a loop
    that track.js turns; these rules size them and set where they start.
-   Sizes match the example (focuscarouselpro.framer.website) from 768px; the card's height
-   on the page comes from the --space-* spacing, so it stays put on any screen.
+   Sizes match the example (focuscarouselpro.framer.website) from 768px; the card's top sits
+   64px under the header's text, as Work's filter and Archive's title do, on any screen.
      --card-w        the middle card's width: --card-base (400px, so 533px tall at 3:4) up
                      to a 900px-tall window, larger on taller ones, so the space under the
                      card stays the same; smaller when the window is too short for it;
                      nearly full width on phones (--peek is how much of each neighbor
                      shows there)
      --card-gap      space between cards as drawn, whatever their size
-     --toggle-h      the height of Work's toggle
-     --room-top      over the middle card, under the header: the room Work's toggle takes
-     --room-spare    under the middle card on a tall window (its caption goes in here)
-     --room-bottom   the least kept free under the middle card, for its caption and the link
-                     to Work
+     --room-top      over the middle card, under the header
+     --room-spare    under the middle card on a tall window (its caption and the link to Work
+                     go in here)
+     --room-bottom   the least kept free under the middle card: room for a caption of up to
+                     three lines and the link to Work
      --scale-1      size one step from the middle; --scale-2 two steps or more
      --opacity-1, --grayscale-1, --brightness-1   one step from the middle and beyond
      --fade-step     each step past the first multiplies the opacity by this
@@ -467,10 +475,9 @@ mark.placeholder {
   --card-gap: var(--step-2);
   --peek: var(--step-2);
   --card-base: 400px;
-  --toggle-h: 39px;
-  --room-top: calc(var(--header-gap) + var(--toggle-h) + var(--space-2));
-  --room-spare: 176px;
-  --room-bottom: 112px;
+  --room-top: var(--header-gap);
+  --room-spare: 247px;
+  --room-bottom: 136px;
   --card-w: min(max(var(--card-base), (100cqh - var(--room-top) - var(--room-spare)) * 0.75),
                 (100cqh - var(--room-top) - var(--room-bottom)) * 0.75,
                 100cqw - 2 * (var(--card-gap) + var(--peek)));
@@ -541,13 +548,15 @@ mark.placeholder {
   white-space: nowrap;
 }
 
-/* The middle card's caption hangs 16px under it, as wide as the card. */
+/* The middle card's caption hangs 16px under it, as wide as the card, but never narrower than
+   240px (or the screen): on a short screen, like a phone turned sideways, the card gets small,
+   and a caption that narrow would stack word by word into the link under it. */
 .js .track-caption {
   position: absolute;
   top: calc(var(--card-y) + var(--card-w) * 2 / 3);
   left: 0;
   right: 0;
-  width: var(--card-w);
+  width: max(var(--card-w), min(240px, 100cqw - 2 * var(--gutter)));
   margin: var(--space-1) auto 0;
 }
 
@@ -572,6 +581,8 @@ mark.placeholder {
   padding: var(--step-1);
 }
 
+/* It spans the screen over the foot of the track, so only the link itself takes the pointer:
+   a wheel or drag anywhere else there still turns the track. */
 .js .home-more {
   position: absolute;
   bottom: var(--space-1);
@@ -580,6 +591,11 @@ mark.placeholder {
   margin-block: 0;
   font-size: 0.875rem;  /* 14px, like the one-liner above it */
   text-align: center;
+  pointer-events: none;
+}
+
+.js .home-more a {
+  pointer-events: auto;
 }
 
 /* Home intro ------------------------------------------------------------ */
@@ -802,17 +818,16 @@ mark.placeholder {
   background: var(--color-fill);
 }
 
-.work-media img,
-.work-media video {
+/* Work's and Archive's images fill their tile's width and grow on hover (below)... */
+:is(.work-media, .archive-media) :is(img, video) {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
   transition: transform 250ms ease;
 }
 
-.archive-media img {
-  width: 100%;
-  transition: transform 250ms ease;
+/* ...and Work's are cropped to fill the 4:5 frame. */
+.work-media :is(img, video) {
+  height: 100%;
+  object-fit: cover;
 }
 
 /* The cover's video (main.js adds it on hover) fades in over the image. */
@@ -843,8 +858,9 @@ mark.placeholder {
 
 /* Smaller and closer together than Work: whole images in their own shapes, each with only its
    number, 8px under it (at 16px it would sit as close to the next image as to its own).
-   2 columns on phones, 3 from 768px, 4 from 1024px. Columns fill from top to bottom, so the
-   numbers run down the first, then the second. The caption and date only show in the lightbox. */
+   2 columns on phones, 3 from 768px, 4 from 1024px (ARCHIVE_COLUMNS in build.py too). Columns
+   fill from top to bottom, so the numbers run down the first, then the second. The caption and
+   date only show in the lightbox; without JavaScript, they show under the number instead. */
 .archive-title {
   margin-top: var(--header-gap);
   margin-bottom: var(--space-2);
@@ -890,6 +906,19 @@ mark.placeholder {
   margin-top: var(--step-1);
   color: var(--color-muted);
   font-variant-numeric: tabular-nums;
+}
+
+.archive-text {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--step-1);
+  color: var(--color-muted);
+  font-size: var(--size-label);
+  line-height: 1.5;
+}
+
+.js .archive-text {
+  display: none;
 }
 
 /* The lightbox (main.js opens it; Work's items with no page use it too): the item's images,
@@ -977,18 +1006,34 @@ mark.placeholder {
   height: var(--step-5);
 }
 
-/* One line: the name and, after it, the type and year or the date. */
+/* One line: the name and, after it, the type and year or the date. When they don't fit, the
+   name is cut short with "…"; the date is never cut, and the type and year only past 60% of
+   the line. */
 .lightbox-caption {
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
   align-items: baseline;
   column-gap: var(--step-2);
-  text-align: center;
+}
+
+.lightbox-name,
+.lightbox-meta {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .lightbox-meta {
+  flex: none;
+  max-width: 60%;
   color: var(--color-muted);
+}
+
+/* With no type, year, or date, nothing takes the gap after the name. (A name only for screen
+   readers, on an Archive image with no caption, is visually hidden, so it takes none either.) */
+.lightbox-meta:empty {
+  display: none;
 }
 
 @media (min-width: 768px) {

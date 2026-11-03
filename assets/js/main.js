@@ -132,9 +132,10 @@
   });
 
   // Lightbox: a Work tile with no page of its own, or an Archive image, opens its item's images
-  // (copied from the item's <template>). Esc, Close, or a click outside the images and caption
-  // closes it, and focus goes back to that tile. Left/right arrow keys and buttons step through
-  // the items on screen, looping at the ends.
+  // (copied from the item's <template>, or else the tile's own image at full size) with the
+  // item's [data-lightbox-name] and [data-lightbox-meta] text under them. Esc, Close, or a click
+  // outside the images and caption closes it, and focus goes back to that tile. Left/right arrow
+  // keys and buttons step through the items on screen, looping at the ends.
   const lightbox = document.getElementById("lightbox");
   if (lightbox) {
     document.body.append(lightbox);  // out of <main>, so the rest of the page can go inert
@@ -156,9 +157,19 @@
     const show = (index) => {
       current = (index + thumbs.length) % thumbs.length;
       const item = thumbs[current].closest("li");
-      images.replaceChildren(item.querySelector("template").content.cloneNode(true));
-      name.innerHTML = item.querySelector(".work-name, .archive-name").innerHTML;
-      meta.innerHTML = item.querySelector(".work-type, .archive-date").innerHTML;
+      const template = item.querySelector("template");
+      if (template) {
+        images.replaceChildren(template.content.cloneNode(true));
+      } else {
+        const image = item.querySelector("img").cloneNode();
+        ["srcset", "sizes", "loading"].forEach((attr) => image.removeAttribute(attr));
+        images.replaceChildren(image);
+      }
+      const nameSource = item.querySelector("[data-lightbox-name]");
+      name.innerHTML = nameSource.innerHTML;
+      // A name only for screen readers stays that way, and takes no room in the caption.
+      name.classList.toggle("visually-hidden", nameSource.classList.contains("visually-hidden"));
+      meta.innerHTML = item.querySelector("[data-lightbox-meta]").innerHTML;
       stage.scrollTop = 0;
       fit();
     };
@@ -187,7 +198,10 @@
       }, reduceMotion.matches ? 0 : 200);
     };
 
-    allThumbs.forEach((thumb) => thumb.addEventListener("click", () => {
+    allThumbs.forEach((thumb) => thumb.addEventListener("click", (e) => {
+      // Archive's tiles are links to the image: with a modifier key they open it as usual.
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
       thumbs = allThumbs.filter((other) => !other.closest("li").hidden);
       open(thumbs.indexOf(thumb));
     }));

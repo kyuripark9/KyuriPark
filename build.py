@@ -45,6 +45,11 @@ ARCHIVE_BOXES = ((1200, 1500), (1500, 1500), (1500, 1000), (1200, 1600),
                  (1600, 900), (1000, 1500), (1500, 1200), (900, 1500))
 PIECE_FOLDER = "assets/images/pieces"
 ARCHIVE_FOLDER = "assets/images/archive"
+ARCHIVE_COLUMNS = (2, 3, 4)  # Archive's columns on phones, from 768px, from 1024px (as in style.css)
+# How wide an Archive image shows in its column, so the browser can take the smaller copy
+# (001-small.jpg next to 001.jpg) when there is one.
+ARCHIVE_SIZES = "(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+SMALL_SUFFIX = "-small"
 COVER_VIDEO_EXTS = (".mp4", ".webm")
 OG_IMAGE_EXTS = (".jpg", ".jpeg", ".png")
 WORDMARK_FONT = "assets/fonts/wordmark.woff2"  # optional; the header name uses it once it exists
@@ -82,6 +87,18 @@ def media_path(src, folder):
     """'cover.webp' means <folder>/cover.webp. Anything with a slash is from the site root."""
     src = str(src)
     return src.lstrip("/") if "/" in src else f"{folder}/{src}"
+
+
+def placeholder_rel(rel):
+    """Where the gray stand-in for a missing file goes: cover.webp -> cover.placeholder.svg."""
+    return os.path.splitext(rel)[0] + ".placeholder.svg"
+
+
+def archive_first_screen(n):
+    """The Archive images to load right away: the top one in each column. Columns fill from top
+    to bottom, so for 2 columns that's the 1st and the one halfway down the list, and so on, for
+    each column count. By count, so close but not exact (columns balance by height)."""
+    return {c * -(-n // cols) for cols in ARCHIVE_COLUMNS for c in range(cols)} & set(range(n))
 
 
 def need(obj, key, where):
@@ -396,14 +413,26 @@ def validate_archive(images):
     """Stop on problems in content/archive.json that would break the page."""
     if not isinstance(images, list):
         raise BuildError("content/archive.json should be a list of images: [ {...}, {...} ].")
-    seen = set()
+    ids, names = set(), {}
     for i, image in enumerate(images, 1):
         where = f"content/archive.json (item {i})"
         number = need(image, "id", where)
-        need(image, "src", where)
-        if number in seen:
+        src = need(image, "src", where)
+        if isinstance(number, bool) or not isinstance(number, (str, int)):
+            raise BuildError(f'{where}: "id" should be a number in quotes, like "009".')
+        if not isinstance(src, str):
+            raise BuildError(f'{where}: "src" should be a file name in quotes, like "009.jpg".')
+        if str(number) in ids:
             raise BuildError(f'{where}: id "{number}" is used twice.')
-        seen.add(number)
+        ids.add(str(number))
+        # Two entries can't share a file name, even with different endings (001.jpg and
+        # 001.webp): they'd show the same image, or share one gray stand-in.
+        name = os.path.splitext(media_path(src, ARCHIVE_FOLDER))[0].lower()
+        if name in names:
+            j = names[name]
+            raise BuildError(f'{where}: "src" "{src}" has the same name as item {j}\'s '
+                             f'("{images[j - 1]["src"]}"). Give each image its own name.')
+        names[name] = i
 
 
 # ---------------------------------------------------------------------------
@@ -553,18 +582,34 @@ class Builder:
         """Write a labeled gray SVG in place of a missing file, the size of its slot unless
         box gives another. Returns (url, (w, h))."""
         width, height = box or PLACEHOLDER_SIZES[slot]
-        ph_rel = os.path.splitext(rel)[0] + ".placeholder.svg"
+        ph_rel = placeholder_rel(rel)
         self.write(ph_rel, placeholder_svg(width, height, title, os.path.basename(rel)))
         self.missing_media.add(rel)
         return url_for(ph_rel), (width, height)
 
-    def img(self, rel, alt, slot, title, loading="lazy", decorative=False, box=None):
+    @staticmethod
+    def srcset(rel, size, sizes):
+        """srcset and sizes for a smaller copy next to the file (001-small.jpg for 001.jpg),
+        or "" if there isn't one."""
+        stem, ext = os.path.splitext(rel)
+        small = stem + SMALL_SUFFIX + ext
+        small_size = exists(small) and media_size(small)
+        if not small_size:
+            return ""
+        return (f'srcset="{url_for(small)} {small_size[0]}w, {url_for(rel)} {size[0]}w" '
+                f'sizes="{sizes}"')
+
+    def img(self, rel, alt, slot, title, loading="lazy", decorative=False, box=None, sizes=None):
         """decorative=True is for a repeat of an image already described elsewhere (alt="").
-        box is the placeholder's (width, height), if not the slot's."""
+        box is the placeholder's (width, height), if not the slot's. sizes (how wide the image
+        shows) lets the browser take a smaller copy of the file, if there is one."""
         if not alt and not decorative:
             self.warnings.append(f"{rel} has no alt text.")
+        srcset = ""
         if exists(rel):
             size = media_size(rel)
+            if size and sizes:
+                srcset = self.srcset(rel, size, sizes)
             if not size:
                 self.warnings.append(f"Couldn't read the size of {rel}, so the page may "
                                      "shift slightly while it loads.")
@@ -572,7 +617,7 @@ class Builder:
             src = url_for(rel)
         else:
             src, size = self.placeholder(rel, slot, title, box)
-        attrs = [f'src="{src}"', f'alt="{esc(alt or "")}"', f'width="{size[0]}"',
+        attrs = [f'src="{src}"', srcset, f'alt="{esc(alt or "")}"', f'width="{size[0]}"',
                  f'height="{size[1]}"', LOADING_ATTRS[loading], 'decoding="async"']
         return f"<img {' '.join(a for a in attrs if a)}>"
 
@@ -741,11 +786,11 @@ class Builder:
         self.page("index.html", "home", "/", self.site["title"], self.site["description"],
                   content, "page-home", image=self.og_image(), footer=False)
 
-    def tile_image(self, rel, slot, title, loading="lazy"):
-        """A Work tile's image, or nothing (a plain gray block) until the file exists.
-        The tile's caption already names it, so the image is decorative here (alt="")."""
+    def tile_image(self, rel, slot, title, loading="lazy", alt=None, sizes=None):
+        """A tile's image, or nothing (a plain gray block) until the file exists. On Work the
+        tile's caption already names it, so with no alt given the image is decorative (alt="")."""
         if exists(rel):
-            return self.img(rel, "", slot, title, loading, decorative=True)
+            return self.img(rel, alt, slot, title, loading, decorative=alt is None, sizes=sizes)
         self.missing_media.add(rel)
         return ""
 
@@ -770,8 +815,8 @@ class Builder:
         return (f'          <li data-categories="{" ".join(p["category"])}">\n'
                 f'            <{tag} class="work-card" {attrs}>\n'
                 f'              <span class="work-caption"><span class="index">{index + 1:03d}</span> '
-                f'<span class="work-name">{inline(p["title"])}</span> '
-                f'<span class="work-type">{text}</span></span>\n'
+                f'<span class="work-name" data-lightbox-name>{inline(p["title"])}</span> '
+                f'<span class="work-type" data-lightbox-meta>{text}</span></span>\n'
                 f'              <span class="work-media"{data}>{img}</span>\n'
                 f'            </{tag}>\n'
                 f'{extra}'
@@ -818,34 +863,47 @@ class Builder:
         self.page("work/index.html", "work", "/work/", f"Work — {s['name']}", s["description"],
                   content, "wrap page-work", current="work", image=self.og_image())
 
-    def archive_tile(self, item, box):
-        """An image on Archive with only its number under it. main.js copies the <template>
-        and the hidden text into the lightbox, the one place the caption and date show.
-        Until the file exists, the tile is a plain gray block and the lightbox shows a
-        labeled gray image, both in the shape of box."""
+    def archive_tile(self, item, box, loading):
+        """An image on Archive with only its number under it, linking to the image itself.
+        main.js opens the lightbox instead, with a copy of the image and the caption and date
+        from the text under the tile, which it hides; without JavaScript, the link opens the
+        image and the caption and date show under the number. Until the file exists, the tile
+        is a plain gray block and a <template> holds the labeled gray image the lightbox shows
+        in its place, both in the shape of box."""
         number = esc(item["id"])
         rel = media_path(item["src"], ARCHIVE_FOLDER)
-        alt, title, ready = item.get("alt"), f"Archive {item['id']}", exists(rel)
-        large = self.img(rel, alt, "archive", title, "eager", decorative=not ready, box=box)
-        thumb = self.img(rel, alt, "archive", title) if ready else ""
-        shape = "" if ready else f' style="aspect-ratio: {box[0]} / {box[1]}"'
-        name = (inline(item.get("caption") or "")
-                or f'<span class="visually-hidden">Image {number}</span>')  # names the lightbox
+        alt, title = item.get("alt") or "", f"Archive {item['id']}"
+        thumb = self.tile_image(rel, "archive", title, loading, alt=alt, sizes=ARCHIVE_SIZES)
+        if thumb:
+            href, shape, large = url_for(rel), "", ""
+        else:
+            href = url_for(placeholder_rel(rel))
+            shape = f' style="aspect-ratio: {box[0]} / {box[1]}"'
+            large = (f'          <template>'
+                     f'{self.img(rel, alt, "archive", title, "eager", decorative=True, box=box)}'
+                     f'</template>\n')
+        if item.get("caption"):
+            name = f'<span class="archive-name" data-lightbox-name>{inline(item["caption"])}</span>'
+        else:  # names the lightbox for screen readers, with nothing on screen
+            name = (f'<span class="archive-name visually-hidden" data-lightbox-name>'
+                    f'Image {number}</span>')
         return (f'        <li class="archive-item">\n'
-                f'          <button class="archive-tile" type="button" data-item aria-haspopup="dialog">\n'
+                f'          <a class="archive-tile" href="{href}" data-item aria-haspopup="dialog">\n'
                 f'            <span class="archive-media"{shape}>{thumb}</span>\n'
                 f'            <span class="archive-number">'
                 f'<span class="visually-hidden">Image </span>{number}</span>\n'
-                f'          </button>\n'
-                f'          <p class="archive-text" hidden><span class="archive-name">{name}</span> '
-                f'<span class="archive-date">{inline(item.get("date") or "")}</span></p>\n'
-                f'          <template>{large}</template>\n'
+                f'          </a>\n'
+                f'          <p class="archive-text">{name} <span class="archive-date" '
+                f'data-lightbox-meta>{inline(item.get("date") or "")}</span></p>\n'
+                f'{large}'
                 f'        </li>')
 
     def build_archive(self):
         """Every image in content/archive.json, in the file's order. Each opens the lightbox."""
         s = self.site
-        tiles = "\n".join(self.archive_tile(item, ARCHIVE_BOXES[i % len(ARCHIVE_BOXES)])
+        first = archive_first_screen(len(self.archive))
+        tiles = "\n".join(self.archive_tile(item, ARCHIVE_BOXES[i % len(ARCHIVE_BOXES)],
+                                            "eager" if i in first else "lazy")
                           for i, item in enumerate(self.archive))
         lightbox = render("lightbox.html") if self.archive else ""
         content = render("archive.html", tiles=tiles, lightbox=lightbox)

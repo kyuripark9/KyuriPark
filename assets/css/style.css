@@ -55,8 +55,8 @@
   --space-2: 32px;
   --space-3: 64px;
 
-  --page-max: 1280px;
-  --gutter: var(--step-2);        /* page side padding, the header's too */
+  --page-max: 1600px;             /* widest the page runs, the header included */
+  --gutter: var(--step-2);        /* page side padding, the header's too: 16, 24, 32px */
   --header-pad: var(--step-3);    /* over and under the header's text */
   --header-gap: calc(var(--space-3) - var(--header-pad));  /* the header's box to the filter or title */
   --col-gap: var(--step-3);       /* between columns */
@@ -70,7 +70,7 @@
 
 @media (min-width: 768px) {
   :root {
-    --gutter: var(--step-4);
+    --gutter: var(--step-3);
     --header-pad: var(--step-4);
     --col-gap: var(--step-4);
     --section-gap: var(--step-12);
@@ -81,7 +81,7 @@
 
 @media (min-width: 1200px) {
   :root {
-    --gutter: var(--step-5);
+    --gutter: var(--step-4);
     --section-gap: var(--step-16);
   }
 }
@@ -237,8 +237,6 @@ button {
 }
 
 /* Labels: numbers, years, the footer. */
-.index,
-.work-type,
 .archive-number,
 .project-meta dt,
 .project-nav-label,
@@ -419,11 +417,6 @@ mark.placeholder {
   font-size: 0.875rem;
   line-height: 1.6;
   text-align: right;
-}
-
-.index {
-  margin-right: var(--step-1);
-  font-variant-numeric: tabular-nums;
 }
 
 /* The caption under the middle card needs track.js. */
@@ -660,12 +653,14 @@ mark.placeholder {
    its count after it, smaller. main.js shows one filter at a time on the one grid; without
    JavaScript there's no toggle and the grid shows everything. */
 .page-work {
-  --tile-gap: var(--step-3);   /* between tiles, across and down */
+  --tile-col-gap: 12px;          /* between columns */
+  --tile-row-gap: var(--step-3); /* between rows: 24px, 32px from 1024px */
+  --caption-gap: 12px;           /* a tile's caption to its image */
 }
 
 @media (min-width: 1024px) {
   .page-work {
-    --tile-gap: var(--step-5);
+    --tile-row-gap: var(--step-4);
   }
 }
 
@@ -751,13 +746,13 @@ mark.placeholder {
   font-size: 0.625rem;  /* 10px */
 }
 
-/* 1 across on phones, 2 from 768px, 3 from 1024px. Each tile is "001 TypeLab" with the type
-   under it, over a 4:5 image. A tile with no page is a button (it opens the lightbox) and
-   looks the same. */
+/* 1 across on phones, 2 from 768px, 3 from 1024px. Each tile is one line, "TypeLab" at the left
+   and its type at the right, over a 3:4 image. A tile with no page is a button (it opens the
+   lightbox) and looks the same. */
 .work-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--tile-gap);
+  gap: var(--tile-row-gap) var(--tile-col-gap);
 }
 
 @media (min-width: 768px) {
@@ -775,21 +770,20 @@ mark.placeholder {
 .work-card {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--caption-gap);
   width: 100%;
   text-align: left;
 }
 
-/* Always two lines, each cut short if it runs long, so every tile's caption is the same height
-   and every image in the grid starts on the same line. */
+/* One line: the title at the left, the type ending on the image's right edge. Neither wraps and
+   the line's height is fixed, so every image in the grid starts on the same line. A long title
+   is cut short with "…" first; the type keeps its words up to 60% of the tile, then it's cut too. */
 .work-caption {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  display: flex;
+  justify-content: space-between;
   align-items: baseline;
-}
-
-.work-caption .index {
-  margin-right: var(--step-2);
+  gap: var(--step-2);
+  height: 1.5rem;  /* one line of the 16px title */
 }
 
 .work-name,
@@ -800,20 +794,24 @@ mark.placeholder {
 }
 
 .work-name {
+  min-width: 0;
   font-weight: 500;
 }
 
+/* A step under the title, and a step back (0.6 keeps it at 4.5:1 on the background). */
 .work-type {
-  grid-column: 2;
-  min-height: 1.5em;  /* its line stays when a tile has no type yet */
-  color: var(--color-muted);
+  flex: none;
+  max-width: 60%;
+  font-size: 0.875rem;  /* 14px, as the one-liner on Home */
+  text-align: right;
+  opacity: 0.6;
 }
 
-/* The image fills a 4:5 frame (a plain gray block until it exists). */
+/* The image fills a 3:4 frame, the covers' own shape (a plain gray block until it exists). */
 .work-media {
   position: relative;
   display: block;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
   background: var(--color-fill);
 }
@@ -824,8 +822,9 @@ mark.placeholder {
   transition: transform 250ms ease;
 }
 
-/* ...and Work's are cropped to fill the 4:5 frame. */
+/* ...and Work's are cropped to fill the 3:4 frame. */
 .work-media :is(img, video) {
+  display: block;
   height: 100%;
   object-fit: cover;
 }

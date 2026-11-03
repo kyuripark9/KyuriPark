@@ -32,7 +32,7 @@ DIST_DIR = os.path.join(ROOT, "dist")
 
 # Size of the gray placeholder for each kind of slot, used until a real file exists.
 PLACEHOLDER_SIZES = {
-    "cover": (1500, 2000),     # 3:4, home cards (cropped to 4:5 on Work tiles)
+    "cover": (1500, 2000),     # 3:4, home cards and Work tiles
     "wide": (2400, 1350),      # 16:9, hero and full-width images and videos
     "pair": (1200, 1500),      # 4:5, each image in a two-image row
     "portrait": (1200, 1500),  # 4:5, the About portrait
@@ -795,10 +795,10 @@ class Builder:
         return ""
 
     def work_card(self, p, index):
-        """'001 TypeLab' with the type under it, over a 4:5 image, for one item; main.js filters
-        the tiles on data-categories and renumbers the ones it shows. A project's tile links to
-        its page, and if the cover has a video next to it, main.js plays it while the tile is
-        hovered. An item with no page has 'Type · Year' instead, and its tile opens the lightbox."""
+        """'TypeLab' at the left and its type at the right, on one line over a 3:4 image, for one
+        item; main.js filters the tiles on data-categories. A project's tile links to its page,
+        and if the cover has a video next to it, main.js plays it while the tile is hovered. An
+        item with no page has 'Type · Year' instead, and its tile opens the lightbox."""
         loading = "eager" if index < 3 else "lazy"
         if "slug" in p:
             rel, video = self.cover(p)
@@ -814,7 +814,7 @@ class Builder:
             text, extra = self.piece_meta(p), f'            {self.piece_images(p)}\n'
         return (f'          <li data-categories="{" ".join(p["category"])}">\n'
                 f'            <{tag} class="work-card" {attrs}>\n'
-                f'              <span class="work-caption"><span class="index">{index + 1:03d}</span> '
+                f'              <span class="work-caption">'
                 f'<span class="work-name" data-lightbox-name>{inline(p["title"])}</span> '
                 f'<span class="work-type" data-lightbox-meta>{text}</span></span>\n'
                 f'              <span class="work-media"{data}>{img}</span>\n'

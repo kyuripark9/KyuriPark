@@ -6,7 +6,7 @@
   const fineHover = window.matchMedia("(hover: hover) and (pointer: fine)");
 
   // Work: All or one category at a time, on one grid. The tiles fade out, the filter's tiles
-  // come on numbered from 001, and they fade in. The address says which (#all, #digital, ...),
+  // come on, and they fade in. The address says which (#all, #digital, ...),
   // so a link opens that filter, Back and Forward step through the ones picked, and Back from
   // a project page returns to the same one.
   const workTabs = [...document.querySelectorAll(".work-tab")];
@@ -28,7 +28,7 @@
       let n = 0;
       tiles.forEach((tile) => {
         tile.hidden = name !== "all" && !tile.dataset.categories.split(" ").includes(name);
-        if (!tile.hidden) tile.querySelector(".index").textContent = String(++n).padStart(3, "0");
+        if (!tile.hidden) n++;
       });
       empty.hidden = n > 0;
     };

@@ -22,7 +22,7 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 | Address | What it is |
 | --- | --- |
 | `/` | Home: one card per featured project on an endless loop, filling the screen, and "View all work" under it. Home answers "what matters most" |
-| `/work/` | Work: everything. "All 11   Digital 08   Physical 02   Brand 03   Visual 03" at the top filters one grid of numbered tiles (`/work/#all`, `#digital`, `#physical`, `#brand`, `#visual`). Work answers "what kind" |
+| `/work/` | Work: everything. "All 11   Digital 08   Physical 02   Brand 03   Visual 03" at the top filters one grid of tiles (`/work/#all`, `#digital`, `#physical`, `#brand`, `#visual`). Work answers "what kind" |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html` |
 | `/archive/` | Archive: personal work and hobbies, a gallery of images with only their numbers. A separate page with its own data |
 | `/about/` | Portrait, About text, experience, contact links |
@@ -71,7 +71,7 @@ dist/                   the generated site. Never edit; it's rebuilt every time.
 
 | Field | Where it shows |
 | --- | --- |
-| `order` | Required. A number; lower shows first. Work numbers its cards 001, 002, ... in this order, within each filter |
+| `order` | Required. A number; lower shows first. Work shows its cards in this order, within each filter |
 | `category` | Required. A list of the Work filters it shows under, one or more of `"digital"`, `"physical"`, `"brand"`, `"visual"`, like `["digital", "visual"]`. It counts under each, and once under All |
 | `featured` | Optional. `true` puts it on Home (aim for 3 to 5). Leave it out or set `false` and it's on Work only. Needs a `slug`, because a Home card opens the project's page |
 | `title` | Everywhere |
@@ -128,7 +128,7 @@ Blocks appear in the order you list them. The template uses Context → Explore 
 ## Items with no page
 
 An item in `content/projects.json` with no `slug` has no page of its own and isn't on Home. On
-Work it's a tile like any other, with "Type · Year" under the title. Clicking it opens its images
+Work it's a tile like any other, with "Type · Year" at the right of its title. Clicking it opens its images
 larger in a lightbox (Esc, Close, or a click outside the image closes it; ← and → step through the
 items of this kind that the filter is showing). Its images go in `assets/images/pieces/`:
 
@@ -197,11 +197,11 @@ Recommended exports (WebP, or AVIF; JPG and PNG work too):
 
 | Slot | Size | Notes |
 | --- | --- | --- |
-| Cover (Home cards and Work tiles) | 1500 × 2000 | 3:4 on Home, 4:5 on Work, cropped to fill |
+| Cover (Home cards and Work tiles) | 1500 × 2000 | 3:4 on Home and on Work; another shape is cropped to fill |
 | Hero and full-width | 2400 px wide | Any height; the hero runs edge to edge |
 | Two-image row | 1200 px wide each | Same ratio for both looks best |
 | About portrait | 1200 × 1500 | |
-| Image of an item with no page | 1200 × 1500 | The thumbnail is cropped to 4:5; the lightbox shows the whole image |
+| Image of an item with no page | 1200 × 1500 | The Work tile crops it to 3:4; the lightbox shows the whole image |
 | Archive image | 1500 px on the long side | Any shape; never cropped |
 
 Aim for under ~500 KB per image. [Squoosh](https://squoosh.app) or Figma's export both make WebP.
@@ -244,7 +244,9 @@ browser or phone and it still doesn't fit, the links move to a second line, at t
 Three values at the top of `assets/css/style.css` set the spacing around the work on every page:
 `--space-1` (16px, image to caption), `--space-2` (32px, filter or title to the grid), and
 `--space-3` (64px, the header's text to the filter or title). `--gutter` is the side margin the
-header and the page share, so their edges line up. `--step-1` and up are 8px steps, for the
+header and the page share, so their edges line up: 16px on phones, 24px from 768px, 32px from
+1200px. `--page-max` (1600px) is the widest the page and the header run; past it, both stay
+centered with the same edges. `--step-1` and up are 8px steps, for the
 spacing inside things (`--step-3` is 24px).
 
 ## Motion
@@ -278,17 +280,21 @@ To tune it:
   this much blur).
 
 Work: All, Digital, Physical, Brand, and Visual at the top, each with its count, filter the grid:
-the tiles fade out (150 ms), the filter's tiles come on numbered from 001, and they fade in
+the tiles fade out (150 ms), the filter's tiles come on, and they fade in
 (250 ms); with reduced motion it just switches. A filter with nothing in it says "Coming soon".
 The address shows `#all`, `#digital`, and so on, so a link opens that filter, Back and Forward step
 through the ones picked, and Back from a project page returns to the same one; no hash or an
 unknown one means All. Each filter is a button, and Tab goes from one to the next. The grid is 1
-column on phones, 2 from 768px, 3 from 1024px. Each tile's caption is always two lines, number and
-title over the type, each cut short with "…" if it runs long, so every image starts on the same
-line. Under 500px the toggle runs the width of the page, and if it still doesn't fit, it scrolls
+column on phones, 2 from 768px, 3 from 1024px, each tile a 3:4 image. Each tile's caption is one
+line over its image: the title at the left, the type (14px, at 0.6 opacity) ending on the image's
+right edge. Neither wraps: a long title is cut short with "…" first, and a type longer than 60%
+of the tile is cut too, so every image starts on the same line. Under 500px the toggle runs the width of the page, and if it still doesn't fit, it scrolls
 sideways. Without JavaScript there's no toggle and the grid shows everything. To tune it:
 - `assets/js/main.js`, the Work section: `FADE_OUT` / `FADE_IN`.
-- `assets/css/style.css`, "Work": `--tile-gap` (space between tiles: 24px, 40px from 1024px).
+- `assets/css/style.css`, "Work": `--tile-col-gap` (between columns: 12px), `--tile-row-gap`
+  (between rows: 24px, 32px from 1024px), `--caption-gap` (caption to image: 12px); the
+  image's shape is `aspect-ratio` on `.work-media`.
+- The side margins: `--gutter` at the top of `assets/css/style.css` (see Spacing).
 - The filters themselves: `CATEGORIES` at the top of `build.py`.
 
 Home intro: the first time Home opens in a browser tab, the screen is black, with the name and

@@ -655,7 +655,7 @@ mark.placeholder {
 .page-work {
   --tile-col-gap: 12px;          /* between columns */
   --tile-row-gap: var(--step-3); /* between rows: 24px, 32px from 1024px */
-  --caption-gap: 12px;           /* a tile's caption to its image */
+  --caption-gap: var(--space-1); /* a tile's caption to its image: 16px */
 }
 
 @media (min-width: 1024px) {

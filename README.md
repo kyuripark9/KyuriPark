@@ -292,7 +292,7 @@ of the tile is cut too, so every image starts on the same line. Under 500px the 
 sideways. Without JavaScript there's no toggle and the grid shows everything. To tune it:
 - `assets/js/main.js`, the Work section: `FADE_OUT` / `FADE_IN`.
 - `assets/css/style.css`, "Work": `--tile-col-gap` (between columns: 12px), `--tile-row-gap`
-  (between rows: 24px, 32px from 1024px), `--caption-gap` (caption to image: 12px); the
+  (between rows: 24px, 32px from 1024px), `--caption-gap` (caption to image: 16px, `--space-1`); the
   image's shape is `aspect-ratio` on `.work-media`.
 - The side margins: `--gutter` at the top of `assets/css/style.css` (see Spacing).
 - The filters themselves: `CATEGORIES` at the top of `build.py`.

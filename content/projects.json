@@ -1,8 +1,8 @@
 [
   {
     "order": 1,
-    "category": "digital",
-    "secondaryCategory": "visual",
+    "category": ["digital", "visual"],
+    "featured": true,
     "slug": "typelab",
     "title": "TypeLab",
     "oneLiner": "Font design playground",
@@ -104,7 +104,8 @@
   },
   {
     "order": 2,
-    "category": "digital",
+    "category": ["digital"],
+    "featured": true,
     "slug": "clack",
     "title": "Clack",
     "oneLiner": "Staying focused while AI works",
@@ -205,8 +206,8 @@
   },
   {
     "order": 3,
-    "category": "digital",
-    "secondaryCategory": "visual",
+    "category": ["digital", "visual"],
+    "featured": true,
     "slug": "nbcuniversal",
     "title": "NBCUniversal",
     "oneLiner": "[PLACEHOLDER one-liner]",
@@ -305,7 +306,8 @@
   },
   {
     "order": 4,
-    "category": "digital",
+    "category": ["digital"],
+    "featured": true,
     "slug": "project-4",
     "title": "[PLACEHOLDER: Palette or Self-checkout]",
     "oneLiner": "[PLACEHOLDER one-liner]",
@@ -404,8 +406,8 @@
   },
   {
     "order": 5,
-    "category": "physical",
-    "secondaryCategory": "brand",
+    "category": ["physical", "brand"],
+    "featured": true,
     "slug": "light-life",
     "title": "Light Life",
     "oneLiner": "[PLACEHOLDER one-liner]",
@@ -504,8 +506,7 @@
   },
   {
     "order": 6,
-    "category": "digital",
-    "secondaryCategory": "brand",
+    "category": ["digital", "brand"],
     "title": "Lulu Walk",
     "type": "[PLACEHOLDER type]",
     "year": "[PLACEHOLDER year]",
@@ -516,8 +517,7 @@
   },
   {
     "order": 7,
-    "category": "visual",
-    "secondaryCategory": "brand",
+    "category": ["visual", "brand"],
     "title": "Editorial Projects",
     "type": "[PLACEHOLDER type]",
     "year": "[PLACEHOLDER year]",
@@ -528,7 +528,7 @@
   },
   {
     "order": 8,
-    "category": "physical",
+    "category": ["physical"],
     "title": "3D Product Projects",
     "type": "[PLACEHOLDER type]",
     "year": "[PLACEHOLDER year]",
@@ -539,7 +539,7 @@
   },
   {
     "order": 9,
-    "category": "digital",
+    "category": ["digital"],
     "todo": "confirm category",
     "title": "[PLACEHOLDER title]",
     "type": "[PLACEHOLDER type]",
@@ -551,7 +551,7 @@
   },
   {
     "order": 10,
-    "category": "digital",
+    "category": ["digital"],
     "todo": "confirm category",
     "title": "[PLACEHOLDER title]",
     "type": "[PLACEHOLDER type]",
@@ -563,7 +563,7 @@
   },
   {
     "order": 11,
-    "category": "digital",
+    "category": ["digital"],
     "todo": "confirm category",
     "title": "[PLACEHOLDER title]",
     "type": "[PLACEHOLDER type]",

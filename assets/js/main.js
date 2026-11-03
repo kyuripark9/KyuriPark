@@ -1,38 +1,9 @@
 // Enhancements on top of pages that already work without JavaScript:
-// the header menu, Work's filter and card videos, the lightbox, and
-// project-page motion (image fade-up, count-up numbers, looping videos). The home track is in track.js.
+// Work's filter and card videos, the lightbox, and project-page motion
+// (image fade-up, count-up numbers, looping videos). The home track is in track.js.
 (() => {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const fineHover = window.matchMedia("(hover: hover) and (pointer: fine)");
-
-  // Header menu: on phones, and at every width with the header-b class on <body>, where it
-  // covers the page, so the page under it stops scrolling and leaves the Tab order.
-  const menuButton = document.querySelector(".menu-button");
-  const menu = document.getElementById("site-menu");
-  if (menuButton && menu) {
-    const isOpen = () => menuButton.getAttribute("aria-expanded") === "true";
-    const setOpen = (open) => {
-      menuButton.setAttribute("aria-expanded", String(open));
-      menuButton.textContent = open ? "Close" : "Menu";
-      menu.classList.toggle("is-open", open);
-      const covering = open && document.body.classList.contains("header-b");
-      document.documentElement.classList.toggle("menu-open", covering);
-      document.querySelectorAll("main, .site-footer").forEach((el) => { el.inert = covering; });
-    };
-    menuButton.addEventListener("click", () => setOpen(!isOpen()));
-    menu.addEventListener("click", (e) => {
-      if (e.target.closest("a")) setOpen(false);
-    });
-    document.addEventListener("click", (e) => {
-      if (isOpen() && !e.target.closest(".site-nav")) setOpen(false);
-    });
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && isOpen()) {
-        setOpen(false);
-        menuButton.focus();
-      }
-    });
-  }
 
   // Work: All or one category at a time, on one grid. The tiles fade out, the filter's tiles
   // come on numbered from 001, and they fade in. The address says which (#all, #digital, ...),
@@ -42,7 +13,7 @@
   if (workTabs.length) {
     const FADE_OUT = 150;  // ms
     const FADE_IN = 250;   // ms
-    const tablist = workTabs[0].parentElement;
+    const toggle = workTabs[0].parentElement;
     const panel = document.getElementById("work-panel");
     const tiles = [...panel.querySelectorAll(".work-grid > li")];
     const empty = panel.querySelector(".work-empty");
@@ -65,18 +36,15 @@
     // sideways, that tab comes into view.
     const placeThumb = () => {
       const tab = workTabs[filters.indexOf(wanted)];
-      tablist.style.setProperty("--thumb-x", `${tab.offsetLeft}px`);
-      tablist.style.setProperty("--thumb-w", `${tab.offsetWidth}px`);
-      tablist.scrollLeft = tab.offsetLeft + (tab.offsetWidth - tablist.clientWidth) / 2;
+      toggle.style.setProperty("--thumb-x", `${tab.offsetLeft}px`);
+      toggle.style.setProperty("--thumb-w", `${tab.offsetWidth}px`);
+      toggle.scrollLeft = tab.offsetLeft + (tab.offsetWidth - toggle.clientWidth) / 2;
     };
     const mark = (name) => {
       wanted = name;
       workTabs.forEach((tab) => {
-        const on = tab.dataset.filter === name;
-        tab.setAttribute("aria-selected", String(on));
-        tab.tabIndex = on ? 0 : -1;
+        tab.setAttribute("aria-pressed", String(tab.dataset.filter === name));
       });
-      panel.setAttribute("aria-labelledby", `tab-${name}`);
       placeThumb();
     };
 
@@ -114,7 +82,7 @@
       history.replaceState(history.state, "", "#all");
       return "all";
     };
-    // A tab only changes the address; that's what switches the grid, so each pick is a step
+    // A filter only changes the address; that's what switches the grid, so each pick is a step
     // for Back and Forward.
     window.addEventListener("hashchange", () => {
       const name = addressFilter();
@@ -124,26 +92,14 @@
       location.hash = tab.dataset.filter;
     }));
 
-    // Left and right arrows go along the tabs, looping at the ends; Home and End go to the
-    // first and last. The tab they land on is picked. Only the picked tab is a Tab stop.
-    tablist.addEventListener("keydown", (e) => {
-      const last = workTabs.length - 1;
-      const i = workTabs.indexOf(e.target);
-      const to = { ArrowLeft: i ? i - 1 : last, ArrowRight: i === last ? 0 : i + 1, Home: 0, End: last }[e.key];
-      if (to === undefined || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
-      e.preventDefault();
-      workTabs[to].focus();
-      workTabs[to].click();
-    });
-
     const start = addressFilter() || "all";
     mark(start);
     show(start);
     // The pill keeps up if the tabs change size (the font loading, or a narrower window).
     const resized = new ResizeObserver(placeThumb);
     workTabs.forEach((tab) => resized.observe(tab));
-    void tablist.offsetWidth;  // apply its first place before it can slide, so it doesn't slide in
-    tablist.classList.add("is-ready");
+    void toggle.offsetWidth;  // apply its first place before it can slide, so it doesn't slide in
+    toggle.classList.add("is-ready");
   }
 
   // Work tiles: hovering (or focusing) one plays its cover's video, if it has one.
@@ -175,10 +131,10 @@
     card.addEventListener("blur", stop);
   });
 
-  // Lightbox: a Work tile with no page of its own opens its item's images (copied from the
-  // item's <template>). Esc, Close, or a click outside the images and caption closes it, and
-  // focus goes back to that tile. Left/right arrow keys and buttons step through the items the
-  // filter is showing, looping at the ends.
+  // Lightbox: a Work tile with no page of its own, or an Archive image, opens its item's images
+  // (copied from the item's <template>). Esc, Close, or a click outside the images and caption
+  // closes it, and focus goes back to that tile. Left/right arrow keys and buttons step through
+  // the items on screen, looping at the ends.
   const lightbox = document.getElementById("lightbox");
   if (lightbox) {
     document.body.append(lightbox);  // out of <main>, so the rest of the page can go inert
@@ -201,8 +157,8 @@
       current = (index + thumbs.length) % thumbs.length;
       const item = thumbs[current].closest("li");
       images.replaceChildren(item.querySelector("template").content.cloneNode(true));
-      name.innerHTML = item.querySelector(".work-name").innerHTML;
-      meta.innerHTML = item.querySelector(".work-type").innerHTML;
+      name.innerHTML = item.querySelector(".work-name, .archive-name").innerHTML;
+      meta.innerHTML = item.querySelector(".work-type, .archive-date").innerHTML;
       stage.scrollTop = 0;
       fit();
     };

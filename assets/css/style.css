@@ -36,31 +36,32 @@
   --size-body: 1rem;           /* 16px */
   --size-label: 0.75rem;       /* 12px */
 
-  /* 8px spacing scale. */
-  --space-1: 8px;
-  --space-2: 16px;
-  --space-3: 24px;
-  --space-4: 32px;
-  --space-5: 40px;
-  --space-6: 48px;
-  --space-8: 64px;
-  --space-12: 96px;
-  --space-16: 128px;
+  /* 8px steps, for the spacing inside things: --step-3 is 24px. */
+  --step-1: 8px;
+  --step-2: 16px;
+  --step-3: 24px;
+  --step-4: 32px;
+  --step-5: 40px;
+  --step-6: 48px;
+  --step-8: 64px;
+  --step-12: 96px;
+  --step-16: 128px;
 
-  /* The spacing around the work, Home and Work alike: card to caption, toggle to card, and
-     header to toggle (from the header's text, what the eye measures). */
-  --gap-1: 16px;
-  --gap-2: 32px;
-  --gap-3: 64px;
+  /* The spacing around the work, on every page: the closer two things sit, the more they
+     belong together. Image to caption, filter to grid, and header to filter or title (from
+     the header's text, what the eye measures). */
+  --space-1: 16px;
+  --space-2: 32px;
+  --space-3: 64px;
 
   --page-max: 1280px;
-  --gutter: var(--space-2);        /* page side padding, the header's too */
-  --header-pad: var(--space-3);    /* over and under the header's text */
-  --header-gap: calc(var(--gap-3) - var(--header-pad));  /* the header's box to the toggle */
-  --col-gap: var(--space-3);       /* between columns */
-  --section-gap: var(--space-8);   /* between page sections */
-  --block-gap: var(--space-5);     /* between blocks inside a section */
-  --media-gap: var(--space-2);     /* between images that follow each other */
+  --gutter: var(--step-2);        /* page side padding, the header's too */
+  --header-pad: var(--step-3);    /* over and under the header's text */
+  --header-gap: calc(var(--space-3) - var(--header-pad));  /* the header's box to the filter or title */
+  --col-gap: var(--step-3);       /* between columns */
+  --section-gap: var(--step-8);   /* between page sections */
+  --block-gap: var(--step-5);     /* between blocks inside a section */
+  --media-gap: var(--step-2);     /* between images that follow each other */
 
   --fade: 200ms ease;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -68,19 +69,19 @@
 
 @media (min-width: 768px) {
   :root {
-    --gutter: var(--space-4);
-    --header-pad: var(--space-4);
-    --col-gap: var(--space-4);
-    --section-gap: var(--space-12);
-    --block-gap: var(--space-8);
-    --media-gap: var(--space-3);
+    --gutter: var(--step-4);
+    --header-pad: var(--step-4);
+    --col-gap: var(--step-4);
+    --section-gap: var(--step-12);
+    --block-gap: var(--step-8);
+    --media-gap: var(--step-3);
   }
 }
 
 @media (min-width: 1200px) {
   :root {
-    --gutter: var(--space-5);
-    --section-gap: var(--space-16);
+    --gutter: var(--step-5);
+    --section-gap: var(--step-16);
   }
 }
 
@@ -195,10 +196,10 @@ button {
 
 .skip-link {
   position: absolute;
-  top: var(--space-1);
+  top: var(--step-1);
   left: var(--gutter);
   z-index: 30;
-  padding: var(--space-1) var(--space-2);
+  padding: var(--step-1) var(--step-2);
   background: var(--color-text);
   color: var(--color-bg);
   transform: translateY(-200%);
@@ -221,6 +222,7 @@ button {
 .project-statement,
 .impact-value,
 .about-text .lead,
+.archive-title,
 .not-found-title {
   font-size: var(--size-title);
   line-height: 1.15;
@@ -236,6 +238,7 @@ button {
 /* Labels: numbers, years, the footer. */
 .index,
 .work-type,
+.archive-number,
 .project-meta dt,
 .project-nav-label,
 .lightbox-meta,
@@ -244,7 +247,7 @@ button {
   line-height: 1.5;
 }
 
-/* Links in text stand out by weight, like the current page in the nav. */
+/* Links in text stand out by weight. */
 .text-body a,
 .text-link,
 .project-meta a,
@@ -253,8 +256,6 @@ button {
 }
 
 .identity,
-.site-nav a,
-.menu-button,
 .footer-links a,
 .text-body a,
 .text-link,
@@ -267,8 +268,6 @@ button {
 }
 
 .identity:hover,
-.site-nav a:hover,
-.menu-button:hover,
 .footer-links a:hover,
 .text-body a:hover,
 .text-link:hover,
@@ -291,9 +290,8 @@ mark.placeholder {
 
 /* Header ---------------------------------------------------------------- */
 
-/* The name at the left. On the right: the Menu button on phones; from 768px, the nav.
-   The class on <body> in templates/base.html picks the header: header-a is this one,
-   header-b is the Menu button at every width (see the end of this section). */
+/* The name at the left, the four links at the right, on one line at every width. On a phone
+   the links close up; under 360px, the type steps down to fit (the narrowest is 320px). */
 .site-header {
   position: relative;
   z-index: 20;
@@ -301,7 +299,7 @@ mark.placeholder {
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas: "identity nav";
   align-items: baseline;
-  column-gap: var(--space-3);
+  column-gap: var(--step-1);
   padding-block: var(--header-pad);
   view-transition-name: site-header;
 }
@@ -315,6 +313,7 @@ mark.placeholder {
 .wordmark {
   font-family: var(--font-wordmark);
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .site-nav {
@@ -323,108 +322,36 @@ mark.placeholder {
 
 .site-menu {
   display: flex;
-  gap: var(--space-3);
+  gap: min(3vw, var(--step-3));
 }
 
-.site-nav [aria-current] {
-  font-weight: 500;
+/* The current page at full strength, the others a step back (0.6 keeps them at 4.5:1 on the
+   background). */
+.site-menu a {
+  opacity: 0.6;
+  transition: opacity var(--fade);
 }
 
-.menu-button {
-  display: none;
-  /* A bigger tap target without moving the text. */
-  margin: calc(-1 * var(--space-1));
-  padding: var(--space-1);
+.site-menu a:hover,
+.site-menu a:focus-visible,
+.site-menu [aria-current] {
+  opacity: 1;
 }
 
-@media (max-width: 767px) {
-  .js .menu-button {
-    display: block;
-  }
-
-  .js .site-menu {
-    display: none;
-  }
-
-  .js .site-menu.is-open {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    display: block;
-    padding: 0 var(--gutter) var(--space-2);
-    background: var(--color-bg);
-    border-bottom: 1px solid var(--color-line);
-  }
-
-  .site-menu.is-open a {
-    display: block;
-    padding-block: var(--space-2);
-    border-top: 1px solid var(--color-line);
+@media (max-width: 359.98px) {
+  .site-header {
+    font-size: 0.875rem;  /* 14px */
   }
 }
 
 @media (min-width: 768px) {
   .site-header {
-    column-gap: var(--space-6);
+    column-gap: var(--step-6);
   }
 
   .site-menu {
-    gap: var(--space-4);
+    gap: var(--step-4);
   }
-}
-
-/* header-b: the Menu button at every width. It opens the nav over the whole page in big type,
-   starting where the toggle sits, with the name and the button (now Close) staying put. It
-   fades and rises in; closed, it's out of the Tab order. Without JavaScript, the nav stays in
-   the header as in header-a. */
-.js .header-b .identity,
-.js .header-b .menu-button {
-  position: relative;
-  z-index: 1;
-}
-
-.js .header-b .menu-button {
-  display: block;
-}
-
-.js .header-b .site-menu {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  padding: calc(var(--header-pad) + 1.5rem + var(--gap-3))  /* 1.5rem: the header's text */
-           max(var(--gutter), (100% - var(--page-max)) / 2) var(--gap-3);
-  overflow-y: auto;
-  background: var(--color-bg);
-  border: 0;
-  font-size: clamp(2.5rem, 1.75rem + 3.2vw, 4rem);   /* 40px on phones, up to 64px */
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  opacity: 0;
-  transform: translateY(var(--space-1));
-  visibility: hidden;
-  transition: opacity 250ms ease, transform 250ms ease, visibility 0s 250ms;
-}
-
-.js .header-b .site-menu.is-open {
-  opacity: 1;
-  transform: none;
-  visibility: visible;
-  transition-delay: 0s;
-}
-
-.js .header-b .site-menu a {
-  display: inline;
-  padding: 0;
-  border: 0;
-}
-
-/* The page under it stops scrolling and keeps its width (Home doesn't scroll). */
-.menu-open:not(:has(.page-home)) {
-  overflow: hidden;
-  scrollbar-gutter: stable;
 }
 
 /* Home: project track -------------------------------------------------- */
@@ -432,7 +359,7 @@ mark.placeholder {
 /* Without JavaScript: a plain list of the projects, and the page scrolls as usual. */
 .track-row {
   display: grid;
-  gap: var(--space-6);
+  gap: var(--step-6);
   width: 100%;
   max-width: calc(var(--page-max) + 2 * var(--gutter));
   margin-inline: auto;
@@ -468,11 +395,11 @@ mark.placeholder {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: var(--space-1);
+  gap: var(--step-1);
 }
 
 .card-caption {
-  margin-top: var(--gap-1);
+  margin-top: var(--space-1);
 }
 
 .card-title {
@@ -480,14 +407,14 @@ mark.placeholder {
 }
 
 .card-text {
-  max-width: calc(50% - var(--space-2));
+  max-width: calc(50% - var(--step-2));
   font-size: 0.875rem;
   line-height: 1.6;
   text-align: right;
 }
 
 .index {
-  margin-right: var(--space-1);
+  margin-right: var(--step-1);
   font-variant-numeric: tabular-nums;
 }
 
@@ -499,7 +426,7 @@ mark.placeholder {
 /* With JavaScript, Home fills the screen and doesn't scroll. The cards sit on a loop
    that track.js turns; these rules size them and set where they start.
    Sizes match the example (focuscarouselpro.framer.website) from 768px; the card's height
-   on the page comes from the --gap-* spacing, so it stays put on any screen.
+   on the page comes from the --space-* spacing, so it stays put on any screen.
      --card-w        the middle card's width: --card-base (400px, so 533px tall at 3:4) up
                      to a 900px-tall window, larger on taller ones, so the space under the
                      card stays the same; smaller when the window is too short for it;
@@ -509,8 +436,9 @@ mark.placeholder {
      --toggle-h      the height of Work's toggle
      --room-top      over the middle card, under the header: the room Work's toggle takes
      --room-spare    under the middle card on a tall window (its caption goes in here)
-     --room-bottom   the least kept free under the middle card, for its caption
-     --scale-1       size one step from the middle; --scale-2 two steps or more
+     --room-bottom   the least kept free under the middle card, for its caption and the link
+                     to Work
+     --scale-1      size one step from the middle; --scale-2 two steps or more
      --opacity-1, --grayscale-1, --brightness-1   one step from the middle and beyond
      --fade-step     each step past the first multiplies the opacity by this
      --blur-step     and adds this much blur
@@ -531,14 +459,18 @@ mark.placeholder {
   min-height: 0;
 }
 
+.js .page-home {
+  position: relative;
+}
+
 .js .track {
-  --card-gap: var(--space-2);
-  --peek: var(--space-2);
+  --card-gap: var(--step-2);
+  --peek: var(--step-2);
   --card-base: 400px;
   --toggle-h: 39px;
-  --room-top: calc(var(--header-gap) + var(--toggle-h) + var(--gap-2));
+  --room-top: calc(var(--header-gap) + var(--toggle-h) + var(--space-2));
   --room-spare: 176px;
-  --room-bottom: 72px;
+  --room-bottom: 112px;
   --card-w: min(max(var(--card-base), (100cqh - var(--room-top) - var(--room-spare)) * 0.75),
                 (100cqh - var(--room-top) - var(--room-bottom)) * 0.75,
                 100cqw - 2 * (var(--card-gap) + var(--peek)));
@@ -612,16 +544,42 @@ mark.placeholder {
 /* The middle card's caption hangs 16px under it, as wide as the card. */
 .js .track-caption {
   position: absolute;
-  top: calc(var(--card-y) + var(--card-w) * 2 / 3 + var(--gap-1));
-  left: 50%;
+  top: calc(var(--card-y) + var(--card-w) * 2 / 3);
+  left: 0;
+  right: 0;
   width: var(--card-w);
-  margin: 0 0 0 calc(var(--card-w) * -0.5);
+  margin: var(--space-1) auto 0;
 }
 
 @media (min-width: 768px) {
   .js .track {
     --card-gap: 22px;
   }
+}
+
+/* The way to the rest of the work: at the foot of the screen, or after the list without
+   JavaScript. */
+.home-more {
+  margin-block: var(--step-6);
+}
+
+.home-more a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  /* A bigger tap target without moving the text. */
+  margin: calc(-1 * var(--step-1));
+  padding: var(--step-1);
+}
+
+.js .home-more {
+  position: absolute;
+  bottom: var(--space-1);
+  left: 0;
+  right: 0;
+  margin-block: 0;
+  font-size: 0.875rem;  /* 14px, like the one-liner above it */
+  text-align: center;
 }
 
 /* Home intro ------------------------------------------------------------ */
@@ -636,7 +594,7 @@ mark.placeholder {
      --intro-size      the line's type size
      --intro-image     the corner image's width and height (it's square)
      --intro-margin    the corner image's distance from the bottom and right edges */
-.js:not(.intro-done) body:has(> .page-home) :is(.identity, .site-nav, .track-row, .track-caption) {
+.js:not(.intro-done) body:has(> .page-home) :is(.identity, .site-nav, .track-row, .track-caption, .home-more) {
   opacity: 0;
 }
 
@@ -686,12 +644,12 @@ mark.placeholder {
    its count after it, smaller. main.js shows one filter at a time on the one grid; without
    JavaScript there's no toggle and the grid shows everything. */
 .page-work {
-  --tile-gap: var(--space-3);   /* between tiles, across and down */
+  --tile-gap: var(--step-3);   /* between tiles, across and down */
 }
 
 @media (min-width: 1024px) {
   .page-work {
-    --tile-gap: var(--space-5);
+    --tile-gap: var(--step-5);
   }
 }
 
@@ -705,7 +663,7 @@ mark.placeholder {
   width: max-content;
   max-width: 100%;
   margin-top: var(--header-gap);
-  margin-bottom: var(--gap-2);
+  margin-bottom: var(--space-2);
   padding: 3px;
   overflow-x: auto;
   scrollbar-width: none;
@@ -748,7 +706,7 @@ mark.placeholder {
   opacity: 0.85;
 }
 
-.work-tab[aria-selected="true"] {
+.work-tab[aria-pressed="true"] {
   color: #111;
   cursor: default;
 }
@@ -777,10 +735,9 @@ mark.placeholder {
   font-size: 0.625rem;  /* 10px */
 }
 
-/* 1 across on phones, 2 from 768px, 3 from 1024px. Each tile is "001 TypeLab" and the type
-   over a 4:5 image. A tile sits at the bottom of its row, so the covers in a row line up
-   even when a caption runs to two lines. A tile with no page is a button (it opens the
-   lightbox) and looks the same. */
+/* 1 across on phones, 2 from 768px, 3 from 1024px. Each tile is "001 TypeLab" with the type
+   under it, over a 4:5 image. A tile with no page is a button (it opens the lightbox) and
+   looks the same. */
 .work-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -799,43 +756,41 @@ mark.placeholder {
   }
 }
 
-.work-grid > li {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-}
-
-.work-grid > li[hidden] {
-  display: none;
-}
-
 .work-card {
   display: flex;
   flex-direction: column;
-  gap: var(--gap-1);
+  gap: var(--space-1);
+  width: 100%;
   text-align: left;
 }
 
+/* Always two lines, each cut short if it runs long, so every tile's caption is the same height
+   and every image in the grid starts on the same line. */
 .work-caption {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: baseline;
 }
 
 .work-caption .index {
-  flex: none;
-  margin-right: var(--space-2);
+  margin-right: var(--step-2);
+}
+
+.work-name,
+.work-type {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .work-name {
-  min-width: 0;
   font-weight: 500;
 }
 
 .work-type {
-  margin-left: auto;
-  padding-left: var(--space-2);
+  grid-column: 2;
+  min-height: 1.5em;  /* its line stays when a tile has no type yet */
   color: var(--color-muted);
-  text-align: right;
 }
 
 /* The image fills a 4:5 frame (a plain gray block until it exists). */
@@ -855,6 +810,11 @@ mark.placeholder {
   transition: transform 250ms ease;
 }
 
+.archive-media img {
+  width: 100%;
+  transition: transform 250ms ease;
+}
+
 /* The cover's video (main.js adds it on hover) fades in over the image. */
 .work-media video {
   position: absolute;
@@ -869,7 +829,7 @@ mark.placeholder {
 
 /* Hovered, the image grows a little inside its frame. */
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .work-card:hover :is(img, video) {
+  :is(.work-card, .archive-tile):hover :is(img, video) {
     transform: scale(1.03);
   }
 }
@@ -879,8 +839,62 @@ mark.placeholder {
   color: var(--color-muted);
 }
 
-/* The lightbox (main.js opens it): the item's images, scrolling if there are several,
-   with Close above and the caption between Previous / Next below. Fades in and out. */
+/* Archive --------------------------------------------------------------- */
+
+/* Smaller and closer together than Work: whole images in their own shapes, each with only its
+   number, 8px under it (at 16px it would sit as close to the next image as to its own).
+   2 columns on phones, 3 from 768px, 4 from 1024px. Columns fill from top to bottom, so the
+   numbers run down the first, then the second. The caption and date only show in the lightbox. */
+.archive-title {
+  margin-top: var(--header-gap);
+  margin-bottom: var(--space-2);
+}
+
+.archive-grid {
+  columns: 2;
+  column-gap: var(--space-1);
+}
+
+@media (min-width: 768px) {
+  .archive-grid {
+    columns: 3;
+  }
+}
+
+@media (min-width: 1024px) {
+  .archive-grid {
+    columns: 4;
+  }
+}
+
+.archive-item {
+  break-inside: avoid;
+  padding-bottom: var(--space-1);
+}
+
+.archive-tile {
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+
+/* A plain gray block in the image's place until it exists. */
+.archive-media {
+  display: block;
+  overflow: hidden;
+  background: var(--color-fill);
+}
+
+.archive-number {
+  display: block;
+  margin-top: var(--step-1);
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The lightbox (main.js opens it; Work's items with no page use it too): the item's images,
+   scrolling if there are several, with Close above and the caption between Previous / Next
+   below. Fades in and out. */
 .lightbox {
   position: fixed;
   inset: 0;
@@ -911,13 +925,13 @@ mark.placeholder {
 .lightbox-top {
   display: flex;
   justify-content: flex-end;
-  padding-block: var(--space-3);
+  padding-block: var(--step-3);
 }
 
 .lightbox-close {
-  /* A bigger tap target without moving the text, like the Menu button. */
-  margin: calc(-1 * var(--space-1));
-  padding: var(--space-1);
+  /* A bigger tap target without moving the text. */
+  margin: calc(-1 * var(--step-1));
+  padding: var(--step-1);
 }
 
 .lightbox-stage {
@@ -949,21 +963,27 @@ mark.placeholder {
 
 .lightbox-bar {
   display: grid;
-  grid-template-columns: var(--space-5) minmax(0, 1fr) var(--space-5);
+  grid-template-columns: var(--step-5) minmax(0, 1fr) var(--step-5);
   grid-template-rows: minmax(3em, auto);
   align-items: center;
-  column-gap: var(--space-1);
-  padding-block: var(--space-2) var(--space-3);
+  column-gap: var(--step-1);
+  padding-block: var(--step-2) var(--step-3);
 }
 
 .lightbox-arrow {
   display: grid;
   place-items: center;
-  width: var(--space-5);
-  height: var(--space-5);
+  width: var(--step-5);
+  height: var(--step-5);
 }
 
+/* One line: the name and, after it, the type and year or the date. */
 .lightbox-caption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  column-gap: var(--step-2);
   text-align: center;
 }
 
@@ -973,26 +993,26 @@ mark.placeholder {
 
 @media (min-width: 768px) {
   .lightbox-top {
-    padding-block: var(--space-4);
+    padding-block: var(--step-4);
   }
 
   .lightbox-bar {
-    padding-bottom: var(--space-4);
+    padding-bottom: var(--step-4);
   }
 }
 
 /* Project page ---------------------------------------------------------- */
 
 .project-header {
-  padding-top: var(--space-3);
+  padding-top: var(--step-3);
 }
 
 .project-meta {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3) var(--col-gap);
-  margin-top: var(--space-5);
-  padding-top: var(--space-2);
+  gap: var(--step-3) var(--col-gap);
+  margin-top: var(--step-5);
+  padding-top: var(--step-2);
   border-top: 1px solid var(--color-line);
 }
 
@@ -1001,7 +1021,7 @@ mark.placeholder {
 }
 
 .project-meta dd {
-  margin-top: var(--space-1);
+  margin-top: var(--step-1);
 }
 
 @media (min-width: 768px) {
@@ -1014,13 +1034,13 @@ mark.placeholder {
 
 .project-statement {
   max-width: 20em;
-  margin-top: var(--space-8);
+  margin-top: var(--step-8);
 }
 
 /* The hero runs edge to edge. */
 .project-hero {
   max-width: 1920px;
-  margin: var(--space-8) auto 0;
+  margin: var(--step-8) auto 0;
 }
 
 .project-hero .caption {
@@ -1044,12 +1064,12 @@ mark.placeholder {
 }
 
 .project-section > .text-block + .is-note {
-  margin-top: var(--space-4);
+  margin-top: var(--step-4);
 }
 
 .text-block {
   display: grid;
-  gap: var(--space-2);
+  gap: var(--step-2);
 }
 
 .text-body {
@@ -1057,15 +1077,15 @@ mark.placeholder {
 }
 
 .text-body > * + * {
-  margin-top: var(--space-2);
+  margin-top: var(--step-2);
 }
 
 .text-body > .note-heading + * {
-  margin-top: var(--space-1);
+  margin-top: var(--step-1);
 }
 
 .is-note .text-body {
-  padding-left: var(--space-3);
+  padding-left: var(--step-3);
   border-left: 1px solid var(--color-line);
 }
 
@@ -1087,7 +1107,7 @@ mark.placeholder {
 }
 
 .media .caption {
-  margin-top: var(--space-1);
+  margin-top: var(--step-1);
 }
 
 .pair {
@@ -1117,15 +1137,15 @@ mark.placeholder {
 .impact {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
-  gap: var(--space-4) var(--col-gap);
-  padding-top: var(--space-3);
+  gap: var(--step-4) var(--col-gap);
+  padding-top: var(--step-3);
   border-top: 1px solid var(--color-line);
 }
 
 .impact-item {
   display: flex;
   flex-direction: column-reverse;
-  gap: var(--space-1);
+  gap: var(--step-1);
 }
 
 .impact-value {
@@ -1139,7 +1159,7 @@ mark.placeholder {
 /* Images fade up as they come on screen (main.js adds these classes). */
 .reveal {
   opacity: 0;
-  transform: translateY(var(--space-3));
+  transform: translateY(var(--step-3));
   transition: opacity 700ms var(--ease-out), transform 700ms var(--ease-out);
 }
 
@@ -1151,7 +1171,7 @@ mark.placeholder {
 .project-nav {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3) var(--col-gap);
+  gap: var(--step-3) var(--col-gap);
   margin-top: var(--section-gap);
 }
 
@@ -1165,7 +1185,7 @@ mark.placeholder {
 .project-nav a {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--step-1);
 }
 
 .project-nav-next {
@@ -1182,6 +1202,7 @@ mark.placeholder {
 }
 
 .project-nav-label svg,
+.home-more svg,
 .lightbox-arrow svg {
   fill: none;
   stroke: currentColor;
@@ -1203,12 +1224,12 @@ mark.placeholder {
 /* About ----------------------------------------------------------------- */
 
 .page-about {
-  padding-top: var(--space-3);
+  padding-top: var(--step-3);
 }
 
 .about-intro {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--step-4);
 }
 
 .about-portrait img {
@@ -1221,16 +1242,16 @@ mark.placeholder {
 }
 
 .about-text > * + * {
-  margin-top: var(--space-2);
+  margin-top: var(--step-2);
 }
 
 .about-text .lead + * {
-  margin-top: var(--space-4);
+  margin-top: var(--step-4);
 }
 
 .split-section {
   display: grid;
-  gap: var(--space-2);
+  gap: var(--step-2);
   margin-top: var(--section-gap);
 }
 
@@ -1254,8 +1275,8 @@ mark.placeholder {
 .experience li {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  column-gap: var(--space-2);
-  padding-block: var(--space-2);
+  column-gap: var(--step-2);
+  padding-block: var(--step-2);
   border-bottom: 1px solid var(--color-line);
 }
 
@@ -1276,13 +1297,13 @@ mark.placeholder {
   .experience {
     display: grid;
     grid-template-columns: max-content minmax(0, 1fr) max-content;
-    column-gap: var(--space-4);
+    column-gap: var(--step-4);
   }
 
   .experience li {
     grid-column: 1 / -1;
     grid-template-columns: subgrid;
-    column-gap: var(--space-4);
+    column-gap: var(--step-4);
   }
 
   .experience-role {
@@ -1296,17 +1317,17 @@ mark.placeholder {
 }
 
 .link-list > * + * {
-  margin-top: var(--space-1);
+  margin-top: var(--step-1);
 }
 
 /* 404 ------------------------------------------------------------------- */
 
 .page-not-found {
-  padding-top: var(--space-8);
+  padding-top: var(--step-8);
 }
 
 .not-found-title {
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--step-2);
 }
 
 /* Footer ---------------------------------------------------------------- */
@@ -1316,28 +1337,28 @@ mark.placeholder {
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: baseline;
-  gap: var(--space-2) var(--space-3);
+  gap: var(--step-2) var(--step-3);
   margin-top: var(--section-gap);
-  padding-bottom: var(--space-4);
+  padding-bottom: var(--step-4);
 }
 
 /* The rule sits inside the padding so it lines up with the content edge. */
 .site-footer::before {
   content: "";
   width: 100%;
-  margin-bottom: var(--space-1);
+  margin-bottom: var(--step-1);
   border-top: 1px solid var(--color-line);
 }
 
 .footer-links {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-1) var(--space-2);
+  gap: var(--step-1) var(--step-2);
 }
 
 .footer-links li + li::before {
   content: "·";
-  margin-right: var(--space-2);
+  margin-right: var(--step-2);
   color: var(--color-muted);
 }
 

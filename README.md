@@ -21,9 +21,10 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 
 | Address | What it is |
 | --- | --- |
-| `/` | Home: one card per project on an endless loop, filling the screen |
-| `/work/` | Work: "All 11   Digital 08   Physical 02   Brand 03   Visual 03" at the top filters one grid of numbered tiles (`/work/#all`, `#digital`, `#physical`, `#brand`, `#visual`) |
+| `/` | Home: one card per featured project on an endless loop, filling the screen, and "View all work" under it. Home answers "what matters most" |
+| `/work/` | Work: everything. "All 11   Digital 08   Physical 02   Brand 03   Visual 03" at the top filters one grid of numbered tiles (`/work/#all`, `#digital`, `#physical`, `#brand`, `#visual`). Work answers "what kind" |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html` |
+| `/archive/` | Archive: personal work and hobbies, a gallery of images with only their numbers. A separate page with its own data |
 | `/about/` | Portrait, About text, experience, contact links |
 
 Contact is the footer on every page except Home (the header's "Contact" link scrolls to it; on
@@ -32,20 +33,22 @@ Home, which has no footer, it goes to About's) and a section on About.
 ## Where things live
 
 ```
-content/projects.json   everything on Work: projects (order, category, title, one-liner, year,
-                        page blocks) and items with no page (see "Items with no page" below)
+content/projects.json   everything on Work: projects (order, category, featured, title, one-liner,
+                        year, page blocks) and items with no page (see "Items with no page" below)
+content/archive.json    the images on Archive (see "Archive" below)
 content/site.json       name, email, LinkedIn, GitHub, resume, About text, experience, SEO text
 assets/images/<slug>/   images and videos for each project
 assets/images/about/    About portrait
 assets/images/pieces/   images of the items with no page
+assets/images/archive/  images on Archive
 assets/images/og.png    link-preview image (1200×630)
 assets/fonts/           Inter and (optional) your wordmark font
 assets/Kyuri-Park-Resume.pdf
 assets/css/style.css    all styling; colors, type sizes, and spacing are at the top
-assets/js/main.js       header menu, Work's filter, lightbox, fade-ups, count-up
+assets/js/main.js       Work's filter, lightbox, fade-ups, count-up
 assets/js/track.js      the home project loop
-templates/              page structure (header, footer, home, work and its toggle, lightbox,
-                        project, about, 404)
+templates/              page structure (header, footer, home, work and its toggle, archive,
+                        lightbox, project, about, 404)
 dist/                   the generated site. Never edit; it's rebuilt every time.
 ```
 
@@ -61,6 +64,7 @@ dist/                   the generated site. Never edit; it's rebuilt every time.
 1. In `content/projects.json`, copy an existing project (from its `{` to its matching `}`) and paste it
    anywhere. `order` sets where it shows, everywhere: the home cards, the Work cards, and
    Previous / Next (which loop around at the ends). The counts on Work's toggle update on their own.
+   To show it on Home too, give it `"featured": true`.
 2. Give it a new `slug`: lowercase letters, numbers, and hyphens. Its page will be `/work/<slug>/`.
 3. Create the folder `assets/images/<slug>/`.
 4. Fill in the fields:
@@ -68,11 +72,11 @@ dist/                   the generated site. Never edit; it's rebuilt every time.
 | Field | Where it shows |
 | --- | --- |
 | `order` | Required. A number; lower shows first. Work numbers its cards 001, 002, ... in this order, within each filter |
-| `category` | Required. The Work filter it shows under: `"digital"`, `"physical"`, `"brand"`, or `"visual"` |
-| `secondaryCategory` | Optional. One more of those four; it shows under both, and once under All |
+| `category` | Required. A list of the Work filters it shows under, one or more of `"digital"`, `"physical"`, `"brand"`, `"visual"`, like `["digital", "visual"]`. It counts under each, and once under All |
+| `featured` | Optional. `true` puts it on Home (aim for 3 to 5). Leave it out or set `false` and it's on Work only. Needs a `slug`, because a Home card opens the project's page |
 | `title` | Everywhere |
 | `oneLiner` | Under the home loop when that project is in the middle (8 words max) |
-| `type` | Work card (right of the name), and as "Type" on the project page, like "Font design tool" |
+| `type` | Work card (under the name), and as "Type" on the project page, like "Font design tool" |
 | `year` | The project page |
 | `roles` | Optional. A list, like `["UX Research", "Art Direction"]`. "Role" in the project page's metadata row; it doesn't affect the filters |
 | `statement` | The one big sentence under the project's metadata (leave it out to hide it) |
@@ -124,15 +128,14 @@ Blocks appear in the order you list them. The template uses Context → Explore 
 ## Items with no page
 
 An item in `content/projects.json` with no `slug` has no page of its own and isn't on Home. On
-Work it's a tile like any other, with "Type · Year" beside the title. Clicking it opens its images
+Work it's a tile like any other, with "Type · Year" under the title. Clicking it opens its images
 larger in a lightbox (Esc, Close, or a click outside the image closes it; ← and → step through the
 items of this kind that the filter is showing). Its images go in `assets/images/pieces/`:
 
 ```json
 {
   "order": 7,
-  "category": "visual",
-  "secondaryCategory": "brand",
+  "category": ["visual", "brand"],
   "title": "Editorial Projects",
   "type": "Editorial",
   "year": "2025",
@@ -149,6 +152,35 @@ items of this kind that the filter is showing). Its images go in `assets/images/
 - **Images:** the first one is the thumbnail. The lightbox shows all of them, one under the other.
   `alt` describes them for screen readers; with several images, each gets "(1 of 3)" and so on added.
 
+## Archive
+
+`/archive/` is built from `content/archive.json`, separate from the projects. Each entry is one
+image; the page shows them in the file's order, with only `id` under each:
+
+```json
+{ "id": "009", "src": "009.jpg", "caption": "Sketchbook study", "date": "2025-08", "alt": "What the image shows" }
+```
+
+| Field | Where it shows |
+| --- | --- |
+| `id` | Required. The number under the image. Each one has to be different |
+| `src` | Required. A file in `assets/images/archive/` |
+| `caption` | Optional. Only in the lightbox, on one line with the date. Leave it `""` to show nothing |
+| `date` | Optional. Shown as you write it |
+| `alt` | What the image shows, for screen readers. The build reminds you if a real image has none |
+
+- **Add an image:** save it in `assets/images/archive/` and add an entry. Any shape works: images
+  are never cropped, and their size is read from the file.
+- **Swap a gray box:** save your image under the name in its `src` (`001.jpg`, and so on). To use
+  another format, like `.webp`, change `src` too. Until the file exists, an entry shows as a gray
+  box, in eight shapes in turn (`ARCHIVE_BOXES` in `build.py`).
+- **Reorder:** move the entries in the file. Columns fill from top to bottom, so 001, 002, and so
+  on run down the first column, then the second.
+- **Remove:** delete the entry.
+
+Clicking an image opens it large: Esc, Close, or a click outside the image closes it, and ← and →
+step through the images. The gallery is 2 columns on phones, 3 from 768px, 4 from 1024px.
+
 ## Swap in real images and videos
 
 Every gray placeholder shows the project name and the filename it's waiting for (for example
@@ -164,6 +196,7 @@ Recommended exports (WebP, or AVIF; JPG and PNG work too):
 | Two-image row | 1200 px wide each | Same ratio for both looks best |
 | About portrait | 1200 × 1500 | |
 | Image of an item with no page | 1200 × 1500 | The thumbnail is cropped to 4:5; the lightbox shows the whole image |
+| Archive image | 1500 px on the long side | Any shape; never cropped |
 
 Aim for under ~500 KB per image. [Squoosh](https://squoosh.app) or Figma's export both make WebP.
 Width and height are read from the file automatically, so the page doesn't jump while loading,
@@ -192,33 +225,30 @@ Otherwise, and for the other pages, it uses `assets/images/og.png`.
 To go back to Inter, delete the file. To fine-tune size or weight for that font, edit `.wordmark`
 in `assets/css/style.css`.
 
-## Switch the header
+## Header
 
-The class on `<body>` in `templates/base.html` picks the header, on every page:
+The name is at the left and Work, Archive, About, and Contact at the right, on one line at every
+width, from `templates/base.html` on every page. The current page's link is at full strength and
+the others are at 0.6 opacity (`.site-menu a` in `assets/css/style.css`). On phones the links close
+up, and under 360px the type steps down to 14px.
 
-- `header-a`: Work, About, and Contact in the header (a Menu button on phones).
-- `header-b`: a Menu button at every width. It opens the three links over the whole page in big
-  type (40–64px); the button then reads Close, and Esc closes it too.
+## Spacing
 
-To compare them without rebuilding, run this in the browser console:
-`document.body.classList.replace("header-a", "header-b")` (swap the two names to go back).
-
-To keep one for good: for `header-a`, delete the `.header-b` and `.menu-open` rules in
-`assets/css/style.css`; for `header-b`, nothing else has to change.
-
-## Spacing around the work
-
-Home and Work share three values at the top of `assets/css/style.css`: `--gap-1` (16px, card to
-caption), `--gap-2` (32px, toggle to card), and `--gap-3` (64px, the header's text to the toggle).
+Three values at the top of `assets/css/style.css` set the spacing around the work on every page:
+`--space-1` (16px, image to caption), `--space-2` (32px, filter or title to the grid), and
+`--space-3` (64px, the header's text to the filter or title). `--gutter` is the side margin the
+header and the page share, so their edges line up. `--step-1` and up are 8px steps, for the
+spacing inside things (`--step-3` is 24px).
 
 ## Motion
 
-The site keeps motion to a short list: the home loop and its intro, the Work toggle's fade, the Work tiles' images growing slightly (3%) and videos playing on hover, images
-fading up on project pages, a 300 ms fade between pages (in browsers that support it; others switch pages instantly), the lightbox fading in and out (200 ms), the `header-b` menu fading and rising in (250 ms), and impact numbers counting up. If a visitor has reduced
+The site keeps motion to a short list: the home loop and its intro, the Work toggle's fade, the Work and Archive images growing slightly (3%) and Work's videos playing on hover, images
+fading up on project pages, a 300 ms fade between pages (in browsers that support it; others switch pages instantly), the lightbox fading in and out (200 ms), and impact numbers counting up. If a visitor has reduced
 motion turned on, all of it is off, and the home loop jumps from card to card without easing.
 
-Home loop: the home page fills the screen and doesn't scroll; after the last project comes the
-first again, both ways. Mouse wheel or trackpad (down/right = next), drag, swipe, and the
+Home loop: the home page shows the featured projects, fills the screen, and doesn't scroll, with
+"View all work" at the foot of the screen; after the last project comes the first again, both
+ways. Mouse wheel or trackpad (down/right = next), drag, swipe, and the
 left/right arrow keys all move it; after a short pause it settles with one card in the middle,
 its title and one-liner under it (title at the card's left edge, one-liner at its right). Click the middle card to open it; click a side card to bring it to the middle.
 Tab moves through the cards, bringing each to the middle. Without JavaScript, the home page is a
@@ -232,8 +262,8 @@ To tune it:
   one value for phones, one from 768px), `--card-base` (the middle card's width up to a
   900px-tall window, 400px), `--card-w`, `--peek`, `--room-top` (over the middle card; it comes
   from `--gap-*`, so the card's top stays put on any screen), `--room-spare` (under it on a taller
-  window, where the card grows to keep this), `--room-bottom` (the least under it; on short
-  screens the card shrinks to keep this), `--scale-1` (card size one step from the
+  window, where the card grows to keep this), `--room-bottom` (the least under it, for the caption
+  and "View all work"; on short screens the card shrinks to keep this), `--scale-1` (card size one step from the
   middle), `--scale-2` (two steps or more), `--opacity-1` / `--grayscale-1` / `--brightness-1`
   (cards one step from the middle and beyond: full opacity, grey, a little darker),
   `--fade-step` (each further step multiplies the opacity by this), `--blur-step` (and adds
@@ -244,10 +274,11 @@ the tiles fade out (150 ms), the filter's tiles come on numbered from 001, and t
 (250 ms); with reduced motion it just switches. A filter with nothing in it says "Coming soon".
 The address shows `#all`, `#digital`, and so on, so a link opens that filter, Back and Forward step
 through the ones picked, and Back from a project page returns to the same one; no hash or an
-unknown one means All. Tab reaches the picked filter, and from there the left and right arrow keys,
-Home, and End move along them. The grid is 1 column on phones, 2 from 768px, 3 from 1024px. Under
-500px the toggle runs the width of the page, and if it still doesn't fit, it scrolls sideways.
-Without JavaScript there's no toggle and the grid shows everything. To tune it:
+unknown one means All. Each filter is a button, and Tab goes from one to the next. The grid is 1
+column on phones, 2 from 768px, 3 from 1024px. Each tile's caption is always two lines, number and
+title over the type, each cut short with "…" if it runs long, so every image starts on the same
+line. Under 500px the toggle runs the width of the page, and if it still doesn't fit, it scrolls
+sideways. Without JavaScript there's no toggle and the grid shows everything. To tune it:
 - `assets/js/main.js`, the Work section: `FADE_OUT` / `FADE_IN`.
 - `assets/css/style.css`, "Work": `--tile-gap` (space between tiles: 24px, 40px from 1024px).
 - The filters themselves: `CATEGORIES` at the top of `build.py`.

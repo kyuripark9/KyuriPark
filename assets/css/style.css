@@ -26,11 +26,13 @@
 
   --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
 
-  /* Three sizes, site-wide: titles, body text (and the nav), and labels (numbers, years,
-     the footer, image captions). */
+  /* Three sizes, site-wide: titles, body text, and labels (numbers, years, the footer, image
+     captions). The header's links are 14px (--size-nav), with Work's filter and Home's
+     one-liner. */
   --size-title: clamp(1.75rem, 1.2rem + 2.2vw, 3rem);   /* 28px on phones, up to 48px */
   --size-body: 1rem;           /* 16px */
   --size-label: 0.75rem;       /* 12px */
+  --size-nav: 0.875rem;        /* 14px, Work, Archive, About (until 2026-11-05: 16px) */
 
   /* 8px steps, for the spacing inside things: --step-3 is 24px. */
   --step-1: 8px;
@@ -53,13 +55,14 @@
 
   --page-max: 1600px;             /* widest the page runs, the header included */
   --gutter: var(--step-2);        /* page side padding, the header's too: 16, 24, 32px */
-  --header-pad: var(--step-3);    /* over and under the header's text */
+  --header-pad: var(--step-2);    /* over and under the header's text: 16px, 24px from 768px
+                                     (until 2026-11-05: 24 and 32px) */
   --signature-h: 1.875rem;         /* the signature in the header, top of the image to the
                                      end of the P: 30px. Its width follows (2.14 x). */
   /* Where every page starts: the header's box to the page's first thing (Home's middle card,
      Work's filter, About's portrait, Archive's images, a project's title), the same on every
      page so nothing jumps when you switch. 64px from the header's text, what the eye measures:
-     32px from 768px, 40px on phones. Change the 64px here (--space-3) or set a fixed value. */
+     40px from 768px, 48px on phones. Change the 64px here (--space-3) or set a fixed value. */
   --page-top: calc(var(--space-3) - var(--header-pad));
   --col-gap: var(--step-3);       /* between columns */
   --section-gap: var(--step-8);   /* between page sections */
@@ -75,7 +78,7 @@
 @media (min-width: 768px) {
   :root {
     --gutter: var(--step-3);
-    --header-pad: var(--step-4);
+    --header-pad: var(--step-3);
     --col-gap: var(--step-4);
     --section-gap: var(--step-12);
     --block-gap: var(--step-8);
@@ -311,6 +314,7 @@ mark.placeholder {
   align-items: flex-start;
   gap: 0 var(--step-1);
   padding-block: var(--header-pad);
+  font-size: var(--size-nav);  /* the signature's line box follows (1.5em) */
   view-transition-name: site-header;
 }
 

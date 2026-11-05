@@ -46,7 +46,8 @@ assets/images/about/    About portrait
 assets/images/pieces/   images of the items with no page
 assets/images/archive/  images on Archive
 assets/images/og.png    link-preview image (1200×630)
-assets/fonts/           Inter and (optional) your wordmark font
+assets/images/signature.png  the signature in the header
+assets/fonts/           Inter
 assets/Kyuri-Park-Resume.pdf
 assets/css/style.css    all styling; colors, type sizes, and spacing are at the top
 assets/js/main.js       Work's filter, lightbox, fade-ups, count-up
@@ -224,16 +225,15 @@ Otherwise, and for the other pages, it uses `assets/images/og.png`.
 
 **Resume:** replace `assets/Kyuri-Park-Resume.pdf`, keeping the same name.
 
-## Use a custom font for the wordmark
+## The signature in the header
 
-"Kyuri Park" in the header is set in Inter until you add your own font:
-
-1. Export the font as WOFF2 (Glyphhanger, FontSquirrel's generator, or your type tool can do this).
-2. Save it as `assets/fonts/wordmark.woff2`.
-3. Refresh. The build sees the file and switches the header name to it; nothing else changes.
-
-To go back to Inter, delete the file. To fine-tune size or weight for that font, edit `.wordmark`
-in `assets/css/style.css`.
+The header shows `assets/images/signature.png` (black, transparent background) in place of a typed
+name; its alt text is the name in `content/site.json`. To change it, replace the file, keeping the
+name, and refresh. Its height is `--signature-h` at the top of `assets/css/style.css` (30px);
+its width follows. It sits in a box one text line tall, so changing the size never moves the
+pages down; the y and the P just hang lower into the header's padding. If the new image's
+letters sit higher or lower in the file, adjust the `0.36` in `.signature` (how far down the
+image the middle of the letters is).
 
 ## Header
 

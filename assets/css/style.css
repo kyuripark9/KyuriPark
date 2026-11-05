@@ -12,9 +12,6 @@
     U+FEFF, U+FFFD;
 }
 
-/* The header name uses "Wordmark" once assets/fonts/wordmark.woff2 exists
-   (build.py adds the @font-face for it). Until then it falls back to Inter. */
-
 /* Tokens ---------------------------------------------------------------- */
 
 :root {
@@ -28,7 +25,6 @@
   --color-mark: #e8e7e1;       /* [PLACEHOLDER] highlight; muted text on it stays at 5:1 */
 
   --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-  --font-wordmark: "Wordmark", var(--font);
 
   /* Three sizes, site-wide: titles, body text (and the nav), and labels (numbers, years,
      the footer, image captions). */
@@ -58,6 +54,8 @@
   --page-max: 1600px;             /* widest the page runs, the header included */
   --gutter: var(--step-2);        /* page side padding, the header's too: 16, 24, 32px */
   --header-pad: var(--step-3);    /* over and under the header's text */
+  --signature-h: 1.875rem;         /* the signature in the header, top of the image to the
+                                     end of the P: 30px. Its width follows (2.14 x). */
   /* Where every page starts: the header's box to the page's first thing (Home's middle card,
      Work's filter, About's portrait, Archive's images, a project's title), the same on every
      page so nothing jumps when you switch. 64px from the header's text, what the eye measures:
@@ -261,7 +259,6 @@ button {
   font-weight: 500;
 }
 
-.identity,
 .footer-links a,
 .text-body a,
 .text-link,
@@ -272,7 +269,6 @@ button {
   transition: color var(--fade);
 }
 
-.identity:hover,
 .footer-links a:hover,
 .text-body a:hover,
 .text-link:hover,
@@ -312,20 +308,35 @@ mark.placeholder {
   z-index: 20;
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: flex-start;
   gap: 0 var(--step-1);
   padding-block: var(--header-pad);
   view-transition-name: site-header;
 }
 
+/* The signature (assets/images/signature.png, from the About Me folder) in a box one text line
+   tall, so the header keeps its height and every page still starts on the same line. The
+   letters sit level with Work, Archive, and About; the y and the P hang below the line, into
+   the header's padding, without pushing anything down. Size: --signature-h at the top. */
 .identity {
   flex: none;
+  display: block;
+  height: 1.5em;
 }
 
-.wordmark {
-  font-family: var(--font-wordmark);
-  font-weight: 500;
-  white-space: nowrap;
+.signature {
+  transition: opacity var(--fade);
+  position: relative;
+  top: calc(0.75em - 0.36 * var(--signature-h));  /* the letters' middle (36% down the image)
+                                                     on the middle of the text line */
+  width: auto;
+  height: var(--signature-h);
+  max-width: none;
+}
+
+.identity:hover .signature,
+.identity:focus-visible .signature {
+  opacity: 0.6;
 }
 
 .site-nav {

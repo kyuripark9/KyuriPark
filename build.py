@@ -52,7 +52,6 @@ ARCHIVE_SIZES = "(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
 SMALL_SUFFIX = "-small"
 COVER_VIDEO_EXTS = (".mp4", ".webm")
 OG_IMAGE_EXTS = (".jpg", ".jpeg", ".png")
-WORDMARK_FONT = "assets/fonts/wordmark.woff2"  # optional; the header name uses it once it exists
 MAX_ONE_LINER_WORDS = 8
 MIN_FEATURED, MAX_FEATURED = 3, 5  # how many projects Home should show
 CATEGORIES = ("digital", "brand", "physical")  # Work's filters, in toggle order after All
@@ -509,9 +508,9 @@ class Builder:
             page_title=esc(title),
             description=esc(description),
             head_meta=self.head_meta(path, title, description, image, noindex),
-            wordmark_font=self.wordmark_font(),
             css_version=file_version("assets/css/style.css"),
             js_version=file_version("assets/js/main.js"),
+            signature_version=file_version("assets/images/signature.png"),
             site_name=esc(s["name"]),
             nav_work={"work": ' aria-current="page"', "project": ' aria-current="true"'}.get(current, ""),
             nav_archive=' aria-current="page"' if current == "archive" else "",
@@ -550,15 +549,6 @@ class Builder:
                 tags.append(f'<meta property="og:image:alt" content="{esc(alt)}">')
         tags.append('<meta name="twitter:card" content="summary_large_image">')
         return "\n  ".join(tags)
-
-    def wordmark_font(self):
-        """Use assets/fonts/wordmark.woff2 for the name in the header, once that file exists."""
-        if not exists(WORDMARK_FONT):
-            return ""
-        href = f"{url_for(WORDMARK_FONT)}?v={file_version(WORDMARK_FONT)}"
-        return (f'<link rel="preload" href="{href}" as="font" type="font/woff2" crossorigin>\n'
-                f'  <style>@font-face {{ font-family: "Wordmark"; src: url("{href}") format("woff2"); '
-                'font-display: swap; }</style>')
 
     def og_image(self, project=None):
         """A project's cover if it's a JPG/PNG (what link previews accept), else the site image."""

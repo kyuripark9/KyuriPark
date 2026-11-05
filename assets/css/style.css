@@ -20,6 +20,8 @@
   --color-bg: #f5f4f0;
   --color-text: #161616;
   --color-muted: #62615d;      /* 5.6:1 on the background */
+  --color-faint: #8f8e89;      /* 3:1 on the background: the header's links that aren't the
+                                  current page (since 2026-11-05; --color-muted before) */
   --color-line: #dcdbd5;
   --color-fill: #e9e8e3;       /* behind media while it loads */
   --color-mark: #e8e7e1;       /* [PLACEHOLDER] highlight; muted text on it stays at 5:1 */
@@ -54,7 +56,7 @@
        links      in the text color, muted on hover (the name, links in text, the footer,
                   project links, the lightbox's buttons, About's scroll link and Contact)
        choices    one of several, muted, and the text color when hovered or current (the
-                  header's links, Work's filters)
+                  header's links, a step lighter in --color-faint; Work's filters)
      Only color changes, over --fade (until 2026-11-05, the header's links and About's
      Contact used opacity 0.6 instead). */
 
@@ -360,8 +362,12 @@ button {
 }
 
 /* Choices: muted, and the text color when hovered or current (the header's page, Work's
-   filter showing). */
-.site-menu a,
+   filter showing). The header's other links are lighter still (--color-faint), so the current
+   page stands out more. */
+.site-menu a {
+  color: var(--color-faint);
+}
+
 .work-tab {
   color: var(--color-muted);
 }

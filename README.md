@@ -237,8 +237,8 @@ portrait again, as before.
 The name ("Kyuri Park", from `content/site.json`, shown in capitals) is at the left, in Inter at
 14px like the links and a weight heavier (`.identity` in `assets/css/style.css`), and Work, Archive,
 and About at the right, on one line at every width (down to 320px), from `templates/base.html` on
-every page. The current page's link is in the text color and the others are muted until hovered
-(`.site-menu a` in `assets/css/style.css`; see Type and color). On phones the links close up. If a visitor has set
+every page. The current page's link is in the text color and the others are a light gray
+(`--color-faint`) until hovered (`.site-menu a` in `assets/css/style.css`; see Type and color). On phones the links close up. If a visitor has set
 larger text in their browser or phone and it still doesn't fit, the links move to a second line, at
 the right.
 
@@ -271,10 +271,12 @@ Display type is at line-height 1 and -0.04em, titles at 1.15 and -0.02em, everyt
 titles, the name, and links in text.
 
 Color is the text color (`--color-text`), one gray (`--color-muted`, 5.6:1 on the background),
-and `--color-line` for rules. Things react to the pointer in one of two ways, and only by color:
+a lighter gray for the header's links only (`--color-faint`, 3:1), and `--color-line` for rules.
+Things react to the pointer in one of two ways, and only by color:
 **links** are in the text color and turn muted on hover (the name, links in text, the footer,
 project links, the lightbox's buttons, About's scroll link and Contact); **choices** are muted and
-turn to the text color when hovered or current (the header's links, Work's filters).
+turn to the text color when hovered or current (the header's links, in the lighter gray, and Work's
+filters).
 
 **Capitals** are for the words the site uses to name, label, or steer: the header, Work's filters,
 About's scroll link, section headings (Experience, Contact, and a project's), note headings, the

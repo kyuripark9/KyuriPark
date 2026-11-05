@@ -419,8 +419,8 @@ mark.placeholder {
   margin-top: var(--space-1);
 }
 
-/* The title stays on one line, cut short with "…" if it runs long, so the caption never grows
-   into the link under it; the one-liner keeps its half. */
+/* The title stays on one line, cut short with "…" if it runs long; the one-liner keeps its
+   half. */
 .card-title {
   min-width: 0;
   overflow: hidden;
@@ -454,10 +454,9 @@ mark.placeholder {
                      shows there)
      --card-gap      space between cards as drawn, whatever their size: --media-gap, as
                      between images on every page
-     --room-spare    under the middle card on a tall window (its caption and the link to Work
-                     go in here)
+     --room-spare    under the middle card on a tall window (its caption goes in here)
      --room-bottom   the least kept free under the middle card: room for a caption of up to
-                     three lines and the link to Work
+                     three lines
      --scale-1      size one step from the middle; --scale-2 two steps or more
      --opacity-1, --grayscale-1, --brightness-1   one step from the middle and beyond
      --fade-step     each step past the first multiplies the opacity by this
@@ -561,7 +560,7 @@ mark.placeholder {
 
 /* The middle card's caption hangs 16px under it, as wide as the card, but never narrower than
    240px (or the screen): on a short screen, like a phone turned sideways, the card gets small,
-   and a caption that narrow would stack word by word into the link under it. */
+   and a caption that narrow would stack word by word. */
 .js .track-caption {
   position: absolute;
   top: calc(var(--card-y) + var(--card-w) * 2 / 3);
@@ -569,38 +568,6 @@ mark.placeholder {
   right: 0;
   width: max(var(--card-w), min(240px, 100cqw - 2 * var(--gutter)));
   margin: var(--space-1) auto 0;
-}
-
-/* The way to the rest of the work: at the foot of the screen, or after the list without
-   JavaScript. */
-.home-more {
-  margin-block: var(--step-6);
-}
-
-.home-more a {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  /* A bigger tap target without moving the text. */
-  margin: calc(-1 * var(--step-1));
-  padding: var(--step-1);
-}
-
-/* It spans the screen over the foot of the track, so only the link itself takes the pointer:
-   a wheel or drag anywhere else there still turns the track. */
-.js .home-more {
-  position: absolute;
-  bottom: var(--space-1);
-  left: 0;
-  right: 0;
-  margin-block: 0;
-  font-size: 0.875rem;  /* 14px, like the one-liner above it */
-  text-align: center;
-  pointer-events: none;
-}
-
-.js .home-more a {
-  pointer-events: auto;
 }
 
 /* Home intro ------------------------------------------------------------ */
@@ -615,7 +582,7 @@ mark.placeholder {
      --intro-size      the line's type size
      --intro-image     the corner image's width and height (it's square)
      --intro-margin    the corner image's distance from the bottom and right edges */
-.js:not(.intro-done) body:has(> .page-home) :is(.identity, .site-nav, .track-row, .track-caption, .home-more) {
+.js:not(.intro-done) body:has(> .page-home) :is(.identity, .site-nav, .track-row, .track-caption) {
   opacity: 0;
 }
 
@@ -1204,7 +1171,6 @@ mark.placeholder {
 }
 
 .project-nav-label svg,
-.home-more svg,
 .lightbox-arrow svg {
   fill: none;
   stroke: currentColor;

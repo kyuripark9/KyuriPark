@@ -21,7 +21,7 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 
 | Address | What it is |
 | --- | --- |
-| `/` | Home: one card per featured project on an endless loop, filling the screen, and "View all work" under it. Home answers "what matters most" |
+| `/` | Home: one card per featured project on an endless loop, filling the screen. Home answers "what matters most" |
 | `/work/` | Work: everything. "All 11   Digital 08   Brand 05   Physical 02" at the top filters one grid of tiles (`/work/#all`, `#digital`, `#brand`, `#physical`; an old `#visual` link opens `#brand`). Work answers "what kind" |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html` |
 | `/archive/` | Archive: personal work and hobbies, a gallery of images with nothing under them. A separate page with its own data |
@@ -270,8 +270,7 @@ The site keeps motion to a short list: the home loop and its intro, the Work tog
 fading up on project pages, a 300 ms fade between pages (in browsers that support it; others switch pages instantly), the lightbox fading in and out (200 ms), impact numbers counting up, and a smooth scroll to a spot on a page (`/about/#contact`). If a visitor has reduced
 motion turned on, all of it is off, and the home loop jumps from card to card without easing.
 
-Home loop: the home page shows the featured projects, fills the screen, and doesn't scroll, with
-"View all work" at the foot of the screen; after the last project comes the first again, both
+Home loop: the home page shows the featured projects, fills the screen, and doesn't scroll; after the last project comes the first again, both
 ways. Mouse wheel or trackpad (down/right = next), drag, swipe, and the
 left/right arrow keys all move it; after a short pause it settles with one card in the middle,
 its title and one-liner under it (title at the card's left edge, one-liner at its right). Click the middle card to open it; click a side card to bring it to the middle.
@@ -286,7 +285,7 @@ To tune it:
   12px, as between images on every page), `--card-base` (the middle card's width up to a
   900px-tall window, 400px), `--card-w`, `--peek`, `--room-spare` (under
   it on a taller window, where the card grows to keep this), `--room-bottom` (the least under it,
-  room for a caption of up to three lines and "View all work"; on short screens the card shrinks
+  room for a caption of up to three lines; on short screens the card shrinks
   to keep this), `--scale-1` (card size one step from the
   middle), `--scale-2` (two steps or more), `--opacity-1` / `--grayscale-1` / `--brightness-1`
   (cards one step from the middle and beyond: full opacity, grey, a little darker),

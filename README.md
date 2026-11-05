@@ -246,7 +246,9 @@ Three values at the top of `assets/css/style.css` set the spacing around the wor
 `--space-3` (64px, the header's text to the filter or title). `--gutter` is the side margin the
 header and the page share, so their edges line up: 16px on phones, 24px from 768px, 32px from
 1200px. `--page-max` (1600px) is the widest the page and the header run; past it, both stay
-centered with the same edges. `--step-1` and up are 8px steps, for the
+centered with the same edges. `--media-gap` (12px) is the space between images on every page
+and screen: Work's columns, Archive's images across and down, Home's cards, images side by side or
+one under another on project pages, and in the lightbox. `--step-1` and up are 8px steps, for the
 spacing inside things (`--step-3` is 24px).
 
 ## Motion
@@ -267,8 +269,8 @@ To tune it:
 - `assets/js/track.js`, at the top: `WHEEL_SPEED` (cards per pixel of wheel/trackpad scroll),
   `WHEEL_MAX` (the most one wheel event can count for, which tames trackpad flicks),
   `SETTLE_DELAY` (ms of no input before it settles), `EASE` (how quickly it glides).
-- `assets/css/style.css`, "Home: project track": `--card-gap` (space between cards, in px;
-  one value for phones, one from 768px), `--card-base` (the middle card's width up to a
+- `assets/css/style.css`, "Home: project track": `--card-gap` (space between cards: `--media-gap`,
+  12px, as between images on every page), `--card-base` (the middle card's width up to a
   900px-tall window, 400px), `--card-w`, `--peek`, `--room-top` (over the middle card: 64px from
   the header's text, like Work's filter and Archive's title, on any screen), `--room-spare` (under
   it on a taller window, where the card grows to keep this), `--room-bottom` (the least under it,
@@ -291,7 +293,7 @@ right edge. Neither wraps: a long title is cut short with "…" first, and a typ
 of the tile is cut too, so every image starts on the same line. Under 500px the toggle runs the width of the page, and if it still doesn't fit, it scrolls
 sideways. Without JavaScript there's no toggle and the grid shows everything. To tune it:
 - `assets/js/main.js`, the Work section: `FADE_OUT` / `FADE_IN`.
-- `assets/css/style.css`, "Work": `--tile-col-gap` (between columns: 12px), `--tile-row-gap`
+- `assets/css/style.css`, "Work": `--tile-col-gap` (between columns: 12px, `--media-gap`), `--tile-row-gap`
   (between rows: 24px, 32px from 1024px), `--caption-gap` (caption to image: 16px, `--space-1`); the
   image's shape is `aspect-ratio` on `.work-media`.
 - The side margins: `--gutter` at the top of `assets/css/style.css` (see Spacing).

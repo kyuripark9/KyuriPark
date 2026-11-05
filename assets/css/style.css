@@ -62,7 +62,9 @@
   --col-gap: var(--step-3);       /* between columns */
   --section-gap: var(--step-8);   /* between page sections */
   --block-gap: var(--step-5);     /* between blocks inside a section */
-  --media-gap: var(--step-2);     /* between images that follow each other */
+  --media-gap: 12px;              /* between images, side by side or one under another, on
+                                     every page and screen: Work, Archive, Home, project
+                                     pages, the lightbox */
 
   --fade: 200ms ease;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -75,7 +77,6 @@
     --col-gap: var(--step-4);
     --section-gap: var(--step-12);
     --block-gap: var(--step-8);
-    --media-gap: var(--step-3);
   }
 }
 
@@ -425,14 +426,16 @@ mark.placeholder {
 
 /* With JavaScript, Home fills the screen and doesn't scroll. The cards sit on a loop
    that track.js turns; these rules size them and set where they start.
-   Sizes match the example (focuscarouselpro.framer.website) from 768px; the card's top sits
-   64px under the header's text, as Work's filter and Archive's title do, on any screen.
+   Sizes match the example (focuscarouselpro.framer.website) from 768px, all but the gap
+   between cards, which is the site's gap between images; the card's top sits 64px under the
+   header's text, as Work's filter and Archive's title do, on any screen.
      --card-w        the middle card's width: --card-base (400px, so 533px tall at 3:4) up
                      to a 900px-tall window, larger on taller ones, so the space under the
                      card stays the same; smaller when the window is too short for it;
                      nearly full width on phones (--peek is how much of each neighbor
                      shows there)
-     --card-gap      space between cards as drawn, whatever their size
+     --card-gap      space between cards as drawn, whatever their size: --media-gap, as
+                     between images on every page
      --room-top      over the middle card, under the header
      --room-spare    under the middle card on a tall window (its caption and the link to Work
                      go in here)
@@ -464,7 +467,7 @@ mark.placeholder {
 }
 
 .js .track {
-  --card-gap: var(--step-2);
+  --card-gap: var(--media-gap);
   --peek: var(--step-2);
   --card-base: 400px;
   --room-top: var(--header-gap);
@@ -550,12 +553,6 @@ mark.placeholder {
   right: 0;
   width: max(var(--card-w), min(240px, 100cqw - 2 * var(--gutter)));
   margin: var(--space-1) auto 0;
-}
-
-@media (min-width: 768px) {
-  .js .track {
-    --card-gap: 22px;
-  }
 }
 
 /* The way to the rest of the work: at the foot of the screen, or after the list without
@@ -652,7 +649,7 @@ mark.placeholder {
    its count after it, smaller. main.js shows one filter at a time on the one grid; without
    JavaScript there's no toggle and the grid shows everything. */
 .page-work {
-  --tile-col-gap: 12px;          /* between columns */
+  --tile-col-gap: var(--media-gap); /* between columns: 12px, as between images everywhere */
   --tile-row-gap: var(--step-3); /* between rows: 24px, 32px from 1024px */
   --caption-gap: var(--space-1); /* a tile's caption to its image: 16px */
 }
@@ -855,10 +852,10 @@ mark.placeholder {
 /* Archive --------------------------------------------------------------- */
 
 /* Smaller and closer together than Work: whole images in their own shapes with nothing under
-   them, 16px apart across and down. 2 columns on phones, 3 from 768px, 4 from 1024px
-   (ARCHIVE_COLUMNS in build.py too). Columns fill from top to bottom, so the file's order runs
-   down the first, then the second. The caption and date only show in the lightbox; without
-   JavaScript, they show 8px under the image instead. */
+   them, 12px apart across and down (--media-gap, as on Work and every other page). 2 columns
+   on phones, 3 from 768px, 4 from 1024px (ARCHIVE_COLUMNS in build.py too). Columns fill from
+   top to bottom, so the file's order runs down the first, then the second. The caption and
+   date only show in the lightbox; without JavaScript, they show 8px under the image instead. */
 .archive-title {
   margin-top: var(--header-gap);
   margin-bottom: var(--space-2);
@@ -866,7 +863,7 @@ mark.placeholder {
 
 .archive-grid {
   columns: 2;
-  column-gap: var(--space-1);
+  column-gap: var(--media-gap);
 }
 
 @media (min-width: 768px) {
@@ -883,7 +880,7 @@ mark.placeholder {
 
 .archive-item {
   break-inside: avoid;
-  padding-bottom: var(--space-1);
+  padding-bottom: var(--media-gap);
 }
 
 .archive-tile {

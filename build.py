@@ -510,7 +510,6 @@ class Builder:
             head_meta=self.head_meta(path, title, description, image, noindex),
             css_version=file_version("assets/css/style.css"),
             js_version=file_version("assets/js/main.js"),
-            signature_version=file_version("assets/images/signature.png"),
             site_name=esc(s["name"]),
             nav_work={"work": ' aria-current="page"', "project": ' aria-current="true"'}.get(current, ""),
             nav_archive=' aria-current="page"' if current == "archive" else "",

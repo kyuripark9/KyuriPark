@@ -57,8 +57,6 @@
   --gutter: var(--step-2);        /* page side padding, the header's too: 16, 24, 32px */
   --header-pad: var(--step-2);    /* over and under the header's text: 16px, 24px from 768px
                                      (until 2026-11-05: 24 and 32px) */
-  --signature-h: 1.875rem;         /* the signature in the header, top of the image to the
-                                     end of the P: 30px. Its width follows (2.14 x). */
   /* Where every page starts: the header's box to the page's first thing (Home's middle card,
      Work's filter, About's portrait, Archive's images, a project's title), the same on every
      page so nothing jumps when you switch. 64px from the header's text, what the eye measures:
@@ -262,6 +260,7 @@ button {
   font-weight: 500;
 }
 
+.identity,
 .footer-links a,
 .text-body a,
 .text-link,
@@ -272,6 +271,7 @@ button {
   transition: color var(--fade);
 }
 
+.identity:hover,
 .footer-links a:hover,
 .text-body a:hover,
 .text-link:hover,
@@ -311,36 +311,20 @@ mark.placeholder {
   z-index: 20;
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: baseline;
   gap: 0 var(--step-1);
   padding-block: var(--header-pad);
-  font-size: var(--size-nav);  /* the signature's line box follows (1.5em) */
+  font-size: var(--size-nav);  /* 14px, the name and the links */
   view-transition-name: site-header;
 }
 
-/* The signature (assets/images/signature.png, from the About Me folder) in a box one text line
-   tall, so the header keeps its height and every page still starts on the same line. The
-   letters sit level with Work, Archive, and About; the y and the P hang below the line, into
-   the header's padding, without pushing anything down. Size: --signature-h at the top. */
+/* "KYURI PARK" (the name in content/site.json, in capitals here only, as Work's filter is), in
+   Inter at the links' size, a weight up from them. On hover it steps back to the muted gray. */
 .identity {
   flex: none;
-  display: block;
-  height: 1.5em;
-}
-
-.signature {
-  transition: opacity var(--fade);
-  position: relative;
-  top: calc(0.75em - 0.36 * var(--signature-h));  /* the letters' middle (36% down the image)
-                                                     on the middle of the text line */
-  width: auto;
-  height: var(--signature-h);
-  max-width: none;
-}
-
-.identity:hover .signature,
-.identity:focus-visible .signature {
-  opacity: 0.6;
+  font-weight: 500;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .site-nav {

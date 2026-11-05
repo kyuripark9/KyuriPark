@@ -242,6 +242,12 @@ every page. The current page's link is in the text color and the others are mute
 larger text in their browser or phone and it still doesn't fit, the links move to a second line, at
 the right.
 
+The header is sticky: it stays at the top of the window while the page scrolls, with no
+background, so the page scrolls under the name and links (`.site-header` in
+`assets/css/style.css`). `/about/#contact` lands the section under the header, where a page's
+first thing starts. About's "Scroll down" lands the portrait a little higher, so the link itself
+is out of sight above the window instead of showing through the header.
+
 `<body data-page="…">` names the kind of page (`home`, `work`, `project`, `archive`, `about`,
 `404`), for CSS that applies to one page only, like About's footer.
 

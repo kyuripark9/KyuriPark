@@ -83,6 +83,10 @@
   --header-top: 12px;             /* over the header's text: 12px, 16px from 768px (until
                                      2026-11-05: 24/32px, then 16/24px over and under) */
   --header-pad: var(--step-2);    /* under the header's text: 16px, 24px from 768px */
+  /* The header's box on one line (the name and links' line between the two above): what the
+     sticky header takes up at the window's top, and what About's first screen leaves for it. If
+     larger browser text pushes the links to a second line, the box is a line taller. */
+  --header-h: calc(var(--header-top) + var(--leading-text) * var(--size-small) + var(--header-pad));
   /* Where every page starts: the header's box to the page's first thing (Home's middle card,
      Work's filter, About's portrait, Archive's images, a project's title), the same on every
      page so nothing jumps when you switch. --space-3 from the header's text, what the eye
@@ -154,9 +158,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* The header is in the page's flow (not fixed or sticky), so main already starts right under
-   it and only needs the gap: no header height in here, or it would count twice. Nothing inside
-   main adds space over its first thing. */
+/* The header is sticky, not fixed, so it keeps its place in the page's flow: main already
+   starts right under it and only needs the gap: no header height in here, or it would count
+   twice. Nothing inside main adds space over its first thing. */
 main {
   flex: 1;
   padding-top: var(--page-top);
@@ -384,9 +388,13 @@ mark.placeholder {
 /* The name at the left, the three links (WORK, ARCHIVE, ABOUT) at the right, on one line at
    every width, down to 320px. On a phone the links close up. If they still don't fit (larger
    text set in the browser or the phone), the links move to a second line, at the right,
-   instead of running into the name. */
+   instead of running into the name.
+   It stays at the window's top while the page scrolls (since 2026-11-05), with no background
+   of its own: the page scrolls under the name and links, which stay on top. Home doesn't
+   scroll, so there it just sits where it is. */
 .site-header {
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 20;
   display: flex;
   flex-wrap: wrap;
@@ -1264,10 +1272,9 @@ mark.placeholder {
    start under the fold. The hero takes back main's --page-top and runs from the header to the
    window's bottom edge; the extra header height at its foot puts the sentence's middle on the
    window's middle, not on the space under the header. --header-h is the header's box on one
-   line: if larger browser text pushes its links to a second line, the sentence just sits a
-   little low. */
+   line (at the top): if larger browser text pushes its links to a second line, the sentence
+   just sits a little low. */
 .about-hero {
-  --header-h: calc(var(--header-top) + var(--leading-text) * var(--size-small) + var(--header-pad));
   --hero-pad: var(--step-6);  /* keeps the sentence clear of the header and the scroll link */
   position: relative;
   display: grid;
@@ -1309,10 +1316,11 @@ mark.placeholder {
   translate: -50% 0;
 }
 
-/* "Scroll down" lands the portrait --space-3 from the window's top, so the hero's link is
-   just out of sight above it. */
+/* "Scroll down" lands the portrait --space-3 plus --header-top from the window's top, so the
+   hero's link (--header-top over the hero's foot) is just out of sight above. The header has
+   no background, so the link would show through it if it landed any lower. */
 #intro {
-  scroll-margin-top: var(--space-3);
+  scroll-margin-top: calc(var(--space-3) + var(--header-top));
 }
 
 /* Portrait and text, laid out like Experience and Contact under them: the portrait where their
@@ -1429,11 +1437,11 @@ mark.placeholder {
   margin-top: var(--step-1);
 }
 
-/* /about/#contact (and /contact/, which sends visitors there) lands with --space-3 over the
-   section, the same as from the header's text to a page's title. The header scrolls away
-   with the page, so it can't cover the section either way. */
+/* /about/#contact (and /contact/, which sends visitors there) lands the section under the
+   sticky header where a page's title starts (--page-top under the header's box), so the
+   header doesn't cover it. */
 #contact {
-  scroll-margin-top: var(--space-3);
+  scroll-margin-top: calc(var(--header-h) + var(--page-top));
 }
 
 /* 404 ------------------------------------------------------------------- */

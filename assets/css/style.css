@@ -28,7 +28,7 @@
 
   /* Type. Every size on the site is one of these; no rule sets its own.
        --size-display  About's first sentence only
-       --size-title    project titles and statements, About's first paragraph, the 404
+       --size-title    project titles and statements, the 404
        --size-body     body text, Work's titles, section headings
        --size-small    the header (name and links), Home's one-liner, the intro's line
        --size-label    labels: captions, the footer, project facts, Work's filters,
@@ -254,12 +254,12 @@ button {
 
 /* Shared text styles ------------------------------------------------------ */
 
-/* Titles: --size-title at 500, tight. Project statements and About's first paragraph are the
-   same size at 400. (A project page's Previous / Next titles join them from 768px.) */
+/* Titles: --size-title at 500, tight. Project statements are the same size at 400. (A project
+   page's Previous / Next titles join them from 768px. Until 2026-11-05, About's first
+   paragraph was a title too.) */
 .project-title,
 .project-statement,
 .impact-value,
-.about-text .lead,
 .not-found-title {
   font-size: var(--size-title);
   line-height: var(--leading-title);
@@ -267,8 +267,7 @@ button {
   font-weight: 500;
 }
 
-.project-statement,
-.about-text .lead {
+.project-statement {
   font-weight: 400;
 }
 
@@ -1316,9 +1315,24 @@ mark.placeholder {
   scroll-margin-top: var(--space-3);
 }
 
+/* Portrait and text, laid out like Experience and Contact under them: the portrait where their
+   headings are, the text in the right-hand column, all of it body text. (Until 2026-11-05 the
+   portrait filled the left half and the first paragraph was a title.) */
 .about-intro {
   display: grid;
   gap: var(--step-4);
+}
+
+/* 4:5. On phones as wide as the text, like Work's images there (up to 400px wide, for phones
+   on their side); from 768px, 320 x 400, as tall as Work's images (--tile-h). */
+.about-portrait {
+  max-width: 25rem;
+}
+
+@media (min-width: 768px) {
+  .about-portrait {
+    max-width: 20rem;
+  }
 }
 
 .about-portrait img {
@@ -1332,10 +1346,6 @@ mark.placeholder {
 
 .about-text > * + * {
   margin-top: var(--step-2);
-}
-
-.about-text .lead + * {
-  margin-top: var(--step-4);
 }
 
 .split-section {
@@ -1356,11 +1366,11 @@ mark.placeholder {
     grid-column: 2;
   }
 
-  /* Side by side, the first paragraph's capitals start on the portrait's top edge. A line's
-     box starts above its letters (Inter's capitals sit 0.21em under the top of a 1.15 line),
-     so the paragraph moves up by that much. */
-  .about-text .lead {
-    margin-top: -0.21em;
+  /* Side by side, the text's first capitals start on the portrait's top edge. A line's box
+     starts above its letters (Inter's capitals sit 0.39em under the top of a 1.5 line), so
+     the text moves up by that much. */
+  .about-text {
+    margin-top: -0.39em;
   }
 }
 

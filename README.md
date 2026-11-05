@@ -253,8 +253,8 @@ Every size, line height, and color on the site is a token at the top of
 | Token | Size | Used for |
 | --- | --- | --- |
 | `--size-display` | 32px on phones, 64px from 1440px | About's first sentence |
-| `--size-title` | 28px on phones, up to 48px | project titles and statements, About's first paragraph, the 404 |
-| `--size-body` | 16px | body text, Work's titles, section headings |
+| `--size-title` | 28px on phones, up to 48px | project titles and statements, the 404 |
+| `--size-body` | 16px | body text (About's text too), Work's titles, section headings |
 | `--size-small` | 14px | the header, Home's one-liner, the intro's line |
 | `--size-label` | 12px | captions, the footer, project facts, Work's filters, About's "[ Scroll down ]" |
 | `--size-tiny` | 10px | Work's counts |

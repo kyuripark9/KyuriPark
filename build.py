@@ -962,9 +962,8 @@ class Builder:
                                   "assets/images/about"),
                        portrait.get("alt"), "portrait", s["name"], "high")
         paragraphs = []
-        for i, text in enumerate(about.get("paragraphs") or []):
-            cls = ' class="lead"' if i == 0 else ""
-            paragraphs.append(f"        <p{cls}>{inline(text)}</p>")
+        for text in about.get("paragraphs") or []:
+            paragraphs.append(f"        <p>{inline(text)}</p>")
         experience = []
         for row in about.get("experience") or []:
             experience.append(

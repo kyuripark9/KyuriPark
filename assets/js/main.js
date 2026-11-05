@@ -72,12 +72,19 @@
       };
     };
 
+    // Filters that were merged into another: an old link to one opens the one it's part of now,
+    // and the address is set to say so.
+    const MERGED = { visual: "brand" };
     // The filter the address names. No hash or an unknown one means All, and the address is
     // set to say so. A hash for a spot on the page (the skip link's #main) isn't a
     // filter at all: null, and the grid stays as it is.
     const addressFilter = () => {
       const hash = location.hash.slice(1);
       if (filters.includes(hash)) return hash;
+      if (filters.includes(MERGED[hash])) {
+        history.replaceState(history.state, "", `#${MERGED[hash]}`);
+        return MERGED[hash];
+      }
       if (document.getElementById(hash)) return null;
       history.replaceState(history.state, "", "#all");
       return "all";

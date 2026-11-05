@@ -22,7 +22,7 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 | Address | What it is |
 | --- | --- |
 | `/` | Home: one card per featured project on an endless loop, filling the screen, and "View all work" under it. Home answers "what matters most" |
-| `/work/` | Work: everything. "All 11   Digital 08   Physical 02   Brand 03   Visual 03" at the top filters one grid of tiles (`/work/#all`, `#digital`, `#physical`, `#brand`, `#visual`). Work answers "what kind" |
+| `/work/` | Work: everything. "All 11   Digital 08   Brand 05   Physical 02" at the top filters one grid of tiles (`/work/#all`, `#digital`, `#brand`, `#physical`; an old `#visual` link opens `#brand`). Work answers "what kind" |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html` |
 | `/archive/` | Archive: personal work and hobbies, a gallery of images with nothing under them. A separate page with its own data |
 | `/about/` | Portrait, About text, experience, and Contact (`/about/#contact`) |
@@ -76,7 +76,7 @@ dist/                   the generated site. Never edit; it's rebuilt every time.
 | Field | Where it shows |
 | --- | --- |
 | `order` | Required. A number; lower shows first. Work shows its cards in this order, within each filter |
-| `category` | Required. A list of the Work filters it shows under, one or more of `"digital"`, `"physical"`, `"brand"`, `"visual"`, like `["digital", "visual"]`. It counts under each, and once under All |
+| `category` | Required. A list of the Work filters it shows under, one or more of `"digital"`, `"brand"`, `"physical"`, like `["digital", "brand"]`. It counts under each, and once under All |
 | `featured` | Optional. `true` puts it on Home (aim for 3 to 5). Leave it out or set `false` and it's on Work only. Needs a `slug`, because a Home card opens the project's page |
 | `title` | Everywhere |
 | `oneLiner` | Under the home loop when that project is in the middle (8 words max) |
@@ -139,7 +139,7 @@ items of this kind that the filter is showing). Its images go in `assets/images/
 ```json
 {
   "order": 7,
-  "category": ["visual", "brand"],
+  "category": ["brand"],
   "title": "Editorial Projects",
   "type": "Editorial",
   "year": "2025",
@@ -288,12 +288,12 @@ To tune it:
   `--fade-step` (each further step multiplies the opacity by this), `--blur-step` (and adds
   this much blur).
 
-Work: All, Digital, Physical, Brand, and Visual at the top, each with its count, filter the grid:
+Work: All, Digital, Brand, and Physical at the top, each with its count, filter the grid:
 the tiles fade out (150 ms), the filter's tiles come on, and they fade in
 (250 ms); with reduced motion it just switches. A filter with nothing in it says "Coming soon".
 The address shows `#all`, `#digital`, and so on, so a link opens that filter, Back and Forward step
 through the ones picked, and Back from a project page returns to the same one; no hash or an
-unknown one means All. Each filter is a button, and Tab goes from one to the next. The grid is 1
+unknown one means All, and `#visual` (a filter that's now part of Brand) opens Brand. Each filter is a button, and Tab goes from one to the next. The grid is 1
 column on phones, 2 from 768px, 3 from 1024px, each tile a 3:4 image. Each tile's caption is one
 line over its image: the title at the left, the type (14px, at 0.6 opacity) ending on the image's
 right edge. Neither wraps: a long title is cut short with "…" first, and a type longer than 60%
@@ -304,7 +304,9 @@ sideways. Without JavaScript there's no toggle and the grid shows everything. To
   (between rows: 24px, 32px from 1024px), `--caption-gap` (caption to image: 16px, `--space-1`); the
   image's shape is `aspect-ratio` on `.work-media`.
 - The side margins: `--gutter` at the top of `assets/css/style.css` (see Spacing).
-- The filters themselves: `CATEGORIES` at the top of `build.py`.
+- The filters themselves: `CATEGORIES` at the top of `build.py` (their order on the toggle, and
+  the values `category` can use). When one is merged into another or renamed, add the old name to
+  `MERGED` in `assets/js/main.js`, so links to it still open the right filter.
 
 Home intro: the first time Home opens in a browser tab, the screen is black, with the name and
 role in capitals in the middle and the projects' covers taking turns in the bottom-right corner.

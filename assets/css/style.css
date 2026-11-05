@@ -58,7 +58,11 @@
   --page-max: 1600px;             /* widest the page runs, the header included */
   --gutter: var(--step-2);        /* page side padding, the header's too: 16, 24, 32px */
   --header-pad: var(--step-3);    /* over and under the header's text */
-  --header-gap: calc(var(--space-3) - var(--header-pad));  /* the header's box to the filter or title */
+  /* Where every page starts: the header's box to the page's first thing (Home's middle card,
+     Work's filter, About's portrait, Archive's images, a project's title), the same on every
+     page so nothing jumps when you switch. 64px from the header's text, what the eye measures:
+     32px from 768px, 40px on phones. Change the 64px here (--space-3) or set a fixed value. */
+  --page-top: calc(var(--space-3) - var(--header-pad));
   --col-gap: var(--step-3);       /* between columns */
   --section-gap: var(--step-8);   /* between page sections */
   --block-gap: var(--step-5);     /* between blocks inside a section */
@@ -117,8 +121,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* The header is in the page's flow (not fixed or sticky), so main already starts right under
+   it and only needs the gap: no header height in here, or it would count twice. Nothing inside
+   main adds space over its first thing. */
 main {
   flex: 1;
+  padding-top: var(--page-top);
 }
 
 img,
@@ -224,7 +232,6 @@ button {
 .project-statement,
 .impact-value,
 .about-text .lead,
-.archive-title,
 .not-found-title {
   font-size: var(--size-title);
   line-height: 1.15;
@@ -428,8 +435,8 @@ mark.placeholder {
 /* With JavaScript, Home fills the screen and doesn't scroll. The cards sit on a loop
    that track.js turns; these rules size them and set where they start.
    Sizes match the example (focuscarouselpro.framer.website) from 768px, all but the gap
-   between cards, which is the site's gap between images; the card's top sits 64px under the
-   header's text, as Work's filter and Archive's title do, on any screen.
+   between cards, which is the site's gap between images; the card's top is the page's starting
+   line (main's --page-top), where Work's filter and About's portrait start too, on any screen.
      --card-w        the middle card's width: --card-base (400px, so 533px tall at 3:4) up
                      to a 900px-tall window, larger on taller ones, so the space under the
                      card stays the same; smaller when the window is too short for it;
@@ -437,7 +444,6 @@ mark.placeholder {
                      shows there)
      --card-gap      space between cards as drawn, whatever their size: --media-gap, as
                      between images on every page
-     --room-top      over the middle card, under the header
      --room-spare    under the middle card on a tall window (its caption and the link to Work
                      go in here)
      --room-bottom   the least kept free under the middle card: room for a caption of up to
@@ -471,13 +477,12 @@ mark.placeholder {
   --card-gap: var(--media-gap);
   --peek: var(--step-2);
   --card-base: 400px;
-  --room-top: var(--header-gap);
   --room-spare: 247px;
   --room-bottom: 136px;
-  --card-w: min(max(var(--card-base), (100cqh - var(--room-top) - var(--room-spare)) * 0.75),
-                (100cqh - var(--room-top) - var(--room-bottom)) * 0.75,
+  --card-w: min(max(var(--card-base), (100cqh - var(--room-spare)) * 0.75),
+                (100cqh - var(--room-bottom)) * 0.75,
                 100cqw - 2 * (var(--card-gap) + var(--peek)));
-  --card-y: calc(var(--room-top) + var(--card-w) * 2 / 3);  /* its center */
+  --card-y: calc(var(--card-w) * 2 / 3);  /* its center: its top on the stage's top edge */
   --scale-1: 0.52;
   --scale-2: 0.52;
   --opacity-1: 1;
@@ -646,7 +651,7 @@ mark.placeholder {
 
 /* Work ------------------------------------------------------------------ */
 
-/* All / Digital / Physical / Brand / Visual at the top, left on the page margin, each with
+/* All / Digital / Brand / Physical at the top, left on the page margin, each with
    its count after it, smaller. main.js shows one filter at a time on the one grid; without
    JavaScript there's no toggle and the grid shows everything. */
 .page-work {
@@ -670,7 +675,6 @@ mark.placeholder {
   display: flex;
   width: max-content;
   max-width: 100%;
-  margin-top: var(--header-gap);
   margin-bottom: var(--space-2);
   padding: 3px;
   overflow-x: auto;
@@ -681,7 +685,7 @@ mark.placeholder {
 
 /* The toggle is a gray pill with the names on it, and a white pill under the one showing that
    slides across when another is picked; main.js sets where it sits and how wide it is. On a
-   screen too narrow for all five, the names scroll sideways inside the gray pill. */
+   screen too narrow for all four, the names scroll sideways inside the gray pill. */
 .js .work-tabs::before {
   content: "";
   position: absolute;
@@ -856,12 +860,9 @@ mark.placeholder {
    them, 12px apart across and down (--media-gap, as on Work and every other page). 2 columns
    on phones, 3 from 768px, 4 from 1024px (ARCHIVE_COLUMNS in build.py too). Columns fill from
    top to bottom, so the file's order runs down the first, then the second. The caption and
-   date only show in the lightbox; without JavaScript, they show 8px under the image instead. */
-.archive-title {
-  margin-top: var(--header-gap);
-  margin-bottom: var(--space-2);
-}
-
+   date only show in the lightbox; without JavaScript, they show 8px under the image instead.
+   No title on the page (screen readers get a hidden "Archive" heading): the images start on
+   the page's starting line, where Work's filter does. */
 .archive-grid {
   columns: 2;
   column-gap: var(--media-gap);
@@ -1037,10 +1038,6 @@ mark.placeholder {
 }
 
 /* Project page ---------------------------------------------------------- */
-
-.project-header {
-  padding-top: var(--step-3);
-}
 
 .project-meta {
   display: grid;
@@ -1258,10 +1255,6 @@ mark.placeholder {
 
 /* About ----------------------------------------------------------------- */
 
-.page-about {
-  padding-top: var(--step-3);
-}
-
 .about-intro {
   display: grid;
   gap: var(--step-4);
@@ -1300,6 +1293,13 @@ mark.placeholder {
 
   .split-section > :not(h2) {
     grid-column: 2;
+  }
+
+  /* Side by side, the first paragraph's capitals start on the portrait's top edge. A line's
+     box starts above its letters (Inter's capitals sit 0.21em under the top of a 1.15 line),
+     so the paragraph moves up by that much. */
+  .about-text .lead {
+    margin-top: -0.21em;
   }
 }
 
@@ -1363,10 +1363,6 @@ mark.placeholder {
 }
 
 /* 404 ------------------------------------------------------------------- */
-
-.page-not-found {
-  padding-top: var(--step-8);
-}
 
 .not-found-title {
   margin-bottom: var(--step-2);

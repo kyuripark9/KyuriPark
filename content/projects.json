@@ -1,7 +1,7 @@
 [
   {
     "order": 1,
-    "category": ["digital", "visual"],
+    "category": ["digital", "brand"],
     "featured": true,
     "slug": "typelab",
     "title": "TypeLab",
@@ -206,7 +206,7 @@
   },
   {
     "order": 3,
-    "category": ["digital", "visual"],
+    "category": ["digital", "brand"],
     "featured": true,
     "slug": "nbcuniversal",
     "title": "NBCUniversal",
@@ -517,7 +517,7 @@
   },
   {
     "order": 7,
-    "category": ["visual", "brand"],
+    "category": ["brand"],
     "title": "Editorial Projects",
     "type": "[PLACEHOLDER type]",
     "year": "[PLACEHOLDER year]",

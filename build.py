@@ -55,7 +55,7 @@ OG_IMAGE_EXTS = (".jpg", ".jpeg", ".png")
 WORDMARK_FONT = "assets/fonts/wordmark.woff2"  # optional; the header name uses it once it exists
 MAX_ONE_LINER_WORDS = 8
 MIN_FEATURED, MAX_FEATURED = 3, 5  # how many projects Home should show
-CATEGORIES = ("digital", "physical", "brand", "visual")  # Work's filters, in toggle order after All
+CATEGORIES = ("digital", "brand", "physical")  # Work's filters, in toggle order after All
 LOADING_ATTRS = {"lazy": 'loading="lazy"', "eager": "", "high": 'fetchpriority="high"'}
 # Old addresses that now live elsewhere: /contact/ was a menu item and is now a section of About.
 # Each becomes <old>/index.html, which sends the visitor on (build_redirects).
@@ -355,7 +355,7 @@ def validate(site, items):
         if (not isinstance(category, list) or not category
                 or any(c not in CATEGORIES for c in category)):
             raise BuildError(f'{where}: "category" should list one or more of {allowed}, '
-                             'like ["digital", "visual"].')
+                             'like ["digital", "brand"].')
         if not isinstance(p.get("featured", False), bool):
             raise BuildError(f'{where}: "featured" should be true or false.')
         order = p.get("order")
@@ -859,7 +859,7 @@ class Builder:
         return f"<template>{large}</template>"
 
     def build_work(self):
-        """One grid of tiles under the All / Digital / Physical / Brand / Visual toggle (main.js
+        """One grid of tiles under the All / Digital / Brand / Physical toggle (main.js
         shows one filter at a time). Without JavaScript, there's no toggle and it shows them all."""
         s = self.site
         tabs = "\n".join(self.work_tab(name) for name in ("all", *CATEGORIES))

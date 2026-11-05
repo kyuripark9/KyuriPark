@@ -791,28 +791,29 @@ class Builder:
         return ""
 
     def work_card(self, p, index):
-        """'TypeLab' at the left and its type at the right, on one line over a 3:4 image, for one
-        item; main.js filters the tiles on data-categories. A project's tile links to its page,
-        and if the cover has a video next to it, main.js plays it while the tile is hovered. An
-        item with no page has 'Type · Year' instead, and its tile opens the lightbox."""
+        """'TypeLab' on one line under a 3:4 image, for one item; main.js filters the tiles on
+        data-categories. A project's tile links to its page, and if the cover has a video next
+        to it, main.js plays it while the tile is hovered. An item with no page opens the
+        lightbox, which shows its 'Type · Year' from a hidden span in the tile."""
         loading = "eager" if index < 3 else "lazy"
         if "slug" in p:
             rel, video = self.cover(p)
             img = self.tile_image(rel, "cover", p["title"], loading)
             data = f' data-video="{url_for(video)}"' if video else ""
             tag, attrs = "a", f'href="/work/{p["slug"]}/"'
-            text, extra = inline(p.get("type") or ""), ""
+            meta, extra = "", ""
         else:
             rel = media_path(p["images"][0], PIECE_FOLDER)
             img = self.tile_image(rel, "piece", p["title"], loading)
             data = ""
             tag, attrs = "button", 'type="button" data-item aria-haspopup="dialog"'
-            text, extra = self.piece_meta(p), f'            {self.piece_images(p)}\n'
+            meta = f'<span hidden data-lightbox-meta>{self.piece_meta(p)}</span>'
+            extra = f'            {self.piece_images(p)}\n'
         return (f'          <li data-categories="{" ".join(p["category"])}">\n'
                 f'            <{tag} class="work-card" {attrs}>\n'
                 f'              <span class="work-caption">'
-                f'<span class="work-name" data-lightbox-name>{inline(p["title"])}</span> '
-                f'<span class="work-type" data-lightbox-meta>{text}</span></span>\n'
+                f'<span class="work-name" data-lightbox-name>{inline(p["title"])}</span>'
+                f'{meta}</span>\n'
                 f'              <span class="work-media"{data}>{img}</span>\n'
                 f'            </{tag}>\n'
                 f'{extra}'

@@ -758,38 +758,21 @@ mark.placeholder {
   text-align: left;
 }
 
-/* One line under the image (it comes first in the page, for screen readers): the title at the
-   left, the type ending on the image's right edge. Neither wraps and the line's height is fixed,
-   so every tile is the same height. A long title is cut short with "…" first; the type keeps its
-   words up to 60% of the tile, then it's cut too. */
+/* The title on one line under the image (it comes first in the page, for screen readers). It
+   doesn't wrap and the line's height is fixed, so every tile is the same height; a long title
+   is cut short with "…". */
 .work-caption {
   order: 1;
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: var(--step-2);
   height: 1.5rem;  /* one line of the 16px title */
-}
-
-.work-name,
-.work-type {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .work-name {
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-weight: 500;
-}
-
-/* A step under the title, and a step back (0.6 keeps it at 4.5:1 on the background). */
-.work-type {
-  flex: none;
-  max-width: 60%;
-  font-size: 0.875rem;  /* 14px, as the one-liner on Home */
-  text-align: right;
-  opacity: 0.6;
 }
 
 /* The image fills a frame as wide as the column and --tile-h tall (a plain gray block until it

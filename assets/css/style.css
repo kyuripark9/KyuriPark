@@ -51,16 +51,19 @@
      24px; those are --step-1, --step-2, and --step-3 now, so an older snippet needs updating. */
   --space-1: 16px;
   --space-2: 32px;
-  --space-3: 64px;
+  --space-3: var(--step-12);      /* 96px, 128px from 768px (until 2026-11-05: 64px everywhere,
+                                     then 80 and 96px the same day) */
 
   --page-max: 1600px;             /* widest the page runs, the header included */
   --gutter: var(--step-2);        /* page side padding, the header's too: 16, 24, 32px */
-  --header-pad: var(--step-2);    /* over and under the header's text: 16px, 24px from 768px
-                                     (until 2026-11-05: 24 and 32px) */
+  --header-top: 12px;             /* over the header's text: 12px, 16px from 768px (until
+                                     2026-11-05: 24/32px, then 16/24px over and under) */
+  --header-pad: var(--step-2);    /* under the header's text: 16px, 24px from 768px */
   /* Where every page starts: the header's box to the page's first thing (Home's middle card,
      Work's filter, About's portrait, Archive's images, a project's title), the same on every
-     page so nothing jumps when you switch. 64px from the header's text, what the eye measures:
-     40px from 768px, 48px on phones. Change the 64px here (--space-3) or set a fixed value. */
+     page so nothing jumps when you switch. --space-3 from the header's text, what the eye
+     measures (96px on phones, 128px from 768px): 80px under the header's box on phones, 104px
+     from 768px. Change --space-3 or set a fixed value. */
   --page-top: calc(var(--space-3) - var(--header-pad));
   --col-gap: var(--step-3);       /* between columns */
   --section-gap: var(--step-8);   /* between page sections */
@@ -76,6 +79,8 @@
 @media (min-width: 768px) {
   :root {
     --gutter: var(--step-3);
+    --space-3: var(--step-16);
+    --header-top: var(--step-2);
     --header-pad: var(--step-3);
     --col-gap: var(--step-4);
     --section-gap: var(--step-12);
@@ -313,7 +318,8 @@ mark.placeholder {
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0 var(--step-1);
-  padding-block: var(--header-pad);
+  padding-top: var(--header-top);
+  padding-bottom: var(--header-pad);
   font-size: var(--size-nav);  /* 14px, the name and the links */
   view-transition-name: site-header;
 }
@@ -1355,7 +1361,7 @@ mark.placeholder {
   margin-top: var(--step-1);
 }
 
-/* /about/#contact (and /contact/, which sends visitors there) lands with 64px over the
+/* /about/#contact (and /contact/, which sends visitors there) lands with --space-3 over the
    section, the same as from the header's text to a page's title. The header scrolls away
    with the page, so it can't cover the section either way. */
 #contact {

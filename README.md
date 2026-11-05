@@ -25,7 +25,7 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 | `/work/` | Work: everything. "All 11   Digital 08   Brand 05   Physical 02" at the top filters one grid of tiles (`/work/#all`, `#digital`, `#brand`, `#physical`; an old `#visual` link opens `#brand`). Work answers "what kind" |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html` |
 | `/archive/` | Archive: personal work and hobbies, a gallery of images with nothing under them. A separate page with its own data |
-| `/about/` | Portrait, About text, experience, and Contact (`/about/#contact`) |
+| `/about/` | First screen: one sentence alone in the middle of the window, "[ Scroll down ]" at its foot. Under it: portrait, About text, experience, and Contact (`/about/#contact`) |
 | `/contact/` | Not a page: it sends visitors straight on to `/about/#contact` (old links keep working) |
 
 Contact is a section of About, not a menu item. The same links (email, LinkedIn, GitHub, Resume)
@@ -40,7 +40,8 @@ there changes both.
 content/projects.json   everything on Work: projects (order, category, featured, title, one-liner,
                         year, page blocks) and items with no page (see "Items with no page" below)
 content/archive.json    the images on Archive (see "Archive" below)
-content/site.json       name, email, LinkedIn, GitHub, resume, About text, experience, SEO text
+content/site.json       name, email, LinkedIn, GitHub, resume, About's first sentence ("headline"),
+                        About text, experience, SEO text
 assets/images/<slug>/   images and videos for each project
 assets/images/about/    About portrait
 assets/images/pieces/   images of the items with no page
@@ -223,6 +224,13 @@ image. Keep it short (3–8 s), silent, H.264, and under ~3 MB.
 Otherwise, and for the other pages, it uses `assets/images/og.png`.
 
 **Resume:** replace `assets/Kyuri-Park-Resume.pdf`, keeping the same name.
+
+**About's first sentence:** `"headline"` under `"about"` in `content/site.json`. Each string in
+the list is one line from 768px up (on phones they run together and wrap evenly); type it in
+capitals or not, it shows in capitals either way. It's Inter 500, line-height 1, -0.04em, 64px from
+1440px down to 32px on phones (`--size-display` and `.about-headline` in
+`assets/css/style.css`), centered in the window. Delete `"headline"` and About opens on the
+portrait again, as before.
 
 ## Header
 

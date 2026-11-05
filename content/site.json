@@ -16,6 +16,11 @@
   "copyright": "© 2026 Kyuri Park",
 
   "about": {
+    "headline": [
+      "KYURI IS A PRODUCT DESIGNER",
+      "WORKING ACROSS DIGITAL, UX",
+      "AND BRAND IDENTITY"
+    ],
     "portrait": {
       "src": "assets/images/about/portrait.webp",
       "alt": "[PLACEHOLDER] Portrait of Kyuri Park"

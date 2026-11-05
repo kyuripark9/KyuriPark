@@ -929,6 +929,27 @@ class Builder:
                   f"{p['oneLiner']}. A project by {s['name']}, {s['role']}.",
                   content, "page-project", current="project", image=self.og_image(p))
 
+    def about_hero(self, about):
+        """About's first screen: the headline alone in the middle of the window, and a
+        '[ Scroll down ]' link at its foot to the portrait and text under it. Each string in
+        "headline" is one line from 768px (on phones they run on as one sentence); a plain
+        string is one line that wraps. No headline, no first screen."""
+        lines = about.get("headline") or []
+        if isinstance(lines, str):
+            lines = [lines]
+        if not isinstance(lines, list) or not all(isinstance(t, str) for t in lines):
+            raise BuildError('content/site.json (about): "headline" should be a sentence, or a '
+                             'list of its lines, like ["FIRST LINE", "SECOND LINE"].')
+        lines = [t.strip() for t in lines if t.strip()]
+        if not lines:
+            return ""
+        spans = " ".join(f'<span class="about-headline-line">{inline(t)}</span>' for t in lines)
+        return ('    <div class="about-hero">\n'
+                f'      <p class="about-headline">{spans}</p>\n'
+                '      <a class="about-scroll" href="#intro"><span aria-hidden="true">[ </span>'
+                'Scroll down<span aria-hidden="true"> ]</span></a>\n'
+                '    </div>\n')
+
     def build_about(self):
         s = self.site
         about = s["about"]
@@ -948,7 +969,8 @@ class Builder:
                 f'<span class="experience-role">{inline(row.get("role", ""))}</span>'
                 f'<span class="experience-dates">{inline(row.get("dates", ""))}</span>'
                 '</li>')
-        content = render("about.html", portrait="        " + img,
+        content = render("about.html", hero=self.about_hero(about),
+                         portrait="        " + img,
                          paragraphs="\n".join(paragraphs), experience="\n".join(experience),
                          contact_links=self.contact_links("        "))
         self.page("about/index.html", "about", "/about/", f"About — {s['name']}",

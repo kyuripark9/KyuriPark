@@ -307,7 +307,7 @@ mark.placeholder {
 
 /* Header ---------------------------------------------------------------- */
 
-/* The name at the left, the three links (Work, Archive, About) at the right, on one line at
+/* The name at the left, the three links (WORK, ARCHIVE, ABOUT) at the right, on one line at
    every width, down to 320px. On a phone the links close up. If they still don't fit (larger
    text set in the browser or the phone), the links move to a second line, at the right,
    instead of running into the name. */
@@ -337,10 +337,13 @@ mark.placeholder {
   margin-left: auto;
 }
 
+/* WORK, ARCHIVE, ABOUT: in capitals, as the name is (in capitals here only; templates spell
+   them Work, Archive, About). */
 .site-menu {
   display: flex;
   flex-wrap: wrap;
   gap: 0 min(3vw, var(--step-3));
+  text-transform: uppercase;
 }
 
 /* The current page at full strength, the others a step back (0.6 keeps them at 4.5:1 on the

@@ -864,12 +864,12 @@ class Builder:
                   content, "wrap page-work", current="work", image=self.og_image())
 
     def archive_tile(self, item, box, loading):
-        """An image on Archive with only its number under it, linking to the image itself.
-        main.js opens the lightbox instead, with a copy of the image and the caption and date
-        from the text under the tile, which it hides; without JavaScript, the link opens the
-        image and the caption and date show under the number. Until the file exists, the tile
-        is a plain gray block and a <template> holds the labeled gray image the lightbox shows
-        in its place, both in the shape of box."""
+        """An image on Archive with nothing under it, linking to the image itself; its number
+        names the link for screen readers only. main.js opens the lightbox instead, with a copy
+        of the image and the caption and date from the text under the tile, which it hides;
+        without JavaScript, the link opens the image and the caption and date show under it.
+        Until the file exists, the tile is a plain gray block and a <template> holds the
+        labeled gray image the lightbox shows in its place, both in the shape of box."""
         number = esc(item["id"])
         rel = media_path(item["src"], ARCHIVE_FOLDER)
         alt, title = item.get("alt") or "", f"Archive {item['id']}"
@@ -890,8 +890,7 @@ class Builder:
         return (f'        <li class="archive-item">\n'
                 f'          <a class="archive-tile" href="{href}" data-item aria-haspopup="dialog">\n'
                 f'            <span class="archive-media"{shape}>{thumb}</span>\n'
-                f'            <span class="archive-number">'
-                f'<span class="visually-hidden">Image </span>{number}</span>\n'
+                f'            <span class="visually-hidden">Image {number}</span>\n'
                 f'          </a>\n'
                 f'          <p class="archive-text">{name} <span class="archive-date" '
                 f'data-lightbox-meta>{inline(item.get("date") or "")}</span></p>\n'

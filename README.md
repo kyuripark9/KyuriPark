@@ -24,7 +24,7 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 | `/` | Home: one card per featured project on an endless loop, filling the screen, and "View all work" under it. Home answers "what matters most" |
 | `/work/` | Work: everything. "All 11   Digital 08   Physical 02   Brand 03   Visual 03" at the top filters one grid of tiles (`/work/#all`, `#digital`, `#physical`, `#brand`, `#visual`). Work answers "what kind" |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html` |
-| `/archive/` | Archive: personal work and hobbies, a gallery of images with only their numbers. A separate page with its own data |
+| `/archive/` | Archive: personal work and hobbies, a gallery of images with nothing under them. A separate page with its own data |
 | `/about/` | Portrait, About text, experience, contact links |
 
 Contact is the footer on every page except Home (the header's "Contact" link scrolls to it; on
@@ -155,7 +155,7 @@ items of this kind that the filter is showing). Its images go in `assets/images/
 ## Archive
 
 `/archive/` is built from `content/archive.json`, separate from the projects. Each entry is one
-image; the page shows them in the file's order, with only `id` under each:
+image; the page shows them in the file's order, with nothing under them:
 
 ```json
 { "id": "009", "src": "009.jpg", "caption": "Sketchbook study", "date": "2025-08", "alt": "What the image shows" }
@@ -163,7 +163,7 @@ image; the page shows them in the file's order, with only `id` under each:
 
 | Field | Where it shows |
 | --- | --- |
-| `id` | Required. The number under the image, in quotes (`"009"`). Each one has to be different |
+| `id` | Required. A number in quotes (`"009"`), not shown on the page; screen readers announce it as "Image 009". Each one has to be different |
 | `src` | Required. A file in `assets/images/archive/`. Each entry needs its own file name (not `009.jpg` and `009.webp`) |
 | `caption` | Optional. Only in the lightbox, on one line with the date; a caption too long for the screen is cut short with "…" (the date never is). Leave it `""` to show nothing |
 | `date` | Optional. Shown as you write it |
@@ -185,7 +185,7 @@ image; the page shows them in the file's order, with only `id` under each:
 
 Clicking an image opens it large: Esc, Close, or a click outside the image closes it, and ← and →
 step through the images. The gallery is 2 columns on phones, 3 from 768px, 4 from 1024px. Without
-JavaScript, an image opens on its own instead, and the caption and date show under its number.
+JavaScript, an image opens on its own instead, and the caption and date show under it.
 
 ## Swap in real images and videos
 

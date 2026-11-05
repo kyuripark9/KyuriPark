@@ -236,8 +236,7 @@ button {
   font-weight: 400;
 }
 
-/* Labels: numbers, years, the footer. */
-.archive-number,
+/* Labels: years, the footer. */
 .project-meta dt,
 .project-nav-label,
 .lightbox-meta,
@@ -855,11 +854,11 @@ mark.placeholder {
 
 /* Archive --------------------------------------------------------------- */
 
-/* Smaller and closer together than Work: whole images in their own shapes, each with only its
-   number, 8px under it (at 16px it would sit as close to the next image as to its own).
-   2 columns on phones, 3 from 768px, 4 from 1024px (ARCHIVE_COLUMNS in build.py too). Columns
-   fill from top to bottom, so the numbers run down the first, then the second. The caption and
-   date only show in the lightbox; without JavaScript, they show under the number instead. */
+/* Smaller and closer together than Work: whole images in their own shapes with nothing under
+   them, 16px apart across and down. 2 columns on phones, 3 from 768px, 4 from 1024px
+   (ARCHIVE_COLUMNS in build.py too). Columns fill from top to bottom, so the file's order runs
+   down the first, then the second. The caption and date only show in the lightbox; without
+   JavaScript, they show 8px under the image instead. */
 .archive-title {
   margin-top: var(--header-gap);
   margin-bottom: var(--space-2);
@@ -900,14 +899,8 @@ mark.placeholder {
   background: var(--color-fill);
 }
 
-.archive-number {
-  display: block;
-  margin-top: var(--step-1);
-  color: var(--color-muted);
-  font-variant-numeric: tabular-nums;
-}
-
 .archive-text {
+  margin-top: var(--step-1);
   display: flex;
   flex-wrap: wrap;
   column-gap: var(--step-1);

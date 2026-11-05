@@ -189,7 +189,7 @@ image; the page shows them in the file's order, with nothing under them:
   `src` as it is.
 
 Clicking an image opens it large: Esc, Close, or a click outside the image closes it, and ← and →
-step through the images. The gallery is 2 columns on phones, 3 from 768px, 4 from 1024px. Without
+step through the images. The gallery is 2 columns on phones, 3 from 768px, 4 from 1200px. Without
 JavaScript, an image opens on its own instead, and the caption and date show under it.
 
 ## Swap in real images and videos
@@ -237,18 +237,52 @@ portrait again, as before.
 The name ("Kyuri Park", from `content/site.json`, shown in capitals) is at the left, in Inter at
 14px like the links and a weight heavier (`.identity` in `assets/css/style.css`), and Work, Archive,
 and About at the right, on one line at every width (down to 320px), from `templates/base.html` on
-every page. The current page's link is at full strength and the others are at 0.6 opacity
-(`.site-menu a` in `assets/css/style.css`). On phones the links close up. If a visitor has set
+every page. The current page's link is in the text color and the others are muted until hovered
+(`.site-menu a` in `assets/css/style.css`; see Type and color). On phones the links close up. If a visitor has set
 larger text in their browser or phone and it still doesn't fit, the links move to a second line, at
 the right.
 
 `<body data-page="…">` names the kind of page (`home`, `work`, `project`, `archive`, `about`,
 `404`), for CSS that applies to one page only, like About's footer.
 
+## Type and color
+
+Every size, line height, and color on the site is a token at the top of
+`assets/css/style.css`; no rule sets its own. Type is Inter at six sizes:
+
+| Token | Size | Used for |
+| --- | --- | --- |
+| `--size-display` | 32px on phones, 64px from 1440px | About's first sentence |
+| `--size-title` | 28px on phones, up to 48px | project titles and statements, About's first paragraph, the 404 |
+| `--size-body` | 16px | body text, Work's titles, section headings |
+| `--size-small` | 14px | the header, Home's one-liner, the intro's line |
+| `--size-label` | 12px | captions, the footer, project facts, Work's filters, About's "[ Scroll down ]" |
+| `--size-tiny` | 10px | Work's counts |
+
+Display type is at line-height 1 and -0.04em, titles at 1.15 and -0.02em, everything else at
+1.5 (`--leading-*`, `--tracking-*`). Two things keep their reference's numbers: Home's caption
+(1.3 and 1.6) and the intro's line (600, -0.05em). Everything else is at 400, or 500 for headings,
+titles, the name, and links in text.
+
+Color is the text color (`--color-text`), one gray (`--color-muted`, 5.6:1 on the background),
+and `--color-line` for rules. Things react to the pointer in one of two ways, and only by color:
+**links** are in the text color and turn muted on hover (the name, links in text, the footer,
+project links, the lightbox's buttons, About's scroll link and Contact); **choices** are muted and
+turn to the text color when hovered or current (the header's links, Work's filters).
+
+**Capitals** are for the words the site uses to name, label, or steer: the header, Work's filters,
+About's scroll link, section headings (Experience, Contact, and a project's), note headings, the
+labels on a project's facts (Role, Year…) and impact numbers, Previous / Next, and the lightbox's
+Close. Type them in sentence case in `content/` and the templates; CSS sets the capitals (the
+"Capitals" rule under "Shared text styles"). What's content stays as written: titles, sentences,
+names, captions, and the footer's and Contact's links.
+
+**Breakpoints** are 768px and 1200px, the same two on every page: under 768px is a phone.
+
 ## Spacing
 
 Three values at the top of `assets/css/style.css` set the spacing around the work on every page:
-`--space-1` (16px, image to caption), `--space-2` (32px, filter or title to the grid), and
+`--space-1` (16px, image to caption, for every caption on the site), `--space-2` (32px, filter or title to the grid), and
 `--space-3` (the header's text to the page's first thing: 96px on phones, 128px from 768px).
 `--page-top` turns that into
 where every page starts: `main` has it as `padding-top`, so Home's middle card, Work's filter,
@@ -298,13 +332,11 @@ the tiles fade out (150 ms), the filter's tiles come on, and they fade in
 The address shows `#all`, `#digital`, and so on, so a link opens that filter, Back and Forward step
 through the ones picked, and Back from a project page returns to the same one; no hash or an
 unknown one means All, and `#visual` (a filter that's now part of Brand) opens Brand. Each filter is a button, and Tab goes from one to the next. The layout follows
-cedarstudio.framer.ai/work?view=Grid. The toggle is a row of pills (12px, in capitals, 32px tall): the one showing is filled, the others outlined, and on a screen too narrow for all of
+cedarstudio.framer.ai/work?view=Grid. The toggle is a row of labels set as About's "[ Scroll down ]" is (12px, in capitals): the one showing is bracketed ("[ ALL 11 ]") and in the text color, the others unbracketed and muted, and on a screen too narrow for all of
 them the rest go on a second line. The grid is 1 column on phones, 2 from 768px, 3 from 1200px,
-and every image is 400px tall, as wide as its column, cropped to fill. Each tile's caption is one
-line under its image: the title at the left, the type (14px, at 0.6 opacity) ending on the image's
-right edge. Neither wraps: a long title is cut short with "…" first, and a type longer than 60%
-of the tile is cut too, so every tile is the same height. Without JavaScript there's no toggle and
-the grid shows everything. To tune it:
+and every image is 400px tall, as wide as its column, cropped to fill. Each tile's caption is its
+title alone, on one line under its image; a long title is cut short with "…", so every tile is the
+same height. Without JavaScript there's no toggle and the grid shows everything. To tune it:
 - `assets/js/main.js`, the Work section: `FADE_OUT` / `FADE_IN`.
 - `assets/css/style.css`, "Work": `--tile-h` (the images' height: 400px), `--tile-col-gap` (between
   columns: 12px, `--media-gap`), `--tile-row-gap` (a title to the next row's image: 32px, 64px from

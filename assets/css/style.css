@@ -26,15 +26,37 @@
 
   --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
 
-  /* Three sizes, site-wide: titles, body text, and labels (numbers, years, the footer, image
-     captions). The header's links are 14px (--size-nav), with Work's filter and Home's
-     one-liner. */
-  --size-title: clamp(1.75rem, 1.2rem + 2.2vw, 3rem);   /* 28px on phones, up to 48px */
+  /* Type. Every size on the site is one of these; no rule sets its own.
+       --size-display  About's first sentence only
+       --size-title    project titles and statements, About's first paragraph, the 404
+       --size-body     body text, Work's titles, section headings
+       --size-small    the header (name and links), Home's one-liner, the intro's line
+       --size-label    labels: captions, the footer, project facts, Work's filters,
+                       About's "[ Scroll down ]"
+       --size-tiny     Work's counts only, after each filter (until 2026-11-05: --size-nav
+                       for --size-small, and 14px and 10px set in place) */
+  --size-display: clamp(2rem, 4.45vw, 4rem);           /* 32px on phones, 64px from 1440px */
+  --size-title: clamp(1.75rem, 1.2rem + 2.2vw, 3rem);  /* 28px on phones, up to 48px */
   --size-body: 1rem;           /* 16px */
+  --size-small: 0.875rem;      /* 14px */
   --size-label: 0.75rem;       /* 12px */
-  --size-nav: 0.875rem;        /* 14px, Work, Archive, About (until 2026-11-05: 16px) */
-  --size-display: clamp(2rem, 4.45vw, 4rem);  /* About's first sentence only: 32px on phones,
-                                                 64px from 1440px */
+  --size-tiny: 0.625rem;       /* 10px */
+
+  /* Line heights and letter spacing, each with the sizes above: display 1 and -0.04em, titles
+     1.15 and -0.02em, everything else 1.5 (Home's caption keeps its reference's 1.3 and 1.6). */
+  --leading-display: 1;
+  --leading-title: 1.15;
+  --leading-text: 1.5;
+  --tracking-display: -0.04em;
+  --tracking-title: -0.02em;
+
+  /* Two ways things react to the pointer, both in the text color and --color-muted:
+       links      in the text color, muted on hover (the name, links in text, the footer,
+                  project links, the lightbox's buttons, About's scroll link and Contact)
+       choices    one of several, muted, and the text color when hovered or current (the
+                  header's links, Work's filters)
+     Only color changes, over --fade (until 2026-11-05, the header's links and About's
+     Contact used opacity 0.6 instead). */
 
   /* 8px steps, for the spacing inside things: --step-3 is 24px. */
   --step-1: 8px;
@@ -74,10 +96,15 @@
                                      every page and screen: Work, Archive, Home, project
                                      pages, the lightbox */
 
-  --fade: 200ms ease;
+  --fade: 200ms ease;           /* colors, the lightbox, the brackets on Work's filters */
+  --grow: 250ms ease;           /* Work's and Archive's images growing on hover, Work's videos
+                                   fading in over them */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* Breakpoints: 768px and 1200px, the same two everywhere (media queries can't use the tokens,
+   so they're written out; build.py's ARCHIVE_SIZES uses them too). Under 768px is a phone.
+   Until 2026-11-05 there were also 640, 1024, and 1240px. */
 @media (min-width: 768px) {
   :root {
     --gutter: var(--step-3);
@@ -122,7 +149,7 @@ body {
   color: var(--color-text);
   font-family: var(--font);
   font-size: var(--size-body);
-  line-height: 1.5;
+  line-height: var(--leading-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -225,23 +252,18 @@ button {
   transform: none;
 }
 
-/* Shared text styles */
+/* Shared text styles ------------------------------------------------------ */
 
-.caption,
-.note-heading {
-  font-size: var(--size-label);
-  line-height: 1.4;
-  color: var(--color-muted);
-}
-
+/* Titles: --size-title at 500, tight. Project statements and About's first paragraph are the
+   same size at 400. (A project page's Previous / Next titles join them from 768px.) */
 .project-title,
 .project-statement,
 .impact-value,
 .about-text .lead,
 .not-found-title {
   font-size: var(--size-title);
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  line-height: var(--leading-title);
+  letter-spacing: var(--tracking-title);
   font-weight: 500;
 }
 
@@ -250,13 +272,50 @@ button {
   font-weight: 400;
 }
 
-/* Labels: years, the footer. */
+/* Labels: 12px at line-height 1.5, wherever they are. Captions are muted. (Until 2026-11-05,
+   captions and note headings were at line-height 1.4, and each label set its own size.) */
+.caption,
+.note-heading,
+.archive-text,
 .project-meta dt,
 .project-nav-label,
 .lightbox-meta,
-.site-footer {
+.site-footer,
+.work-tab,
+.about-scroll {
   font-size: var(--size-label);
-  line-height: 1.5;
+  line-height: var(--leading-text);
+}
+
+.caption,
+.note-heading,
+.archive-text {
+  color: var(--color-muted);
+}
+
+/* Capitals, for the words the site uses to name, label, or steer: the header, Work's filters,
+   About's scroll link, section and note headings, the labels on a project's facts and impact
+   numbers, Previous / Next, and the lightbox's Close. What's written as content stays as
+   written: titles, sentences, names, captions, and the footer's and Contact's links (an email
+   address in capitals reads badly). Templates and content spell everything in sentence case;
+   only this sets the capitals. (Until 2026-11-05, only the header, Work's filters, and About's
+   scroll link were in capitals.) */
+.identity,
+.site-menu,
+.work-tab,
+.about-scroll,
+.section-heading,
+.note-heading,
+.project-meta dt,
+.impact-label,
+.project-nav-label,
+.lightbox-close {
+  text-transform: uppercase;
+}
+
+.work-tab,
+.about-scroll {
+  white-space: nowrap;
 }
 
 /* Links in text stand out by weight. */
@@ -267,35 +326,49 @@ button {
   font-weight: 500;
 }
 
+/* Links and choices (see the tokens): only the color changes, never an underline. */
 .identity,
 .footer-links a,
 .text-body a,
 .text-link,
 .project-meta a,
 .project-nav a,
+.link-list a,
 .lightbox-close,
-.lightbox-arrow {
+.lightbox-arrow,
+.about-scroll,
+.site-menu a,
+.work-tab {
   transition: color var(--fade);
 }
 
+/* Links: muted on hover. */
 .identity:hover,
 .footer-links a:hover,
 .text-body a:hover,
 .text-link:hover,
 .project-meta a:hover,
 .project-nav a:hover,
+.link-list a:hover,
 .lightbox-close:hover,
-.lightbox-arrow:hover {
+.lightbox-arrow:hover,
+.about-scroll:hover {
   color: var(--color-muted);
 }
 
-/* About's Contact links step back a little on hover, nothing more (no underline). */
-.link-list a {
-  transition: opacity var(--fade);
+/* Choices: muted, and the text color when hovered or current (the header's page, Work's
+   filter showing). */
+.site-menu a,
+.work-tab {
+  color: var(--color-muted);
 }
 
-.link-list a:hover {
-  opacity: 0.6;
+.site-menu a:hover,
+.site-menu a:focus-visible,
+.site-menu [aria-current],
+.work-tab:hover,
+.work-tab[aria-pressed="true"] {
+  color: var(--color-text);
 }
 
 mark.placeholder {
@@ -322,16 +395,15 @@ mark.placeholder {
   gap: 0 var(--step-1);
   padding-top: var(--header-top);
   padding-bottom: var(--header-pad);
-  font-size: var(--size-nav);  /* 14px, the name and the links */
+  font-size: var(--size-small);  /* 14px, the name and the links */
   view-transition-name: site-header;
 }
 
-/* "KYURI PARK" (the name in content/site.json, in capitals here only, as Work's filter is), in
-   Inter at the links' size, a weight up from them. On hover it steps back to the muted gray. */
+/* "KYURI PARK" (the name in content/site.json, in capitals here only; see Capitals), in Inter
+   at the links' size, a weight up from them. On hover it steps back to the muted gray. */
 .identity {
   flex: none;
   font-weight: 500;
-  text-transform: uppercase;
   white-space: nowrap;
 }
 
@@ -339,26 +411,13 @@ mark.placeholder {
   margin-left: auto;
 }
 
-/* WORK, ARCHIVE, ABOUT: in capitals, as the name is (in capitals here only; templates spell
-   them Work, Archive, About). */
+/* WORK, ARCHIVE, ABOUT, in capitals as the name is (templates spell them Work, Archive,
+   About). The current page is in the text color, the others muted (a choice, in Shared text
+   styles). */
 .site-menu {
   display: flex;
   flex-wrap: wrap;
   gap: 0 min(3vw, var(--step-3));
-  text-transform: uppercase;
-}
-
-/* The current page at full strength, the others a step back (0.6 keeps them at 4.5:1 on the
-   background). */
-.site-menu a {
-  opacity: 0.6;
-  transition: opacity var(--fade);
-}
-
-.site-menu a:hover,
-.site-menu a:focus-visible,
-.site-menu [aria-current] {
-  opacity: 1;
 }
 
 @media (min-width: 768px) {
@@ -405,8 +464,8 @@ mark.placeholder {
 
 /* The title at the card's left edge, the one-liner at its right, smaller and kept to the
    right half (it wraps before it reaches the middle). Sizes as in the example
-   (focuscarouselpro.framer.website): 16px title, 14px one-liner, the Home caption's only
-   size outside the three. */
+   (focuscarouselpro.framer.website): 16px title, 14px one-liner (--size-small), with the
+   reference's line heights. */
 .card-caption,
 .js .track-caption {
   display: flex;
@@ -432,7 +491,7 @@ mark.placeholder {
 .card-text {
   flex: none;
   max-width: calc(50% - var(--step-2));
-  font-size: 0.875rem;
+  font-size: var(--size-small);
   line-height: 1.6;
   text-align: right;
 }
@@ -589,7 +648,7 @@ mark.placeholder {
 .intro {
   --intro-bg: #000;
   --intro-color: #fff;
-  --intro-size: 0.875rem;
+  --intro-size: var(--size-small);
   --intro-image: 160px;
   --intro-margin: 20px;
   position: fixed;
@@ -605,7 +664,7 @@ mark.placeholder {
 .intro-line {
   font-size: var(--intro-size);
   font-weight: 600;
-  line-height: 1;
+  line-height: var(--leading-display);
   letter-spacing: -0.05em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -629,7 +688,7 @@ mark.placeholder {
 /* Work ------------------------------------------------------------------ */
 
 /* Work's layout follows cedarstudio.framer.ai/work?view=Grid (since 2026-11-05): a row of
-   pills at the top, then 400px-tall images with their title under them. main.js shows
+   filters at the top, then 400px-tall images with their title under them. main.js shows
    one filter at a time on the one grid; without JavaScript there's no filter and the grid shows
    everything. */
 .page-work {
@@ -650,52 +709,60 @@ mark.placeholder {
   display: none;
 }
 
-/* All / Digital / Brand / Physical, each a pill with its count after it,
-   smaller. The one showing is filled in the text color; the others are outlined. On a screen
-   too narrow for all of them, the rest go on a second line. (Until 2026-11-05: one gray pill
-   with a white pill sliding under the filter showing; the reference's "FILTER:" in front of the
-   pills was taken off the same day.) */
+/* "[ ALL 11 ]  DIGITAL 08  BRAND 05  PHYSICAL 02": set as About's "[ Scroll down ]" is (12px,
+   in capitals, line-height 1.5, no box), each with its count after it, smaller. The one
+   showing is bracketed and in the text color; the others have no brackets and are muted until
+   hovered. The brackets are part of the line, so the row's first character, "[" or "A", is
+   always on the page's left edge with the header and the grid; when the filter changes, the
+   old one's brackets close up, the new one's open, and the filters between slide over (200ms,
+   or at once with reduced motion). On a screen too narrow for all of them, the rest go on a
+   second line. (Until 2026-11-05: pills, the one showing filled and the others outlined;
+   then, the same day, every filter bracketed and only the color telling them apart, then
+   brackets hanging outside the words, in the page's side padding.) */
 .js .work-tabs {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--step-1);
+  gap: var(--step-1) var(--step-3);  /* 8px between lines, 24px between filters */
   margin-bottom: var(--space-2);
 }
 
+/* A label in capitals, and a choice: the type and colors are in Shared text styles. */
 .work-tab {
-  font-size: var(--size-label);  /* 12px (until 2026-11-05: 14px, 34px tall) */
-  line-height: 16px;
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: var(--color-muted);
-  padding: 7px 12px;  /* 32px tall, with the line */
-  border: 1px solid rgba(22, 22, 22, 0.14);  /* the text color, faint */
-  border-radius: 999px;
-  transition: color var(--fade), background-color var(--fade), border-color var(--fade);
-}
-
-.work-tab:hover {
-  border-color: rgba(22, 22, 22, 0.32);
-  color: var(--color-text);
+  padding-block: 3px;  /* 24px tall to tap or click... */
+  margin-block: -3px;  /* ...while the line stays 18px */
 }
 
 .work-tab[aria-pressed="true"] {
-  border-color: var(--color-text);
-  background: var(--color-text);
-  color: var(--color-bg);
   cursor: default;
 }
 
-.work-tab:focus-visible {
-  outline-color: var(--color-text);
-  outline-offset: 2px;
+/* Closed, a bracket is 0 wide; open, 0.65em, the width of "[ " in Inter (7.76px at 12px). If a
+   fallback font's is wider, the space is what gets cut, not the bracket: "[ " is cut on its
+   right, " ]" on its left. */
+.work-bracket {
+  display: inline-flex;
+  width: 0;
+  overflow: hidden;
+  overflow: clip;    /* where supported: cut, without changing where the text sits */
+  white-space: pre;  /* keeps the space between the bracket and the word */
+  opacity: 0;
+  transition: width var(--fade), opacity var(--fade);
+}
+
+.work-bracket:last-child {
+  justify-content: flex-end;
+}
+
+.work-tab[aria-pressed="true"] .work-bracket {
+  width: 0.65em;
+  opacity: 1;
 }
 
 .work-count {
   margin-left: 0.5em;
-  font-size: 0.625rem;  /* 10px */
-  line-height: 1;  /* so the smaller number doesn't make its pill taller */
+  font-size: var(--size-tiny);  /* 10px */
+  line-height: 1;  /* so the smaller number doesn't make its line taller */
 }
 
 /* 1 across on phones, 2 from 768px, 3 from 1200px (until 2026-11-05: 3 from 768px, 4 from
@@ -757,7 +824,7 @@ mark.placeholder {
 /* Work's and Archive's images fill their tile's width and grow on hover (below)... */
 :is(.work-media, .archive-media) :is(img, video) {
   width: 100%;
-  transition: transform 250ms ease;
+  transition: transform var(--grow);
 }
 
 /* ...and Work's are cropped to fill the 3:4 frame. */
@@ -772,7 +839,7 @@ mark.placeholder {
   position: absolute;
   inset: 0;
   opacity: 0;
-  transition: opacity 250ms ease, transform 250ms ease;
+  transition: opacity var(--grow), transform var(--grow);
 }
 
 .work-media.is-playing video {
@@ -795,9 +862,10 @@ mark.placeholder {
 
 /* Smaller and closer together than Work: whole images in their own shapes with nothing under
    them, 12px apart across and down (--media-gap, as on Work and every other page). 2 columns
-   on phones, 3 from 768px, 4 from 1024px (ARCHIVE_COLUMNS in build.py too). Columns fill from
+   on phones, 3 from 768px, 4 from 1200px (ARCHIVE_COLUMNS in build.py too). Columns fill from
    top to bottom, so the file's order runs down the first, then the second. The caption and
-   date only show in the lightbox; without JavaScript, they show 8px under the image instead.
+   date only show in the lightbox; without JavaScript, they show under the image instead,
+   --space-1 under it as every caption is.
    No title on the page (screen readers get a hidden "Archive" heading): the images start on
    the page's starting line, where Work's filter does. */
 .archive-grid {
@@ -811,7 +879,7 @@ mark.placeholder {
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1200px) {
   .archive-grid {
     columns: 4;
   }
@@ -836,13 +904,10 @@ mark.placeholder {
 }
 
 .archive-text {
-  margin-top: var(--step-1);
+  margin-top: var(--space-1);
   display: flex;
   flex-wrap: wrap;
   column-gap: var(--step-1);
-  color: var(--color-muted);
-  font-size: var(--size-label);
-  line-height: 1.5;
 }
 
 .js .archive-text {
@@ -885,7 +950,10 @@ mark.placeholder {
   padding-block: var(--step-3);
 }
 
+/* CLOSE, in the header links' size and capitals: it stands in for the header while the
+   lightbox is open. */
 .lightbox-close {
+  font-size: var(--size-small);
   /* A bigger tap target without moving the text. */
   margin: calc(-1 * var(--step-1));
   padding: var(--step-1);
@@ -1075,8 +1143,9 @@ mark.placeholder {
   background: var(--color-fill);
 }
 
+/* An image to its caption: --space-1, as on Work and Home (until 2026-11-05: 8px). */
 .media .caption {
-  margin-top: var(--step-1);
+  margin-top: var(--space-1);
 }
 
 .pair {
@@ -1084,7 +1153,7 @@ mark.placeholder {
   gap: var(--media-gap);
 }
 
-@media (min-width: 640px) {
+@media (min-width: 768px) {
   .pair {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
@@ -1166,7 +1235,7 @@ mark.placeholder {
 .project-nav-label {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--step-1);
   color: var(--color-muted);
 }
 
@@ -1184,8 +1253,8 @@ mark.placeholder {
 @media (min-width: 768px) {
   .project-nav-title {
     font-size: var(--size-title);
-    line-height: 1.15;
-    letter-spacing: -0.02em;
+    line-height: var(--leading-title);
+    letter-spacing: var(--tracking-title);
   }
 }
 
@@ -1199,7 +1268,7 @@ mark.placeholder {
    line: if larger browser text pushes its links to a second line, the sentence just sits a
    little low. */
 .about-hero {
-  --header-h: calc(var(--header-top) + 1.5 * var(--size-nav) + var(--header-pad));
+  --header-h: calc(var(--header-top) + var(--leading-text) * var(--size-small) + var(--header-pad));
   --hero-pad: var(--step-6);  /* keeps the sentence clear of the header and the scroll link */
   position: relative;
   display: grid;
@@ -1217,8 +1286,8 @@ mark.placeholder {
 .about-headline {
   font-size: var(--size-display);
   font-weight: 500;
-  line-height: 1;
-  letter-spacing: -0.04em;
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
   text-align: center;
   text-transform: uppercase;
   text-wrap: balance;
@@ -1232,21 +1301,13 @@ mark.placeholder {
   }
 }
 
-/* As far from the window's bottom edge as the header's name is from the top. */
+/* As far from the window's bottom edge as the header's name is from the top. A label in
+   capitals, and a link: the type and hover are in Shared text styles. */
 .about-scroll {
   position: absolute;
   bottom: var(--header-top);
   left: 50%;
   translate: -50% 0;
-  font-size: var(--size-label);
-  line-height: 1.5;
-  text-transform: uppercase;
-  white-space: nowrap;
-  transition: color var(--fade);
-}
-
-.about-scroll:hover {
-  color: var(--color-muted);
 }
 
 /* "Scroll down" lands the portrait --space-3 from the window's top, so the hero's link is
@@ -1303,11 +1364,18 @@ mark.placeholder {
   }
 }
 
+/* The list is a grid of three columns (company, role, dates) that its rows only take up when
+   it's wide enough (below); until then each row spans all three and sets its own two. */
 .experience {
+  container: experience / inline-size;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) max-content;
+  column-gap: var(--step-4);
   border-top: 1px solid var(--color-line);
 }
 
 .experience li {
+  grid-column: 1 / -1;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   column-gap: var(--step-2);
@@ -1326,17 +1394,13 @@ mark.placeholder {
   text-align: right;
 }
 
-/* Wide screens: one row per job. Rows share the list's columns (subgrid)
-   so company, role, and dates line up from row to row. */
-@media (min-width: 1240px) {
-  .experience {
-    display: grid;
-    grid-template-columns: max-content minmax(0, 1fr) max-content;
-    column-gap: var(--step-4);
-  }
-
+/* One row per job once the list itself is wide enough for one: 37.5rem (600px; today's longest
+   row, company, role, and dates with the gaps, is 598px). The list's width decides, not the
+   window's, so a role never wraps for want of room (a window about 1290px wide and up). Rows
+   share the list's columns (subgrid) so company, role, and dates line up from row to row.
+   Until 2026-11-05: from a 1240px window, where the longest role still wrapped. */
+@container experience (min-width: 37.5rem) {
   .experience li {
-    grid-column: 1 / -1;
     grid-template-columns: subgrid;
     column-gap: var(--step-4);
   }
@@ -1411,7 +1475,7 @@ mark.placeholder {
   display: none;
 }
 
-@media (max-width: 639px) {
+@media (max-width: 767px) {
   .site-footer,
   .footer-links {
     flex-direction: column;

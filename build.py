@@ -45,10 +45,10 @@ ARCHIVE_BOXES = ((1200, 1500), (1500, 1500), (1500, 1000), (1200, 1600),
                  (1600, 900), (1000, 1500), (1500, 1200), (900, 1500))
 PIECE_FOLDER = "assets/images/pieces"
 ARCHIVE_FOLDER = "assets/images/archive"
-ARCHIVE_COLUMNS = (2, 3, 4)  # Archive's columns on phones, from 768px, from 1024px (as in style.css)
+ARCHIVE_COLUMNS = (2, 3, 4)  # Archive's columns on phones, from 768px, from 1200px (as in style.css)
 # How wide an Archive image shows in its column, so the browser can take the smaller copy
 # (001-small.jpg next to 001.jpg) when there is one.
-ARCHIVE_SIZES = "(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+ARCHIVE_SIZES = "(min-width: 1200px) 25vw, (min-width: 768px) 33vw, 50vw"
 SMALL_SUFFIX = "-small"
 COVER_VIDEO_EXTS = (".mp4", ".webm")
 OG_IMAGE_EXTS = (".jpg", ".jpeg", ".png")
@@ -827,11 +827,15 @@ class Builder:
 
     def work_tab(self, name):
         """One filter on Work's toggle, with how many items it shows: an item with two
-        categories counts under both, and once under All."""
+        categories counts under both, and once under All. "[ All 11 ]", bracketed as
+        About's "[ Scroll down ]" is (style.css shows the brackets on the filter showing only);
+        screen readers skip them."""
         n = sum(name == "all" or name in p["category"] for p in self.items)
         return (f'      <button class="work-tab" type="button" data-filter="{name}" '
                 f'aria-pressed="{str(name == "all").lower()}">'
-                f'{name.capitalize()}{self.work_count(n)}</button>')
+                f'<span class="work-bracket" aria-hidden="true">[ </span>{name.capitalize()}'
+                f'{self.work_count(n)}<span class="work-bracket" aria-hidden="true"> ]</span>'
+                f'</button>')
 
     def piece_meta(self, item):
         """'Type · Year', leaving out what's empty."""

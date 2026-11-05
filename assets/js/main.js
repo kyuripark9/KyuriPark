@@ -31,7 +31,7 @@
       });
       empty.hidden = n > 0;
     };
-    // The pill picked is filled (style.css, aria-pressed).
+    // The filter picked is in the text color (style.css, aria-pressed).
     const mark = (name) => {
       wanted = name;
       workTabs.forEach((tab) => {

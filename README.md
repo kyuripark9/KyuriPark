@@ -25,7 +25,7 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 | `/work/` | Work: everything. "All 11   Digital 08   Brand 05   Physical 02" at the top filters one grid of tiles (`/work/#all`, `#digital`, `#brand`, `#physical`; an old `#visual` link opens `#brand`). Work answers "what kind" |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html` |
 | `/archive/` | Archive: personal work and hobbies, a gallery of images with nothing under them. A separate page with its own data |
-| `/about/` | First screen: one sentence alone in the middle of the window, "[ Scroll down ]" at its foot. Under it: portrait, About text, experience, and Contact (`/about/#contact`) |
+| `/about/` | First screen: one sentence alone in the middle of the window, "[ Scroll down ]" at its foot. Under it: a block the size of the window (gray until the photo exists) with the About text in its middle, then experience and Contact (`/about/#contact`), with a sticky scroll that snaps from one to the next |
 | `/contact/` | Not a page: it sends visitors straight on to `/about/#contact` (old links keep working) |
 
 Contact is a section of About, not a menu item. The same links (email, LinkedIn, GitHub, Resume)
@@ -43,7 +43,7 @@ content/archive.json    the images on Archive (see "Archive" below)
 content/site.json       name, email, LinkedIn, GitHub, resume, About's first sentence ("headline"),
                         About text, experience, SEO text
 assets/images/<slug>/   images and videos for each project
-assets/images/about/    About portrait
+assets/images/about/    About photo
 assets/images/pieces/   images of the items with no page
 assets/images/archive/  images on Archive
 assets/images/og.png    link-preview image (1200×630)
@@ -195,7 +195,7 @@ JavaScript, an image opens on its own instead, and the caption and date show und
 ## Swap in real images and videos
 
 Every gray placeholder shows the project name and the filename it's waiting for (for example
-`hero.webp`), except on Home, where a card without its cover is a plain gray block. Save your image with that name in that project's folder, refresh, and it replaces the
+`hero.webp`), except on Home, where a card without its cover is a plain gray block, and About's photo, which is plain gray too. Save your image with that name in that project's folder, refresh, and it replaces the
 placeholder. To use a different name or format, change `src` in `projects.json`.
 
 Recommended exports (WebP, or AVIF; JPG and PNG work too):
@@ -205,7 +205,7 @@ Recommended exports (WebP, or AVIF; JPG and PNG work too):
 | Cover (Home cards and Work tiles) | 1500 × 2000 | 3:4 on Home; on Work it's cropped to a 400px-tall frame as wide as the column (about 9:8 on a 1440px screen), so keep the subject near the middle |
 | Hero and full-width | 2400 px wide | Any height; the hero runs edge to edge |
 | Two-image row | 1200 px wide each | Same ratio for both looks best |
-| About portrait | 1200 × 1500 | |
+| About photo | 2400 × 1600 | Fills the window behind the About text, cropped to the window's shape (wide on a computer, tall on a phone), so keep the subject near the middle. Until it exists the block is plain gray, with no label |
 | Image of an item with no page | 1200 × 1500 | The Work tile crops it as it does a cover; the lightbox shows the whole image |
 | Archive image | 1500 px on the long side | Any shape; never cropped |
 
@@ -230,7 +230,31 @@ the list is one line from 768px up (on phones they run together and wrap evenly)
 capitals or not, it shows in capitals either way. It's Inter 500, line-height 1, -0.04em, 64px from
 1440px down to 32px on phones (`--size-display` and `.about-headline` in
 `assets/css/style.css`), centered in the window. Delete `"headline"` and About opens on the
-portrait again, as before.
+photo instead.
+
+**About's photo and text:** under the first screen, a block the size of the window runs edge to
+edge, with the About text (`"paragraphs"`) centered in its middle, in the text color. Until the
+photo (`"portrait"` in `content/site.json`, `assets/images/about/portrait.webp`) exists, the
+block is plain gray (`--color-fill`); once it does, the photo fills it. Dark text may not read on
+every photo, so check it once one is in (`.about-intro` and `.about-text` in
+`assets/css/style.css`).
+
+The scroll is sticky: scrolling down, the block slides up over the first screen, which stays put,
+then stays put itself while Experience and Contact slide up over it; scrolling back up runs it in
+reverse (`position: sticky` on `.about-hero` and `.about-intro`; `.about-sheet` gives Experience
+and Contact the page's background so they cover the block).
+
+It also snaps: the page comes to rest only on the first screen, the block filling the window,
+Experience at the window's top, or the page's end, and a small turn of the mouse wheel or swipe
+on the trackpad goes a whole step (one swipe, however long its glide, is one step). On a phone a
+quick flick goes a step and a slow, short drag springs back; a hard flick always stops on the
+block. Arrow keys and Page Down step too. The snapping is CSS (`.about-snap` in
+`assets/css/style.css`); the wheel steps and the check that turns snapping on are in
+`assets/js/main.js` ("About:"). If Experience, Contact, and the footer are ever more than two
+windows tall (very large browser text), snapping stays off and they scroll freely. Without
+JavaScript there's no snapping, just the sticky scroll. On a window under 36rem tall (576px,
+more with larger browser text), like a phone on its side, there's neither: the page just
+scrolls, so a text taller than the window is never hidden.
 
 ## Header
 
@@ -245,8 +269,8 @@ the right.
 The header is sticky: it stays at the top of the window while the page scrolls, with no
 background, so the page scrolls under the name and links (`.site-header` in
 `assets/css/style.css`). `/about/#contact` lands the section under the header, where a page's
-first thing starts. About's "Scroll down" lands the portrait a little higher, so the link itself
-is out of sight above the window instead of showing through the header.
+first thing starts. About's "Scroll down" lands the photo on the window's top edge, so it fills
+the window, with the header over it.
 
 `<body data-page="…">` names the kind of page (`home`, `work`, `project`, `archive`, `about`,
 `404`), for CSS that applies to one page only, like About's footer.
@@ -294,7 +318,7 @@ Three values at the top of `assets/css/style.css` set the spacing around the wor
 `--space-3` (the header's text to the page's first thing: 96px on phones, 128px from 768px).
 `--page-top` turns that into
 where every page starts: `main` has it as `padding-top`, so Home's middle card, Work's filter,
-About's portrait, Archive's images, and a project's title all start on the same line (104px under
+Archive's images, and a project's title all start on the same line (104px under
 the header's box from 768px, 80px on phones), and nothing jumps when you switch pages. Over the
 header's text is `--header-top` (16px from 768px, 12px on phones). To move
 that line, change `--page-top` (or `--space-3`) at the top of `assets/css/style.css`; nothing on

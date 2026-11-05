@@ -35,7 +35,7 @@ PLACEHOLDER_SIZES = {
     "cover": (1500, 2000),     # 3:4, home cards and Work tiles
     "wide": (2400, 1350),      # 16:9, hero and full-width images and videos
     "pair": (1200, 1500),      # 4:5, each image in a two-image row
-    "portrait": (1200, 1500),  # 4:5, the About portrait
+    "portrait": (2400, 1600),  # 3:2, the About photo (no placeholder: a plain gray block)
     "piece": (1200, 1500),     # 4:5, the images of an item with no page of its own
     "archive": (1200, 1500),   # 4:5, an Archive image whose size can't be read
 }
@@ -948,7 +948,7 @@ class Builder:
         if not lines:
             return ""
         spans = " ".join(f'<span class="about-headline-line">{inline(t)}</span>' for t in lines)
-        return ('    <div class="about-hero">\n'
+        return ('    <div class="about-hero wrap">\n'
                 f'      <p class="about-headline">{spans}</p>\n'
                 '      <a class="about-scroll" href="#intro"><span aria-hidden="true">[ </span>'
                 'Scroll down<span aria-hidden="true"> ]</span></a>\n'
@@ -958,9 +958,14 @@ class Builder:
         s = self.site
         about = s["about"]
         portrait = need(about, "portrait", "content/site.json (about)")
-        img = self.img(media_path(need(portrait, "src", "content/site.json (about.portrait)"),
-                                  "assets/images/about"),
-                       portrait.get("alt"), "portrait", s["name"], "high")
+        rel = media_path(need(portrait, "src", "content/site.json (about.portrait)"),
+                         "assets/images/about")
+        if exists(rel):
+            img = "        " + self.img(rel, portrait.get("alt"), "portrait", s["name"], "high",
+                                         sizes="100vw")
+        else:
+            self.missing_media.add(rel)
+            img = ""  # a plain gray block, no label, until the photo exists
         paragraphs = []
         for text in about.get("paragraphs") or []:
             paragraphs.append(f"        <p>{inline(text)}</p>")
@@ -973,11 +978,11 @@ class Builder:
                 f'<span class="experience-dates">{inline(row.get("dates", ""))}</span>'
                 '</li>')
         content = render("about.html", hero=self.about_hero(about),
-                         portrait="        " + img,
+                         portrait=img,
                          paragraphs="\n".join(paragraphs), experience="\n".join(experience),
                          contact_links=self.contact_links("        "))
         self.page("about/index.html", "about", "/about/", f"About — {s['name']}",
-                  s["description"], content, "wrap page-about", current="about",
+                  s["description"], content, "page-about", current="about",
                   image=self.og_image())
 
     def build_404(self):

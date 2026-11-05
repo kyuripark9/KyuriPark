@@ -1,5 +1,5 @@
 // Enhancements on top of pages that already work without JavaScript:
-// Work's filter and card videos, the lightbox, and project-page motion
+// Work's filter and card videos, the lightbox, About's scroll steps, and project-page motion
 // (image fade-up, count-up numbers, looping videos). The home track is in track.js.
 (() => {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -225,6 +225,76 @@
     window.addEventListener("resize", () => {
       if (current >= 0) fit();
     });
+  }
+
+  // About: the page rests on a few spots (the first screen, the block filling the window,
+  // Experience at the window's top, and the page's end), and a small turn of the mouse wheel or
+  // swipe on the trackpad goes a whole step between them. The "about-snap" class turns on
+  // style.css's snapping to the same spots, for touch, the keyboard, and the scrollbar; snapping
+  // alone settles on the nearest spot, so a small scroll would spring back, hence the wheel
+  // here. Experience, Contact, and the footer are fully seen from those last two spots only if
+  // they're under two windows tall; when they're taller (very large browser text), snapping
+  // stays off so they scroll freely, and the steps end at Experience. Only where style.css makes
+  // the scroll sticky (windows at least 36rem tall). With reduced motion a step is a jump.
+  const aboutBlock = document.querySelector(".about-intro");
+  const aboutSheet = document.querySelector(".about-sheet");
+  if (aboutBlock && aboutSheet) {
+    const root = document.documentElement;
+    const tallWindow = window.matchMedia("(min-height: 36rem)");
+    const layout = () => {
+      const end = root.scrollHeight - window.innerHeight;
+      const sheetTop = Math.round(aboutSheet.getBoundingClientRect().top + window.scrollY);
+      const free = root.scrollHeight - sheetTop > 2 * window.innerHeight;
+      const spots = [0, sheetTop - aboutBlock.offsetHeight, Math.min(sheetTop, end)];
+      if (!free && end > sheetTop) spots.push(end);
+      return { spots, free };
+    };
+    const setSnap = () => {
+      root.classList.toggle("about-snap", tallWindow.matches && !layout().free);
+    };
+    setSnap();
+    window.addEventListener("resize", setSnap);
+    if ("ResizeObserver" in window) new ResizeObserver(setSnap).observe(aboutSheet);
+
+    const go = (top) => {
+      window.scrollTo({ top, behavior: reduceMotion.matches ? "auto" : "smooth" });
+    };
+    let stepping = false;
+    let goal;          // the spot this swipe is going to
+    let overrun;       // the browser scrolled during this swipe anyway (see below)
+    let quiet;
+    window.addEventListener("wheel", (event) => {
+      if (!tallWindow.matches || event.ctrlKey
+          || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;  // zoom, or sideways
+      const { spots } = layout();
+      const last = spots[spots.length - 1];
+      const y = window.scrollY;
+      const down = event.deltaY > 0;
+      // Past the last spot (only when Experience and Contact scroll freely): as usual.
+      if (y > last + 1 || (down && y >= last - 1)) return;
+      // Every other wheel event here is ours, even one that moves 0px: a trackpad swipe on a
+      // Mac often starts with one, and Chrome lets a page hold back a swipe only if it holds
+      // back the swipe's first event. Past that, the rest can't be held back (not cancelable),
+      // and then the browser scrolls too; the step is finished once the swipe is over.
+      event.preventDefault();
+      if (!event.cancelable) overrun = true;
+      // A trackpad keeps sending wheel events for a moment after the fingers lift. They belong
+      // to the same swipe, so the next step waits until they've stopped for 200ms.
+      clearTimeout(quiet);
+      quiet = setTimeout(() => {
+        if (overrun && goal !== undefined && Math.abs(window.scrollY - goal) > 1) go(goal);
+        stepping = false;
+        goal = undefined;
+        overrun = false;
+      }, 200);
+      if (stepping || !event.deltaY) return;
+      const target = down ? spots.find((t) => t > y + 1)
+                          : spots.reverse().find((t) => t < y - 1);
+      if (target === undefined) return;
+      stepping = true;
+      goal = target;
+      go(target);
+    }, { passive: false });
   }
 
   if (reduceMotion.matches || !("IntersectionObserver" in window)) return;

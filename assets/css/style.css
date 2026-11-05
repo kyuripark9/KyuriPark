@@ -90,7 +90,7 @@
      larger browser text pushes the links to a second line, the box is a line taller. */
   --header-h: calc(var(--header-top) + var(--leading-text) * var(--size-small) + var(--header-pad));
   /* Where every page starts: the header's box to the page's first thing (Home's middle card,
-     Work's filter, About's portrait, Archive's images, a project's title), the same on every
+     Work's filter, Archive's images, a project's title), the same on every
      page so nothing jumps when you switch. --space-3 from the header's text, what the eye
      measures (96px on phones, 128px from 768px): 80px under the header's box on phones, 104px
      from 768px. Change --space-3 or set a fixed value. */
@@ -518,7 +518,7 @@ mark.placeholder {
    that track.js turns; these rules size them and set where they start.
    Sizes match the example (focuscarouselpro.framer.website) from 768px, all but the gap
    between cards, which is the site's gap between images; the card's top is the page's starting
-   line (main's --page-top), where Work's filter and About's portrait start too, on any screen.
+   line (main's --page-top), where Work's filter starts too, on any screen.
      --card-w        the middle card's width: --card-base (400px, so 533px tall at 3:4) up
                      to a 900px-tall window, larger on taller ones, so the space under the
                      card stays the same; smaller when the window is too short for it;
@@ -1274,8 +1274,8 @@ mark.placeholder {
 /* About ----------------------------------------------------------------- */
 
 /* The first screen: one sentence alone, centered in the window (as on
-   titarvl.framer.website/about), "[ Scroll down ]" at the foot, and the portrait and text
-   start under the fold. The hero takes back main's --page-top and runs from the header to the
+   titarvl.framer.website/about), "[ Scroll down ]" at the foot, and the photo starts right at
+   the fold. The hero takes back main's --page-top and runs from the header to the
    window's bottom edge; the extra header height at its foot puts the sentence's middle on the
    window's middle, not on the space under the header. --header-h is the header's box on one
    line (at the top): if larger browser text pushes its links to a second line, the sentence
@@ -1288,8 +1288,6 @@ mark.placeholder {
   min-height: calc(100vh - var(--header-h));
   min-height: calc(100svh - var(--header-h));
   margin-top: calc(-1 * var(--page-top));
-  margin-bottom: var(--space-3);  /* to the portrait: as far as the header is from a page's
-                                     first thing */
   padding-top: var(--hero-pad);
   padding-bottom: calc(var(--hero-pad) + var(--header-h));
 }
@@ -1322,40 +1320,103 @@ mark.placeholder {
   translate: -50% 0;
 }
 
-/* "Scroll down" lands the portrait --space-3 plus --header-top from the window's top, so the
-   hero's link (--header-top over the hero's foot) is just out of sight above. The header has
-   no background, so the link would show through it if it landed any lower. */
-#intro {
-  scroll-margin-top: calc(var(--space-3) + var(--header-top));
-}
-
-/* Portrait and text, laid out like Experience and Contact under them: the portrait where their
-   headings are, the text in the right-hand column, all of it body text. (Until 2026-11-05 the
-   portrait filled the left half and the first paragraph was a title.) */
+/* Under the first screen, a block the size of the window, edge to edge, with the About text
+   in its middle: plain gray (--color-fill) until the photo exists, then the photo, cropped to
+   the window's shape (wide on a computer, tall on a phone). About's main has no .wrap so the
+   block can run full width; the hero and the sheet under the block have their own. "Scroll
+   down" lands the block on the window's top edge, with the header over it. The padding keeps
+   the text clear of the header, the same over and under it so it stays on the window's middle.
+   Until 2026-11-05 (evening) a 320 x 400 portrait sat beside the text. */
 .about-intro {
+  position: relative;
   display: grid;
-  gap: var(--step-4);
+  place-items: center;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: calc(var(--header-h) + var(--step-6)) var(--gutter);
 }
 
-/* 4:5. On phones as wide as the text, like Work's images there (up to 400px wide, for phones
-   on their side); from 768px, 320 x 400, as tall as Work's images (--tile-h). */
+/* With no first screen ("headline" deleted), the block still starts at the window's top,
+   under the header. */
+.page-about > h1 + .about-intro {
+  margin-top: calc(-1 * (var(--header-h) + var(--page-top)));
+}
+
 .about-portrait {
-  max-width: 25rem;
-}
-
-@media (min-width: 768px) {
-  .about-portrait {
-    max-width: 20rem;
-  }
+  position: absolute;
+  inset: 0;
+  background: var(--color-fill);
 }
 
 .about-portrait img {
   width: 100%;
-  background: var(--color-fill);
+  height: 100%;
+  object-fit: cover;
 }
 
+/* Centered, in the text color: it reads on the gray; check it still does once a photo is in. */
 .about-text {
+  position: relative;
   max-width: 40rem;
+  text-align: center;
+}
+
+/* Experience and Contact, on the page's background, so they cover the block as they slide
+   over it (below). flow-root keeps the first section's top margin inside that background. */
+.about-sheet {
+  position: relative;
+  display: flow-root;
+  background: var(--color-bg);
+}
+
+/* The sticky scroll. Scrolling down, the block slides up over the first screen, which stays
+   put, then stays put itself while Experience and Contact slide up over it; scrolling back up
+   runs it in reverse. Both stay inside main, so neither goes under the footer. Only on windows
+   at least 36rem tall (576px, more with larger browser text), where the text fits on the
+   block: on a shorter one (a phone on its side) a stuck block would hide the end of a text
+   taller than the window, so there the page just scrolls. */
+@media (min-height: 36rem) {
+  .about-hero {
+    position: sticky;
+    top: var(--header-h);
+  }
+
+  .about-intro {
+    position: sticky;
+    top: 0;
+  }
+}
+
+/* Snapping, with the sticky scroll: the page comes to rest on the first screen, the block
+   filling the window, Experience at the window's top, or the page's end, whichever is nearest;
+   a hard flick on a phone always stops on the block. main.js turns it on (.about-snap) once it
+   has checked that Experience, Contact, and the footer are under two windows tall, so the last
+   two spots show all of them (with very large browser text they aren't, and the page scrolls
+   freely from Experience down); main.js also makes a small turn of the wheel or swipe on the
+   trackpad go a whole step, where snapping alone would spring back to the nearest spot. Without
+   JavaScript there's no snapping, just the sticky scroll. */
+@media (min-height: 36rem) {
+  :root.about-snap {
+    scroll-snap-type: y mandatory;
+  }
+
+  .about-hero {
+    scroll-snap-align: start;
+    scroll-margin-top: var(--header-h);  /* the page's top, not the hero's: it's under the header */
+  }
+
+  .about-intro,
+  .about-sheet {
+    scroll-snap-align: start;
+  }
+
+  .about-intro {
+    scroll-snap-stop: always;
+  }
+
+  [data-page="about"] .site-footer {
+    scroll-snap-align: end;
+  }
 }
 
 .about-text > * + * {
@@ -1369,7 +1430,6 @@ mark.placeholder {
 }
 
 @media (min-width: 768px) {
-  .about-intro,
   .split-section {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: var(--col-gap);
@@ -1378,13 +1438,6 @@ mark.placeholder {
 
   .split-section > :not(h2) {
     grid-column: 2;
-  }
-
-  /* Side by side, the text's first capitals start on the portrait's top edge. A line's box
-     starts above its letters (Inter's capitals sit 0.39em under the top of a 1.5 line), so
-     the text moves up by that much. */
-  .about-text {
-    margin-top: -0.39em;
   }
 }
 

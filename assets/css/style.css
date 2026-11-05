@@ -758,7 +758,8 @@ mark.placeholder {
   font-size: 0.625rem;  /* 10px */
 }
 
-/* 1 across on phones, 2 from 768px, 3 from 1024px. Each tile is one line, "TypeLab" at the left
+/* 1 across on phones, 3 from 768px, 4 from 1200px, as on serinmedia.framer.website/works
+   (until 2026-11-05: 2 from 768px, 3 from 1024px). Each tile is one line, "TypeLab" at the left
    and its type at the right, over a 3:4 image. A tile with no page is a button (it opens the
    lightbox) and looks the same. */
 .work-grid {
@@ -769,13 +770,13 @@ mark.placeholder {
 
 @media (min-width: 768px) {
   .work-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1200px) {
   .work-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 

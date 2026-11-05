@@ -73,7 +73,7 @@
     };
 
     // The filter the address names. No hash or an unknown one means All, and the address is
-    // set to say so. A hash for a spot on the page (#contact, the skip link's #main) isn't a
+    // set to say so. A hash for a spot on the page (the skip link's #main) isn't a
     // filter at all: null, and the grid stays as it is.
     const addressFilter = () => {
       const hash = location.hash.slice(1);

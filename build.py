@@ -57,6 +57,9 @@ MAX_ONE_LINER_WORDS = 8
 MIN_FEATURED, MAX_FEATURED = 3, 5  # how many projects Home should show
 CATEGORIES = ("digital", "physical", "brand", "visual")  # Work's filters, in toggle order after All
 LOADING_ATTRS = {"lazy": 'loading="lazy"', "eager": "", "high": 'fetchpriority="high"'}
+# Old addresses that now live elsewhere: /contact/ was a menu item and is now a section of About.
+# Each becomes <old>/index.html, which sends the visitor on (build_redirects).
+REDIRECTS = {"contact": ("/about/#contact", "Contact")}
 
 PLACEHOLDER_RE = re.compile(r"\[PLACEHOLDER[^\]]*\]")
 LINK_RE = re.compile(r"\[([^\]]+)\]\(((?:https?://|mailto:|/)[^)\s]*)\)")
@@ -107,14 +110,14 @@ def need(obj, key, where):
     return obj[key]
 
 
-def link(href, label_html, cls=""):
+def link(href, label_html, cls="", rel="noopener"):
     """An <a> tag. href and label_html must already be escaped.
     External links and PDFs open in a new tab and say so to screen readers."""
     attrs = f' class="{cls}"' if cls else ""
     is_pdf = href.lower().endswith(".pdf")
     if is_pdf or href.startswith(("http://", "https://")):
         note = "PDF, opens in a new tab" if is_pdf else "opens in a new tab"
-        return (f'<a{attrs} href="{href}" target="_blank" rel="noopener">{label_html}'
+        return (f'<a{attrs} href="{href}" target="_blank" rel="{rel}">{label_html}'
                 f'<span class="visually-hidden"> ({note})</span></a>')
     return f'<a{attrs} href="{href}">{label_html}</a>'
 
@@ -497,10 +500,12 @@ class Builder:
 
     def page(self, rel, label, path, title, description, content, main_class,
              current=None, image=(None, None), noindex=False, footer=True):
-        """footer=False leaves the contact footer off; Contact in the header then goes to About's."""
+        """footer=False leaves the contact footer off (Home). The body's data-page says which kind
+        of page it is (home, work, project, archive, about, 404), for page-specific CSS."""
         s = self.site
         out = render(
             "base.html",
+            page_name=current or label,
             page_title=esc(title),
             description=esc(description),
             head_meta=self.head_meta(path, title, description, image, noindex),
@@ -511,7 +516,6 @@ class Builder:
             nav_work={"work": ' aria-current="page"', "project": ' aria-current="true"'}.get(current, ""),
             nav_archive=' aria-current="page"' if current == "archive" else "",
             nav_about=' aria-current="page"' if current == "about" else "",
-            contact_href="#contact" if footer else "/about/#contact",
             main_class=main_class,
             content=content,
             footer=render("footer.html", contact_links=self.contact_links("      "),
@@ -567,12 +571,15 @@ class Builder:
         return og.get("src"), og.get("alt")
 
     def contact_links(self, indent):
+        """The email, LinkedIn, GitHub, and resume links from content/site.json, for both the
+        footer and About's Contact section, so changing one there changes both."""
         s = self.site
+        rel = "noopener noreferrer"
         items = [
             link(esc("mailto:" + s["email"]), esc(s["email"])),
-            link(esc(s["linkedin"]), "LinkedIn"),
-            link(esc(s["github"]), "GitHub"),
-            link(url_for(s["resume"]), "Resume"),
+            link(esc(s["linkedin"]), "LinkedIn", rel=rel),
+            link(esc(s["github"]), "GitHub", rel=rel),
+            link(url_for(s["resume"]), "Resume", rel=rel),
         ]
         return "\n".join(f"{indent}<li>{item}</li>" for item in items)
 
@@ -963,8 +970,17 @@ class Builder:
         self.page("404.html", "404", "/404.html", f"Page not found — {s['name']}",
                   s["description"], render("404.html"), "wrap page-not-found", noindex=True)
 
+    def build_redirects(self):
+        """Old addresses (REDIRECTS): a page that sends the visitor on at once, by meta refresh
+        and by script (either works alone), with a plain link if both are off."""
+        for old, (target, title) in REDIRECTS.items():
+            self.write(f"{old}/index.html", render(
+                "redirect.html", page_title=esc(f"{title} — {self.site['name']}"),
+                target=esc(target), target_js=json.dumps(target), title=esc(title)))
+
     def report(self, seconds):
-        pages = sum(1 for w in self.written if w.endswith(".html"))
+        pages = sum(1 for w in self.written
+                    if w.endswith(".html") and w[:-len("/index.html")] not in REDIRECTS)
         print(f"Built {pages} pages into dist/ in {seconds:.2f}s")
         left = ", ".join(f"{k} {v}" for k, v in self.placeholder_counts.items() if v)
         if left:
@@ -998,6 +1014,7 @@ def build(local_url=None):
         builder.build_project(p, projects[i - 1], projects[(i + 1) % len(projects)])
     builder.build_about()
     builder.build_404()
+    builder.build_redirects()
     builder.remove_stale()
     builder.report(time.time() - start)
 

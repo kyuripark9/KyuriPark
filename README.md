@@ -25,10 +25,14 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 | `/work/` | Work: everything. "All 11   Digital 08   Physical 02   Brand 03   Visual 03" at the top filters one grid of tiles (`/work/#all`, `#digital`, `#physical`, `#brand`, `#visual`). Work answers "what kind" |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html` |
 | `/archive/` | Archive: personal work and hobbies, a gallery of images with nothing under them. A separate page with its own data |
-| `/about/` | Portrait, About text, experience, contact links |
+| `/about/` | Portrait, About text, experience, and Contact (`/about/#contact`) |
+| `/contact/` | Not a page: it sends visitors straight on to `/about/#contact` (old links keep working) |
 
-Contact is the footer on every page except Home (the header's "Contact" link scrolls to it; on
-Home, which has no footer, it goes to About's) and a section on About.
+Contact is a section of About, not a menu item. The same links (email, LinkedIn, GitHub, Resume)
+are also in the footer on every page except Home, which has no footer; on About, the footer
+shows only the copyright, since the Contact section sits just above it. Both come from
+`"email"`, `"linkedin"`, `"github"`, and `"resume"` in `content/site.json`, so changing one
+there changes both.
 
 ## Where things live
 
@@ -48,7 +52,7 @@ assets/css/style.css    all styling; colors, type sizes, and spacing are at the 
 assets/js/main.js       Work's filter, lightbox, fade-ups, count-up
 assets/js/track.js      the home project loop
 templates/              page structure (header, footer, home, work and its toggle, archive,
-                        lightbox, project, about, 404)
+                        lightbox, project, about, 404, and the /contact/ redirect)
 dist/                   the generated site. Never edit; it's rebuilt every time.
 ```
 
@@ -233,11 +237,14 @@ in `assets/css/style.css`.
 
 ## Header
 
-The name is at the left and Work, Archive, About, and Contact at the right, on one line at every
-width, from `templates/base.html` on every page. The current page's link is at full strength and
-the others are at 0.6 opacity (`.site-menu a` in `assets/css/style.css`). On phones the links close
-up, and under 360px the type steps down to 14px. If a visitor has set larger text in their
-browser or phone and it still doesn't fit, the links move to a second line, at the right.
+The name is at the left and Work, Archive, and About at the right, on one line at every width
+(down to 320px), from `templates/base.html` on every page. The current page's link is at full
+strength and the others are at 0.6 opacity (`.site-menu a` in `assets/css/style.css`). On phones
+the links close up. If a visitor has set larger text in their browser or phone and it still
+doesn't fit, the links move to a second line, at the right.
+
+`<body data-page="…">` names the kind of page (`home`, `work`, `project`, `archive`, `about`,
+`404`), for CSS that applies to one page only, like About's footer.
 
 ## Spacing
 
@@ -254,7 +261,7 @@ spacing inside things (`--step-3` is 24px).
 ## Motion
 
 The site keeps motion to a short list: the home loop and its intro, the Work toggle's fade, the Work and Archive images growing slightly (3%) and Work's videos playing on hover, images
-fading up on project pages, a 300 ms fade between pages (in browsers that support it; others switch pages instantly), the lightbox fading in and out (200 ms), and impact numbers counting up. If a visitor has reduced
+fading up on project pages, a 300 ms fade between pages (in browsers that support it; others switch pages instantly), the lightbox fading in and out (200 ms), impact numbers counting up, and a smooth scroll to a spot on a page (`/about/#contact`). If a visitor has reduced
 motion turned on, all of it is off, and the home loop jumps from card to card without easing.
 
 Home loop: the home page shows the featured projects, fills the screen, and doesn't scroll, with

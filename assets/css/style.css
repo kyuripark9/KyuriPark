@@ -259,7 +259,6 @@ button {
 .text-body a,
 .text-link,
 .project-meta a,
-.link-list a,
 .project-nav a,
 .lightbox-close,
 .lightbox-arrow {
@@ -271,11 +270,19 @@ button {
 .text-body a:hover,
 .text-link:hover,
 .project-meta a:hover,
-.link-list a:hover,
 .project-nav a:hover,
 .lightbox-close:hover,
 .lightbox-arrow:hover {
   color: var(--color-muted);
+}
+
+/* About's Contact links step back a little on hover, nothing more (no underline). */
+.link-list a {
+  transition: opacity var(--fade);
+}
+
+.link-list a:hover {
+  opacity: 0.6;
 }
 
 mark.placeholder {
@@ -289,10 +296,10 @@ mark.placeholder {
 
 /* Header ---------------------------------------------------------------- */
 
-/* The name at the left, the four links at the right, on one line at every width. On a phone
-   the links close up; under 360px, the type steps down to fit (the narrowest is 320px). If they
-   still don't fit (larger text set in the browser or the phone), the links move to a second
-   line, at the right, instead of running into the name. */
+/* The name at the left, the three links (Work, Archive, About) at the right, on one line at
+   every width, down to 320px. On a phone the links close up. If they still don't fit (larger
+   text set in the browser or the phone), the links move to a second line, at the right,
+   instead of running into the name. */
 .site-header {
   position: relative;
   z-index: 20;
@@ -335,12 +342,6 @@ mark.placeholder {
 .site-menu a:focus-visible,
 .site-menu [aria-current] {
   opacity: 1;
-}
-
-@media (max-width: 359.98px) {
-  .site-header {
-    font-size: 0.875rem;  /* 14px */
-  }
 }
 
 @media (min-width: 768px) {
@@ -1354,6 +1355,13 @@ mark.placeholder {
   margin-top: var(--step-1);
 }
 
+/* /about/#contact (and /contact/, which sends visitors there) lands with 64px over the
+   section, the same as from the header's text to a page's title. The header scrolls away
+   with the page, so it can't cover the section either way. */
+#contact {
+  scroll-margin-top: var(--space-3);
+}
+
 /* 404 ------------------------------------------------------------------- */
 
 .page-not-found {
@@ -1400,6 +1408,13 @@ mark.placeholder {
   color: var(--color-muted);
 }
 
+/* The footer is the same on every page, but About has these links in its Contact section just
+   above, so there it shows only the copyright. */
+[data-page="about"] .site-footer > h2,
+[data-page="about"] .footer-links {
+  display: none;
+}
+
 @media (max-width: 639px) {
   .site-footer,
   .footer-links {
@@ -1414,8 +1429,14 @@ mark.placeholder {
 
 /* Motion ---------------------------------------------------------------- */
 
-/* Pages fade into each other (browsers that support it; others just switch). */
+/* Pages fade into each other (browsers that support it; others just switch). A link to a spot
+   on a page (/about/#contact, the skip link) scrolls there smoothly; with reduced motion it
+   jumps. */
 @media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+
   @view-transition {
     navigation: auto;
   }

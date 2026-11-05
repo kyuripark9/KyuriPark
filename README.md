@@ -250,7 +250,12 @@ doesn't fit, the links move to a second line, at the right.
 
 Three values at the top of `assets/css/style.css` set the spacing around the work on every page:
 `--space-1` (16px, image to caption), `--space-2` (32px, filter or title to the grid), and
-`--space-3` (64px, the header's text to the filter or title). `--gutter` is the side margin the
+`--space-3` (64px, the header's text to the page's first thing). `--page-top` turns that into
+where every page starts: `main` has it as `padding-top`, so Home's middle card, Work's filter,
+About's portrait, Archive's images, and a project's title all start on the same line (32px under
+the header's box from 768px, 40px on phones), and nothing jumps when you switch pages. To move
+that line, change `--page-top` (or `--space-3`) at the top of `assets/css/style.css`; nothing on
+a page adds its own space over its first thing. `--gutter` is the side margin the
 header and the page share, so their edges line up: 16px on phones, 24px from 768px, 32px from
 1200px. `--page-max` (1600px) is the widest the page and the header run; past it, both stay
 centered with the same edges. `--media-gap` (12px) is the space between images on every page
@@ -278,8 +283,7 @@ To tune it:
   `SETTLE_DELAY` (ms of no input before it settles), `EASE` (how quickly it glides).
 - `assets/css/style.css`, "Home: project track": `--card-gap` (space between cards: `--media-gap`,
   12px, as between images on every page), `--card-base` (the middle card's width up to a
-  900px-tall window, 400px), `--card-w`, `--peek`, `--room-top` (over the middle card: 64px from
-  the header's text, like Work's filter and Archive's title, on any screen), `--room-spare` (under
+  900px-tall window, 400px), `--card-w`, `--peek`, `--room-spare` (under
   it on a taller window, where the card grows to keep this), `--room-bottom` (the least under it,
   room for a caption of up to three lines and "View all work"; on short screens the card shrinks
   to keep this), `--scale-1` (card size one step from the

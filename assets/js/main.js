@@ -13,7 +13,6 @@
   if (workTabs.length) {
     const FADE_OUT = 150;  // ms
     const FADE_IN = 250;   // ms
-    const toggle = workTabs[0].parentElement;
     const panel = document.getElementById("work-panel");
     const tiles = [...panel.querySelectorAll(".work-grid > li")];
     const empty = panel.querySelector(".work-empty");
@@ -32,20 +31,12 @@
       });
       empty.hidden = n > 0;
     };
-    // The white pill sits under the tab picked, as wide as that tab. Where the tabs scroll
-    // sideways, that tab comes into view.
-    const placeThumb = () => {
-      const tab = workTabs[filters.indexOf(wanted)];
-      toggle.style.setProperty("--thumb-x", `${tab.offsetLeft}px`);
-      toggle.style.setProperty("--thumb-w", `${tab.offsetWidth}px`);
-      toggle.scrollLeft = tab.offsetLeft + (tab.offsetWidth - toggle.clientWidth) / 2;
-    };
+    // The pill picked is filled (style.css, aria-pressed).
     const mark = (name) => {
       wanted = name;
       workTabs.forEach((tab) => {
         tab.setAttribute("aria-pressed", String(tab.dataset.filter === name));
       });
-      placeThumb();
     };
 
     // Picking again while the tiles fade out changes what comes on; while they fade in,
@@ -102,11 +93,6 @@
     const start = addressFilter() || "all";
     mark(start);
     show(start);
-    // The pill keeps up if the tabs change size (the font loading, or a narrower window).
-    const resized = new ResizeObserver(placeThumb);
-    workTabs.forEach((tab) => resized.observe(tab));
-    void toggle.offsetWidth;  // apply its first place before it can slide, so it doesn't slide in
-    toggle.classList.add("is-ready");
   }
 
   // Work tiles: hovering (or focusing) one plays its cover's video, if it has one.

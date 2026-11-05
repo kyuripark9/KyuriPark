@@ -656,18 +656,21 @@ mark.placeholder {
 
 /* Work ------------------------------------------------------------------ */
 
-/* All / Digital / Brand / Physical at the top, left on the page margin, each with
-   its count after it, smaller. main.js shows one filter at a time on the one grid; without
-   JavaScript there's no toggle and the grid shows everything. */
+/* Work's layout follows cedarstudio.framer.ai/work?view=Grid (since 2026-11-05): a row of
+   pills at the top, then 400px-tall images with their title under them. main.js shows
+   one filter at a time on the one grid; without JavaScript there's no filter and the grid shows
+   everything. */
 .page-work {
+  --tile-h: 400px;                  /* every image's height, on every screen; the width is the
+                                       column's, and the image is cropped to fill */
   --tile-col-gap: var(--media-gap); /* between columns: 12px, as between images everywhere */
-  --tile-row-gap: var(--step-3); /* between rows: 24px, 32px from 1024px */
-  --caption-gap: var(--space-1); /* a tile's caption to its image: 16px */
+  --tile-row-gap: var(--step-4);    /* a title to the next row's image: 32px, 64px from 1200px */
+  --caption-gap: var(--space-1);    /* an image to its title: 16px */
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1200px) {
   .page-work {
-    --tile-row-gap: var(--step-4);
+    --tile-row-gap: var(--step-8);
   }
 }
 
@@ -675,87 +678,57 @@ mark.placeholder {
   display: none;
 }
 
+/* All / Digital / Brand / Physical, each a pill with its count after it,
+   smaller. The one showing is filled in the text color; the others are outlined. On a screen
+   too narrow for all of them, the rest go on a second line. (Until 2026-11-05: one gray pill
+   with a white pill sliding under the filter showing; the reference's "FILTER:" in front of the
+   pills was taken off the same day.) */
 .js .work-tabs {
-  position: relative;
   display: flex;
-  width: max-content;
-  max-width: 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--step-1);
   margin-bottom: var(--space-2);
-  padding: 3px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  border-radius: 999px;
-  background: #ebeae6;  /* the same family as the card fill */
-}
-
-/* The toggle is a gray pill with the names on it, and a white pill under the one showing that
-   slides across when another is picked; main.js sets where it sits and how wide it is. On a
-   screen too narrow for all four, the names scroll sideways inside the gray pill. */
-.js .work-tabs::before {
-  content: "";
-  position: absolute;
-  top: 3px;
-  bottom: 3px;
-  left: 0;
-  width: var(--thumb-w, 0);
-  border-radius: inherit;
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-  transform: translateX(var(--thumb-x, 0));
-}
-
-.js .work-tabs.is-ready::before {
-  transition: transform 420ms cubic-bezier(0.22, 0.9, 0.25, 1),
-              width 420ms cubic-bezier(0.22, 0.9, 0.25, 1);
 }
 
 .work-tab {
-  position: relative;  /* over the white pill */
-  padding: 6px 16px;
-  border-radius: 999px;
-  font-size: 0.875rem;  /* 14px, a step under the nav */
+  font-size: var(--size-label);  /* 12px (until 2026-11-05: 14px, 34px tall) */
+  line-height: 16px;
+  text-transform: uppercase;
   white-space: nowrap;
-  color: rgba(0, 0, 0, 0.45);
-  transition: color 280ms ease, opacity var(--fade);
+  color: var(--color-muted);
+  padding: 7px 12px;  /* 32px tall, with the line */
+  border: 1px solid rgba(22, 22, 22, 0.14);  /* the text color, faint */
+  border-radius: 999px;
+  transition: color var(--fade), background-color var(--fade), border-color var(--fade);
 }
 
 .work-tab:hover {
-  opacity: 0.85;
+  border-color: rgba(22, 22, 22, 0.32);
+  color: var(--color-text);
 }
 
 .work-tab[aria-pressed="true"] {
-  color: #111;
+  border-color: var(--color-text);
+  background: var(--color-text);
+  color: var(--color-bg);
   cursor: default;
 }
 
 .work-tab:focus-visible {
-  outline-color: currentColor;
-  outline-offset: -4px;
-  border-radius: 999px;
-}
-
-/* Too narrow for the tabs at their full padding: the pill runs the width of the page and
-   they share it, closer together. */
-@media (max-width: 499.98px) {
-  .js .work-tabs {
-    width: 100%;
-  }
-
-  .work-tab {
-    flex: 1 1 auto;
-    padding-inline: 4px;
-  }
+  outline-color: var(--color-text);
+  outline-offset: 2px;
 }
 
 .work-count {
   margin-left: 0.5em;
   font-size: 0.625rem;  /* 10px */
+  line-height: 1;  /* so the smaller number doesn't make its pill taller */
 }
 
-/* 1 across on phones, 3 from 768px, 4 from 1200px, as on serinmedia.framer.website/works
-   (until 2026-11-05: 2 from 768px, 3 from 1024px). Each tile is one line, "TypeLab" at the left
-   and its type at the right, over a 3:4 image. A tile with no page is a button (it opens the
-   lightbox) and looks the same. */
+/* 1 across on phones, 2 from 768px, 3 from 1200px (until 2026-11-05: 3 from 768px, 4 from
+   1200px). Each tile is its image, then one line under it: "TypeLab" at the left and its type at
+   the right. A tile with no page is a button (it opens the lightbox) and looks the same. */
 .work-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -764,13 +737,13 @@ mark.placeholder {
 
 @media (min-width: 768px) {
   .work-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (min-width: 1200px) {
   .work-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -782,10 +755,12 @@ mark.placeholder {
   text-align: left;
 }
 
-/* One line: the title at the left, the type ending on the image's right edge. Neither wraps and
-   the line's height is fixed, so every image in the grid starts on the same line. A long title
-   is cut short with "…" first; the type keeps its words up to 60% of the tile, then it's cut too. */
+/* One line under the image (it comes first in the page, for screen readers): the title at the
+   left, the type ending on the image's right edge. Neither wraps and the line's height is fixed,
+   so every tile is the same height. A long title is cut short with "…" first; the type keeps its
+   words up to 60% of the tile, then it's cut too. */
 .work-caption {
+  order: 1;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -814,11 +789,12 @@ mark.placeholder {
   opacity: 0.6;
 }
 
-/* The image fills a 3:4 frame, the covers' own shape (a plain gray block until it exists). */
+/* The image fills a frame as wide as the column and --tile-h tall (a plain gray block until it
+   exists): about 9:8 on a 1440px screen, so a 3:4 cover loses some of its top and bottom. */
 .work-media {
   position: relative;
   display: block;
-  aspect-ratio: 3 / 4;
+  height: var(--tile-h);
   overflow: hidden;
   background: var(--color-fill);
 }

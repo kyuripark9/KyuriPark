@@ -201,11 +201,11 @@ Recommended exports (WebP, or AVIF; JPG and PNG work too):
 
 | Slot | Size | Notes |
 | --- | --- | --- |
-| Cover (Home cards and Work tiles) | 1500 × 2000 | 3:4 on Home and on Work; another shape is cropped to fill |
+| Cover (Home cards and Work tiles) | 1500 × 2000 | 3:4 on Home; on Work it's cropped to a 400px-tall frame as wide as the column (about 9:8 on a 1440px screen), so keep the subject near the middle |
 | Hero and full-width | 2400 px wide | Any height; the hero runs edge to edge |
 | Two-image row | 1200 px wide each | Same ratio for both looks best |
 | About portrait | 1200 × 1500 | |
-| Image of an item with no page | 1200 × 1500 | The Work tile crops it to 3:4; the lightbox shows the whole image |
+| Image of an item with no page | 1200 × 1500 | The Work tile crops it as it does a cover; the lightbox shows the whole image |
 | Archive image | 1500 px on the long side | Any shape; never cropped |
 
 Aim for under ~500 KB per image. [Squoosh](https://squoosh.app) or Figma's export both make WebP.
@@ -290,16 +290,18 @@ the tiles fade out (150 ms), the filter's tiles come on, and they fade in
 (250 ms); with reduced motion it just switches. A filter with nothing in it says "Coming soon".
 The address shows `#all`, `#digital`, and so on, so a link opens that filter, Back and Forward step
 through the ones picked, and Back from a project page returns to the same one; no hash or an
-unknown one means All, and `#visual` (a filter that's now part of Brand) opens Brand. Each filter is a button, and Tab goes from one to the next. The grid is 1
-column on phones, 2 from 768px, 3 from 1024px, each tile a 3:4 image. Each tile's caption is one
-line over its image: the title at the left, the type (14px, at 0.6 opacity) ending on the image's
+unknown one means All, and `#visual` (a filter that's now part of Brand) opens Brand. Each filter is a button, and Tab goes from one to the next. The layout follows
+cedarstudio.framer.ai/work?view=Grid. The toggle is a row of pills (12px, in capitals, 32px tall): the one showing is filled, the others outlined, and on a screen too narrow for all of
+them the rest go on a second line. The grid is 1 column on phones, 2 from 768px, 3 from 1200px,
+and every image is 400px tall, as wide as its column, cropped to fill. Each tile's caption is one
+line under its image: the title at the left, the type (14px, at 0.6 opacity) ending on the image's
 right edge. Neither wraps: a long title is cut short with "…" first, and a type longer than 60%
-of the tile is cut too, so every image starts on the same line. Under 500px the toggle runs the width of the page, and if it still doesn't fit, it scrolls
-sideways. Without JavaScript there's no toggle and the grid shows everything. To tune it:
+of the tile is cut too, so every tile is the same height. Without JavaScript there's no toggle and
+the grid shows everything. To tune it:
 - `assets/js/main.js`, the Work section: `FADE_OUT` / `FADE_IN`.
-- `assets/css/style.css`, "Work": `--tile-col-gap` (between columns: 12px, `--media-gap`), `--tile-row-gap`
-  (between rows: 24px, 32px from 1024px), `--caption-gap` (caption to image: 16px, `--space-1`); the
-  image's shape is `aspect-ratio` on `.work-media`.
+- `assets/css/style.css`, "Work": `--tile-h` (the images' height: 400px), `--tile-col-gap` (between
+  columns: 12px, `--media-gap`), `--tile-row-gap` (a title to the next row's image: 32px, 64px from
+  1200px), `--caption-gap` (image to title: 16px, `--space-1`).
 - The side margins: `--gutter` at the top of `assets/css/style.css` (see Spacing).
 - The filters themselves: `CATEGORIES` at the top of `build.py` (their order on the toggle, and
   the values `category` can use). When one is merged into another or renamed, add the old name to

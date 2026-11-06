@@ -815,8 +815,9 @@ mark.placeholder {
    blur away, and then the black fades to show the page (the script and its timing are at
    the end of templates/home.html). Until the page shows, the header and the track stay
    hidden.
-     --intro-bg        the screen's color
-     --intro-color     the line's color
+     --intro-bg        the screen's color: the site's text color, its near-black, the page
+                       in reverse (pure black until 2026-11-06, a color nowhere else on the site)
+     --intro-color     the line's color: the page's background (pure white until 2026-11-06)
      --intro-size      the line's type size
      --intro-image     the corner image's width and height (it's square)
      --intro-margin    the corner image's distance from the bottom and right edges */
@@ -825,8 +826,8 @@ mark.placeholder {
 }
 
 .intro {
-  --intro-bg: #000;
-  --intro-color: #fff;
+  --intro-bg: var(--color-text);
+  --intro-color: var(--color-bg);
   --intro-size: var(--size-name);
   --intro-image: 160px;
   --intro-margin: 20px;

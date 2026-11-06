@@ -391,11 +391,13 @@ same height. Without JavaScript there's no toggle and the grid shows everything.
   the values `category` can use). When one is merged into another or renamed, add the old name to
   `MERGED` in `assets/js/main.js`, so links to it still open the right filter.
 
-Home intro: the first time Home opens in a browser tab, the screen is black, with the name and
-role in capitals in the middle and the projects' covers taking turns in the bottom-right corner.
-Both come into focus, hold, and blur away; then the black blurs and fades and the page shows
-(about 3.7 s in all). A click, a key, or the mouse wheel skips to the end. After that, Home opens
-straight away in that tab, including on refresh; with reduced motion there's no intro at all.
+Home intro: the first time Home opens in a browser tab, the screen is black (the site's own
+near-black text color, with the line in its background color: the page in reverse; pure black and
+white until 2026-11-06), with the name and role in capitals in the middle and the projects'
+covers taking turns in the bottom-right corner. Both come into focus, hold, and blur away; then
+the black blurs and fades and the page shows (about 3.7 s in all). A click, a key, or the mouse
+wheel skips to the end. After that, Home opens straight away in that tab, including on refresh;
+with reduced motion there's no intro at all.
 To tune it:
 - The script at the end of `templates/home.html`, at the top: `DELAY` (ms of black first),
   `FADE_IN` (ms to come into focus), `HOLD` (ms in focus), `FADE_OUT` (ms to blur away),

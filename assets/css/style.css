@@ -90,7 +90,7 @@
      larger browser text pushes the links to a second line, the box is a line taller. */
   --header-h: calc(var(--header-top) + var(--leading-text) * var(--size-small) + var(--header-pad));
   /* Where every page starts: the header's box to the page's first thing (Home's middle card,
-     Work's filter, Archive's images, a project's title), the same on every
+     Work's filter, a project's title; Archive's images start lower, where Work's do), the same on every
      page so nothing jumps when you switch. --space-3 from the header's text, what the eye
      measures (96px on phones, 128px from 768px): 80px under the header's box on phones, 104px
      from 768px. Change --space-3 or set a fixed value. */
@@ -879,11 +879,18 @@ mark.placeholder {
    top to bottom, so the file's order runs down the first, then the second. The caption and
    date only show in the lightbox; without JavaScript, they show under the image instead,
    --space-1 under it as every caption is.
-   No title on the page (screen readers get a hidden "Archive" heading): the images start on
-   the page's starting line, where Work's filter does. */
+   No title on the page (screen readers get a hidden "Archive" heading). The images start where
+   Work's do: a filter line (one label line) and --space-2 under the page's starting line, so
+   switching between the two doesn't move them. Without JavaScript Work has no filter, so they
+   start on the starting line itself. (Until 2026-11-05: on the starting line, where Work's
+   filter is.) */
 .archive-grid {
   columns: 2;
   column-gap: var(--media-gap);
+}
+
+.js .archive-grid {
+  margin-top: calc(var(--leading-text) * var(--size-label) + var(--space-2));
 }
 
 @media (min-width: 768px) {

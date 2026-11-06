@@ -31,10 +31,9 @@
       "Based in Chicago. Studying HCI at DePaul University."
     ],
     "experience": [
-      { "company": "DePaul University", "role": "Graduate Research Assistant", "dates": "Jan 2026 – Present" },
-      { "company": "NBC Universal", "role": "Product Designer Intern", "dates": "May – Aug 2025" },
-      { "company": "Philly Fashion Week", "role": "Digital Design Intern", "dates": "Jul – Sep 2023" },
-      { "company": "KTM Technology", "role": "UX Designer", "dates": "Mar 2020 – Dec 2022" }
+      { "company": "Clayco", "role": "Junior Graphic Designer", "dates": "Jun – Sep 2026" },
+      { "company": "NBC Universal", "role": "Product Design Intern", "dates": "May – Aug 2025" },
+      { "company": "Philly Fashion Week", "role": "Digital Design Intern", "dates": "Jul – Sep 2023" }
     ]
   }
 }

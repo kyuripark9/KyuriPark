@@ -406,7 +406,10 @@ back, as a hint that the letters come apart. It works with a finger as well, unt
 starts to scroll. The sentence stays real text (it can be selected and read aloud as before); a
 canvas over it draws only the dots that have moved, with a patch of the background where each
 one sat in its letter. It runs only while some of the sentence is on screen, and with reduced
-motion it's off. To tune it: the top of the "About's first screen" part of
+motion it's off (even if turned on with the page open). It rests while any of the sentence is
+selected, and while a mouse button is down (a drag may be selecting it), so no patch cuts into
+the selection's highlight; and the edges stop coming loose while the page doesn't have focus
+(the browser's find bar takes it, and its highlight would show the same cuts). To tune it: the top of the "About's first screen" part of
 `assets/js/main.js`: `CELL` (px between dots: smaller is finer dust and more of it), `DOT` (a
 dot's width, in cells), `REACH` (how far the pointer reaches, in the sentence's font size),
 `PUSH` (how hard it pushes), `SPRING` / `DRAG` (how the dots hold and slow down near the
@@ -416,7 +419,8 @@ for only a frame or two, so it gets a bigger push, and every letter along its wa
 only the ones under the frames' positions); for the edges, `FRAY` (the share
 of edge dots loose at a time: 0 turns it off), `FRAY_NEAR` / `FRAY_FAR` (px they drift, least
 and most), `FRAY_TIME` (ms out and back). The dots take the sentence's color, the patches the
-page's background.
+background behind it (a part with its own, like a `[PLACEHOLDER]`'s highlight or a link in
+another color, keeps its own).
 
 ## Deploy
 

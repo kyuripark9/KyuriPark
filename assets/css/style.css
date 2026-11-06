@@ -1456,13 +1456,12 @@ mark.placeholder {
   translate: -50% 0;
 }
 
-/* The sentence's loose dots (main.js), on a canvas over the first screen and under
-   "[ Scroll down ]". It takes no clicks. */
+/* The sentence's loose dots (main.js), on a canvas over the sentence and as far around it as a
+   dot goes, under "[ Scroll down ]". main.js places and sizes it. It takes no clicks. */
 .about-dust {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  top: 0;
+  left: 0;
   pointer-events: none;
 }
 

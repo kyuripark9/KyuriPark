@@ -235,7 +235,7 @@
   // loose on their own, drift a little way off, and settle back, a hint that the letters are made
   // of dots and come apart. The sentence stays real text: a canvas over it draws only what has
   // moved, a patch of the background where each loose dot sat in a letter and the dot where it is
-  // now.
+  // now. While some of it is selected, everything rests, so no patch cuts into the highlight.
   const hero = document.querySelector(".about-hero");
   const headline = hero?.querySelector(".about-headline");
   if (hero && headline) {
@@ -258,6 +258,9 @@
     const FRAY_FAR = 16;     // ...and the farthest (most stay near)
     const FRAY_TIME = 2400;  // ms to drift off and settle back (each 0.6 to 1.4 times this)
     const MAX_DOTS = 12000;  // past this the cells grow, so a long sentence stays smooth
+    const AROUND = 3;        // the canvas runs this many reaches past the sentence: with the
+                             // settings above a fast pass throws a dot 2.3 reaches at most
+    const SETTLE = 150;      // ms a resize has to rest before the letters are scanned again
 
     const canvas = document.createElement("canvas");
     canvas.className = "about-dust";
@@ -267,48 +270,91 @@
     const intro = document.querySelector(".about-intro");
     let cell = CELL;
     let reach = 0;
-    let ink = "#000";
-    let paper = "#fff";
     let dots = [];   // the sentence's dots: their cell's middle (cx, cy), home (hx, hy), where
-                     // they are, their speed, and the way out of the letter (nx, ny) if on an edge
+                     // they are, their speed, their colors (ink, and paper for the patch), and
+                     // the way out of the letter (nx, ny) if on an edge
     let edges = [];  // the dots on the letters' edges
+    const astir = new Set();  // the dots coming loose or on their way home: with the pointer
+                              // away, the only ones a frame has to move
     let afloat = 0;  // edge dots due to come loose (a running count, so they come one by one)
     let shown = false;  // some of the sentence is on screen (not yet under the photo block)
+    let focused = document.hasFocus();  // the edges come loose only while the page has focus:
+                                        // the browser's find bar takes it, and a patch would
+                                        // cut into the find's highlight too
+    let selected = false;  // some of the sentence is selected
+    let drawn = null;      // the part of the canvas the last frame drew on, to clear
+    let density = null;    // the screen's pixel density, to draw afresh when it changes
+    let built = false;
+    let pending = 0;
     const pointer = { clientX: 0, clientY: 0, x: 0, y: 0, sx: 0, sy: 0, px: 0, py: 0,
                       inside: false, fresh: true };
     let frame = 0;
     let last = 0;
 
+    const clear = (color) => color === "transparent" || /^rgba\(.*,\s*0\)$|\/\s*0\)$/.test(color);
+    // The color behind an element: its own background, or the nearest one under it.
+    const backdrop = (el) => {
+      for (; el; el = el.parentElement) {
+        const color = getComputedStyle(el).backgroundColor;
+        if (!clear(color)) return color;
+      }
+      return "#fff";
+    };
+
     // Draw the letters where the page draws them, one by one, on a hidden canvas, and put a
     // dot on every cell with ink in it.
     const build = () => {
-      const w = hero.clientWidth;
-      const h = hero.clientHeight;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.max(1, Math.round(w * dpr));
-      canvas.height = Math.max(1, Math.round(h * dpr));
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      built = true;
+      watchDensity();
+      dots = [];
+      edges = [];
+      astir.clear();
+      drawn = null;
       const style = getComputedStyle(headline);
-      ink = style.color;
-      paper = getComputedStyle(document.body).backgroundColor;
       const size = parseFloat(style.fontSize);
       reach = size * REACH;
+      const box = hero.getBoundingClientRect();
+      const lines = headline.getBoundingClientRect();
+      // The sentence's box (in the first screen's px), and around it the canvas, as far as a
+      // dot can go.
+      const left = Math.max(0, Math.floor(lines.left - box.left) - 4);
+      const top = Math.max(0, Math.floor(lines.top - box.top) - 4);
+      const right = Math.min(hero.clientWidth, Math.ceil(lines.right - box.left) + 4);
+      const bottom = Math.min(hero.clientHeight, Math.ceil(lines.bottom - box.top) + 4);
+      const around = reach * AROUND + FRAY_FAR;
+      const x0 = Math.max(0, Math.floor(left - around));
+      const y0 = Math.max(0, Math.floor(top - around));
+      const x1 = Math.max(x0, Math.min(hero.clientWidth, Math.ceil(right + around)));
+      const y1 = Math.max(y0, Math.min(hero.clientHeight, Math.ceil(bottom + around)));
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      Object.assign(canvas.style, { left: `${x0}px`, top: `${y0}px`,
+                                    width: `${x1 - x0}px`, height: `${y1 - y0}px` });
+      canvas.width = Math.max(1, Math.round((x1 - x0) * dpr));
+      canvas.height = Math.max(1, Math.round((y1 - y0) * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, -x0 * dpr, -y0 * dpr);  // drawn in the first screen's px
+      if (right <= left || bottom <= top) return;
 
+      const span = right - left;
       const mask = document.createElement("canvas");
-      mask.width = Math.max(1, Math.ceil(w));
-      mask.height = Math.max(1, Math.ceil(h));
+      mask.width = span;
+      mask.height = bottom - top;
       const m = mask.getContext("2d", { willReadFrequently: true });
+      m.translate(-left, -top);
       m.font = `${style.fontWeight} ${size}px ${style.fontFamily}`;
       m.fillStyle = m.strokeStyle = "#000";
       m.lineWidth = 2;  // a pixel past each edge, so the patches take the letters' soft edges too
+      m.lineJoin = "round";  // a pixel at the sharp corners too (A, V, W...), not a mitred spike
       const metrics = m.measureText("H");
       const ascent = metrics.fontBoundingBoxAscent ?? size * 0.97;
       const descent = metrics.fontBoundingBoxDescent ?? size * 0.24;
-      const box = hero.getBoundingClientRect();
       const upper = style.textTransform === "uppercase";
       const range = document.createRange();
       const walker = document.createTreeWalker(headline, NodeFilter.SHOW_TEXT);
       for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        // Not text only screen readers get (a link's "opens in a new tab"), or hidden text.
+        const parent = node.parentElement;
+        if (!parent || parent.closest(".visually-hidden")
+            || getComputedStyle(parent).visibility !== "visible") continue;
         const text = node.data;
         for (let i = 0; i < text.length; i++) {
           if (/\s/.test(text[i])) continue;
@@ -324,16 +370,22 @@
         }
       }
 
-      dots = [];
-      edges = [];
-      const lines = headline.getBoundingClientRect();
-      const left = Math.max(0, Math.floor(lines.left - box.left) - 4);
-      const top = Math.max(0, Math.floor(lines.top - box.top) - 4);
-      const right = Math.min(mask.width, Math.ceil(lines.right - box.left) + 4);
-      const bottom = Math.min(mask.height, Math.ceil(lines.bottom - box.top) + 4);
-      if (right <= left || bottom <= top) return;
-      const data = m.getImageData(left, top, right - left, bottom - top).data;
-      const span = right - left;
+      // The colors: the sentence's, and the page's behind it, but for a part of it with its
+      // own (a link in another color, a [PLACEHOLDER]'s highlight), kept as the boxes it fills.
+      const ink = style.color;
+      const paper = backdrop(headline);
+      const parts = [];
+      for (const el of headline.querySelectorAll("*")) {
+        if (el.closest(".visually-hidden")) continue;
+        const own = getComputedStyle(el);
+        const behind = clear(own.backgroundColor) ? null : own.backgroundColor;
+        if (!behind && own.color === getComputedStyle(el.parentElement).color) continue;
+        const rects = [...el.getClientRects()].map((r) => [r.left - box.left, r.top - box.top,
+                                                            r.right - box.left, r.bottom - box.top]);
+        parts.push({ rects, ink: own.color, paper: behind });
+      }
+
+      const data = m.getImageData(0, 0, span, bottom - top).data;
       // The cells with ink, as their column and row.
       const sample = (step) => {
         const found = [];
@@ -363,9 +415,15 @@
         const cy = (j + 0.5) * cell;
         const d = { cx, cy, hx: cx + jitter(), hy: cy + jitter(), vx: 0, vy: 0,
                     seed: Math.random(), grit: Math.random(), moving: false, fray: null,
-                    nx: 0, ny: 0 };
+                    nx: 0, ny: 0, ink, paper };
         d.x = d.hx;
         d.y = d.hy;
+        // The innermost part with its own color that the cell is in, if any.
+        for (const part of parts) {
+          if (!part.rects.some(([l, t, r, b]) => cx >= l && cx < r && cy >= t && cy < b)) continue;
+          d.ink = part.ink;
+          if (part.paper) d.paper = part.paper;
+        }
         // On an edge if a cell around it is empty; the way out is toward the empty ones.
         let open = 0;
         for (let dj = -1; dj <= 1; dj++) {
@@ -388,30 +446,69 @@
       }
       afloat = 0;
       look();
-      draw([]);
     };
 
+    const add = (groups, color, d) => {
+      const group = groups.get(color);
+      if (group) group.push(d);
+      else groups.set(color, [d]);
+    };
     const draw = (loose) => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (drawn) ctx.clearRect(drawn[0], drawn[1], drawn[2] - drawn[0], drawn[3] - drawn[1]);
+      drawn = null;
       if (!loose.length) return;
       const patch = cell * COVER;
-      ctx.fillStyle = paper;
-      ctx.beginPath();
+      const r = (cell * DOT) / 2;
+      // By color (all one, but for a part of the sentence with its own): the patches, then the
+      // dots over them.
+      const papers = new Map();
+      const inks = new Map();
+      let x0 = Infinity;
+      let y0 = Infinity;
+      let x1 = -Infinity;
+      let y1 = -Infinity;
+      for (const d of loose) {
+        add(papers, d.paper, d);
+        add(inks, d.ink, d);
+        x0 = Math.min(x0, d.cx - patch / 2, d.x - r);
+        y0 = Math.min(y0, d.cy - patch / 2, d.y - r);
+        x1 = Math.max(x1, d.cx + patch / 2, d.x + r);
+        y1 = Math.max(y1, d.cy + patch / 2, d.y + r);
+      }
       // Rounded a little, so a single one reads as a chip off the letter, not a square cut.
       const round = ctx.roundRect ? cell * 0.4 : 0;
-      for (const d of loose) {
-        if (round) ctx.roundRect(d.cx - patch / 2, d.cy - patch / 2, patch, patch, round);
-        else ctx.rect(d.cx - patch / 2, d.cy - patch / 2, patch, patch);
+      for (const [color, group] of papers) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        for (const d of group) {
+          if (round) ctx.roundRect(d.cx - patch / 2, d.cy - patch / 2, patch, patch, round);
+          else ctx.rect(d.cx - patch / 2, d.cy - patch / 2, patch, patch);
+        }
+        ctx.fill();
       }
-      ctx.fill();
-      const r = (cell * DOT) / 2;
-      ctx.fillStyle = ink;
-      ctx.beginPath();
-      for (const d of loose) {
-        ctx.moveTo(d.x + r, d.y);
-        ctx.arc(d.x, d.y, r, 0, Math.PI * 2);
+      for (const [color, group] of inks) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        for (const d of group) {
+          ctx.moveTo(d.x + r, d.y);
+          ctx.arc(d.x, d.y, r, 0, Math.PI * 2);
+        }
+        ctx.fill();
       }
-      ctx.fill();
+      drawn = [x0 - 2, y0 - 2, x1 + 2, y1 + 2];  // and the soft pixels on the edges
+    };
+
+    // Every dot back in its letter at once, and nothing drawn.
+    const settle = () => {
+      for (const d of astir) {
+        d.x = d.hx;
+        d.y = d.hy;
+        d.vx = d.vy = 0;
+        d.moving = false;
+        d.fray = null;
+      }
+      astir.clear();
+      draw([]);
     };
 
     // An edge dot comes loose: out of its letter, give or take, and back, over FRAY_TIME.
@@ -424,12 +521,17 @@
         d.fray = { start: now, time: FRAY_TIME * (0.6 + 0.8 * Math.random()),
                    dx: Math.cos(angle), dy: Math.sin(angle), far,
                    phase: Math.random() * Math.PI * 2 };
+        astir.add(d);
         return;
       }
     };
 
     const tick = (now) => {
       frame = 0;
+      if (reduceMotion.matches) {  // turned on with the page open
+        settle();
+        return;
+      }
       const ms = last ? Math.min(now - last, 1000 / 24) : 1000 / 60;
       const dt = Math.max(ms / (1000 / 60), 0.25);
       last = now;
@@ -447,6 +549,7 @@
         pointer.sx += (pointer.x - pointer.sx) * k;
         pointer.sy += (pointer.y - pointer.sy) * k;
       }
+      const inside = pointer.inside && !selected;
       const ax = pointer.px;
       const ay = pointer.py;
       const wx = pointer.sx - ax;
@@ -457,7 +560,8 @@
       const mx = step ? wx / step : 0;
       const my = step ? wy / step : 0;
       // About FRAY of the edge dots loose at a time, while the sentence is on screen.
-      if (shown && edges.length) {
+      const fraying = shown && focused && !selected && edges.length;
+      if (fraying) {
         afloat += (ms * edges.length * FRAY) / FRAY_TIME;
         for (; afloat >= 1; afloat--) fray(now);
       }
@@ -466,12 +570,13 @@
       const away = (cell * 0.55) ** 2;  // closer than this to home, the letter draws it
       const loose = [];
       let busy = 0;
-      for (const d of dots) {
+      // With the pointer away, only the dots astir move; with it over the first screen, any may.
+      for (const d of inside ? dots : astir) {
         let near = false;
         let r = 0;
         let dx = 0;
         let dy = 0;
-        if (pointer.inside) {
+        if (inside) {
           // From the nearest point on the way the pointer went this frame.
           const t = way ? Math.min(1, Math.max(0, ((d.x - ax) * wx + (d.y - ay) * wy) / way)) : 0;
           dx = d.x - (ax + wx * t);
@@ -524,15 +629,18 @@
             }
           }
         }
+        if (d.fray || d.moving) astir.add(d);
+        else astir.delete(d);
         if ((d.x - d.hx) ** 2 + (d.y - d.hy) ** 2 >= away) loose.push(d);
       }
 
       draw(loose);
-      // Keep going while the sentence is on screen or anything still moves.
-      if (shown || busy) frame = requestAnimationFrame(tick);
+      // Keep going while anything moves, or may: the pointer is over the first screen, or the
+      // edges come loose.
+      if (busy || inside || fraying) frame = requestAnimationFrame(tick);
     };
     const wake = () => {
-      if (frame) return;
+      if (frame || reduceMotion.matches) return;
       last = 0;
       frame = requestAnimationFrame(tick);
     };
@@ -560,7 +668,8 @@
       pointer.clientX = e.clientX;
       pointer.clientY = e.clientY;
       // Over the first screen only: not once the photo block slides over it, or on the header.
-      if (!hero.contains(e.target)) {
+      // Nor with a mouse button down: that's a drag, perhaps selecting the sentence.
+      if (!hero.contains(e.target) || (e.pointerType === "mouse" && e.buttons)) {
         leave();
         return;
       }
@@ -584,14 +693,61 @@
       if (!hero.contains(document.elementFromPoint(pointer.clientX, pointer.clientY))) leave();
       else place();
     }, { passive: true });
+    document.addEventListener("selectionchange", () => {
+      const selection = document.getSelection();
+      let now = false;
+      for (let i = 0; selection && i < selection.rangeCount; i++) {
+        const r = selection.getRangeAt(i);
+        if (!r.collapsed && r.intersectsNode(headline)) now = true;
+      }
+      if (now === selected) return;
+      selected = now;
+      if (selected) settle();
+      else wake();
+    });
+    window.addEventListener("focus", () => {
+      focused = true;
+      wake();
+    });
+    window.addEventListener("blur", () => {
+      focused = false;
+    });
+    reduceMotion.addEventListener?.("change", () => {
+      if (!reduceMotion.matches) {
+        look();
+        return;
+      }
+      cancelAnimationFrame(frame);
+      frame = 0;
+      settle();
+    });
 
-    let pending = 0;
+    // A resize moves the letters: the dots go at once, and come back once it rests, from the
+    // letters drawn and scanned again (the first time, right away).
     const rebuild = () => {
-      cancelAnimationFrame(pending);
-      pending = requestAnimationFrame(build);
+      clearTimeout(pending);
+      if (dots.length) {
+        dots = [];
+        edges = [];
+        astir.clear();
+        draw([]);
+      }
+      pending = setTimeout(build, built ? SETTLE : 0);
     };
-    new ResizeObserver(rebuild).observe(hero);
-    new ResizeObserver(rebuild).observe(headline);
+    // And so does moving to a screen of another pixel density, to stay as sharp as the text.
+    const watchDensity = () => {
+      density?.removeEventListener?.("change", rebuild);
+      density = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
+      density.addEventListener?.("change", rebuild);
+    };
+    if ("ResizeObserver" in window) {
+      const sizes = new ResizeObserver(rebuild);
+      sizes.observe(hero);
+      sizes.observe(headline);
+    } else {
+      window.addEventListener("resize", rebuild);
+      rebuild();
+    }
     document.fonts?.ready.then(rebuild);
   }
 

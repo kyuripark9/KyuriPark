@@ -1417,13 +1417,23 @@ mark.placeholder {
   }
 }
 
-/* The list is a grid of three columns (company, role, dates) that its rows only take up when
-   it's wide enough (below); until then each row spans all three and sets its own two. */
+/* Experience runs the full width under its heading, one line per job, like a table (since
+   2026-11-05; before, it sat in the right column beside its heading, where a job took two
+   lines below a 1290px window). Contact keeps its heading beside its links. */
+.split-section > .experience {
+  grid-column: 1 / -1;
+}
+
+/* The list is a grid of three columns (role, company, dates) that its rows only take up when
+   it's wide enough (below); until then each row spans all three and sets its own two. The
+   first column ends where the section's halves meet, so companies start where Contact's links
+   do, and the dates sit at the right edge. The role leads, in the text color; the company and
+   dates are muted (until 2026-11-05 the company came first and the role was muted). */
 .experience {
   container: experience / inline-size;
   display: grid;
-  grid-template-columns: max-content minmax(0, 1fr) max-content;
-  column-gap: var(--step-4);
+  grid-template-columns: calc(50% - var(--col-gap) / 2) minmax(0, 1fr) max-content;
+  column-gap: var(--col-gap);
   border-top: 1px solid var(--color-line);
 }
 
@@ -1436,7 +1446,7 @@ mark.placeholder {
   border-bottom: 1px solid var(--color-line);
 }
 
-.experience-role,
+.experience-company,
 .experience-dates {
   color: var(--color-muted);
 }
@@ -1447,18 +1457,20 @@ mark.placeholder {
   text-align: right;
 }
 
-/* One row per job once the list itself is wide enough for one: 37.5rem (600px; today's longest
-   row, company, role, and dates with the gaps, is 598px). The list's width decides, not the
-   window's, so a role never wraps for want of room (a window about 1290px wide and up). Rows
-   share the list's columns (subgrid) so company, role, and dates line up from row to row.
-   Until 2026-11-05: from a 1240px window, where the longest role still wrapped. */
-@container experience (min-width: 37.5rem) {
+/* One line per job once the list itself is wide enough for one: 40.5rem (648px), where the
+   right half still holds today's longest company (151px) and longest dates (124px) with the
+   gap between them, and the left half the longest role (184px). The list's width decides, not
+   the window's, so nothing wraps for want of room (from a window about 680px wide, so every
+   width from 768px up). Rows share the list's columns (subgrid) so role, company, and dates
+   line up from row to row. Until 2026-11-05: 37.5rem, from a window about 1290px wide, while
+   the list sat in the right column; then 44.5rem while the role sat in the right half. */
+@container experience (min-width: 40.5rem) {
   .experience li {
     grid-template-columns: subgrid;
-    column-gap: var(--step-4);
+    column-gap: var(--col-gap);
   }
 
-  .experience-role {
+  .experience-company {
     grid-column: 2;
     grid-row: 1;
   }

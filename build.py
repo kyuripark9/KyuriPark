@@ -973,8 +973,8 @@ class Builder:
         for row in about.get("experience") or []:
             experience.append(
                 '        <li>'
-                f'<span class="experience-company">{inline(row.get("company", ""))}</span>'
                 f'<span class="experience-role">{inline(row.get("role", ""))}</span>'
+                f'<span class="experience-company">{inline(row.get("company", ""))}</span>'
                 f'<span class="experience-dates">{inline(row.get("dates", ""))}</span>'
                 '</li>')
         content = render("about.html", hero=self.about_hero(about),

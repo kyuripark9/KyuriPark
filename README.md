@@ -341,7 +341,10 @@ plain list of the projects.
 To tune it:
 - `assets/js/track.js`, at the top: `WHEEL_SPEED` (cards per pixel of wheel/trackpad scroll),
   `WHEEL_MAX` (the most one wheel event can count for, which tames trackpad flicks),
-  `SETTLE_DELAY` (ms of no input before it settles), `EASE` (how quickly it glides).
+  `SETTLE_DELAY` (ms of no input before it settles), `EASE` (how quickly it glides),
+  `TICK_VOLUME` (the soft tick each time a new card reaches the middle, 0 to 1; 0 turns it off),
+  `TICK_TONE` (its pitch in Hz; higher sounds brighter). The tick is made in the browser, no
+  sound file, and stays silent until the visitor has clicked, tapped, or pressed a key on the page.
 - `assets/css/style.css`, "Home: project track": `--card-gap` (space between cards: `--media-gap`,
   12px, as between images on every page), `--card-base` (the middle card's width up to a
   900px-tall window, 400px), `--card-w`, `--peek`, `--room-spare` (under

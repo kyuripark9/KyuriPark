@@ -3,11 +3,14 @@
 // Each card is placed by its distance from the position, wrapped around the loop; when the
 // cards alone can't fill the screen, copies of them extend it. Card size, spacing, and
 // how the cards shrink, grey, fade, and blur away from the middle are set in style.css.
+// Each time a new card reaches the middle, a soft tick sounds.
 (() => {
   const WHEEL_SPEED = 1 / 600;   // cards moved per pixel of wheel or trackpad scroll
   const WHEEL_MAX = 30;          // pixels: one wheel event never counts for more than this
   const SETTLE_DELAY = 150;      // ms without input before the row settles on one card
   const EASE = 0.15;             // share of the remaining distance covered each frame
+  const TICK_VOLUME = 0.3;       // 0 to 1; 0 turns the tick off
+  const TICK_TONE = 1800;        // Hz: the pitch the tick centers on; higher sounds brighter
 
   const root = document.querySelector(".track");
   if (!root) return;
@@ -32,6 +35,49 @@
   let settleTimer;
   let drag = null;
   let dragged = false;
+
+  // The tick: a 90 ms burst of noise that fades as it goes, narrowed to a band around
+  // TICK_TONE and cut off after 50 ms. No sound file. Browsers allow sound only once the
+  // visitor has clicked, tapped, or pressed a key on the page, so until then it's silent.
+  let audio = null;    // { context, noise }, made at the visitor's first input
+  let lastTick = 0;
+
+  const wakeAudio = () => {
+    if (!TICK_VOLUME) return;
+    if (!audio) {
+      const Context = window.AudioContext || window.webkitAudioContext;
+      if (!Context) return;
+      const context = new Context();
+      const length = Math.floor(context.sampleRate * 0.09);
+      const noise = context.createBuffer(1, length, context.sampleRate);
+      const data = noise.getChannelData(0);
+      for (let i = 0; i < length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / length);
+      audio = { context, noise };
+    }
+    if (audio.context.state === "suspended") audio.context.resume().catch(() => {});
+  };
+
+  const playTick = () => {
+    if (!audio || audio.context.state !== "running") return;
+    const { context, noise } = audio;
+    const now = context.currentTime;
+    if (now - lastTick < 0.03) return;  // at most one tick every 30 ms, however fast the row moves
+    lastTick = now;
+    const source = context.createBufferSource();
+    source.buffer = noise;
+    const band = context.createBiquadFilter();
+    band.type = "bandpass";
+    band.frequency.value = TICK_TONE;
+    band.Q.value = 4.5;
+    const gain = context.createGain();
+    gain.gain.setValueAtTime(TICK_VOLUME, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
+    source.connect(band);
+    band.connect(gain);
+    gain.connect(context.destination);
+    source.start(now);
+    source.stop(now + 0.07);
+  };
 
   const wrap = (i) => ((i % n) + n) % n;
 
@@ -127,6 +173,7 @@
     const middle = originals[wrap(Math.round(position)) % count];
     if (middle !== shown) {
       shown = middle;
+      playTick();
       // A focused card is read out by the screen reader already; don't repeat it.
       caption.setAttribute("aria-live", cards.includes(document.activeElement) ? "off" : "polite");
       caption.innerHTML = middle.querySelector(".card-caption").innerHTML;
@@ -242,6 +289,12 @@
       cards[i].focus({ preventScroll: true });
     }
   });
+
+  // Any input that can move the row also readies the sound.
+  root.addEventListener("wheel", wakeAudio, { passive: true });
+  root.addEventListener("pointerdown", wakeAudio);
+  root.addEventListener("pointerup", wakeAudio);
+  document.addEventListener("keydown", wakeAudio);
 
   window.addEventListener("resize", () => {
     measure();

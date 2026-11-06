@@ -232,7 +232,8 @@ line-height 1, -0.04em; 41px, 51px from 1200px, 64px from 1440px: `--size-displa
 photo instead.
 
 **About's photo and text:** under the first screen, a block the size of the window runs edge to
-edge, with the About text (`"paragraphs"`) centered in its middle, in the text color. Until the
+edge, with the About text (`"paragraphs"`) centered in its middle, in the text color and the
+lead style, as a project's statement is (16px body text until 2026-11-06). Until the
 photo (`"portrait"` in `content/site.json`, `assets/images/about/portrait.webp`) exists, the
 block is plain gray (`--color-fill`); once it does, the photo fills it. Dark text may not read on
 every photo, so check it once one is in (`.about-intro` and `.about-text` in
@@ -283,12 +284,12 @@ menu bar and project names are a sans while the small labels stay in Martian Mon
 
 | Style | Type | Size | Line height, tracking | Used for |
 | --- | --- | --- | --- | --- |
-| display | Inter Display 500, capitals | 41px, 51px from 1200px, 64px from 1440px | 1, -0.04em | About's first sentence and section headings (Experience, Contact), project titles, the 404 |
+| display | Inter Display 500, capitals | 41px, 51px from 1200px, 64px from 1440px | 1, -0.04em | About's first sentence, project titles, the 404 (About's section headings too, until 2026-11-06) |
 | title | Inter Display 500, capitals | 18px, 23px from 768px, 29px from 1200px, 36px from 1440px | 0.9, -0.01em | impact numbers, Previous / Next titles |
-| lead | Inter Display 500, as typed | 20px, growing with the window to 28px (from 800 to 1120px wide); lines up to 30em (`--measure-lead`) | 1.35, 0 | a project's statement, under its title |
-| body | Inter Display 500, as typed | 16px | 1.1, 0 | text (About's too), Contact's links, a project's "Visit" link; links in text at 600 |
+| lead | Inter Display 500, as typed | 20px, growing with the window to 28px (from 800 to 1120px wide); lines up to 30em (`--measure-lead`) | 1.35, 0 | a project's statement, under its title, and About's text |
+| body | Inter Display 500, as typed | 16px | 1.1, 0 | text, a project's "Visit" link; links in text at 600 (Contact's links and About's text too, until 2026-11-06) |
 | name | Inter Display 500, capitals | 14px | 1.3, -0.01em | the menu bar (Work, Archive, About, the lightbox's Close; the name at 600, 16px and +0.02em, see below) and project names (Home's cards, Work's tiles, Archive, the lightbox); Home's intro line at 600 |
-| label | Martian Mono 400, capitals | 12px | 1.3, -0.05em | Work's filters, Home's one-liners (in `--color-muted`), captions, project facts, the footer, the lightbox's type and year, About's "[ Scroll down ]" and Experience; a label that names a column or a section (a project's fact labels, Category, Role, Year, and its section and note headings) looks as Work's filters do, in `--color-subtle` (at 600 in `--color-muted` until 2026-11-06) |
+| label | Martian Mono 400, capitals | 12px | 1.3, -0.05em | Work's filters, Home's one-liners (in `--color-muted`), captions, project facts, the footer, the lightbox's type and year, About's "[ Scroll down ]", Experience, and Contact's links (the same four as the footer's, so they look the same on every page); a label that names a column or a section (a project's fact labels, Category, Role, Year, its section and note headings, and About's Experience and Contact headings) looks as Work's filters do, in `--color-subtle` (at 600 in `--color-muted` until 2026-11-06) |
 
 Two weights for Inter Display, 500 and 600, and one for Martian Mono, 400 (600 too until 2026-11-06). Two sizes
 sit outside the styles: Work's counts, a label at `--size-count` (10px), and the name in the
@@ -312,10 +313,10 @@ filters, in `--color-subtle`). A link that opens a new tab (LinkedIn, GitHub, th
 drawn by CSS in the link's color (since 2026-11-05). It hangs on the link's last word, so it never
 wraps onto a line alone, and in Windows' contrast themes it takes the theme's link color.
 
-**Capitals** come with every style but body, so everything but body text is in capitals:
+**Capitals** come with every style but body and lead, so everything but text is in capitals:
 titles, names, captions, and the footer too. Type them in sentence case in `content/` and the
-templates; CSS sets the capitals. Body text (Contact's links among it) stays as typed, and so does
-an email address, even in the footer (in capitals it reads as a shout).
+templates; CSS sets the capitals. Body text and the lead stay as typed, and so does an email
+address, even in the footer and in About's Contact (in capitals it reads as a shout).
 
 **Breakpoints** are 768px and 1200px, the same two on every page: under 768px is a phone. 1440px
 steps up the display and title sizes only, as titarvl's do.

@@ -394,15 +394,12 @@ def validate(site, items):
         for key in ("type", "year"):
             if not p.get(key):
                 warnings.append(f'{slug}: "{key}" is empty, so the Work list shows a gap there.')
+        roles = p.get("roles", [])
+        if not isinstance(roles, list) or not all(isinstance(r, str) for r in roles):
+            raise BuildError(f'{where}: "roles" should be a list, like ["Art direction"].')
         meta = p.get("meta") or {}
         if not isinstance(meta, dict):
-            raise BuildError(f'{where}: "meta" should be like {{ "service": "Brand identity", '
-                             '"link": null }.')
-        service = meta.get("service")
-        if service is not None and not (isinstance(service, str) or (
-                isinstance(service, list) and all(isinstance(s, str) for s in service))):
-            raise BuildError(f'{where}: "meta.service" should be text, like "Brand identity", '
-                             'or a list of it, like ["Brand identity", "Web design"].')
+            raise BuildError(f'{where}: "meta" should be like {{ "link": null }}.')
         site_link = meta.get("link")
         if site_link is not None and not (
                 isinstance(site_link, dict) and isinstance(site_link.get("url"), str)
@@ -411,11 +408,12 @@ def validate(site, items):
             raise BuildError(f'{where}: "meta.link" should be like {{ "label": "typelab.ink", '
                              '"url": "https://typelab.ink" }, the address in full (from '
                              'https://), or null to hide it.')
-        # Facts the project page stopped showing on 2026-11-05: say so, so none go missing quietly.
-        for old, there in (("roles", "roles" in p), ("meta.tools", "tools" in meta)):
+        # Facts the project page no longer shows: say so, so none go missing quietly. (Tools
+        # went on 2026-11-05; Service, which replaced it, on 2026-11-06, back to Role.)
+        for old, there in (("meta.tools", "tools" in meta), ("meta.service", "service" in meta)):
             if there:
-                warnings.append(f'{slug}: "{old}" isn\'t shown since 2026-11-05; put it in '
-                                '"meta.service".')
+                warnings.append(f'{slug}: "{old}" isn\'t shown on the project page; put it in '
+                                '"roles".')
 
     if not seen:
         raise BuildError('content/projects.json needs at least one project with a "slug".')
@@ -747,12 +745,15 @@ class Builder:
         return "\n".join(out)
 
     def meta_rows(self, p):
-        """Year · Type · Service. Empty fields are left out. (Role and Tools until 2026-11-05;
-        Link until 2026-11-06, now "Visit …" under the statement: see visit_link.)"""
-        meta = p.get("meta") or {}
+        """Category · Role · Year, under the statement and the Visit link. Category is the
+        project's Work filters, named as the filters are ("Digital, Brand"). Empty fields are
+        left out. (Role · Year · Type · Tools · Link until 2026-11-05, then Year · Type ·
+        Service · Link; on 2026-11-06 Link moved to "Visit …" (see visit_link), then Role ·
+        Year · Type, and Type, still on Work's cards, gave way to Category.)"""
+        category = ", ".join(c.capitalize() for c in p.get("category") or [])
         rows = []
-        for label, value in (("Year", p.get("year")), ("Type", p.get("type")),
-                             ("Service", meta.get("service"))):
+        for label, value in (("Category", category), ("Role", p.get("roles")),
+                             ("Year", p.get("year"))):
             if isinstance(value, list):
                 value = ", ".join(value)
             if value:

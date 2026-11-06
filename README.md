@@ -77,15 +77,15 @@ dist/                   the generated site. Never edit; it's rebuilt every time.
 | Field | Where it shows |
 | --- | --- |
 | `order` | Required. A number; lower shows first. Work shows its cards in this order, within each filter |
-| `category` | Required. A list of the Work filters it shows under, one or more of `"digital"`, `"brand"`, `"physical"`, like `["digital", "brand"]`. It counts under each, and once under All |
+| `category` | Required. A list of the Work filters it shows under, one or more of `"digital"`, `"brand"`, `"physical"`, like `["digital", "brand"]`. It counts under each, and once under All. Also "Category" on the project page, named as the filters are ("Digital, Brand") |
 | `featured` | Optional. `true` puts it on Home (aim for 3 to 5). Leave it out or set `false` and it's on Work only. Needs a `slug`, because a Home card opens the project's page |
 | `title` | Everywhere |
 | `oneLiner` | Under the home loop when that project is in the middle (3 words max) |
-| `type` | Work card (under the name), and as "Type" on the project page, like "Font design tool" |
+| `type` | Work card (under the name), like "Font design tool" (also "Type" on the project page until 2026-11-06) |
 | `year` | The project page |
-| `statement` | The one big sentence under the project's metadata (leave it out to hide it) |
+| `roles` | Optional. A list, like `["UX research", "Art direction"]`. "Role" in the project page's facts (Category · Role · Year); it doesn't affect the filters. (Service in its place for a day, 2026-11-05) |
+| `statement` | The one big sentence right under the project's title, in the lead style (leave it out to hide it) |
 | `cover` | Home card and Work card |
-| `meta.service` | "Service" in the project page's metadata row, like "Brand identity" or a list, like `["Brand identity", "Web design"]` (Role and Tools until 2026-11-05) |
 | `todo` | Optional. A note to yourself, like `"confirm category"`; the build prints it every time until you delete it. JSON has no comments, so this does that job |
 | `meta.link` | `{ "label": "typelab.ink", "url": "https://typelab.ink" }`, or `null` to hide it. Shows once, as "Visit typelab.ink ↗" in the body text under the statement, so type the label as the address reads (until 2026-11-06 also as "Link" in the metadata row) |
 | `hero` | The large image or video at the top of the project page (same format as a block below) |
@@ -275,20 +275,22 @@ Every size, line height, and color on the site is a token at the top of
 `assets/css/style.css`; no rule sets its own. The type follows titarvl.framer.website/about
 (since 2026-11-05): two typefaces, Inter Display (the Inter file's optical size at 32, set on
 `body`) and Martian Mono, both self-hosted from Google Fonts under the SIL Open Font License, in
-five styles. Each style is a typeface, a size, a line height, and a tracking, with tokens named
+six styles. Each style is a typeface, a size, a line height, and a tracking, with tokens named
 after it (`--size-name`, `--leading-name`, `--tracking-name`…), and each is set once, under
 "Shared text styles". Four are titarvl's; "name" was added on the user's ask (2026-11-05), so the
-menu bar and project names are a sans while the small labels stay in Martian Mono.
+menu bar and project names are a sans while the small labels stay in Martian Mono, and "lead" on
+2026-11-06, so a project's statement reads as the step between its title and its text.
 
 | Style | Type | Size | Line height, tracking | Used for |
 | --- | --- | --- | --- | --- |
 | display | Inter Display 500, capitals | 41px, 51px from 1200px, 64px from 1440px | 1, -0.04em | About's first sentence and section headings (Experience, Contact), project titles, the 404 |
 | title | Inter Display 500, capitals | 18px, 23px from 768px, 29px from 1200px, 36px from 1440px | 0.9, -0.01em | impact numbers, Previous / Next titles |
-| body | Inter Display 500, as typed | 16px | 1.1, 0 | text (About's too), project statements, Contact's links; links in text at 600 |
+| lead | Inter Display 500, as typed | 20px, growing with the window to 28px (from 800 to 1120px wide); lines up to 30em (`--measure-lead`) | 1.35, 0 | a project's statement, under its title |
+| body | Inter Display 500, as typed | 16px | 1.1, 0 | text (About's too), Contact's links, a project's "Visit" link; links in text at 600 |
 | name | Inter Display 500, capitals | 14px | 1.3, -0.01em | the menu bar (Work, Archive, About, the lightbox's Close; the name at 600, 16px and +0.02em, see below) and project names (Home's cards, Work's tiles, Archive, the lightbox); Home's intro line at 600 |
-| label | Martian Mono 400, capitals | 12px | 1.3, -0.05em | Work's filters, Home's one-liners (in `--color-muted`), captions, project facts, the footer, the lightbox's type and year, About's "[ Scroll down ]" and Experience; at 600 for a label that names a column or a section (a project's fact labels, Year, Type…, and its section and note headings) |
+| label | Martian Mono 400, capitals | 12px | 1.3, -0.05em | Work's filters, Home's one-liners (in `--color-muted`), captions, project facts, the footer, the lightbox's type and year, About's "[ Scroll down ]" and Experience; a label that names a column or a section (a project's fact labels, Category, Role, Year, and its section and note headings) looks as Work's filters do, in `--color-subtle` (at 600 in `--color-muted` until 2026-11-06) |
 
-Two weights per typeface: Inter Display at 500 and 600, Martian Mono at 400 and 600. Two sizes
+Two weights for Inter Display, 500 and 600, and one for Martian Mono, 400 (600 too until 2026-11-06). Two sizes
 sit outside the styles: Work's counts, a label at `--size-count` (10px), and the name in the
 header, 16px (`--size-identity`) at +0.02em (`--tracking-identity`), a step bigger and more open
 than the links beside it (since 2026-11-05; at 14px and -0.01em like them it read weaker, its open
@@ -297,12 +299,15 @@ type was Inter alone, at 400 and 500, with a 32-64px display, 28-48px titles, a 
 line height 1.5 for all text.
 
 Color is the text color (`--color-text`), one gray (`--color-muted`, 5.6:1 on the background),
-a lighter gray for the header's links only (`--color-faint`, 3:1), and `--color-line` for rules.
+a step lighter for Work's filters and the labels that name a column or a section
+(`--color-subtle`, 4.6:1, the lightest small text stays easy to read at; since 2026-11-06), a
+lighter gray still for the header's links only (`--color-faint`, 3:1), and `--color-line` for
+rules.
 Things react to the pointer in one of two ways, and only by color:
 **links** are in the text color and turn muted on hover (the name, links in text, the footer,
-project links, the lightbox's buttons, About's scroll link and Contact); **choices** are muted and
-turn to the text color when hovered or current (the header's links, in the lighter gray, and Work's
-filters). A link that opens a new tab (LinkedIn, GitHub, the résumé PDF, a project's "Visit" link: any
+project links, the lightbox's buttons, About's scroll link and Contact); **choices** are in a lighter gray and
+turn to the text color when hovered or current (the header's links, in `--color-faint`, and Work's
+filters, in `--color-subtle`). A link that opens a new tab (LinkedIn, GitHub, the résumé PDF, a project's "Visit" link: any
 `target="_blank"`, which `build.py` sets on every external link and PDF) ends in a small ↗,
 drawn by CSS in the link's color (since 2026-11-05). It hangs on the link's last word, so it never
 wraps onto a line alone, and in Windows' contrast themes it takes the theme's link color.

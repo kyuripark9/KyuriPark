@@ -35,6 +35,10 @@
   --color-bg: #f5f4f0;
   --color-text: #161616;
   --color-muted: #62615d;      /* 5.6:1 on the background */
+  --color-subtle: #706f6b;     /* 4.6:1 on the background, the lightest small text can be and
+                                  stay easy to read (WCAG AA, 4.5:1): Work's filters that aren't
+                                  showing, and the labels that name a column or a section, so
+                                  the two look alike (since 2026-11-06; --color-muted before) */
   --color-faint: #8f8e89;      /* 3:1 on the background: the header's links that aren't the
                                   current page (since 2026-11-05; --color-muted before) */
   --color-line: #dcdbd5;
@@ -47,7 +51,7 @@
   --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   --font-mono: "Martian Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-  /* Type: two typefaces, five styles, after titarvl.framer.website/about (since 2026-11-05).
+  /* Type: two typefaces, six styles, after titarvl.framer.website/about (since 2026-11-05).
      Each style is a typeface, a size, a line height, and a tracking (the tokens below, by the
      style's name), plus its weights and case; each is set once, in Shared text styles. No
      rule sets its own type.
@@ -55,18 +59,20 @@
        display  Inter Display 500        capitals  About's first sentence and section headings,
                                                    project titles, the 404
        title    Inter Display 500        capitals  impact numbers, Previous / Next titles
-       body     Inter Display 500, 600   as typed  text, project statements, Contact's links
-                                                   (links in text at 600)
+       lead     Inter Display 500        as typed  a project's statement, under its title
+       body     Inter Display 500, 600   as typed  text, Contact's links (links in text at
+                                                   600)
        name     Inter Display 500, 600   capitals  the menu bar (the header, the lightbox's
                                                    Close), project names (Home's cards, Work's
                                                    tiles, Archive and the lightbox), Home's
                                                    intro line (the name and the intro at 600)
-       label    Martian Mono 400, 600    capitals  Work's filters, Home's one-liners, captions,
+       label    Martian Mono 400         capitals  Work's filters, Home's one-liners, captions,
                                                    project facts, the footer, the lightbox's
                                                    type and year, "[ Scroll down ]",
-                                                   Experience (600 for a label that names a
-                                                   column or a section)
-     Two weights per typeface: Inter Display at 500 and 600, Martian Mono at 400 and 600. An
+                                                   Experience (a label that names a column or
+                                                   a section as Work's filters are, in
+                                                   --color-subtle; at 600 until 2026-11-06)
+     Two weights for Inter Display, 500 and 600, and one for Martian Mono, 400. An
      email address stays as typed, even in a label. Two sizes sit outside the styles: Work's
      counts, a label at --size-count, and the name in the header, the name style at
      --size-identity and --tracking-identity, a step bigger and more open than the links beside
@@ -75,6 +81,9 @@
      14px header, line height 1.5 for all text. */
   --size-display: 2.5625rem;   /* 41px; 51px from 1200px, 64px from 1440px (below) */
   --size-title: 1.125rem;      /* 18px; 23px from 768px, 29px from 1200px, 36px from 1440px */
+  --size-lead: clamp(1.25rem, 2.5vw, 1.75rem);  /* 20px, growing with the window from 800px
+                                                  to 28px at 1120px (24-32px, then 22-30px,
+                                                  on its first day) */
   --size-body: 1rem;           /* 16px */
   --size-name: 0.875rem;       /* 14px */
   --size-label: 0.75rem;       /* 12px */
@@ -83,13 +92,16 @@
 
   --leading-display: 1;
   --leading-title: 0.9;
+  --leading-lead: 1.35;
   --leading-body: 1.1;
   --leading-name: 1.3;
   --leading-label: 1.3;
 
   --tracking-display: -0.04em;
   --tracking-title: -0.01em;
+  --tracking-lead: 0;
   --tracking-body: 0;
+  --measure-lead: 30em;        /* the lead's longest line, in its own size: 600-840px */
   --tracking-name: -0.01em;
   --tracking-label: -0.05em;
   --tracking-identity: 0.02em; /* the name in the header */
@@ -97,8 +109,9 @@
   /* Two ways things react to the pointer, both in the text color and --color-muted:
        links      in the text color, muted on hover (the name, links in text, the footer,
                   project links, the lightbox's buttons, About's scroll link and Contact)
-       choices    one of several, muted, and the text color when hovered or current (the
-                  header's links, a step lighter in --color-faint; Work's filters)
+       choices    one of several, a lighter gray, and the text color when hovered or
+                  current (the header's links in --color-faint; Work's filters in
+                  --color-subtle)
      Only color changes, over --fade (until 2026-11-05, the header's links and About's
      Contact used opacity 0.6 instead). */
 
@@ -343,6 +356,14 @@ button {
   text-transform: uppercase;
 }
 
+/* Lead: a project's statement, the sentence under its title, as typed (since 2026-11-06; body
+   text at 16px before), a step down from the title and up from the text. */
+.project-statement {
+  font-size: var(--size-lead);
+  line-height: var(--leading-lead);
+  letter-spacing: var(--tracking-lead);
+}
+
 /* Label: Martian Mono at 12px in capitals, wherever it is. Headings set here by name, since
    h1-h3 set their own weight. */
 .work-tab,
@@ -389,15 +410,19 @@ button {
   text-transform: uppercase;
 }
 
-/* At 600: the name in the header (a weight up from the links) and Home's intro line, and the
-   labels that name a column or a section. In a monospace font the bolder letters are no
-   wider, so nothing moves. */
+/* At 600: the name in the header (a weight up from the links) and Home's intro line. */
 .identity,
-.intro-line,
+.intro-line {
+  font-weight: 600;
+}
+
+/* A label that names a column or a section (a project's facts, and its text's headings) looks
+   as Work's filters do: the label style at 400, in --color-subtle (until 2026-11-06 at 600, in
+   --color-muted, the project text's headings in the text color). */
 .project-meta dt,
 .text-block > .section-heading,
 .note-heading {
-  font-weight: 600;
+  color: var(--color-subtle);
 }
 
 /* An email address stays as typed, even in a label (in capitals it reads as a shout). The
@@ -408,7 +433,6 @@ button {
 }
 
 .caption,
-.note-heading,
 .archive-text {
   color: var(--color-muted);
 }
@@ -488,15 +512,16 @@ button {
   }
 }
 
-/* Choices: muted, and the text color when hovered or current (the header's page, Work's
-   filter showing). The header's other links are lighter still (--color-faint), so the current
-   page stands out more. */
+/* Choices: a lighter gray, and the text color when hovered or current (the header's page,
+   Work's filter showing). Work's other filters are in --color-subtle, as the labels that name a
+   column or a section are (--color-muted until 2026-11-06); the header's other links are
+   lighter still (--color-faint), so the current page stands out more. */
 .site-menu a {
   color: var(--color-faint);
 }
 
 .work-tab {
-  color: var(--color-muted);
+  color: var(--color-subtle);
 }
 
 .site-menu a:hover,
@@ -1195,17 +1220,38 @@ mark.placeholder {
 
 /* Project page ---------------------------------------------------------- */
 
+/* Under the title, in reading order (since 2026-11-06; the facts came first before): the
+   statement (the lead style, see Shared text styles), "Visit typelab.ink ↗", then a rule and
+   the facts. On 8px steps: title to statement 32, statement to Visit 24 (they read as one),
+   Visit to the rule 64 (the facts are an aside), rule to facts 24. A missing statement or
+   Visit leaves no gap of its own: the next thing takes the title's 32, or the rule its 64. */
+.project-statement,
+.project-visit {
+  margin-top: var(--step-4);
+}
+
+.project-statement {
+  max-width: var(--measure-lead);
+}
+
+/* "Visit typelab.ink ↗": a project's own site, in the body text right under its statement, so
+   the page asks you in (since 2026-11-05; until 2026-11-06 the metadata row listed it too, as
+   Link). */
+.project-statement + .project-visit {
+  margin-top: var(--step-3);
+}
+
+/* Category · Role · Year. On a phone, two columns (Year under Category); from 768px, one row
+   split into equal columns, so the facts run to the end of the rule, after
+   cedarstudio.framer.ai/work/ember (as wide as what's in them, --step-8 apart, for a few hours
+   on 2026-11-06). */
 .project-meta {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--step-3) var(--col-gap);
-  margin-top: var(--step-5);
-  padding-top: var(--step-2);
+  margin-top: var(--step-8);
+  padding-top: var(--step-3);
   border-top: 1px solid var(--color-line);
-}
-
-.project-meta dt {
-  color: var(--color-muted);
 }
 
 .project-meta dd {
@@ -1218,23 +1264,6 @@ mark.placeholder {
     grid-auto-flow: column;
     grid-auto-columns: minmax(0, 1fr);
   }
-}
-
-/* Body text since 2026-11-05 (a 28-48px title at 400 before), as wide as the text below. */
-.project-statement {
-  max-width: 40rem;
-  margin-top: var(--step-8);
-}
-
-/* "Visit typelab.ink ↗": a project's own site, in the body text right under its statement, so
-   the page asks you in (since 2026-11-05; until 2026-11-06 the metadata row listed it too, as
-   Link). Without a statement it takes the statement's place. */
-.project-visit {
-  margin-top: var(--step-8);
-}
-
-.project-statement + .project-visit {
-  margin-top: var(--step-2);
 }
 
 /* The hero runs edge to edge. */

@@ -1,6 +1,7 @@
 // Enhancements on top of pages that already work without JavaScript:
-// Work's filter and card videos, the lightbox, and project-page motion
-// (image fade-up, count-up numbers, looping videos). The home track is in track.js.
+// Work's filter and card videos, the lightbox, About's first sentence breaking into dots under
+// the pointer, and project-page motion (image fade-up, count-up numbers, looping videos). The
+// home track is in track.js.
 (() => {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const fineHover = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -228,6 +229,371 @@
   }
 
   if (reduceMotion.matches || !("IntersectionObserver" in window)) return;
+
+  // About's first screen: the sentence breaks into dots where the pointer passes, and they drift
+  // back (as on soren-template.framer.website). Until then, a few dots on the letters' edges come
+  // loose on their own, drift a little way off, and settle back, a hint that the letters are made
+  // of dots and come apart. The sentence stays real text: a canvas over it draws only what has
+  // moved, a patch of the background where each loose dot sat in a letter and the dot where it is
+  // now.
+  const hero = document.querySelector(".about-hero");
+  const headline = hero?.querySelector(".about-headline");
+  if (hero && headline) {
+    const CELL = 4;          // px: one dot for each 4 x 4 square of the letters
+    const DOT = 0.85;        // a dot's width, in cells
+    const COVER = 1.35;      // the patch over a dot's place in a letter, in cells (over 1, so no
+                             // sliver of the letter shows between two patches)
+    const REACH = 1;         // how far the pointer reaches, in the sentence's font size; each dot
+                             // feels it from 0.55 to 1.3 times that, so the hole's edge is ragged
+    const PUSH = 0.036;      // how hard it pushes at its middle, per frame, in REACH
+    const SPRING = 0.08;     // pull back to its place while the pointer is near, per frame
+    const DRAG = 0.88;       // share of a dot's speed it keeps each frame
+    const RETURN = 0.11;     // share of the way home a dot goes each frame once the pointer has
+                             // moved on (each dot 0.8 to 1.2 times this)
+    const SWEEP = 4;         // a fast pass pushes up to 1 + SWEEP times harder (each dot 0.5 to
+                             // 1.5 times that), since it's over a dot for a frame or two, not many
+    const WAKE = 0.8;        // and carries the dots this much along the way it went
+    const FRAY = 0.03;       // share of the edge dots off their letter at any moment
+    const FRAY_NEAR = 2;     // px the nearest an edge dot drifts off its letter...
+    const FRAY_FAR = 16;     // ...and the farthest (most stay near)
+    const FRAY_TIME = 2400;  // ms to drift off and settle back (each 0.6 to 1.4 times this)
+    const MAX_DOTS = 12000;  // past this the cells grow, so a long sentence stays smooth
+
+    const canvas = document.createElement("canvas");
+    canvas.className = "about-dust";
+    canvas.setAttribute("aria-hidden", "true");
+    hero.insertBefore(canvas, hero.querySelector(".about-scroll"));  // under the scroll link
+    const ctx = canvas.getContext("2d");
+    const intro = document.querySelector(".about-intro");
+    let cell = CELL;
+    let reach = 0;
+    let ink = "#000";
+    let paper = "#fff";
+    let dots = [];   // the sentence's dots: their cell's middle (cx, cy), home (hx, hy), where
+                     // they are, their speed, and the way out of the letter (nx, ny) if on an edge
+    let edges = [];  // the dots on the letters' edges
+    let afloat = 0;  // edge dots due to come loose (a running count, so they come one by one)
+    let shown = false;  // some of the sentence is on screen (not yet under the photo block)
+    const pointer = { clientX: 0, clientY: 0, x: 0, y: 0, sx: 0, sy: 0, px: 0, py: 0,
+                      inside: false, fresh: true };
+    let frame = 0;
+    let last = 0;
+
+    // Draw the letters where the page draws them, one by one, on a hidden canvas, and put a
+    // dot on every cell with ink in it.
+    const build = () => {
+      const w = hero.clientWidth;
+      const h = hero.clientHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.max(1, Math.round(w * dpr));
+      canvas.height = Math.max(1, Math.round(h * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const style = getComputedStyle(headline);
+      ink = style.color;
+      paper = getComputedStyle(document.body).backgroundColor;
+      const size = parseFloat(style.fontSize);
+      reach = size * REACH;
+
+      const mask = document.createElement("canvas");
+      mask.width = Math.max(1, Math.ceil(w));
+      mask.height = Math.max(1, Math.ceil(h));
+      const m = mask.getContext("2d", { willReadFrequently: true });
+      m.font = `${style.fontWeight} ${size}px ${style.fontFamily}`;
+      m.fillStyle = m.strokeStyle = "#000";
+      m.lineWidth = 2;  // a pixel past each edge, so the patches take the letters' soft edges too
+      const metrics = m.measureText("H");
+      const ascent = metrics.fontBoundingBoxAscent ?? size * 0.97;
+      const descent = metrics.fontBoundingBoxDescent ?? size * 0.24;
+      const box = hero.getBoundingClientRect();
+      const upper = style.textTransform === "uppercase";
+      const range = document.createRange();
+      const walker = document.createTreeWalker(headline, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        const text = node.data;
+        for (let i = 0; i < text.length; i++) {
+          if (/\s/.test(text[i])) continue;
+          range.setStart(node, i);
+          range.setEnd(node, i + 1);
+          const r = range.getClientRects()[0];
+          if (!r) continue;
+          const ch = upper ? text[i].toUpperCase() : text[i];
+          const x = r.left - box.left;
+          const y = r.top - box.top + (r.height - ascent - descent) / 2 + ascent;  // baseline
+          m.fillText(ch, x, y);
+          m.strokeText(ch, x, y);
+        }
+      }
+
+      dots = [];
+      edges = [];
+      const lines = headline.getBoundingClientRect();
+      const left = Math.max(0, Math.floor(lines.left - box.left) - 4);
+      const top = Math.max(0, Math.floor(lines.top - box.top) - 4);
+      const right = Math.min(mask.width, Math.ceil(lines.right - box.left) + 4);
+      const bottom = Math.min(mask.height, Math.ceil(lines.bottom - box.top) + 4);
+      if (right <= left || bottom <= top) return;
+      const data = m.getImageData(left, top, right - left, bottom - top).data;
+      const span = right - left;
+      // The cells with ink, as their column and row.
+      const sample = (step) => {
+        const found = [];
+        for (let y0 = top - (top % step); y0 < bottom; y0 += step) {
+          for (let x0 = left - (left % step); x0 < right; x0 += step) {
+            scan: for (let y = Math.max(y0, top); y < Math.min(y0 + step, bottom); y++) {
+              for (let x = Math.max(x0, left); x < Math.min(x0 + step, right); x++) {
+                if (data[((y - top) * span + (x - left)) * 4 + 3] > 64) {
+                  found.push([x0 / step, y0 / step]);
+                  break scan;
+                }
+              }
+            }
+          }
+        }
+        return found;
+      };
+      cell = CELL;
+      let cells = sample(cell);
+      while (cells.length > MAX_DOTS && cell < 16) cells = sample(++cell);
+      const key = (i, j) => j * 65536 + i;
+      const taken = new Set(cells.map(([i, j]) => key(i, j)));
+      // Each dot's home is a little off its cell's middle, so the loose dots don't sit on a grid.
+      const jitter = () => (Math.random() - 0.5) * cell * 0.7;
+      for (const [i, j] of cells) {
+        const cx = (i + 0.5) * cell;
+        const cy = (j + 0.5) * cell;
+        const d = { cx, cy, hx: cx + jitter(), hy: cy + jitter(), vx: 0, vy: 0,
+                    seed: Math.random(), grit: Math.random(), moving: false, fray: null,
+                    nx: 0, ny: 0 };
+        d.x = d.hx;
+        d.y = d.hy;
+        // On an edge if a cell around it is empty; the way out is toward the empty ones.
+        let open = 0;
+        for (let dj = -1; dj <= 1; dj++) {
+          for (let di = -1; di <= 1; di++) {
+            if ((di || dj) && !taken.has(key(i + di, j + dj))) {
+              d.nx += di;
+              d.ny += dj;
+              open++;
+            }
+          }
+        }
+        if (open) {
+          const length = Math.hypot(d.nx, d.ny);
+          const angle = length ? Math.atan2(d.ny, d.nx) : Math.random() * Math.PI * 2;
+          d.nx = Math.cos(angle);
+          d.ny = Math.sin(angle);
+          edges.push(d);
+        }
+        dots.push(d);
+      }
+      afloat = 0;
+      look();
+      draw([]);
+    };
+
+    const draw = (loose) => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (!loose.length) return;
+      const patch = cell * COVER;
+      ctx.fillStyle = paper;
+      ctx.beginPath();
+      // Rounded a little, so a single one reads as a chip off the letter, not a square cut.
+      const round = ctx.roundRect ? cell * 0.4 : 0;
+      for (const d of loose) {
+        if (round) ctx.roundRect(d.cx - patch / 2, d.cy - patch / 2, patch, patch, round);
+        else ctx.rect(d.cx - patch / 2, d.cy - patch / 2, patch, patch);
+      }
+      ctx.fill();
+      const r = (cell * DOT) / 2;
+      ctx.fillStyle = ink;
+      ctx.beginPath();
+      for (const d of loose) {
+        ctx.moveTo(d.x + r, d.y);
+        ctx.arc(d.x, d.y, r, 0, Math.PI * 2);
+      }
+      ctx.fill();
+    };
+
+    // An edge dot comes loose: out of its letter, give or take, and back, over FRAY_TIME.
+    const fray = (now) => {
+      for (let tries = 0; tries < 4; tries++) {
+        const d = edges[Math.floor(Math.random() * edges.length)];
+        if (d.moving || d.fray) continue;
+        const angle = Math.atan2(d.ny, d.nx) + (Math.random() - 0.5) * 1.2;
+        const far = FRAY_NEAR + (FRAY_FAR - FRAY_NEAR) * Math.random() ** 1.5;
+        d.fray = { start: now, time: FRAY_TIME * (0.6 + 0.8 * Math.random()),
+                   dx: Math.cos(angle), dy: Math.sin(angle), far,
+                   phase: Math.random() * Math.PI * 2 };
+        return;
+      }
+    };
+
+    const tick = (now) => {
+      frame = 0;
+      const ms = last ? Math.min(now - last, 1000 / 24) : 1000 / 60;
+      const dt = Math.max(ms / (1000 / 60), 0.25);
+      last = now;
+      // The dots feel a point that follows the pointer a little behind, along the whole way it
+      // went since the last frame (from px, py to sx, sy): a fast pointer jumps tens of pixels
+      // a frame, and would skip the letters in between.
+      pointer.px = pointer.sx;
+      pointer.py = pointer.sy;
+      if (pointer.fresh) {
+        pointer.px = pointer.sx = pointer.x;
+        pointer.py = pointer.sy = pointer.y;
+        pointer.fresh = false;
+      } else {
+        const k = Math.min(1, 0.75 * dt);
+        pointer.sx += (pointer.x - pointer.sx) * k;
+        pointer.sy += (pointer.y - pointer.sy) * k;
+      }
+      const ax = pointer.px;
+      const ay = pointer.py;
+      const wx = pointer.sx - ax;
+      const wy = pointer.sy - ay;
+      const way = wx * wx + wy * wy;
+      const step = Math.sqrt(way);
+      const fast = reach ? Math.min(1, step / dt / reach) : 0;  // 1 at a reach a frame or faster
+      const mx = step ? wx / step : 0;
+      const my = step ? wy / step : 0;
+      // About FRAY of the edge dots loose at a time, while the sentence is on screen.
+      if (shown && edges.length) {
+        afloat += (ms * edges.length * FRAY) / FRAY_TIME;
+        for (; afloat >= 1; afloat--) fray(now);
+      }
+      const drag = DRAG ** dt;
+      const push = reach * PUSH;
+      const away = (cell * 0.55) ** 2;  // closer than this to home, the letter draws it
+      const loose = [];
+      let busy = 0;
+      for (const d of dots) {
+        let near = false;
+        let r = 0;
+        let dx = 0;
+        let dy = 0;
+        if (pointer.inside) {
+          // From the nearest point on the way the pointer went this frame.
+          const t = way ? Math.min(1, Math.max(0, ((d.x - ax) * wx + (d.y - ay) * wy) / way)) : 0;
+          dx = d.x - (ax + wx * t);
+          dy = d.y - (ay + wy * t);
+          r = reach * (0.55 + 0.75 * d.seed);
+          near = dx * dx + dy * dy < r * r;
+        }
+        if (d.fray) {
+          const p = (now - d.fray.start) / d.fray.time;
+          if (near || p >= 1) {
+            d.fray = null;  // the pointer takes it from here, or it's home
+            if (!near) {
+              d.x = d.hx;
+              d.y = d.hy;
+            }
+          } else {
+            // Out and back, easing at both ends, with a little sway across the way out.
+            const out = Math.sin(Math.PI * p) ** 2 * d.fray.far;
+            const sway = Math.sin(p * Math.PI * 3 + d.fray.phase) * Math.min(out, 1.5);
+            d.x = d.hx + d.fray.dx * out - d.fray.dy * sway;
+            d.y = d.hy + d.fray.dy * out + d.fray.dx * sway;
+            busy++;
+          }
+        }
+        if (!d.fray && (near || d.moving)) {
+          if (near) {
+            const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
+            const f = (1 - dist / r) ** 2 * push * (1 + SWEEP * fast * (0.5 + d.grit));
+            const along = WAKE * fast;
+            d.vx = (d.vx + ((d.hx - d.x) * SPRING + (dx / dist + mx * along) * f) * dt) * drag;
+            d.vy = (d.vy + ((d.hy - d.y) * SPRING + (dy / dist + my * along) * f) * dt) * drag;
+            d.x += d.vx * dt;
+            d.y += d.vy * dt;
+            d.moving = true;
+            if (d.vx * d.vx + d.vy * d.vy > 1e-4) busy++;
+          } else {
+            d.vx *= drag;
+            d.vy *= drag;
+            const k = Math.min(1, RETURN * (0.8 + 0.4 * d.seed) * dt);
+            d.x += d.vx * dt + (d.hx - d.x) * k;
+            d.y += d.vy * dt + (d.hy - d.y) * k;
+            if (Math.abs(d.x - d.hx) < 0.2 && Math.abs(d.y - d.hy) < 0.2
+                && d.vx * d.vx + d.vy * d.vy < 0.01) {
+              d.x = d.hx;
+              d.y = d.hy;
+              d.vx = d.vy = 0;
+              d.moving = false;
+            } else {
+              busy++;
+            }
+          }
+        }
+        if ((d.x - d.hx) ** 2 + (d.y - d.hy) ** 2 >= away) loose.push(d);
+      }
+
+      draw(loose);
+      // Keep going while the sentence is on screen or anything still moves.
+      if (shown || busy) frame = requestAnimationFrame(tick);
+    };
+    const wake = () => {
+      if (frame) return;
+      last = 0;
+      frame = requestAnimationFrame(tick);
+    };
+
+    // Is any of the sentence on screen? Not once the photo block has slid over it, or scrolled
+    // off the top on a short window.
+    const look = () => {
+      const r = headline.getBoundingClientRect();
+      const cover = intro ? intro.getBoundingClientRect().top : Infinity;
+      shown = r.bottom > 0 && r.top < Math.min(window.innerHeight, cover);
+      if (shown) wake();
+    };
+
+    const place = () => {
+      const box = hero.getBoundingClientRect();
+      pointer.x = pointer.clientX - box.left;
+      pointer.y = pointer.clientY - box.top;
+    };
+    const leave = () => {
+      if (!pointer.inside) return;
+      pointer.inside = false;
+      wake();
+    };
+    document.addEventListener("pointermove", (e) => {
+      pointer.clientX = e.clientX;
+      pointer.clientY = e.clientY;
+      // Over the first screen only: not once the photo block slides over it, or on the header.
+      if (!hero.contains(e.target)) {
+        leave();
+        return;
+      }
+      place();
+      if (!pointer.inside) {
+        pointer.inside = true;
+        pointer.fresh = true;
+      }
+      wake();
+    }, { passive: true });
+    document.addEventListener("pointerout", (e) => {
+      if (!e.relatedTarget) leave();  // off the window
+    });
+    ["pointerup", "pointercancel"].forEach((type) => document.addEventListener(type, (e) => {
+      if (e.pointerType !== "mouse") leave();  // a finger or pen lifted
+    }));
+    // Scrolling moves the page under a still pointer: the photo block may now be under it.
+    window.addEventListener("scroll", () => {
+      look();
+      if (!pointer.inside) return;
+      if (!hero.contains(document.elementFromPoint(pointer.clientX, pointer.clientY))) leave();
+      else place();
+    }, { passive: true });
+
+    let pending = 0;
+    const rebuild = () => {
+      cancelAnimationFrame(pending);
+      pending = requestAnimationFrame(build);
+    };
+    new ResizeObserver(rebuild).observe(hero);
+    new ResizeObserver(rebuild).observe(headline);
+    document.fonts?.ready.then(rebuild);
+  }
 
   // Project pages: images below the fold fade up as they come on screen.
   const revealer = new IntersectionObserver((entries) => {

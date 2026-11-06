@@ -1411,6 +1411,16 @@ mark.placeholder {
   translate: -50% 0;
 }
 
+/* The sentence's loose dots (main.js), on a canvas over the first screen and under
+   "[ Scroll down ]". It takes no clicks. */
+.about-dust {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
 /* Under the first screen, a block the size of the window, edge to edge, with the About text
    in its middle: plain gray (--color-fill) until the photo exists, then the photo, cropped to
    the window's shape (wide on a computer, tall on a phone). About's main has no .wrap so the

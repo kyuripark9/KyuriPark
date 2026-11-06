@@ -334,7 +334,7 @@ spacing inside things (`--step-3` is 24px).
 
 ## Motion
 
-The site keeps motion to a short list: the home loop and its intro, the Work toggle's fade, the Work and Archive images growing slightly (3%) and Work's videos playing on hover, images
+The site keeps motion to a short list: the home loop and its intro, About's first sentence breaking into dots under the pointer, the Work toggle's fade, the Work and Archive images growing slightly (3%) and Work's videos playing on hover, images
 fading up on project pages, a 300 ms fade between pages (in browsers that support it; others switch pages instantly), the lightbox fading in and out (200 ms), impact numbers counting up, and a smooth scroll to a spot on a page (`/about/#contact`). If a visitor has reduced
 motion turned on, all of it is off, and the home loop jumps from card to card without easing.
 
@@ -396,6 +396,25 @@ To tune it:
 - `assets/css/style.css`, "Home intro": `--intro-bg` / `--intro-color` (the screen and the
   line), `--intro-size` (the line's type size), `--intro-image` (the corner image's size; it's
   square), `--intro-margin` (its distance from the bottom and right edges).
+
+About's dust: on About's first screen, the sentence breaks into dots where the pointer passes
+and they drift back into the letters (after soren-template.framer.website). Before that, a few
+dots on the letters' edges keep coming loose on their own, drifting a little way off and settling
+back, as a hint that the letters come apart. It works with a finger as well, until the page
+starts to scroll. The sentence stays real text (it can be selected and read aloud as before); a
+canvas over it draws only the dots that have moved, with a patch of the background where each
+one sat in its letter. It runs only while some of the sentence is on screen, and with reduced
+motion it's off. To tune it: the top of the "About's first screen" part of
+`assets/js/main.js`: `CELL` (px between dots: smaller is finer dust and more of it), `DOT` (a
+dot's width, in cells), `REACH` (how far the pointer reaches, in the sentence's font size),
+`PUSH` (how hard it pushes), `SPRING` / `DRAG` (how the dots hold and slow down near the
+pointer), `RETURN` (how fast they go home once it has passed), `SWEEP` / `WAKE` (how much
+harder a fast pass pushes, and how far it carries the dots along: a fast pointer is over a dot
+for only a frame or two, so it gets a bigger push, and every letter along its way is hit, not
+only the ones under the frames' positions); for the edges, `FRAY` (the share
+of edge dots loose at a time: 0 turns it off), `FRAY_NEAR` / `FRAY_FAR` (px they drift, least
+and most), `FRAY_TIME` (ms out and back). The dots take the sentence's color, the patches the
+page's background.
 
 ## Deploy
 

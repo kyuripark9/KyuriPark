@@ -1371,10 +1371,13 @@ mark.placeholder {
 
 /* The sticky scroll. Scrolling down, the block slides up over the first screen, which stays
    put, then stays put itself while Experience and Contact slide up over it; scrolling back up
-   runs it in reverse. Both stay inside main, so neither goes under the footer. Only on windows
-   at least 36rem tall (576px, more with larger browser text), where the text fits on the
-   block: on a shorter one (a phone on its side) a stuck block would hide the end of a text
-   taller than the window, so there the page just scrolls. */
+   runs it in reverse. Once the block fills the window it holds there, with nothing moving, for
+   40% of a window's scroll before Experience comes up (the sheet's top margin: empty space the
+   stuck block covers). Raise it for a longer hold, lower it for a lighter scroll. Both stay
+   inside main, so neither goes under the footer. Only on windows at least 36rem tall (576px,
+   more with larger browser text), where the text fits on the block: on a shorter one (a phone
+   on its side) a stuck block would hide the end of a text taller than the window, so there the
+   page just scrolls. */
 @media (min-height: 36rem) {
   .about-hero {
     position: sticky;
@@ -1385,37 +1388,10 @@ mark.placeholder {
     position: sticky;
     top: 0;
   }
-}
 
-/* Snapping, with the sticky scroll: the page comes to rest on the first screen, the block
-   filling the window, Experience at the window's top, or the page's end, whichever is nearest;
-   a hard flick on a phone always stops on the block. main.js turns it on (.about-snap) once it
-   has checked that Experience, Contact, and the footer are under two windows tall, so the last
-   two spots show all of them (with very large browser text they aren't, and the page scrolls
-   freely from Experience down); main.js also makes a small turn of the wheel or swipe on the
-   trackpad go a whole step, where snapping alone would spring back to the nearest spot. Without
-   JavaScript there's no snapping, just the sticky scroll. */
-@media (min-height: 36rem) {
-  :root.about-snap {
-    scroll-snap-type: y mandatory;
-  }
-
-  .about-hero {
-    scroll-snap-align: start;
-    scroll-margin-top: var(--header-h);  /* the page's top, not the hero's: it's under the header */
-  }
-
-  .about-intro,
   .about-sheet {
-    scroll-snap-align: start;
-  }
-
-  .about-intro {
-    scroll-snap-stop: always;
-  }
-
-  [data-page="about"] .site-footer {
-    scroll-snap-align: end;
+    margin-top: 40vh;
+    margin-top: 40svh;
   }
 }
 

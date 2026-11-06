@@ -25,7 +25,7 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 | `/work/` | Work: everything. "All 11   Digital 08   Brand 05   Physical 02" at the top filters one grid of tiles (`/work/#all`, `#digital`, `#brand`, `#physical`; an old `#visual` link opens `#brand`). Work answers "what kind" |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html` |
 | `/archive/` | Archive: personal work and hobbies, a gallery of images with nothing under them. A separate page with its own data |
-| `/about/` | First screen: one sentence alone in the middle of the window, "[ Scroll down ]" at its foot. Under it: a block the size of the window (gray until the photo exists) with the About text in its middle, then experience and Contact (`/about/#contact`), with a sticky scroll that snaps from one to the next |
+| `/about/` | First screen: one sentence alone in the middle of the window, "[ Scroll down ]" at its foot. Under it: a block the size of the window (gray until the photo exists) with the About text in its middle, then experience and Contact (`/about/#contact`), with a sticky scroll |
 | `/contact/` | Not a page: it sends visitors straight on to `/about/#contact` (old links keep working) |
 
 Contact is a section of About, not a menu item. The same links (email, LinkedIn, GitHub, Resume)
@@ -242,19 +242,14 @@ every photo, so check it once one is in (`.about-intro` and `.about-text` in
 The scroll is sticky: scrolling down, the block slides up over the first screen, which stays put,
 then stays put itself while Experience and Contact slide up over it; scrolling back up runs it in
 reverse (`position: sticky` on `.about-hero` and `.about-intro`; `.about-sheet` gives Experience
-and Contact the page's background so they cover the block).
+and Contact the page's background so they cover the block). Once the block fills the window it
+holds there for 40% of a window's scroll, with nothing moving, before Experience comes up: the
+`margin-top` on `.about-sheet` (40svh), higher for a longer hold, lower for a lighter scroll.
 
-It also snaps: the page comes to rest only on the first screen, the block filling the window,
-Experience at the window's top, or the page's end, and a small turn of the mouse wheel or swipe
-on the trackpad goes a whole step (one swipe, however long its glide, is one step). On a phone a
-quick flick goes a step and a slow, short drag springs back; a hard flick always stops on the
-block. Arrow keys and Page Down step too. The snapping is CSS (`.about-snap` in
-`assets/css/style.css`); the wheel steps and the check that turns snapping on are in
-`assets/js/main.js` ("About:"). If Experience, Contact, and the footer are ever more than two
-windows tall (very large browser text), snapping stays off and they scroll freely. Without
-JavaScript there's no snapping, just the sticky scroll. On a window under 36rem tall (576px,
-more with larger browser text), like a phone on its side, there's neither: the page just
-scrolls, so a text taller than the window is never hidden.
+On a window under 36rem tall (576px, more with larger browser text), like a phone on its side,
+the page just scrolls, so a text taller than the window is never hidden. There's no snapping:
+the page scrolls as far as the wheel, trackpad, or finger moves it (snapping and whole-screen
+steps were tried on 2026-11-05 and taken out the same day; even a light scroll felt heavy).
 
 ## Header
 

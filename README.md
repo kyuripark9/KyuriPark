@@ -276,26 +276,26 @@ Every size, line height, and color on the site is a token at the top of
 `assets/css/style.css`; no rule sets its own. The type follows titarvl.framer.website/about
 (since 2026-11-05): two typefaces, Inter Display (the Inter file's optical size at 32, set on
 `body`) and Martian Mono, both self-hosted from Google Fonts under the SIL Open Font License, in
-five styles, each set once under "Shared text styles", plus a sixth, "name", that isn't
-titarvl's: on the user's ask (2026-11-05), the menu bar and project names went back to a sans
-while the labels stayed in Martian Mono:
+five styles. Each style is a typeface, a size, a line height, and a tracking, with tokens named
+after it (`--size-name`, `--leading-name`, `--tracking-name`…), and each is set once, under
+"Shared text styles". Four are titarvl's; "name" was added on the user's ask (2026-11-05), so the
+menu bar and project names are a sans while the small labels stay in Martian Mono.
 
 | Style | Type | Size | Line height, tracking | Used for |
 | --- | --- | --- | --- | --- |
-| display | Inter Display 500, capitals | 41px, 51px from 1200px, 64px from 1440px (`--size-display`) | 1, -0.04em | About's first sentence and section headings (Experience, Contact), project titles, the 404 |
-| title | Inter Display 500, capitals | 18px, 23px from 768px, 29px from 1200px, 36px from 1440px (`--size-title`) | 0.9, -0.01em | impact numbers, Previous / Next titles |
-| body | Inter Display 500 | 16px (`--size-body`) | 1.1, 0 | text (About's too), project statements, Contact's links; links in text at 600 |
-| name | Inter Display 500, capitals | 14px (`--size-small`) | 1.3, -0.01em | the menu bar (the name at 600, 16px and +0.02em, see below; Work, Archive, About, and the lightbox's Close) and project names: Home's card titles, Work's tiles, the lightbox |
-| label | Martian Mono 400, capitals | 12px (`--size-label`) | 1.3, -0.05em | Work's filters, Home's one-liners (in `--color-muted`), captions, project facts, the footer, the lightbox's type and year, About's "[ Scroll down ]" and Experience |
-| label, bold | Martian Mono 600, capitals | 12px | 1.3, -0.05em | a project's fact labels (Role, Year…) and its section and note headings |
+| display | Inter Display 500, capitals | 41px, 51px from 1200px, 64px from 1440px | 1, -0.04em | About's first sentence and section headings (Experience, Contact), project titles, the 404 |
+| title | Inter Display 500, capitals | 18px, 23px from 768px, 29px from 1200px, 36px from 1440px | 0.9, -0.01em | impact numbers, Previous / Next titles |
+| body | Inter Display 500, as typed | 16px | 1.1, 0 | text (About's too), project statements, Contact's links; links in text at 600 |
+| name | Inter Display 500, capitals | 14px | 1.3, -0.01em | the menu bar (Work, Archive, About, the lightbox's Close; the name at 600, 16px and +0.02em, see below) and project names (Home's cards, Work's tiles, Archive, the lightbox); Home's intro line at 600 |
+| label | Martian Mono 400, capitals | 12px | 1.3, -0.05em | Work's filters, Home's one-liners (in `--color-muted`), captions, project facts, the footer, the lightbox's type and year, About's "[ Scroll down ]" and Experience; at 600 for a label that names a column or a section (a project's fact labels, Role, Year…, and its section and note headings) |
 
-Three things sit outside the styles: Home's intro line (Inter Display 600 at `--size-small`, 14px,
--0.05em, as titarvl's), Work's counts (`--size-tiny`, 10px), and the name in the header, 16px
-(`--size-identity`) at +0.02em (`--tracking-identity`), a step bigger and more open than the links
-beside it (since 2026-11-05; at 14px and -0.01em like them it read weaker, its open letters
-carrying less ink than theirs). Until 2026-11-05 the type was
-Inter alone, at 400 and 500, with a 32-64px display, 28-48px titles, a 14px header, and line
-height 1.5 for all text.
+Two weights per typeface: Inter Display at 500 and 600, Martian Mono at 400 and 600. Two sizes
+sit outside the styles: Work's counts, a label at `--size-count` (10px), and the name in the
+header, 16px (`--size-identity`) at +0.02em (`--tracking-identity`), a step bigger and more open
+than the links beside it (since 2026-11-05; at 14px and -0.01em like them it read weaker, its open
+letters carrying less ink than theirs). Until 2026-11-05 the
+type was Inter alone, at 400 and 500, with a 32-64px display, 28-48px titles, a 14px header, and
+line height 1.5 for all text.
 
 Color is the text color (`--color-text`), one gray (`--color-muted`, 5.6:1 on the background),
 a lighter gray for the header's links only (`--color-faint`, 3:1), and `--color-line` for rules.
@@ -305,10 +305,10 @@ project links, the lightbox's buttons, About's scroll link and Contact); **choic
 turn to the text color when hovered or current (the header's links, in the lighter gray, and Work's
 filters).
 
-**Capitals** come with the display, title, and label styles, so everything but body text is in
-capitals: titles, names, and captions too. Type them in sentence case in `content/` and the
-templates; CSS sets the capitals. Body text, Contact's links, and the footer's links stay as
-written (an email address in capitals reads badly).
+**Capitals** come with every style but body, so everything but body text is in capitals:
+titles, names, captions, and the footer too. Type them in sentence case in `content/` and the
+templates; CSS sets the capitals. Body text (Contact's links among it) stays as typed, and so does
+an email address, even in the footer (in capitals it reads as a shout).
 
 **Breakpoints** are 768px and 1200px, the same two on every page: under 768px is a phone. 1440px
 steps up the display and title sizes only, as titarvl's do.

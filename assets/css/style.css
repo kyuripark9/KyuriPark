@@ -44,41 +44,50 @@
   --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   --font-mono: "Martian Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-  /* Type, as titarvl.framer.website/about (since 2026-11-05): five styles, each a size, line
-     height, and letter spacing below, set once in Shared text styles. Every size on the site
-     is one of these; no rule sets its own.
-       display  Inter Display 500, capitals: About's first sentence and section headings,
-                project titles, the 404. 41px, 51px from 1200px, 64px from 1440px.
-       title    Inter Display 500, capitals: impact numbers, Previous / Next titles. 18px,
-                23px from 768px, 29px from 1200px, 36px from 1440px.
-       body     Inter Display 500 at 16px: text, project statements, Contact's links.
-       name     Inter Display 500 at 14px (--size-small), capitals: the menu bar and project
-                names (Home's cards, Work's tiles, the lightbox). The name in the header is
-                600. (Not one of titarvl's: on the user's ask, a sans in place of the label.)
-       label    Martian Mono 400 at 12px, capitals: Work's filters, Home's one-liners (muted),
-                captions, project facts, the footer, the lightbox's type and year, About's
-                "[ Scroll down ]" and Experience. Labels that name a column (a project's
-                facts, its section and note headings) are 600.
-       --size-small (14px) is also Home's intro line, and --size-tiny (10px) Work's counts.
-       The name in the header is the name style at --size-identity and --tracking-identity, a
-       step bigger and more open than the links beside it (since 2026-11-05; 14px at -0.01em
-       like the links before, and it read weaker than them).
-     Until 2026-11-05: Inter at 400 and 500 only, a fluid 32-64px display, 28-48px titles,
+  /* Type: two typefaces, five styles, after titarvl.framer.website/about (since 2026-11-05).
+     Each style is a typeface, a size, a line height, and a tracking (the tokens below, by the
+     style's name), plus its weights and case; each is set once, in Shared text styles. No
+     rule sets its own type.
+       style    typeface, weights        case      used for
+       display  Inter Display 500        capitals  About's first sentence and section headings,
+                                                   project titles, the 404
+       title    Inter Display 500        capitals  impact numbers, Previous / Next titles
+       body     Inter Display 500, 600   as typed  text, project statements, Contact's links
+                                                   (links in text at 600)
+       name     Inter Display 500, 600   capitals  the menu bar (the header, the lightbox's
+                                                   Close), project names (Home's cards, Work's
+                                                   tiles, Archive and the lightbox), Home's
+                                                   intro line (the name and the intro at 600)
+       label    Martian Mono 400, 600    capitals  Work's filters, Home's one-liners, captions,
+                                                   project facts, the footer, the lightbox's
+                                                   type and year, "[ Scroll down ]",
+                                                   Experience (600 for a label that names a
+                                                   column or a section)
+     Two weights per typeface: Inter Display at 500 and 600, Martian Mono at 400 and 600. An
+     email address stays as typed, even in a label. Two sizes sit outside the styles: Work's
+     counts, a label at --size-count, and the name in the header, the name style at
+     --size-identity and --tracking-identity, a step bigger and more open than the links beside
+     it (since 2026-11-05; 14px at -0.01em like the links before, and it read weaker than them).
+     Until 2026-11-05: Inter alone at 400 and 500, a fluid 32-64px display, 28-48px titles,
      14px header, line height 1.5 for all text. */
-  --size-display: 2.5625rem;   /* 41px */
-  --size-title: 1.125rem;      /* 18px */
+  --size-display: 2.5625rem;   /* 41px; 51px from 1200px, 64px from 1440px (below) */
+  --size-title: 1.125rem;      /* 18px; 23px from 768px, 29px from 1200px, 36px from 1440px */
   --size-body: 1rem;           /* 16px */
-  --size-small: 0.875rem;      /* 14px */
+  --size-name: 0.875rem;       /* 14px */
   --size-label: 0.75rem;       /* 12px */
-  --size-tiny: 0.625rem;       /* 10px */
+  --size-count: 0.625rem;      /* 10px, Work's counts */
   --size-identity: var(--size-body);  /* 16px, the name in the header */
 
   --leading-display: 1;
   --leading-title: 0.9;
-  --leading-text: 1.1;
+  --leading-body: 1.1;
+  --leading-name: 1.3;
   --leading-label: 1.3;
+
   --tracking-display: -0.04em;
   --tracking-title: -0.01em;
+  --tracking-body: 0;
+  --tracking-name: -0.01em;
   --tracking-label: -0.05em;
   --tracking-identity: 0.02em; /* the name in the header */
 
@@ -118,7 +127,7 @@
   /* The header's box on one line (the name's line, the taller one, between the two above):
      what the sticky header takes up at the window's top, and what About's first screen leaves
      for it. If larger browser text pushes the links to a second line, the box is a line taller. */
-  --header-h: calc(var(--header-top) + var(--leading-label) * var(--size-identity) + var(--header-pad));
+  --header-h: calc(var(--header-top) + var(--leading-name) * var(--size-identity) + var(--header-pad));
   /* Where every page starts: the header's box to the page's first thing (Home's middle card,
      Work's filter, a project's title; Archive's images start lower, where Work's do), the same on every
      page so nothing jumps when you switch. --space-3 from the header's text, what the eye
@@ -198,7 +207,8 @@ body {
   font-size: var(--size-body);
   font-weight: 500;
   font-variation-settings: "opsz" 32;  /* Inter Display */
-  line-height: var(--leading-text);
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -355,34 +365,42 @@ button {
   text-transform: uppercase;
 }
 
-/* Name: Inter Display 500 at 14px in capitals, for the menu bar (the name, the links, and the
-   lightbox's Close, which stands in for it) and project names (Home's cards, Work's tiles,
-   the lightbox). Set by name, so it wins over the label its caption is in. (Labels in Martian
-   Mono for a few hours on 2026-11-05; Inter at 14px for the header and 16px for names before.) */
+/* Name: Inter Display at 14px in capitals, for the menu bar (the name, the links, and the
+   lightbox's Close, which stands in for it), project names (Home's cards, Work's tiles,
+   Archive and the lightbox), and Home's intro line. Set by name, so it wins over the label
+   its caption is in. (Labels in Martian Mono for a few hours on 2026-11-05; Inter at 14px for
+   the header and 16px for names before. The intro line had its own -0.05em until the same
+   day.) */
 .site-header,
 .lightbox-close,
 .card-title,
 .work-name,
-.lightbox-name {
+.archive-name,
+.lightbox-name,
+.intro-line {
   font-family: var(--font);
-  font-size: var(--size-small);
+  font-size: var(--size-name);
   font-weight: 500;
-  line-height: var(--leading-label);
-  letter-spacing: var(--tracking-title);
+  line-height: var(--leading-name);
+  letter-spacing: var(--tracking-name);
   text-transform: uppercase;
 }
 
-/* At 600: the name in the header, a weight up from the links, and the labels that name a
-   column or a section. In a monospace font the bolder letters are no wider, so nothing
-   moves. */
+/* At 600: the name in the header (a weight up from the links) and Home's intro line, and the
+   labels that name a column or a section. In a monospace font the bolder letters are no
+   wider, so nothing moves. */
 .identity,
+.intro-line,
 .project-meta dt,
 .text-block > .section-heading,
 .note-heading {
   font-weight: 600;
 }
 
-.footer-links {
+/* An email address stays as typed, even in a label (in capitals it reads as a shout). The
+   footer's other links are in capitals like every label (until 2026-11-05 they stayed as
+   typed, beside a copyright in capitals). */
+.site-footer a[href^="mailto:"] {
   text-transform: none;
 }
 
@@ -742,7 +760,7 @@ mark.placeholder {
 .intro {
   --intro-bg: #000;
   --intro-color: #fff;
-  --intro-size: var(--size-small);
+  --intro-size: var(--size-name);
   --intro-image: 160px;
   --intro-margin: 20px;
   position: fixed;
@@ -754,13 +772,9 @@ mark.placeholder {
   color: var(--intro-color);
 }
 
-/* One line, in capitals, set tight. */
+/* One line, in the name style at 600 (see Shared text styles), at --intro-size. */
 .intro-line {
   font-size: var(--intro-size);
-  font-weight: 600;
-  line-height: var(--leading-display);
-  letter-spacing: -0.05em;
-  text-transform: uppercase;
   white-space: nowrap;
 }
 
@@ -855,9 +869,11 @@ mark.placeholder {
   opacity: 1;
 }
 
+/* Set again at their size, or they'd take the filter's 12px tracking (-0.6px, -0.06em here). */
 .work-count {
   margin-left: 0.5em;
-  font-size: var(--size-tiny);  /* 10px */
+  font-size: var(--size-count);  /* 10px */
+  letter-spacing: var(--tracking-label);
   line-height: 1;  /* so the smaller number doesn't make its line taller */
 }
 
@@ -896,7 +912,7 @@ mark.placeholder {
 .work-caption {
   order: 1;
   display: flex;
-  height: calc(var(--leading-label) * var(--size-small));  /* one line of the name */
+  height: calc(var(--leading-name) * var(--size-name));  /* one line of the name */
 }
 
 .work-name {

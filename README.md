@@ -83,8 +83,8 @@ dist/                   the generated site. Never edit; it's rebuilt every time.
 | `category` | Required. A list of the Work filters it shows under, one or more of `"digital"`, `"brand"`, `"physical"`, like `["digital", "brand"]`. It counts under each, and once under All. Also "Category" on the project page, named as the filters are ("Digital, Brand") |
 | `featured` | Optional. `true` puts it on Home (aim for 3 to 5). Leave it out or set `false` and it's on Work only. Needs a `slug`, because a Home card opens the project's page |
 | `title` | Everywhere |
-| `oneLiner` | Under the home loop when that project is in the middle (3 words max) |
-| `type` | Work card (under the name), like "Font design tool" (also "Type" on the project page until 2026-11-06) |
+| `oneLiner` | Under the home loop when that project is in the middle, and at the right of its Work card's caption (3 words max) |
+| `type` | Like "Font design tool". Not shown for a project (on its Work card until 2026-11-05, "Type" on its page until 2026-11-06); an item with no page shows it at the right of its Work card's caption, where a project's one-liner goes, and in the lightbox |
 | `year` | The project page |
 | `roles` | Optional. A list, like `["UX research", "Art direction"]`. "Role" in the project page's facts (Category · Role · Year); it doesn't affect the filters. (Service in its place for a day, 2026-11-05) |
 | `statement` | The one big sentence right under the project's title, in the lead style (leave it out to hide it) |
@@ -204,11 +204,11 @@ Recommended exports (WebP, or AVIF; JPG and PNG work too):
 
 | Slot | Size | Notes |
 | --- | --- | --- |
-| Cover (Home cards and Work tiles) | 1500 × 2000 | 3:4 on Home; on Work it's cropped to a 400px-tall frame as wide as the column (about 9:8 on a 1440px screen), so keep the subject near the middle |
+| Cover (Home cards and Work tiles) | 1500 × 1500 | 1:1 on Home and Work, one file for both (`--thumb-ratio` in `assets/css/style.css`; 3:4 on Home until 2026-11-06). Another shape is cropped to fill the square, so keep the subject near the middle |
 | Hero and full-width | 2400 px wide | Any height; the hero runs edge to edge |
 | Two-image row | 1200 px wide each | Same ratio for both looks best |
 | About photo | 2400 × 1600 | Runs edge to edge under the About text at 3:2, as a project's hero does (up to 1920px wide). Until it exists its place is plain gray, with no label |
-| Image of an item with no page | 1200 × 1500 | The Work tile crops it as it does a cover; the lightbox shows the whole image |
+| Image of an item with no page | 1200 × 1500 | The Work tile crops it to the same square as a cover; the lightbox shows the whole image |
 | Archive image | 1500 px on the long side | Any shape; never cropped |
 
 Aim for under ~500 KB per image. [Squoosh](https://squoosh.app) or Figma's export both make WebP.
@@ -315,7 +315,8 @@ templates; CSS sets the capitals. Body text and the lead stay as typed, and so d
 address, even in the footer (in capitals it reads as a shout).
 
 **Breakpoints** are 768px and 1200px, the same two on every page: under 768px is a phone. 1440px
-steps up the display and title sizes only, as titarvl's do.
+steps up the display and title sizes only, as titarvl's do. Work's grid alone goes by 640px and
+1440px: 1 column under 640px, 2 from 640px, 3 from 1440px (since 2026-11-06).
 
 ## Spacing
 
@@ -361,12 +362,12 @@ To tune it:
   `TICK_VOLUME` (the soft tick each time a new card reaches the middle, 0 to 1; 0 turns it off),
   `TICK_TONE` (its pitch in Hz; higher sounds brighter). The tick is made in the browser, no
   sound file, and stays silent until the visitor has clicked, tapped, or pressed a key on the page.
-- `assets/css/style.css`, "Home: project track": `--card-gap` (space between cards: `--media-gap`,
-  12px, as between images on every page), `--card-base` (the middle card's width up to a
-  900px-tall window, 400px), `--card-w`, `--peek`, `--room-spare` (under
-  it on a taller window, where the card grows to keep this), `--room-bottom` (the least under it,
-  room for a caption of up to three lines; on short screens the card shrinks
-  to keep this), `--scale-1` (card size one step from the
+- `assets/css/style.css`: `--thumb-ratio` at the top (the cards' shape, width / height, `1 / 1`;
+  Work's tiles use it too). "Home: project track": `--card-gap` (space between cards: `--media-gap`,
+  12px, as between images on every page), `--card-share` (the middle card's height as a share of
+  the window's, `62dvh`: 558px on a 900px-tall window), `--card-w`, `--card-h`, `--peek`,
+  `--room-bottom` (the least under it, room for a caption of up to two lines; on short screens the
+  card shrinks to keep this), `--scale-1` (card size one step from the
   middle), `--scale-2` (two steps or more), `--opacity-1` / `--grayscale-1` / `--brightness-1`
   (cards one step from the middle and beyond: full opacity, grey, a little darker),
   `--fade-step` (each further step multiplies the opacity by this), `--blur-step` (and adds
@@ -379,12 +380,13 @@ The address shows `#all`, `#digital`, and so on, so a link opens that filter, Ba
 through the ones picked, and Back from a project page returns to the same one; no hash or an
 unknown one means All, and `#visual` (a filter that's now part of Brand) opens Brand. Each filter is a button, and Tab goes from one to the next. The layout follows
 cedarstudio.framer.ai/work?view=Grid. The toggle is a row of labels (Martian Mono, 12px, in capitals): the one showing is bracketed ("[ ALL 11 ]") and in the text color, the others unbracketed and muted, and on a screen too narrow for all of
-them the rest go on a second line. The grid is 1 column on phones, 2 from 768px, 3 from 1200px,
-and every image is 400px tall, as wide as its column, cropped to fill. Each tile's caption is its
-title alone, on one line under its image; a long title is cut short with "…", so every tile is the
-same height. Without JavaScript there's no toggle and the grid shows everything. To tune it:
+them the rest go on a second line. The grid is 1 column under 640px, 2 from 640px, 3 from 1440px,
+and every image is as wide as its column and square (`--thumb-ratio`, the same as Home's cards),
+cropped to fill. Each tile's caption is one line under its image: the title at the left, the
+one-liner at the right as a gray mono label, as on Home (an item with no page shows its type
+there); when they don't both fit, each is cut short with "…", so every tile is the same height. Without JavaScript there's no toggle and the grid shows everything. To tune it:
 - `assets/js/main.js`, the Work section: `FADE_OUT` / `FADE_IN`.
-- `assets/css/style.css`, "Work": `--tile-h` (the images' height: 400px), `--tile-col-gap` (between
+- `assets/css/style.css`, "Work": `--thumb-ratio` at the top (the images' shape), `--tile-col-gap` (between
   columns: 12px, `--media-gap`), `--tile-row-gap` (a title to the next row's image: 32px, 64px from
   1200px), `--caption-gap` (image to title: 16px, `--space-1`).
 - The side margins: `--gutter` at the top of `assets/css/style.css` (see Spacing).

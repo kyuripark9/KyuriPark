@@ -169,6 +169,12 @@
   --media-gap: 12px;              /* between images, side by side or one under another, on
                                      every page and screen: Work, Archive, Home, project
                                      pages, the lightbox */
+  --thumb-ratio: 1 / 1;           /* a project's thumbnail, width / height, wherever it shows:
+                                     Home's cards (the middle one and its neighbors) and Work's
+                                     tiles; the cover is cropped to fill it. Home's card math
+                                     reads it too, so any "w / h" works (until 2026-11-06: 3 / 4
+                                     on Home, and a 400px-tall frame as wide as the column on
+                                     Work) */
 
   --fade: 200ms ease;           /* colors, the lightbox, the brackets on Work's filters */
   --grow: 250ms ease;           /* Work's and Archive's images growing on hover, Work's videos
@@ -179,6 +185,7 @@
 /* Breakpoints: 768px and 1200px, the same two everywhere (media queries can't use the tokens,
    so they're written out; build.py's ARCHIVE_SIZES uses them too). Under 768px is a phone.
    1440px steps up the display and title sizes only, as titarvl's do.
+   Work's grid alone goes by 640 and 1440px (since 2026-11-06): 1 column, 2, then 3.
    Until 2026-11-05 there were also 640, 1024, and 1240px. */
 @media (min-width: 768px) {
   :root {
@@ -631,7 +638,7 @@ mark.placeholder {
 /* A card without its cover yet is a plain gray block. */
 .track-media {
   display: block;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: var(--thumb-ratio);
   overflow: hidden;
   background: var(--color-fill);
 }
@@ -683,19 +690,23 @@ mark.placeholder {
 
 /* With JavaScript, Home fills the screen and doesn't scroll. The cards sit on a loop
    that track.js turns; these rules size them and set where they start.
-   Sizes match the example (focuscarouselpro.framer.website) from 768px, all but the gap
-   between cards, which is the site's gap between images; the card's top is the page's starting
-   line (main's --page-top), where Work's filter starts too, on any screen.
-     --card-w        the middle card's width: --card-base (400px, so 533px tall at 3:4) up
-                     to a 940px-tall window, larger on taller ones, so the space under the
-                     card stays the same; smaller when the window is too short for it, down
-                     to --room-bottom over the window's bottom edge (on a 648px-tall window,
-                     414px tall; the example's is 449px, from a starting line 35px higher);
-                     nearly full width on phones (--peek is how much of each neighbor
-                     shows there)
+   The layout follows the example (focuscarouselpro.framer.website), but the cards are
+   --thumb-ratio, as Work's tiles are (square since 2026-11-06; 3:4 at the example's sizes
+   before), and the gap between them is the site's gap between images; the card's top is the
+   page's starting line (main's --page-top), where Work's filter starts too, on any screen.
+   The middle card is large enough that on most windows the outermost cards run off the
+   screen's edges.
+     --card-share    the middle card's height, as a share of the window's: 62dvh (558px on a
+                     900px-tall window, 670px on a 1080px one), so a square card stands as
+                     tall as the 3:4 one did (until 2026-11-06: 3:4, 400px wide up to a
+                     940px-tall window and 247px kept under it on taller ones)
+     --card-w        the middle card's width: --card-share of the window's height, at
+                     --thumb-ratio; smaller when the window is too short for it, down to
+                     --room-bottom over the window's bottom edge; nearly full width on phones
+                     (--peek is how much of each neighbor shows there)
+     --card-h        its height, from --card-w and --thumb-ratio
      --card-gap      space between cards as drawn, whatever their size: --media-gap, as
                      between images on every page
-     --room-spare    under the middle card on a tall window (its caption goes in here)
      --room-bottom   the least kept free under the middle card: its caption (16px down, up
                      to two lines) and 24px under that, 71px, near the example's 72px (until
                      2026-11-05: 136px, for three lines, which kept the card small on any
@@ -728,13 +739,13 @@ mark.placeholder {
 .js .track {
   --card-gap: var(--media-gap);
   --peek: var(--step-2);
-  --card-base: 400px;
-  --room-spare: 247px;
+  --card-share: 62dvh;
   --room-bottom: calc(var(--space-1) + 2 * var(--leading-label) * var(--size-label) + var(--step-3));
-  --card-w: min(max(var(--card-base), (100cqh - var(--room-spare)) * 0.75),
-                (100cqh - var(--room-bottom)) * 0.75,
+  /* "w / h" in brackets is a number, w divided by h: a width from a height. */
+  --card-w: min(min(var(--card-share), 100cqh - var(--room-bottom)) * (var(--thumb-ratio)),
                 100cqw - 2 * (var(--card-gap) + var(--peek)));
-  --card-y: calc(var(--card-w) * 2 / 3);  /* its center: its top on the stage's top edge */
+  --card-h: calc(var(--card-w) / (var(--thumb-ratio)));
+  --card-y: calc(var(--card-h) / 2);  /* its center: its top on the stage's top edge */
   --scale-1: 0.52;
   --scale-2: 0.52;
   --opacity-1: 1;
@@ -771,7 +782,7 @@ mark.placeholder {
   top: var(--card-y);
   left: 50%;
   width: var(--card-w);
-  margin: calc(var(--card-w) * -2 / 3) 0 0 calc(var(--card-w) * -0.5);
+  margin: calc(var(--card-h) * -0.5) 0 0 calc(var(--card-w) * -0.5);
   opacity: calc((1 - var(--d1) * var(--d1) * (1 - var(--opacity-1)))
                 * pow(var(--fade-step), var(--beyond)));
   filter: grayscale(calc(var(--d1) * var(--d1) * var(--grayscale-1)))
@@ -806,7 +817,7 @@ mark.placeholder {
    and a caption that narrow would stack word by word. */
 .js .track-caption {
   position: absolute;
-  top: calc(var(--card-y) + var(--card-w) * 2 / 3);
+  top: calc(var(--card-y) + var(--card-h) / 2);
   left: 0;
   right: 0;
   width: max(var(--card-w), min(240px, 100cqw - 2 * var(--gutter)));
@@ -869,12 +880,11 @@ mark.placeholder {
 /* Work ------------------------------------------------------------------ */
 
 /* Work's layout follows cedarstudio.framer.ai/work?view=Grid (since 2026-11-05): a row of
-   filters at the top, then 400px-tall images with their title under them. main.js shows
-   one filter at a time on the one grid; without JavaScript there's no filter and the grid shows
-   everything. */
+   filters at the top, then images with their title under them, each as wide as its column at
+   --thumb-ratio, as Home's cards are (until 2026-11-06: 400px tall on every screen, whatever
+   the column's width). main.js shows one filter at a time on the one grid; without JavaScript
+   there's no filter and the grid shows everything. */
 .page-work {
-  --tile-h: 400px;                  /* every image's height, on every screen; the width is the
-                                       column's, and the image is cropped to fill */
   --tile-col-gap: var(--media-gap); /* between columns: 12px, as between images everywhere */
   --tile-row-gap: var(--step-4);    /* a title to the next row's image: 32px, 64px from 1200px */
   --caption-gap: var(--space-1);    /* an image to its title: 16px */
@@ -950,22 +960,24 @@ mark.placeholder {
   line-height: 1;  /* so the smaller number doesn't make its line taller */
 }
 
-/* 1 across on phones, 2 from 768px, 3 from 1200px (until 2026-11-05: 3 from 768px, 4 from
-   1200px). Each tile is its image, then one line under it: "TypeLab" at the left and its type at
-   the right. A tile with no page is a button (it opens the lightbox) and looks the same. */
+/* 1 across under 640px, 2 from 640px, 3 from 1440px (until 2026-11-06: 2 from 768px, 3 from
+   1200px; until 2026-11-05: 3 from 768px, 4 from 1200px). Each tile is its image, then one line
+   under it: "TypeLab" at the left and its one-liner at the right, as on Home (an item with no
+   page has no one-liner and shows its type). A tile with no page is a button (it opens the
+   lightbox) and looks the same. */
 .work-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--tile-row-gap) var(--tile-col-gap);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   .work-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1440px) {
   .work-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -979,28 +991,40 @@ mark.placeholder {
   text-align: left;
 }
 
-/* The title on one line under the image (it comes first in the page, for screen readers), in
-   the name style (see Shared text styles). It doesn't wrap and the line's
-   height is fixed, so every tile is the same height; a long title is cut short with "…". */
+/* One line under the image (it comes first in the page, for screen readers): the title at the
+   left in the name style, the one-liner at the right as a label in --color-muted, as under
+   Home's middle card (see Shared text styles). Neither wraps and the line's height is fixed,
+   so every tile is the same height; when the two don't fit side by side, both are cut short
+   with "…". (The title alone from 2026-11-05 to 2026-11-06; the type at the right before.) */
 .work-caption {
   order: 1;
   display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--step-1);
   height: calc(var(--leading-name) * var(--size-name));  /* one line of the name */
 }
 
-.work-name {
+.work-name,
+.work-text {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* The image fills a frame as wide as the column and --tile-h tall (a plain gray block until it
-   exists): about 9:8 on a 1440px screen, so a 3:4 cover loses some of its top and bottom. */
+.work-text {
+  text-align: right;
+  color: var(--color-muted);
+}
+
+/* The image fills a frame as wide as the column at --thumb-ratio (a plain gray block until it
+   exists), the same shape as Home's cards on every screen. */
 .work-media {
   position: relative;
   display: block;
-  height: var(--tile-h);
+  width: 100%;
+  aspect-ratio: var(--thumb-ratio);
   overflow: hidden;
   background: var(--color-fill);
 }
@@ -1011,7 +1035,7 @@ mark.placeholder {
   transition: transform var(--grow);
 }
 
-/* ...and Work's are cropped to fill the 3:4 frame. */
+/* ...and Work's are cropped to fill their frame. */
 .work-media :is(img, video) {
   display: block;
   height: 100%;

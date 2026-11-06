@@ -32,7 +32,7 @@ DIST_DIR = os.path.join(ROOT, "dist")
 
 # Size of the gray placeholder for each kind of slot, used until a real file exists.
 PLACEHOLDER_SIZES = {
-    "cover": (1500, 2000),     # 3:4, home cards and Work tiles
+    "cover": (1500, 1500),     # 1:1 (--thumb-ratio in style.css), home cards and Work tiles
     "wide": (2400, 1350),      # 16:9, hero and full-width images and videos
     "pair": (1200, 1500),      # 4:5, each image in a two-image row
     "portrait": (2400, 1600),  # 3:2, the About photo (no placeholder: a plain gray block)
@@ -815,29 +815,34 @@ class Builder:
         return ""
 
     def work_card(self, p, index):
-        """'TypeLab' on one line under a 3:4 image, for one item; main.js filters the tiles on
-        data-categories. A project's tile links to its page, and if the cover has a video next
-        to it, main.js plays it while the tile is hovered. An item with no page opens the
-        lightbox, which shows its 'Type · Year' from a hidden span in the tile."""
+        """'TypeLab' at the left and 'Font design playground' at the right, on one line under
+        the image, for one item: a project's one-liner, as under Home's middle card; an item
+        with no page has none, so its type. main.js filters the tiles on data-categories. A
+        project's tile links to its page, and if the cover has a video next to it, main.js
+        plays it while the tile is hovered. An item with no page opens the lightbox, which shows
+        its 'Type · Year' from a hidden span in the tile."""
         loading = "eager" if index < 3 else "lazy"
         if "slug" in p:
             rel, video = self.cover(p)
             img = self.tile_image(rel, "cover", p["title"], loading)
             data = f' data-video="{url_for(video)}"' if video else ""
             tag, attrs = "a", f'href="/work/{p["slug"]}/"'
+            text = p["oneLiner"]
             meta, extra = "", ""
         else:
             rel = media_path(p["images"][0], PIECE_FOLDER)
             img = self.tile_image(rel, "piece", p["title"], loading)
             data = ""
             tag, attrs = "button", 'type="button" data-item aria-haspopup="dialog"'
+            text = p.get("type", "")
             meta = f'<span hidden data-lightbox-meta>{self.piece_meta(p)}</span>'
             extra = f'            {self.piece_images(p)}\n'
+        text = f' <span class="work-text">{inline(text)}</span>' if text else ""
         return (f'          <li data-categories="{" ".join(p["category"])}">\n'
                 f'            <{tag} class="work-card" {attrs}>\n'
                 f'              <span class="work-caption">'
                 f'<span class="work-name" data-lightbox-name>{inline(p["title"])}</span>'
-                f'{meta}</span>\n'
+                f'{text}{meta}</span>\n'
                 f'              <span class="work-media"{data}>{img}</span>\n'
                 f'            </{tag}>\n'
                 f'{extra}'

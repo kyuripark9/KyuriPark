@@ -60,6 +60,9 @@
                 "[ Scroll down ]" and Experience. Labels that name a column (a project's
                 facts, its section and note headings) are 600.
        --size-small (14px) is also Home's intro line, and --size-tiny (10px) Work's counts.
+       The name in the header is the name style at --size-identity and --tracking-identity, a
+       step bigger and more open than the links beside it (since 2026-11-05; 14px at -0.01em
+       like the links before, and it read weaker than them).
      Until 2026-11-05: Inter at 400 and 500 only, a fluid 32-64px display, 28-48px titles,
      14px header, line height 1.5 for all text. */
   --size-display: 2.5625rem;   /* 41px */
@@ -68,6 +71,7 @@
   --size-small: 0.875rem;      /* 14px */
   --size-label: 0.75rem;       /* 12px */
   --size-tiny: 0.625rem;       /* 10px */
+  --size-identity: var(--size-body);  /* 16px, the name in the header */
 
   --leading-display: 1;
   --leading-title: 0.9;
@@ -76,6 +80,7 @@
   --tracking-display: -0.04em;
   --tracking-title: -0.01em;
   --tracking-label: -0.05em;
+  --tracking-identity: 0.02em; /* the name in the header */
 
   /* Two ways things react to the pointer, both in the text color and --color-muted:
        links      in the text color, muted on hover (the name, links in text, the footer,
@@ -110,10 +115,10 @@
   --header-top: 12px;             /* over the header's text: 12px, 16px from 768px (until
                                      2026-11-05: 24/32px, then 16/24px over and under) */
   --header-pad: var(--step-2);    /* under the header's text: 16px, 24px from 768px */
-  /* The header's box on one line (the name and links' line between the two above): what the
-     sticky header takes up at the window's top, and what About's first screen leaves for it. If
-     larger browser text pushes the links to a second line, the box is a line taller. */
-  --header-h: calc(var(--header-top) + var(--leading-label) * var(--size-small) + var(--header-pad));
+  /* The header's box on one line (the name's line, the taller one, between the two above):
+     what the sticky header takes up at the window's top, and what About's first screen leaves
+     for it. If larger browser text pushes the links to a second line, the box is a line taller. */
+  --header-h: calc(var(--header-top) + var(--leading-label) * var(--size-identity) + var(--header-pad));
   /* Where every page starts: the header's box to the page's first thing (Home's middle card,
      Work's filter, a project's title; Archive's images start lower, where Work's do), the same on every
      page so nothing jumps when you switch. --space-3 from the header's text, what the eye
@@ -482,9 +487,13 @@ mark.placeholder {
 }
 
 /* "KYURI PARK" (the name in content/site.json, in capitals here only), in the name style as
-   the links are, at 600 (see Shared text styles). On hover it steps back to the muted gray. */
+   the links are, at 600 (see Shared text styles), and at --size-identity and
+   --tracking-identity: a step bigger and more open than the links, as its open letters (K, Y,
+   A, R, a lone I) carry less ink than theirs. On hover it steps back to the muted gray. */
 .identity {
   flex: none;
+  font-size: var(--size-identity);
+  letter-spacing: var(--tracking-identity);
   white-space: nowrap;
 }
 

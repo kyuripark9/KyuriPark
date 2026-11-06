@@ -41,6 +41,9 @@
   --color-fill: #e9e8e3;       /* behind media while it loads */
   --color-mark: #e8e7e1;       /* [PLACEHOLDER] highlight; muted text on it stays at 5:1 */
 
+  /* ↗ after a link that opens a new tab, as a mask (only its shape counts, not its color). */
+  --icon-arrow-out: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='%23000' stroke-width='1.5'%3E%3Cpath d='M1 9 8.25 1.75M3 1.75h5.25V7'/%3E%3C/svg%3E");
+
   --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   --font-mono: "Martian Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
@@ -452,6 +455,37 @@ button {
 .lightbox-arrow:hover,
 .about-scroll:hover {
   color: var(--color-muted);
+}
+
+/* A link that opens a new tab (another site, or the résumé PDF: build.py's link()) ends in an
+   arrow pointing up and out, so it reads as a link and says it leaves the page (since
+   2026-11-05). The fonts' latin files have no ↗, so it's drawn: a mask filled with the link's
+   color, fading with it on hover, sitting on the baseline. 0.7em tall: just under Inter's
+   capitals (0.73em), and above Martian Mono's lowercase (0.61em) and under its capitals. It
+   hangs on the link's last word (.link-end, from link()), which keeps on one line with it, so
+   the arrow never wraps onto a line alone. */
+.link-end {
+  white-space: nowrap;
+}
+
+.link-end::after {
+  content: "";
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  margin-left: 0.3em;
+  background-color: currentColor;
+  -webkit-mask: var(--icon-arrow-out) center / contain no-repeat;
+  mask: var(--icon-arrow-out) center / contain no-repeat;
+}
+
+/* In forced colors (Windows' contrast themes) every background turns to the theme's, which
+   would hide the arrow: it takes the theme's link color instead. */
+@media (forced-colors: active) {
+  .link-end::after {
+    forced-color-adjust: none;
+    background-color: LinkText;
+  }
 }
 
 /* Choices: muted, and the text color when hovered or current (the header's page, Work's
@@ -1190,6 +1224,17 @@ mark.placeholder {
 .project-statement {
   max-width: 40rem;
   margin-top: var(--step-8);
+}
+
+/* "Visit typelab.ink ↗": a project's own site, in the body text right under its statement, so
+   the page asks you in (since 2026-11-05; until 2026-11-06 the metadata row listed it too, as
+   Link). Without a statement it takes the statement's place. */
+.project-visit {
+  margin-top: var(--step-8);
+}
+
+.project-statement + .project-visit {
+  margin-top: var(--step-2);
 }
 
 /* The hero runs edge to edge. */

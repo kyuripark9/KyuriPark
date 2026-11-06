@@ -111,12 +111,17 @@ def need(obj, key, where):
 
 def link(href, label_html, cls="", rel="noopener"):
     """An <a> tag. href and label_html must already be escaped.
-    External links and PDFs open in a new tab and say so to screen readers."""
+    External links and PDFs open in a new tab and say so to screen readers. CSS ends them in a
+    ↗ hung on their last word (.link-end), which keeps on one line with it, so the arrow never
+    wraps alone. A label with markup in it is kept whole, so no tag is split."""
     attrs = f' class="{cls}"' if cls else ""
     is_pdf = href.lower().endswith(".pdf")
     if is_pdf or href.startswith(("http://", "https://")):
         note = "PDF, opens in a new tab" if is_pdf else "opens in a new tab"
-        return (f'<a{attrs} href="{href}" target="_blank" rel="{rel}">{label_html}'
+        label_html = label_html.strip()
+        head, space, tail = ("", "", label_html) if "<" in label_html else label_html.rpartition(" ")
+        return (f'<a{attrs} href="{href}" target="_blank" rel="{rel}">{head}{space}'
+                f'<span class="link-end">{tail}</span>'
                 f'<span class="visually-hidden"> ({note})</span></a>')
     return f'<a{attrs} href="{href}">{label_html}</a>'
 
@@ -360,9 +365,6 @@ def validate(site, items):
         order = p.get("order")
         if isinstance(order, bool) or not isinstance(order, (int, float)):
             raise BuildError(f'{where}: "order" should be a number (lower numbers show first).')
-        roles = p.get("roles", [])
-        if not isinstance(roles, list) or not all(isinstance(r, str) for r in roles):
-            raise BuildError(f'{where}: "roles" should be a list, like ["Art Direction"].')
         if p.get("todo"):
             warnings.append(f'{where}: {p["todo"]}.')
         if "slug" not in p:  # no page of its own: its tile opens the lightbox
@@ -392,6 +394,28 @@ def validate(site, items):
         for key in ("type", "year"):
             if not p.get(key):
                 warnings.append(f'{slug}: "{key}" is empty, so the Work list shows a gap there.')
+        meta = p.get("meta") or {}
+        if not isinstance(meta, dict):
+            raise BuildError(f'{where}: "meta" should be like {{ "service": "Brand identity", '
+                             '"link": null }.')
+        service = meta.get("service")
+        if service is not None and not (isinstance(service, str) or (
+                isinstance(service, list) and all(isinstance(s, str) for s in service))):
+            raise BuildError(f'{where}: "meta.service" should be text, like "Brand identity", '
+                             'or a list of it, like ["Brand identity", "Web design"].')
+        site_link = meta.get("link")
+        if site_link is not None and not (
+                isinstance(site_link, dict) and isinstance(site_link.get("url"), str)
+                and site_link["url"].startswith(("http://", "https://"))
+                and isinstance(site_link.get("label") or "", str)):
+            raise BuildError(f'{where}: "meta.link" should be like {{ "label": "typelab.ink", '
+                             '"url": "https://typelab.ink" }, the address in full (from '
+                             'https://), or null to hide it.')
+        # Facts the project page stopped showing on 2026-11-05: say so, so none go missing quietly.
+        for old, there in (("roles", "roles" in p), ("meta.tools", "tools" in meta)):
+            if there:
+                warnings.append(f'{slug}: "{old}" isn\'t shown since 2026-11-05; put it in '
+                                '"meta.service".')
 
     if not seen:
         raise BuildError('content/projects.json needs at least one project with a "slug".')
@@ -723,18 +747,16 @@ class Builder:
         return "\n".join(out)
 
     def meta_rows(self, p):
-        """Role · Year · Type · Tools · Link. Empty fields are left out."""
+        """Year · Type · Service. Empty fields are left out. (Role and Tools until 2026-11-05;
+        Link until 2026-11-06, now "Visit …" under the statement: see visit_link.)"""
         meta = p.get("meta") or {}
         rows = []
-        for label, value in (("Role", p.get("roles")), ("Year", p.get("year")),
-                             ("Type", p.get("type")), ("Tools", meta.get("tools"))):
+        for label, value in (("Year", p.get("year")), ("Type", p.get("type")),
+                             ("Service", meta.get("service"))):
             if isinstance(value, list):
                 value = ", ".join(value)
             if value:
                 rows.append((label, inline(value)))
-        lk = meta.get("link")
-        if lk and lk.get("url"):
-            rows.append(("Link", link(esc(lk["url"]), esc(lk.get("label") or lk["url"]))))
         return "\n".join(f"          <div><dt>{k}</dt><dd>{v}</dd></div>" for k, v in rows)
 
     # Pages ------------------------------------------------------------------
@@ -911,6 +933,17 @@ class Builder:
                   s["description"], content, "wrap page-archive", current="archive",
                   image=self.og_image())
 
+    def visit_link(self, p):
+        """A project with its own site (meta.link) asks you in, in the body text under its
+        statement: "Visit typelab.ink", with the new-tab arrow (since 2026-11-05). The only place
+        it shows: until 2026-11-06 the metadata row listed it too, as "Link", and twice read as
+        a repeat."""
+        lk = (p.get("meta") or {}).get("link")
+        if not (lk and lk.get("url")):
+            return ""
+        url, label = esc(lk["url"]), esc(lk.get("label") or lk["url"])
+        return f'<p class="project-visit">{link(url, "Visit " + label, cls="text-link")}</p>'
+
     def build_project(self, p, prev_p, next_p):
         folder = f"assets/images/{p['slug']}"
         statement = p.get("statement")
@@ -920,6 +953,7 @@ class Builder:
             meta=self.meta_rows(p),
             statement=(f'<p class="project-statement">{inline(statement)}</p>'
                        if statement else ""),
+            visit=self.visit_link(p),
             hero=("        " + self.block(p["hero"], p, folder, hero=True)) if p.get("hero") else "",
             blocks=self.sections(p.get("blocks") or [], p, folder),
             prev_url=f"/work/{prev_p['slug']}/",

@@ -83,12 +83,11 @@ dist/                   the generated site. Never edit; it's rebuilt every time.
 | `oneLiner` | Under the home loop when that project is in the middle (3 words max) |
 | `type` | Work card (under the name), and as "Type" on the project page, like "Font design tool" |
 | `year` | The project page |
-| `roles` | Optional. A list, like `["UX Research", "Art Direction"]`. "Role" in the project page's metadata row; it doesn't affect the filters |
 | `statement` | The one big sentence under the project's metadata (leave it out to hide it) |
 | `cover` | Home card and Work card |
-| `meta.tools` | Project page metadata row |
+| `meta.service` | "Service" in the project page's metadata row, like "Brand identity" or a list, like `["Brand identity", "Web design"]` (Role and Tools until 2026-11-05) |
 | `todo` | Optional. A note to yourself, like `"confirm category"`; the build prints it every time until you delete it. JSON has no comments, so this does that job |
-| `meta.link` | `{ "label": "typelab.ink", "url": "https://typelab.ink" }`, or `null` to hide it |
+| `meta.link` | `{ "label": "typelab.ink", "url": "https://typelab.ink" }`, or `null` to hide it. Shows once, as "Visit typelab.ink ↗" in the body text under the statement, so type the label as the address reads (until 2026-11-06 also as "Link" in the metadata row) |
 | `hero` | The large image or video at the top of the project page (same format as a block below) |
 | `blocks` | Everything after the hero, in order |
 
@@ -287,7 +286,7 @@ menu bar and project names are a sans while the small labels stay in Martian Mon
 | title | Inter Display 500, capitals | 18px, 23px from 768px, 29px from 1200px, 36px from 1440px | 0.9, -0.01em | impact numbers, Previous / Next titles |
 | body | Inter Display 500, as typed | 16px | 1.1, 0 | text (About's too), project statements, Contact's links; links in text at 600 |
 | name | Inter Display 500, capitals | 14px | 1.3, -0.01em | the menu bar (Work, Archive, About, the lightbox's Close; the name at 600, 16px and +0.02em, see below) and project names (Home's cards, Work's tiles, Archive, the lightbox); Home's intro line at 600 |
-| label | Martian Mono 400, capitals | 12px | 1.3, -0.05em | Work's filters, Home's one-liners (in `--color-muted`), captions, project facts, the footer, the lightbox's type and year, About's "[ Scroll down ]" and Experience; at 600 for a label that names a column or a section (a project's fact labels, Role, Year…, and its section and note headings) |
+| label | Martian Mono 400, capitals | 12px | 1.3, -0.05em | Work's filters, Home's one-liners (in `--color-muted`), captions, project facts, the footer, the lightbox's type and year, About's "[ Scroll down ]" and Experience; at 600 for a label that names a column or a section (a project's fact labels, Year, Type…, and its section and note headings) |
 
 Two weights per typeface: Inter Display at 500 and 600, Martian Mono at 400 and 600. Two sizes
 sit outside the styles: Work's counts, a label at `--size-count` (10px), and the name in the
@@ -303,7 +302,10 @@ Things react to the pointer in one of two ways, and only by color:
 **links** are in the text color and turn muted on hover (the name, links in text, the footer,
 project links, the lightbox's buttons, About's scroll link and Contact); **choices** are muted and
 turn to the text color when hovered or current (the header's links, in the lighter gray, and Work's
-filters).
+filters). A link that opens a new tab (LinkedIn, GitHub, the résumé PDF, a project's "Visit" link: any
+`target="_blank"`, which `build.py` sets on every external link and PDF) ends in a small ↗,
+drawn by CSS in the link's color (since 2026-11-05). It hangs on the link's last word, so it never
+wraps onto a line alone, and in Windows' contrast themes it takes the theme's link color.
 
 **Capitals** come with every style but body, so everything but body text is in capitals:
 titles, names, captions, and the footer too. Type them in sentence case in `content/` and the

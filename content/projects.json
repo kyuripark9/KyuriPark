@@ -8,16 +8,13 @@
     "oneLiner": "Font design playground",
     "type": "Font design tool",
     "year": "2026",
-    "roles": [
-      "[PLACEHOLDER]"
-    ],
     "statement": "[PLACEHOLDER] One sentence, in big type, on what this project is and why it matters.",
     "cover": {
       "src": "cover.webp",
       "alt": "[PLACEHOLDER] TypeLab: cover image"
     },
     "meta": {
-      "tools": "[PLACEHOLDER]",
+      "service": "[PLACEHOLDER]",
       "link": {
         "label": "typelab.ink",
         "url": "https://typelab.ink"
@@ -111,16 +108,13 @@
     "oneLiner": "While AI works",
     "type": "[PLACEHOLDER]",
     "year": "[PLACEHOLDER]",
-    "roles": [
-      "[PLACEHOLDER]"
-    ],
     "statement": "[PLACEHOLDER] One sentence, in big type, on what this project is and why it matters.",
     "cover": {
       "src": "cover.webp",
       "alt": "[PLACEHOLDER] Clack: cover image"
     },
     "meta": {
-      "tools": "[PLACEHOLDER]",
+      "service": "[PLACEHOLDER]",
       "link": null
     },
     "hero": {
@@ -213,16 +207,13 @@
     "oneLiner": "[PLACEHOLDER one-liner]",
     "type": "[PLACEHOLDER]",
     "year": "[PLACEHOLDER]",
-    "roles": [
-      "[PLACEHOLDER]"
-    ],
     "statement": "[PLACEHOLDER] One sentence, in big type, on what this project is and why it matters.",
     "cover": {
       "src": "cover.webp",
       "alt": "[PLACEHOLDER] NBCUniversal: cover image"
     },
     "meta": {
-      "tools": "[PLACEHOLDER]",
+      "service": "[PLACEHOLDER]",
       "link": null
     },
     "hero": {
@@ -313,16 +304,13 @@
     "oneLiner": "[PLACEHOLDER one-liner]",
     "type": "[PLACEHOLDER]",
     "year": "[PLACEHOLDER]",
-    "roles": [
-      "[PLACEHOLDER]"
-    ],
     "statement": "[PLACEHOLDER] One sentence, in big type, on what this project is and why it matters.",
     "cover": {
       "src": "cover.webp",
       "alt": "[PLACEHOLDER] this project: cover image"
     },
     "meta": {
-      "tools": "[PLACEHOLDER]",
+      "service": "[PLACEHOLDER]",
       "link": null
     },
     "hero": {
@@ -413,16 +401,13 @@
     "oneLiner": "[PLACEHOLDER one-liner]",
     "type": "[PLACEHOLDER]",
     "year": "[PLACEHOLDER]",
-    "roles": [
-      "[PLACEHOLDER]"
-    ],
     "statement": "[PLACEHOLDER] One sentence, in big type, on what this project is and why it matters.",
     "cover": {
       "src": "cover.webp",
       "alt": "[PLACEHOLDER] Light Life: cover image"
     },
     "meta": {
-      "tools": "[PLACEHOLDER]",
+      "service": "[PLACEHOLDER]",
       "link": null
     },
     "hero": {

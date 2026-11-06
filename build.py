@@ -56,7 +56,8 @@ MAX_ONE_LINER_WORDS = 3
 MIN_FEATURED, MAX_FEATURED = 3, 5  # how many projects Home should show
 CATEGORIES = ("digital", "brand", "physical")  # Work's filters, in toggle order after All
 LOADING_ATTRS = {"lazy": 'loading="lazy"', "eager": "", "high": 'fetchpriority="high"'}
-# Old addresses that now live elsewhere: /contact/ was a menu item and is now a section of About.
+# Old addresses that now live elsewhere: /contact/ was a menu item and is now About's Contact
+# label, with the footer's links under it.
 # Each becomes <old>/index.html, which sends the visitor on (build_redirects).
 REDIRECTS = {"contact": ("/about/#contact", "Contact")}
 
@@ -582,8 +583,8 @@ class Builder:
         return og.get("src"), og.get("alt")
 
     def contact_links(self, indent):
-        """The email, LinkedIn, GitHub, and resume links from content/site.json, for both the
-        footer and About's Contact section, so changing one there changes both."""
+        """The email, LinkedIn, GitHub, and resume links from content/site.json, for the footer
+        (until 2026-11-06 About's Contact section listed them too, one under another)."""
         s = self.site
         rel = "noopener noreferrer"
         items = [
@@ -851,8 +852,8 @@ class Builder:
     def work_tab(self, name):
         """One filter on Work's toggle, with how many items it shows: an item with two
         categories counts under both, and once under All. "[ All 11 ]", bracketed as
-        About's "[ Scroll down ]" is (style.css shows the brackets on the filter showing only);
-        screen readers skip them."""
+        About's "[ Scroll down ]" was until 2026-11-06 (style.css shows the brackets on the
+        filter showing only); screen readers skip them."""
         n = sum(name == "all" or name in p["category"] for p in self.items)
         return (f'      <button class="work-tab" type="button" data-filter="{name}" '
                 f'aria-pressed="{str(name == "all").lower()}">'
@@ -968,11 +969,12 @@ class Builder:
                   f"{p['oneLiner']}. A project by {s['name']}, {s['role']}.",
                   content, "page-project", current="project", image=self.og_image(p))
 
-    def about_hero(self, about):
-        """About's first screen: the headline alone in the middle of the window, and a
-        '[ Scroll down ]' link at its foot to the portrait and text under it. Each string in
-        "headline" is one line from 768px (on phones they run on as one sentence); a plain
-        string is one line that wraps. No headline, no first screen."""
+    def about_headline(self, about):
+        """About's first sentence, at the page's top left where a project's title is, with the
+        About text under it (since 2026-11-06; until then alone in the middle of the window,
+        with a '[ Scroll down ]' link at its foot). Each string in "headline" is one line from
+        768px (on phones they run on as one sentence); a plain string is one line that wraps.
+        No headline, and the page starts with the text."""
         lines = about.get("headline") or []
         if isinstance(lines, str):
             lines = [lines]
@@ -983,11 +985,7 @@ class Builder:
         if not lines:
             return ""
         spans = " ".join(f'<span class="about-headline-line">{inline(t)}</span>' for t in lines)
-        return ('    <div class="about-hero wrap">\n'
-                f'      <p class="about-headline">{spans}</p>\n'
-                '      <a class="about-scroll" href="#intro"><span aria-hidden="true">[ </span>'
-                'Scroll down<span aria-hidden="true"> ]</span></a>\n'
-                '    </div>\n')
+        return f'      <p class="about-headline">{spans}</p>\n'
 
     def build_about(self):
         s = self.site
@@ -1012,10 +1010,9 @@ class Builder:
                 f'<span class="experience-company">{inline(row.get("company", ""))}</span>'
                 f'<span class="experience-dates">{inline(row.get("dates", ""))}</span>'
                 '</li>')
-        content = render("about.html", hero=self.about_hero(about),
+        content = render("about.html", headline=self.about_headline(about),
                          portrait=img,
-                         paragraphs="\n".join(paragraphs), experience="\n".join(experience),
-                         contact_links=self.contact_links("        "))
+                         paragraphs="\n".join(paragraphs), experience="\n".join(experience))
         self.page("about/index.html", "about", "/about/", f"About — {s['name']}",
                   s["description"], content, "page-about", current="about",
                   image=self.og_image())

@@ -25,14 +25,17 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 | `/work/` | Work: everything. "All 11   Digital 08   Brand 05   Physical 02" at the top filters one grid of tiles (`/work/#all`, `#digital`, `#brand`, `#physical`; an old `#visual` link opens `#brand`). Work answers "what kind" |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html` |
 | `/archive/` | Archive: personal work and hobbies, a gallery of images with nothing under them. A separate page with its own data |
-| `/about/` | First screen: one sentence alone in the middle of the window, "[ Scroll down ]" at its foot. Under it: a block the size of the window (gray until the photo exists) with the About text in its middle, then experience and Contact (`/about/#contact`), with a sticky scroll |
+| `/about/` | Read like a project page: one sentence at the top left, where a project's title is, the About text under it, then the photo edge to edge (gray until it exists), Experience, and a Contact label over the footer (`/about/#contact`) |
 | `/contact/` | Not a page: it sends visitors straight on to `/about/#contact` (old links keep working) |
 
-Contact is a section of About, not a menu item. The same links (email, LinkedIn, GitHub, Resume)
-are also in the footer on every page except Home, which has no footer; on About, the footer
-shows only the copyright, since the Contact section sits just above it. Both come from
-`"email"`, `"linkedin"`, `"github"`, and `"resume"` in `content/site.json`, so changing one
-there changes both.
+Contact is not a menu item: the links (email, LinkedIn, GitHub, Resume) are in the footer, one
+line under a rule, with the copyright at the right, the same on every page except Home, which
+has no footer (`templates/footer.html`, `.site-footer` in `assets/css/style.css`). On a phone the
+links wrap onto a second line where they must, with no dots between them, and the copyright
+takes the next line. On About a Contact label sits just over the footer, so the footer reads as
+its list, and `/about/#contact` goes there (until 2026-11-06 About had a Contact section listing
+the links one under another, and its footer showed only the copyright). They come from
+`"email"`, `"linkedin"`, `"github"`, and `"resume"` in `content/site.json`.
 
 ## Where things live
 
@@ -204,7 +207,7 @@ Recommended exports (WebP, or AVIF; JPG and PNG work too):
 | Cover (Home cards and Work tiles) | 1500 × 2000 | 3:4 on Home; on Work it's cropped to a 400px-tall frame as wide as the column (about 9:8 on a 1440px screen), so keep the subject near the middle |
 | Hero and full-width | 2400 px wide | Any height; the hero runs edge to edge |
 | Two-image row | 1200 px wide each | Same ratio for both looks best |
-| About photo | 2400 × 1600 | Fills the window behind the About text, cropped to the window's shape (wide on a computer, tall on a phone), so keep the subject near the middle. Until it exists the block is plain gray, with no label |
+| About photo | 2400 × 1600 | Runs edge to edge under the About text at 3:2, as a project's hero does (up to 1920px wide). Until it exists its place is plain gray, with no label |
 | Image of an item with no page | 1200 × 1500 | The Work tile crops it as it does a cover; the lightbox shows the whole image |
 | Archive image | 1500 px on the long side | Any shape; never cropped |
 
@@ -228,28 +231,22 @@ Otherwise, and for the other pages, it uses `assets/images/og.png`.
 the list is one line from 768px up (on phones they run together and wrap evenly); type it in
 capitals or not, it shows in capitals either way. It's the display style (Inter Display 500,
 line-height 1, -0.04em; 41px, 51px from 1200px, 64px from 1440px: `--size-display`, and
-`.about-headline` in `assets/css/style.css`), centered in the window. Delete `"headline"` and About opens on the
-photo instead.
+`.about-headline` in `assets/css/style.css`), left-aligned on the header's left edge, and as
+far down the page as Work's and Archive's images and a project's title start (`--grid-top`,
+the height of Work's filter line and the space under it), so switching among them moves nothing. Delete
+`"headline"` and About opens on the text instead.
 
-**About's photo and text:** under the first screen, a block the size of the window runs edge to
-edge, with the About text (`"paragraphs"`) centered in its middle, in the text color and the
-lead style, as a project's statement is (16px body text until 2026-11-06). Until the
-photo (`"portrait"` in `content/site.json`, `assets/images/about/portrait.webp`) exists, the
-block is plain gray (`--color-fill`); once it does, the photo fills it. Dark text may not read on
-every photo, so check it once one is in (`.about-intro` and `.about-text` in
-`assets/css/style.css`).
-
-The scroll is sticky: scrolling down, the block slides up over the first screen, which stays put,
-then stays put itself while Experience and Contact slide up over it; scrolling back up runs it in
-reverse (`position: sticky` on `.about-hero` and `.about-intro`; `.about-sheet` gives Experience
-and Contact the page's background so they cover the block). Once the block fills the window it
-holds there for 40% of a window's scroll, with nothing moving, before Experience comes up: the
-`margin-top` on `.about-sheet` (40svh), higher for a longer hold, lower for a lighter scroll.
-
-On a window under 36rem tall (576px, more with larger browser text), like a phone on its side,
-the page just scrolls, so a text taller than the window is never hidden. There's no snapping:
-the page scrolls as far as the wheel, trackpad, or finger moves it (snapping and whole-screen
-steps were tried on 2026-11-05 and taken out the same day; even a light scroll felt heavy).
+**About's text and photo:** About is laid out as a project page is (since 2026-11-06). The About
+text (`"paragraphs"`) is in the lead style, left-aligned, 32px under the sentence, as a
+project's statement is under its title, with 24px between paragraphs. Then the photo
+(`"portrait"` in `content/site.json`, `assets/images/about/portrait.webp`) runs edge to edge at
+3:2, as a project's hero does, plain gray (`--color-fill`) until it exists; gray edge to edge
+only ever stands for a picture, never behind text. Then Experience, and the Contact label over
+the footer (`.about-hero`, `.about-text`, `.about-portrait`, `.about-contact` in
+`assets/css/style.css`). The page scrolls as any other does. Until 2026-11-06 the sentence sat
+alone, centered, in a window-tall first screen with "[ Scroll down ]" at its foot; the text sat
+centered on a window-tall gray block; and the scroll was sticky, each block sliding over the one
+before (snapping and whole-screen steps were tried on 2026-11-05 and taken out the same day).
 
 ## Header
 
@@ -263,12 +260,11 @@ the right.
 
 The header is sticky: it stays at the top of the window while the page scrolls, with no
 background, so the page scrolls under the name and links (`.site-header` in
-`assets/css/style.css`). `/about/#contact` lands the section under the header, where a page's
-first thing starts. About's "Scroll down" lands the photo on the window's top edge, so it fills
-the window, with the header over it.
+`assets/css/style.css`). `/about/#contact` scrolls to About's Contact label, as far as the page
+goes, kept clear of the header.
 
 `<body data-page="…">` names the kind of page (`home`, `work`, `project`, `archive`, `about`,
-`404`), for CSS that applies to one page only, like About's footer.
+`404`), for CSS that applies to one page only, like the space over About's footer.
 
 ## Type and color
 
@@ -289,7 +285,7 @@ menu bar and project names are a sans while the small labels stay in Martian Mon
 | lead | Inter Display 500, as typed | 20px, growing with the window to 28px (from 800 to 1120px wide); lines up to 30em (`--measure-lead`) | 1.35, 0 | a project's statement, under its title, and About's text |
 | body | Inter Display 500, as typed | 16px | 1.1, 0 | text, a project's "Visit" link; links in text at 600 (Contact's links and About's text too, until 2026-11-06) |
 | name | Inter Display 500, capitals | 14px | 1.3, -0.01em | the menu bar (Work, Archive, About, the lightbox's Close; the name at 600, 16px and +0.02em, see below) and project names (Home's cards, Work's tiles, Archive, the lightbox); Home's intro line at 600 |
-| label | Martian Mono 400, capitals | 12px | 1.3, -0.05em | Work's filters, Home's one-liners (in `--color-muted`), captions, project facts, the footer, the lightbox's type and year, About's "[ Scroll down ]", Experience, and Contact's links (the same four as the footer's, so they look the same on every page); a label that names a column or a section (a project's fact labels, Category, Role, Year, its section and note headings, and About's Experience and Contact headings) looks as Work's filters do, in `--color-subtle` (at 600 in `--color-muted` until 2026-11-06) |
+| label | Martian Mono 400, capitals | 12px | 1.3, -0.05em | Work's filters, Home's one-liners (in `--color-muted`), captions, project facts, the footer, the lightbox's type and year, About's Experience; a label that names a column or a section (a project's fact labels, Category, Role, Year, its section and note headings, and About's Experience and Contact headings) looks as Work's filters do, in `--color-subtle` (at 600 in `--color-muted` until 2026-11-06) |
 
 Two weights for Inter Display, 500 and 600, and one for Martian Mono, 400 (600 too until 2026-11-06). Two sizes
 sit outside the styles: Work's counts, a label at `--size-count` (10px), and the name in the
@@ -306,7 +302,7 @@ lighter gray still for the header's links only (`--color-faint`, 3:1), and `--co
 rules.
 Things react to the pointer in one of two ways, and only by color:
 **links** are in the text color and turn muted on hover (the name, links in text, the footer,
-project links, the lightbox's buttons, About's scroll link and Contact); **choices** are in a lighter gray and
+project links, the lightbox's buttons); **choices** are in a lighter gray and
 turn to the text color when hovered or current (the header's links, in `--color-faint`, and Work's
 filters, in `--color-subtle`). A link that opens a new tab (LinkedIn, GitHub, the résumé PDF, a project's "Visit" link: any
 `target="_blank"`, which `build.py` sets on every external link and PDF) ends in a small ↗,
@@ -316,7 +312,7 @@ wraps onto a line alone, and in Windows' contrast themes it takes the theme's li
 **Capitals** come with every style but body and lead, so everything but text is in capitals:
 titles, names, captions, and the footer too. Type them in sentence case in `content/` and the
 templates; CSS sets the capitals. Body text and the lead stay as typed, and so does an email
-address, even in the footer and in About's Contact (in capitals it reads as a shout).
+address, even in the footer (in capitals it reads as a shout).
 
 **Breakpoints** are 768px and 1200px, the same two on every page: under 768px is a phone. 1440px
 steps up the display and title sizes only, as titarvl's do.
@@ -328,8 +324,13 @@ Three values at the top of `assets/css/style.css` set the spacing around the wor
 `--space-3` (the header's text to the page's first thing: 96px on phones, 128px from 768px).
 `--page-top` turns that into
 where every page starts: `main` has it as `padding-top`, so Home's middle card, Work's filter,
-Archive's images, and a project's title all start on the same line (104px under
-the header's box from 768px, 80px on phones), and nothing jumps when you switch pages. Over the
+and the 404 all start on the same line (104px under the header's box from 768px, 80px on
+phones). `--grid-top` (Work's filter line and `--space-2` under it, 48px) sets where Work's
+images start under that line, and Archive's images, a project's title, and About's first
+sentence start there too (since 2026-11-06), so going from Work to any of them, or among them,
+moves nothing. For the two titles it's their capitals' top that sits on that line, not the top
+of their line, which is higher by the room over the capitals (`--cap-display`, 0.13em: 8px at
+64px, 5px on phones), so a title doesn't look lower than an image beside it in the menu. Over the
 header's text is `--header-top` (16px from 768px, 12px on phones). To move
 that line, change `--page-top` (or `--space-3`) at the top of `assets/css/style.css`; nothing on
 a page adds its own space over its first thing. `--gutter` is the side margin the
@@ -377,7 +378,7 @@ the tiles fade out (150 ms), the filter's tiles come on, and they fade in
 The address shows `#all`, `#digital`, and so on, so a link opens that filter, Back and Forward step
 through the ones picked, and Back from a project page returns to the same one; no hash or an
 unknown one means All, and `#visual` (a filter that's now part of Brand) opens Brand. Each filter is a button, and Tab goes from one to the next. The layout follows
-cedarstudio.framer.ai/work?view=Grid. The toggle is a row of labels set as About's "[ Scroll down ]" is (Martian Mono, 12px, in capitals): the one showing is bracketed ("[ ALL 11 ]") and in the text color, the others unbracketed and muted, and on a screen too narrow for all of
+cedarstudio.framer.ai/work?view=Grid. The toggle is a row of labels (Martian Mono, 12px, in capitals): the one showing is bracketed ("[ ALL 11 ]") and in the text color, the others unbracketed and muted, and on a screen too narrow for all of
 them the rest go on a second line. The grid is 1 column on phones, 2 from 768px, 3 from 1200px,
 and every image is 400px tall, as wide as its column, cropped to fill. Each tile's caption is its
 title alone, on one line under its image; a long title is cut short with "…", so every tile is the
@@ -407,7 +408,7 @@ To tune it:
   line), `--intro-size` (the line's type size), `--intro-image` (the corner image's size; it's
   square), `--intro-margin` (its distance from the bottom and right edges).
 
-About's dust: on About's first screen, the sentence breaks into dots where the pointer passes
+About's dust: on About, the first sentence breaks into dots where the pointer passes
 and they drift back into the letters (after soren-template.framer.website). Before that, a few
 dots on the letters' edges keep coming loose on their own, drifting a little way off and settling
 back, as a hint that the letters come apart. It works with a finger as well, until the page
@@ -417,7 +418,7 @@ one sat in its letter. It runs only while some of the sentence is on screen, and
 motion it's off (even if turned on with the page open). It rests while any of the sentence is
 selected, and while a mouse button is down (a drag may be selecting it), so no patch cuts into
 the selection's highlight; and the edges stop coming loose while the page doesn't have focus
-(the browser's find bar takes it, and its highlight would show the same cuts). To tune it: the top of the "About's first screen" part of
+(the browser's find bar takes it, and its highlight would show the same cuts). To tune it: the top of the "About's first sentence" part of
 `assets/js/main.js`: `CELL` (px between dots: smaller is finer dust and more of it), `DOT` (a
 dot's width, in cells), `REACH` (how far the pointer reaches, in the sentence's font size),
 `PUSH` (how hard it pushes), `SPRING` / `DRAG` (how the dots hold and slow down near the

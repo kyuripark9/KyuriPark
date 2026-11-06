@@ -230,12 +230,14 @@
 
   if (reduceMotion.matches || !("IntersectionObserver" in window)) return;
 
-  // About's first screen: the sentence breaks into dots where the pointer passes, and they drift
+  // About's first sentence breaks into dots where the pointer passes, and they drift
   // back (as on soren-template.framer.website). Until then, a few dots on the letters' edges come
   // loose on their own, drift a little way off, and settle back, a hint that the letters are made
   // of dots and come apart. The sentence stays real text: a canvas over it draws only what has
   // moved, a patch of the background where each loose dot sat in a letter and the dot where it is
   // now. While some of it is selected, everything rests, so no patch cuts into the highlight.
+  // It all happens inside the hero (the sentence, the About text under it, and the space over
+  // it up to the header): the pointer counts over it, and the dots fly as far as its edges.
   const hero = document.querySelector(".about-hero");
   const headline = hero?.querySelector(".about-headline");
   if (hero && headline) {
@@ -265,9 +267,8 @@
     const canvas = document.createElement("canvas");
     canvas.className = "about-dust";
     canvas.setAttribute("aria-hidden", "true");
-    hero.insertBefore(canvas, hero.querySelector(".about-scroll"));  // under the scroll link
+    hero.append(canvas);
     const ctx = canvas.getContext("2d");
-    const intro = document.querySelector(".about-intro");
     let cell = CELL;
     let reach = 0;
     let dots = [];   // the sentence's dots: their cell's middle (cx, cy), home (hx, hy), where
@@ -277,7 +278,7 @@
     const astir = new Set();  // the dots coming loose or on their way home: with the pointer
                               // away, the only ones a frame has to move
     let afloat = 0;  // edge dots due to come loose (a running count, so they come one by one)
-    let shown = false;  // some of the sentence is on screen (not yet under the photo block)
+    let shown = false;  // some of the sentence is on screen
     let focused = document.hasFocus();  // the edges come loose only while the page has focus:
                                         // the browser's find bar takes it, and a patch would
                                         // cut into the find's highlight too
@@ -315,7 +316,7 @@
       reach = size * REACH;
       const box = hero.getBoundingClientRect();
       const lines = headline.getBoundingClientRect();
-      // The sentence's box (in the first screen's px), and around it the canvas, as far as a
+      // The sentence's box (in the hero's px), and around it the canvas, as far as a
       // dot can go.
       const left = Math.max(0, Math.floor(lines.left - box.left) - 4);
       const top = Math.max(0, Math.floor(lines.top - box.top) - 4);
@@ -331,7 +332,7 @@
                                     width: `${x1 - x0}px`, height: `${y1 - y0}px` });
       canvas.width = Math.max(1, Math.round((x1 - x0) * dpr));
       canvas.height = Math.max(1, Math.round((y1 - y0) * dpr));
-      ctx.setTransform(dpr, 0, 0, dpr, -x0 * dpr, -y0 * dpr);  // drawn in the first screen's px
+      ctx.setTransform(dpr, 0, 0, dpr, -x0 * dpr, -y0 * dpr);  // drawn in the hero's px
       if (right <= left || bottom <= top) return;
 
       const span = right - left;
@@ -570,7 +571,7 @@
       const away = (cell * 0.55) ** 2;  // closer than this to home, the letter draws it
       const loose = [];
       let busy = 0;
-      // With the pointer away, only the dots astir move; with it over the first screen, any may.
+      // With the pointer away, only the dots astir move; with it over the hero, any may.
       for (const d of inside ? dots : astir) {
         let near = false;
         let r = 0;
@@ -635,7 +636,7 @@
       }
 
       draw(loose);
-      // Keep going while anything moves, or may: the pointer is over the first screen, or the
+      // Keep going while anything moves, or may: the pointer is over the hero, or the
       // edges come loose.
       if (busy || inside || fraying) frame = requestAnimationFrame(tick);
     };
@@ -645,12 +646,11 @@
       frame = requestAnimationFrame(tick);
     };
 
-    // Is any of the sentence on screen? Not once the photo block has slid over it, or scrolled
-    // off the top on a short window.
+    // Is any of the sentence on screen? Not once it has scrolled off the top. (Until 2026-11-06
+    // also not once the photo block had slid over it.)
     const look = () => {
       const r = headline.getBoundingClientRect();
-      const cover = intro ? intro.getBoundingClientRect().top : Infinity;
-      shown = r.bottom > 0 && r.top < Math.min(window.innerHeight, cover);
+      shown = r.bottom > 0 && r.top < window.innerHeight;
       if (shown) wake();
     };
 
@@ -667,7 +667,7 @@
     document.addEventListener("pointermove", (e) => {
       pointer.clientX = e.clientX;
       pointer.clientY = e.clientY;
-      // Over the first screen only: not once the photo block slides over it, or on the header.
+      // Over the hero only: not over the photo or the header.
       // Nor with a mouse button down: that's a drag, perhaps selecting the sentence.
       if (!hero.contains(e.target) || (e.pointerType === "mouse" && e.buttons)) {
         leave();
@@ -686,7 +686,7 @@
     ["pointerup", "pointercancel"].forEach((type) => document.addEventListener(type, (e) => {
       if (e.pointerType !== "mouse") leave();  // a finger or pen lifted
     }));
-    // Scrolling moves the page under a still pointer: the photo block may now be under it.
+    // Scrolling moves the page under a still pointer: the hero may no longer be under it.
     window.addEventListener("scroll", () => {
       look();
       if (!pointer.inside) return;

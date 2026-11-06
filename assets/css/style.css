@@ -68,11 +68,10 @@
                                                    intro line (the name and the intro at 600)
        label    Martian Mono 400         capitals  Work's filters, Home's one-liners, captions,
                                                    project facts, the footer, the lightbox's
-                                                   type and year, "[ Scroll down ]", About's
-                                                   Experience and Contact (a label that names
-                                                   a column or a section as Work's filters
-                                                   are, in --color-subtle; at 600 until
-                                                   2026-11-06)
+                                                   type and year, About's Experience and
+                                                   Contact (a label that names a column or a
+                                                   section as Work's filters are, in
+                                                   --color-subtle; at 600 until 2026-11-06)
      Two weights for Inter Display, 500 and 600, and one for Martian Mono, 400. An
      email address stays as typed, even in a label. Two sizes sit outside the styles: Work's
      counts, a label at --size-count, and the name in the header, the name style at
@@ -92,6 +91,12 @@
   --size-identity: var(--size-body);  /* 16px, the name in the header */
 
   --leading-display: 1;
+  /* Over the display style's capitals, inside its line: Inter Display's ascent less its cap
+     height and half the leading at line height 1 (0.969 - 0.7275 - 0.105 = 0.1365em, measured
+     0.126-0.135 after Chrome rounds the baseline): 8px at 64px, 5px at 41px. A title pulled up
+     by it puts its capitals' top, not its line's, on the line an image's top is on. Change it
+     with --leading-display (each 0.1 more adds 0.05em). */
+  --cap-display: 0.13em;
   --leading-title: 0.9;
   --leading-lead: 1.35;
   --leading-body: 1.1;
@@ -109,7 +114,7 @@
 
   /* Two ways things react to the pointer, both in the text color and --color-muted:
        links      in the text color, muted on hover (the name, links in text, the footer,
-                  project links, the lightbox's buttons, About's scroll link and Contact)
+                  project links, the lightbox's buttons)
        choices    one of several, a lighter gray, and the text color when hovered or
                   current (the header's links in --color-faint; Work's filters in
                   --color-subtle)
@@ -146,11 +151,18 @@
      for it. If larger browser text pushes the links to a second line, the box is a line taller. */
   --header-h: calc(var(--header-top) + var(--leading-name) * var(--size-identity) + var(--header-pad));
   /* Where every page starts: the header's box to the page's first thing (Home's middle card,
-     Work's filter, a project's title; Archive's images start lower, where Work's do), the same on every
-     page so nothing jumps when you switch. --space-3 from the header's text, what the eye
-     measures (96px on phones, 128px from 768px): 80px under the header's box on phones, 104px
-     from 768px. Change --space-3 or set a fixed value. */
+     Work's filter, the 404; Archive's images, a project's title, and About's first sentence
+     start lower, where Work's images do: --grid-top), the same on every page so nothing jumps
+     when you switch. --space-3 from the header's text, what the eye measures (96px on phones, 128px from
+     768px): 80px under the header's box on phones, 104px from 768px. Change --space-3 or set a
+     fixed value. */
   --page-top: calc(var(--space-3) - var(--header-pad));
+  /* How far under the starting line Work's images start: its filter line (one label line) and
+     --space-2 under it (48px). Archive's images, a project's title, and About's first sentence
+     (both since 2026-11-06) start there too, so going from Work to any of them moves nothing.
+     Only with JavaScript: without it Work has no filter, so they all start on the starting line
+     itself. */
+  --grid-top: calc(var(--leading-label) * var(--size-label) + var(--space-2));
   --col-gap: var(--step-3);       /* between columns */
   --section-gap: var(--step-8);   /* between page sections */
   --block-gap: var(--step-5);     /* between blocks inside a section */
@@ -382,10 +394,9 @@ button {
 .project-nav-label,
 .lightbox-caption,
 .site-footer,
-.about-scroll,
 .split-section > .section-heading,
-.experience li,
-.link-list {
+.about-contact,
+.experience li {
   font-family: var(--font-mono);
   font-size: var(--size-label);
   font-weight: 400;
@@ -428,16 +439,15 @@ button {
 .project-meta dt,
 .text-block > .section-heading,
 .split-section > .section-heading,
+.about-contact,
 .note-heading {
   color: var(--color-subtle);
 }
 
 /* An email address stays as typed, even in a label (in capitals it reads as a shout). The
-   other links, in the footer and in About's Contact, are in capitals like every label (until
-   2026-11-05 the footer's stayed as typed, beside a copyright in capitals; until 2026-11-06
-   Contact's were body text at 600, so the same four links looked different on About). */
-.site-footer a[href^="mailto:"],
-.link-list a[href^="mailto:"] {
+   footer's other links are in capitals like every label (until 2026-11-05 they stayed as typed,
+   beside a copyright in capitals). */
+.site-footer a[href^="mailto:"] {
   text-transform: none;
 }
 
@@ -446,8 +456,7 @@ button {
   color: var(--color-muted);
 }
 
-.work-tab,
-.about-scroll {
+.work-tab {
   white-space: nowrap;
 }
 
@@ -466,10 +475,8 @@ button {
 .text-link,
 .project-meta a,
 .project-nav a,
-.link-list a,
 .lightbox-close,
 .lightbox-arrow,
-.about-scroll,
 .site-menu a,
 .work-tab {
   transition: color var(--fade);
@@ -482,10 +489,8 @@ button {
 .text-link:hover,
 .project-meta a:hover,
 .project-nav a:hover,
-.link-list a:hover,
 .lightbox-close:hover,
-.lightbox-arrow:hover,
-.about-scroll:hover {
+.lightbox-arrow:hover {
   color: var(--color-muted);
 }
 
@@ -885,8 +890,8 @@ mark.placeholder {
   display: none;
 }
 
-/* "[ ALL 11 ]  DIGITAL 08  BRAND 05  PHYSICAL 02": labels, as About's "[ Scroll down ]" is
-   (no box), each with its count after it, smaller. The one
+/* "[ ALL 11 ]  DIGITAL 08  BRAND 05  PHYSICAL 02": labels, as About's "[ Scroll down ]" was
+   until 2026-11-06 (no box), each with its count after it, smaller. The one
    showing is bracketed and in the text color; the others have no brackets and are muted until
    hovered. The brackets are part of the line, so the row's first character, "[" or "A", is
    always on the page's left edge with the header and the grid; when the filter changes, the
@@ -1056,7 +1061,7 @@ mark.placeholder {
 }
 
 .js .archive-grid {
-  margin-top: calc(var(--leading-label) * var(--size-label) + var(--space-2));
+  margin-top: var(--grid-top);
 }
 
 @media (min-width: 768px) {
@@ -1228,6 +1233,20 @@ mark.placeholder {
 }
 
 /* Project page ---------------------------------------------------------- */
+
+/* The title starts where Work's images do, --grid-top under the starting line, as About's first
+   sentence and Archive's images do (since 2026-11-06; on the starting line, where Work's filter
+   is, before), so opening a project from Work keeps its first thing at the same height. */
+.js .project-header {
+  margin-top: var(--grid-top);
+}
+
+/* On that line go the capitals' tops, not the top of the title's line (--cap-display over them,
+   8px at 64px), the same as on About, so the title doesn't look lower than Work's images
+   (since 2026-11-06). The statement and the rest move up with it. */
+.project-title {
+  margin-top: calc(-1 * var(--cap-display));
+}
 
 /* Under the title, in reading order (since 2026-11-06; the facts came first before): the
    statement (the lead style, see Shared text styles), "Visit typelab.ink ↗", then a rule and
@@ -1452,50 +1471,49 @@ mark.placeholder {
 
 /* About ----------------------------------------------------------------- */
 
-/* The first screen: one sentence alone, centered in the window (as on
-   titarvl.framer.website/about), "[ Scroll down ]" at the foot, and the photo starts right at
-   the fold. The hero takes back main's --page-top and runs from the header to the
-   window's bottom edge; the extra header height at its foot puts the sentence's middle on the
-   window's middle, not on the space under the header. --header-h is the header's box on one
-   line (at the top): if larger browser text pushes its links to a second line, the sentence
-   just sits a little low. */
+/* About reads as a project page does (since 2026-11-06): its first sentence in the display
+   style, on the header's left edge (.wrap) and as far down as Work's and Archive's images
+   (below), the About text under it in the lead style as a project's statement is
+   under its title, then the photo edge to edge as a project's hero is, then Experience, and
+   Contact over the footer. Until 2026-11-06 the sentence sat alone in the middle of a
+   window-tall first screen with "[ Scroll down ]" at its foot, the text sat centered on a
+   window-tall gray block (the photo's place), and the page scrolled in a sticky stack, each
+   block sliding over the one before.
+   The hero is the box main.js draws the sentence's dust in, and the dots fly only as far as its
+   edges: it takes main's --page-top into its own box (the sentence stays where it is) so they
+   have room over the sentence too, up to the header. */
 .about-hero {
-  --hero-pad: var(--step-6);  /* keeps the sentence clear of the header and the scroll link */
   position: relative;
-  display: grid;
-  place-items: center;
-  min-height: calc(100vh - var(--header-h));
-  min-height: calc(100svh - var(--header-h));
   margin-top: calc(-1 * var(--page-top));
-  padding-top: var(--hero-pad);
-  padding-bottom: calc(var(--hero-pad) + var(--header-h));
+  padding-top: var(--page-top);
 }
 
-/* The display style (see Shared text styles), centered. */
+/* The sentence starts where Work's and Archive's images and a project's title do, --grid-top
+   under the starting line (since 2026-11-06; on the starting line itself, where Work's filter
+   is, for a few hours the same day), so About doesn't sit higher than the pages beside it in
+   the menu. */
+.js .about-hero {
+  padding-top: calc(var(--page-top) + var(--grid-top));
+}
+
+/* The display style (see Shared text styles), left-aligned as a project's title is (centered
+   until 2026-11-06). On that line go the capitals' tops, as a project's title's do
+   (--cap-display over them inside the line, 8px at 64px; since 2026-11-06): the text and the
+   rest move up with it. From 768px each line of "headline" in content/site.json is its own
+   line; on phones the sentence runs on and wraps evenly. */
 .about-headline {
-  text-align: center;
+  margin-top: calc(-1 * var(--cap-display));
   text-wrap: balance;
 }
 
-/* From 768px each line of "headline" in content/site.json is its own line; on phones the
-   sentence runs on and wraps evenly. */
 @media (min-width: 768px) {
   .about-headline-line {
     display: block;
   }
 }
 
-/* As far from the window's bottom edge as the header's name is from the top. A label in
-   capitals, and a link: the type and hover are in Shared text styles. */
-.about-scroll {
-  position: absolute;
-  bottom: var(--header-top);
-  left: 50%;
-  translate: -50% 0;
-}
-
 /* The sentence's loose dots (main.js), on a canvas over the sentence and as far around it as a
-   dot goes, under "[ Scroll down ]". main.js places and sizes it. It takes no clicks. */
+   dot goes. main.js places and sizes it. It takes no clicks. */
 .about-dust {
   position: absolute;
   top: 0;
@@ -1503,31 +1521,30 @@ mark.placeholder {
   pointer-events: none;
 }
 
-/* Under the first screen, a block the size of the window, edge to edge, with the About text
-   in its middle: plain gray (--color-fill) until the photo exists, then the photo, cropped to
-   the window's shape (wide on a computer, tall on a phone). About's main has no .wrap so the
-   block can run full width; the hero and the sheet under the block have their own. "Scroll
-   down" lands the block on the window's top edge, with the header over it. The padding keeps
-   the text clear of the header, the same over and under it so it stays on the window's middle.
-   Until 2026-11-05 (evening) a 320 x 400 portrait sat beside the text. */
-.about-intro {
-  position: relative;
-  display: grid;
-  place-items: center;
-  min-height: 100vh;
-  min-height: 100svh;
-  padding: calc(var(--header-h) + var(--step-6)) var(--gutter);
+/* The lead style (see Shared text styles), as a project's statement is: left-aligned, lines up
+   to the lead's measure, --step-4 (32px) under the sentence as a statement is under its title,
+   and --step-3 (24px) between paragraphs, as between a statement and its Visit link. Until
+   2026-11-06 centered on the gray block, with balanced lines. */
+.about-text {
+  max-width: var(--measure-lead);
 }
 
-/* With no first screen ("headline" deleted), the block still starts at the window's top,
-   under the header. */
-.page-about > h1 + .about-intro {
-  margin-top: calc(-1 * (var(--header-h) + var(--page-top)));
+.about-headline + .about-text {
+  margin-top: var(--step-4);
 }
 
+.about-text > * + * {
+  margin-top: var(--step-3);
+}
+
+/* The photo, edge to edge under the text, as a project's hero is under its facts: up to 1920px
+   wide, --step-8 (64px) down, in the photo's 3:2 (2400 x 1600), cropped to fill it. Plain gray
+   (--color-fill) until it exists: on every page, gray edge to edge is only ever a picture's
+   place, never a background for text. */
 .about-portrait {
-  position: absolute;
-  inset: 0;
+  aspect-ratio: 3 / 2;
+  max-width: 1920px;
+  margin: var(--step-8) auto 0;
   background: var(--color-fill);
 }
 
@@ -1537,60 +1554,9 @@ mark.placeholder {
   object-fit: cover;
 }
 
-/* The lead style (see Shared text styles), centered, in the text color: it reads on the gray;
-   check it still does once a photo is in. Lines up to the lead's measure, as a project's
-   statement's are (until 2026-11-06: body text up to 40rem). Lines balanced as the first
-   sentence's are, so no word is left alone on a centered last line. */
-.about-text {
-  position: relative;
-  max-width: var(--measure-lead);
-  text-align: center;
-  text-wrap: balance;
-}
-
-/* Experience and Contact, on the page's background, so they cover the block as they slide
-   over it (below). flow-root keeps the first section's top margin inside that background. */
-.about-sheet {
-  position: relative;
-  display: flow-root;
-  background: var(--color-bg);
-}
-
-/* The sticky scroll. Scrolling down, the block slides up over the first screen, which stays
-   put, then stays put itself while Experience and Contact slide up over it; scrolling back up
-   runs it in reverse. Once the block fills the window it holds there, with nothing moving, for
-   40% of a window's scroll before Experience comes up (the sheet's top margin: empty space the
-   stuck block covers). Raise it for a longer hold, lower it for a lighter scroll. Both stay
-   inside main, so neither goes under the footer. Only on windows at least 36rem tall (576px,
-   more with larger browser text), where the text fits on the block: on a shorter one (a phone
-   on its side) a stuck block would hide the end of a text taller than the window, so there the
-   page just scrolls. */
-@media (min-height: 36rem) {
-  .about-hero {
-    position: sticky;
-    top: var(--header-h);
-  }
-
-  .about-intro {
-    position: sticky;
-    top: 0;
-  }
-
-  .about-sheet {
-    margin-top: 40vh;
-    margin-top: 40svh;
-  }
-}
-
-/* 24px between paragraphs, as between a project's statement and its Visit link (16px while the
-   text was 16px). */
-.about-text > * + * {
-  margin-top: var(--step-3);
-}
-
-/* Experience and Contact, each named by a label at the left (since 2026-11-06; in the display
-   style before), as a project's text is: from 768px, Contact's links sit in the right half, where
-   a project's text does. */
+/* Experience, named by a label at the left (since 2026-11-06; in the display style before), as
+   a project's text is. (Contact was a section like it until 2026-11-06, its links in the right
+   half from 768px, where a project's text sits.) */
 .split-section {
   display: grid;
   gap: var(--step-2);
@@ -1611,15 +1577,15 @@ mark.placeholder {
 
 /* Experience runs the full width under its heading, one line per job, like a table (since
    2026-11-05; before, it sat in the right column beside its heading, where a job took two
-   lines below a 1290px window). Contact keeps its heading beside its links. */
+   lines below a 1290px window). */
 .split-section > .experience {
   grid-column: 1 / -1;
 }
 
 /* The list is a grid of three columns (role, company, dates) that its rows only take up when
    it's wide enough (below); until then each row spans all three and sets its own two. The
-   first column ends where the section's halves meet, so companies start where Contact's links
-   do, and the dates sit at the right edge. The role leads, in the text color; the company and
+   first column ends where the section's halves meet, so companies start where a project's text
+   does, and the dates sit at the right edge. The role leads, in the text color; the company and
    dates are muted (until 2026-11-05 the company came first and the role was muted). */
 .experience {
   container: experience / inline-size;
@@ -1673,13 +1639,18 @@ mark.placeholder {
   }
 }
 
-.link-list > * + * {
-  margin-top: var(--step-1);
+/* Contact: a label alone at the page's end, a section's distance under Experience, with the
+   footer's rule and links --step-2 (16px) under it, as Experience's rule and jobs are under its
+   label (Footer, below): the footer, the same on every page, is About's contact list (since
+   2026-11-06; until then About had a Contact section listing the same four links one under
+   another, and showed only the copyright in its footer).
+   /about/#contact (and /contact/, which sends visitors there) scrolls to it, as far as the page
+   goes, kept clear of the sticky header (--page-top under the header's box) where a page's
+   title starts. */
+.about-contact {
+  margin-top: var(--section-gap);
 }
 
-/* /about/#contact (and /contact/, which sends visitors there) lands the section under the
-   sticky header where a page's title starts (--page-top under the header's box), so the
-   header doesn't cover it. */
 #contact {
   scroll-margin-top: calc(var(--header-h) + var(--page-top));
 }
@@ -1726,18 +1697,23 @@ mark.placeholder {
   color: var(--color-muted);
 }
 
-/* The footer is the same on every page, but About has these links in its Contact section just
-   above, so there it shows only the copyright. */
-[data-page="about"] .site-footer > h2,
-[data-page="about"] .footer-links {
+/* The footer is the same on every page, About's included (since 2026-11-06; About showed only
+   the copyright before). On About it hangs --step-2 under the Contact label, which names it, so
+   its own hidden "Contact" heading would say it twice. */
+[data-page="about"] .site-footer {
+  margin-top: var(--step-2);
+}
+
+[data-page="about"] .site-footer > h2 {
   display: none;
 }
 
+/* On a phone the links run on and wrap where they must, and the copyright takes the next line
+   at the left (until 2026-11-06 the links stood one under another). No dots between them there:
+   a wrapped line would start with one; --step-3 apart instead. */
 @media (max-width: 767px) {
-  .site-footer,
   .footer-links {
-    flex-direction: column;
-    align-items: flex-start;
+    column-gap: var(--step-3);
   }
 
   .footer-links li + li::before {

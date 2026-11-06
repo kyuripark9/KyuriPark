@@ -1,9 +1,24 @@
 /* Kyuri Park portfolio. One stylesheet for every page.
    Quiet by design: no accent color, the project images bring the color. */
 
+/* Two typefaces, as titarvl.framer.website (since 2026-11-05; Inter alone before): Inter
+   Display for headings and text, Martian Mono for labels. Both from Google Fonts, latin only,
+   SIL Open Font License (LICENSE-*.txt beside them). The Inter file carries the optical-size
+   axis (opsz 14-32); the body sets it to 32, which is Inter Display. */
 @font-face {
   font-family: "Inter";
   src: url("/assets/fonts/inter-latin.woff2") format("woff2");
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Martian Mono";
+  src: url("/assets/fonts/martian-mono-latin.woff2") format("woff2");
   font-weight: 400 600;
   font-style: normal;
   font-display: swap;
@@ -27,30 +42,40 @@
   --color-mark: #e8e7e1;       /* [PLACEHOLDER] highlight; muted text on it stays at 5:1 */
 
   --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: "Martian Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-  /* Type. Every size on the site is one of these; no rule sets its own.
-       --size-display  About's first sentence only
-       --size-title    project titles and statements, the 404
-       --size-body     body text, Work's titles, section headings
-       --size-small    the header (name and links), Home's one-liner, the intro's line
-       --size-label    labels: captions, the footer, project facts, Work's filters,
-                       About's "[ Scroll down ]"
-       --size-tiny     Work's counts only, after each filter (until 2026-11-05: --size-nav
-                       for --size-small, and 14px and 10px set in place) */
-  --size-display: clamp(2rem, 4.45vw, 4rem);           /* 32px on phones, 64px from 1440px */
-  --size-title: clamp(1.75rem, 1.2rem + 2.2vw, 3rem);  /* 28px on phones, up to 48px */
+  /* Type, as titarvl.framer.website/about (since 2026-11-05): five styles, each a size, line
+     height, and letter spacing below, set once in Shared text styles. Every size on the site
+     is one of these; no rule sets its own.
+       display  Inter Display 500, capitals: About's first sentence and section headings,
+                project titles, the 404. 41px, 51px from 1200px, 64px from 1440px.
+       title    Inter Display 500, capitals: impact numbers, Previous / Next titles. 18px,
+                23px from 768px, 29px from 1200px, 36px from 1440px.
+       body     Inter Display 500 at 16px: text, project statements, Contact's links.
+       name     Inter Display 500 at 14px (--size-small), capitals: the menu bar and project
+                names (Home's cards, Work's tiles, the lightbox). The name in the header is
+                600. (Not one of titarvl's: on the user's ask, a sans in place of the label.)
+       label    Martian Mono 400 at 12px, capitals: Work's filters, Home's one-liners (muted),
+                captions, project facts, the footer, the lightbox's type and year, About's
+                "[ Scroll down ]" and Experience. Labels that name a column (a project's
+                facts, its section and note headings) are 600.
+       --size-small (14px) is also Home's intro line, and --size-tiny (10px) Work's counts.
+     Until 2026-11-05: Inter at 400 and 500 only, a fluid 32-64px display, 28-48px titles,
+     14px header, line height 1.5 for all text. */
+  --size-display: 2.5625rem;   /* 41px */
+  --size-title: 1.125rem;      /* 18px */
   --size-body: 1rem;           /* 16px */
   --size-small: 0.875rem;      /* 14px */
   --size-label: 0.75rem;       /* 12px */
   --size-tiny: 0.625rem;       /* 10px */
 
-  /* Line heights and letter spacing, each with the sizes above: display 1 and -0.04em, titles
-     1.15 and -0.02em, everything else 1.5 (Home's caption keeps its reference's 1.3 and 1.6). */
   --leading-display: 1;
-  --leading-title: 1.15;
-  --leading-text: 1.5;
+  --leading-title: 0.9;
+  --leading-text: 1.1;
+  --leading-label: 1.3;
   --tracking-display: -0.04em;
-  --tracking-title: -0.02em;
+  --tracking-title: -0.01em;
+  --tracking-label: -0.05em;
 
   /* Two ways things react to the pointer, both in the text color and --color-muted:
        links      in the text color, muted on hover (the name, links in text, the footer,
@@ -88,7 +113,7 @@
   /* The header's box on one line (the name and links' line between the two above): what the
      sticky header takes up at the window's top, and what About's first screen leaves for it. If
      larger browser text pushes the links to a second line, the box is a line taller. */
-  --header-h: calc(var(--header-top) + var(--leading-text) * var(--size-small) + var(--header-pad));
+  --header-h: calc(var(--header-top) + var(--leading-label) * var(--size-small) + var(--header-pad));
   /* Where every page starts: the header's box to the page's first thing (Home's middle card,
      Work's filter, a project's title; Archive's images start lower, where Work's do), the same on every
      page so nothing jumps when you switch. --space-3 from the header's text, what the eye
@@ -110,6 +135,7 @@
 
 /* Breakpoints: 768px and 1200px, the same two everywhere (media queries can't use the tokens,
    so they're written out; build.py's ARCHIVE_SIZES uses them too). Under 768px is a phone.
+   1440px steps up the display and title sizes only, as titarvl's do.
    Until 2026-11-05 there were also 640, 1024, and 1240px. */
 @media (min-width: 768px) {
   :root {
@@ -120,6 +146,7 @@
     --col-gap: var(--step-4);
     --section-gap: var(--step-12);
     --block-gap: var(--step-8);
+    --size-title: 1.4375rem;    /* 23px */
   }
 }
 
@@ -127,6 +154,15 @@
   :root {
     --gutter: var(--step-4);
     --section-gap: var(--step-16);
+    --size-display: 3.1875rem;  /* 51px */
+    --size-title: 1.8125rem;    /* 29px */
+  }
+}
+
+@media (min-width: 1440px) {
+  :root {
+    --size-display: 4rem;       /* 64px */
+    --size-title: 2.25rem;      /* 36px */
   }
 }
 
@@ -155,6 +191,8 @@ body {
   color: var(--color-text);
   font-family: var(--font);
   font-size: var(--size-body);
+  font-weight: 500;
+  font-variation-settings: "opsz" 32;  /* Inter Display */
   line-height: var(--leading-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -260,36 +298,87 @@ button {
 
 /* Shared text styles ------------------------------------------------------ */
 
-/* Titles: --size-title at 500, tight. Project statements are the same size at 400. (A project
-   page's Previous / Next titles join them from 768px. Until 2026-11-05, About's first
-   paragraph was a title too.) */
+/* The styles in Type (see the tokens), each set once here. Templates and content spell
+   everything in sentence case; only these set the capitals. Body text, Contact's links, and
+   the footer's links stay as written (an email address in capitals reads badly). Until
+   2026-11-05, titles, names, and captions stayed as written too. */
+
+/* Display: About's first sentence and section headings, project titles, the 404. */
+.about-headline,
+.split-section > .section-heading,
 .project-title,
-.project-statement,
-.impact-value,
 .not-found-title {
+  font-size: var(--size-display);
+  font-weight: 500;
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
+}
+
+/* Title: impact numbers, and a project page's Previous / Next titles. */
+.impact-value,
+.project-nav-title {
   font-size: var(--size-title);
+  font-weight: 500;
   line-height: var(--leading-title);
   letter-spacing: var(--tracking-title);
-  font-weight: 500;
+  text-transform: uppercase;
 }
 
-.project-statement {
-  font-weight: 400;
-}
-
-/* Labels: 12px at line-height 1.5, wherever they are. Captions are muted. (Until 2026-11-05,
-   captions and note headings were at line-height 1.4, and each label set its own size.) */
-.caption,
-.note-heading,
-.archive-text,
-.project-meta dt,
-.project-nav-label,
-.lightbox-meta,
-.site-footer,
+/* Label: Martian Mono at 12px in capitals, wherever it is. Headings set here by name, since
+   h1-h3 set their own weight. */
 .work-tab,
-.about-scroll {
+.work-caption,
+.card-caption,
+.track-caption,
+.caption,
+.archive-text,
+.text-block > .section-heading,
+.note-heading,
+.project-meta,
+.impact-label,
+.project-nav-label,
+.lightbox-caption,
+.site-footer,
+.about-scroll,
+.experience li {
+  font-family: var(--font-mono);
   font-size: var(--size-label);
-  line-height: var(--leading-text);
+  font-weight: 400;
+  line-height: var(--leading-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+/* Name: Inter Display 500 at 14px in capitals, for the menu bar (the name, the links, and the
+   lightbox's Close, which stands in for it) and project names (Home's cards, Work's tiles,
+   the lightbox). Set by name, so it wins over the label its caption is in. (Labels in Martian
+   Mono for a few hours on 2026-11-05; Inter at 14px for the header and 16px for names before.) */
+.site-header,
+.lightbox-close,
+.card-title,
+.work-name,
+.lightbox-name {
+  font-family: var(--font);
+  font-size: var(--size-small);
+  font-weight: 500;
+  line-height: var(--leading-label);
+  letter-spacing: var(--tracking-title);
+  text-transform: uppercase;
+}
+
+/* At 600: the name in the header, a weight up from the links, and the labels that name a
+   column or a section. In a monospace font the bolder letters are no wider, so nothing
+   moves. */
+.identity,
+.project-meta dt,
+.text-block > .section-heading,
+.note-heading {
+  font-weight: 600;
+}
+
+.footer-links {
+  text-transform: none;
 }
 
 .caption,
@@ -298,37 +387,18 @@ button {
   color: var(--color-muted);
 }
 
-/* Capitals, for the words the site uses to name, label, or steer: the header, Work's filters,
-   About's scroll link, section and note headings, the labels on a project's facts and impact
-   numbers, Previous / Next, and the lightbox's Close. What's written as content stays as
-   written: titles, sentences, names, captions, and the footer's and Contact's links (an email
-   address in capitals reads badly). Templates and content spell everything in sentence case;
-   only this sets the capitals. (Until 2026-11-05, only the header, Work's filters, and About's
-   scroll link were in capitals.) */
-.identity,
-.site-menu,
-.work-tab,
-.about-scroll,
-.section-heading,
-.note-heading,
-.project-meta dt,
-.impact-label,
-.project-nav-label,
-.lightbox-close {
-  text-transform: uppercase;
-}
-
 .work-tab,
 .about-scroll {
   white-space: nowrap;
 }
 
-/* Links in text stand out by weight. */
+/* Links in text stand out by weight: 600, a step up from the text's 500 (500 over 400 until
+   2026-11-05). */
 .text-body a,
 .text-link,
 .project-meta a,
 .link-list a {
-  font-weight: 500;
+  font-weight: 600;
 }
 
 /* Links and choices (see the tokens): only the color changes, never an underline. */
@@ -408,15 +478,13 @@ mark.placeholder {
   gap: 0 var(--step-1);
   padding-top: var(--header-top);
   padding-bottom: var(--header-pad);
-  font-size: var(--size-small);  /* 14px, the name and the links */
   view-transition-name: site-header;
 }
 
-/* "KYURI PARK" (the name in content/site.json, in capitals here only; see Capitals), in Inter
-   at the links' size, a weight up from them. On hover it steps back to the muted gray. */
+/* "KYURI PARK" (the name in content/site.json, in capitals here only), in the name style as
+   the links are, at 600 (see Shared text styles). On hover it steps back to the muted gray. */
 .identity {
   flex: none;
-  font-weight: 500;
   white-space: nowrap;
 }
 
@@ -475,10 +543,12 @@ mark.placeholder {
   object-fit: cover;
 }
 
-/* The title at the card's left edge, the one-liner at its right, smaller and kept to the
-   right half (it wraps before it reaches the middle). Sizes as in the example
-   (focuscarouselpro.framer.website): 16px title, 14px one-liner (--size-small), with the
-   reference's line heights. */
+/* The title at the card's left edge, the one-liner at its right, kept to the right half (it
+   wraps before it reaches the middle). The title is a name (see Shared text styles) in the
+   text color; the one-liner is a label, a tag, in --color-muted, so the two differ in
+   typeface, size, and color. Until 2026-11-05 (evening) both were plain labels in the text
+   color and read as one line; before that, a 16px title and a 14px one-liner, as
+   focuscarouselpro.framer.website. */
 .card-caption,
 .js .track-caption {
   display: flex;
@@ -498,15 +568,13 @@ mark.placeholder {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  line-height: 1.3;
 }
 
 .card-text {
   flex: none;
   max-width: calc(50% - var(--step-2));
-  font-size: var(--size-small);
-  line-height: 1.6;
   text-align: right;
+  color: var(--color-muted);
 }
 
 /* The caption under the middle card needs track.js. */
@@ -722,8 +790,8 @@ mark.placeholder {
   display: none;
 }
 
-/* "[ ALL 11 ]  DIGITAL 08  BRAND 05  PHYSICAL 02": set as About's "[ Scroll down ]" is (12px,
-   in capitals, line-height 1.5, no box), each with its count after it, smaller. The one
+/* "[ ALL 11 ]  DIGITAL 08  BRAND 05  PHYSICAL 02": labels, as About's "[ Scroll down ]" is
+   (no box), each with its count after it, smaller. The one
    showing is bracketed and in the text color; the others have no brackets and are muted until
    hovered. The brackets are part of the line, so the row's first character, "[" or "A", is
    always on the page's left edge with the header and the grid; when the filter changes, the
@@ -742,17 +810,19 @@ mark.placeholder {
 
 /* A label in capitals, and a choice: the type and colors are in Shared text styles. */
 .work-tab {
-  padding-block: 3px;  /* 24px tall to tap or click... */
-  margin-block: -3px;  /* ...while the line stays 18px */
+  --tab-pad: calc((24px - var(--leading-label) * var(--size-label)) / 2);
+  padding-block: var(--tab-pad);  /* 24px tall to tap or click... */
+  margin-block: calc(-1 * var(--tab-pad));  /* ...while the line stays a label's line */
 }
 
 .work-tab[aria-pressed="true"] {
   cursor: default;
 }
 
-/* Closed, a bracket is 0 wide; open, 0.65em, the width of "[ " in Inter (7.76px at 12px). If a
-   fallback font's is wider, the space is what gets cut, not the bracket: "[ " is cut on its
-   right, " ]" on its left. */
+/* Closed, a bracket is 0 wide; open, 1.3em, the width of "[ " in Martian Mono (two of its
+   0.65em characters with the label's tracking: 15.6px at 12px; 0.65em in Inter until
+   2026-11-05). If a fallback font's is wider, the space is what gets cut, not the bracket:
+   "[ " is cut on its right, " ]" on its left. */
 .work-bracket {
   display: inline-flex;
   width: 0;
@@ -768,7 +838,7 @@ mark.placeholder {
 }
 
 .work-tab[aria-pressed="true"] .work-bracket {
-  width: 0.65em;
+  width: 1.3em;
   opacity: 1;
 }
 
@@ -807,13 +877,13 @@ mark.placeholder {
   text-align: left;
 }
 
-/* The title on one line under the image (it comes first in the page, for screen readers). It
-   doesn't wrap and the line's height is fixed, so every tile is the same height; a long title
-   is cut short with "…". */
+/* The title on one line under the image (it comes first in the page, for screen readers), in
+   the name style (see Shared text styles). It doesn't wrap and the line's
+   height is fixed, so every tile is the same height; a long title is cut short with "…". */
 .work-caption {
   order: 1;
   display: flex;
-  height: 1.5rem;  /* one line of the 16px title */
+  height: calc(var(--leading-label) * var(--size-small));  /* one line of the name */
 }
 
 .work-name {
@@ -821,7 +891,6 @@ mark.placeholder {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: 500;
 }
 
 /* The image fills a frame as wide as the column and --tile-h tall (a plain gray block until it
@@ -890,7 +959,7 @@ mark.placeholder {
 }
 
 .js .archive-grid {
-  margin-top: calc(var(--leading-text) * var(--size-label) + var(--space-2));
+  margin-top: calc(var(--leading-label) * var(--size-label) + var(--space-2));
 }
 
 @media (min-width: 768px) {
@@ -970,10 +1039,9 @@ mark.placeholder {
   padding-block: var(--step-3);
 }
 
-/* CLOSE, in the header links' size and capitals: it stands in for the header while the
+/* CLOSE, in the name style as the header's links are: it stands in for the header while the
    lightbox is open. */
 .lightbox-close {
-  font-size: var(--size-small);
   /* A bigger tap target without moving the text. */
   margin: calc(-1 * var(--step-1));
   padding: var(--step-1);
@@ -1089,8 +1157,9 @@ mark.placeholder {
   }
 }
 
+/* Body text since 2026-11-05 (a 28-48px title at 400 before), as wide as the text below. */
 .project-statement {
-  max-width: 20em;
+  max-width: 40rem;
   margin-top: var(--step-8);
 }
 
@@ -1266,17 +1335,8 @@ mark.placeholder {
   stroke-width: 1.25;
 }
 
-.project-nav-title {
-  font-weight: 500;
-}
-
-@media (min-width: 768px) {
-  .project-nav-title {
-    font-size: var(--size-title);
-    line-height: var(--leading-title);
-    letter-spacing: var(--tracking-title);
-  }
-}
+/* The titles are in the title style at every width (see Shared text styles; until 2026-11-05,
+   16px text on phones). */
 
 /* About ----------------------------------------------------------------- */
 
@@ -1299,14 +1359,9 @@ mark.placeholder {
   padding-bottom: calc(var(--hero-pad) + var(--header-h));
 }
 
-/* Inter 500 in capitals, tight: line-height 1 and -0.04em, as the reference. */
+/* The display style (see Shared text styles), centered. */
 .about-headline {
-  font-size: var(--size-display);
-  font-weight: 500;
-  line-height: var(--leading-display);
-  letter-spacing: var(--tracking-display);
   text-align: center;
-  text-transform: uppercase;
   text-wrap: balance;
 }
 
@@ -1464,14 +1519,15 @@ mark.placeholder {
   text-align: right;
 }
 
-/* One line per job once the list itself is wide enough for one: 40.5rem (648px), where the
-   right half still holds today's longest company (151px) and longest dates (124px) with the
-   gap between them, and the left half the longest role (184px). The list's width decides, not
-   the window's, so nothing wraps for want of room (from a window about 680px wide, so every
-   width from 768px up). Rows share the list's columns (subgrid) so role, company, and dates
-   line up from row to row. Until 2026-11-05: 37.5rem, from a window about 1290px wide, while
-   the list sat in the right column; then 44.5rem while the role sat in the right half. */
-@container experience (min-width: 40.5rem) {
+/* One line per job once the list itself is wide enough for one: 36.75rem (588px), where the
+   right half still holds today's longest company (148px in Martian Mono) and longest dates
+   (109px) with the 24px gap between them, and the left half the longest role (179px). The
+   list's width decides, not the window's, so nothing wraps for want of room (from a window
+   about 620px wide, so every width from 768px up). Rows share the list's columns (subgrid)
+   so role, company, and dates line up from row to row. Until 2026-11-05: 37.5rem, from a
+   window about 1290px wide, while the list sat in the right column; then, the same day,
+   44.5rem and 40.5rem while the rows were 16px Inter, and 35.25rem at 12px Inter. */
+@container experience (min-width: 36.75rem) {
   .experience li {
     grid-template-columns: subgrid;
     column-gap: var(--col-gap);

@@ -47,7 +47,7 @@ assets/images/about/    About photo
 assets/images/pieces/   images of the items with no page
 assets/images/archive/  images on Archive
 assets/images/og.png    link-preview image (1200×630)
-assets/fonts/           Inter
+assets/fonts/           Inter (with Inter Display) and Martian Mono, with their licenses
 assets/Kyuri-Park-Resume.pdf
 assets/css/style.css    all styling; colors, type sizes, and spacing are at the top
 assets/js/main.js       Work's filter, lightbox, fade-ups, count-up
@@ -80,7 +80,7 @@ dist/                   the generated site. Never edit; it's rebuilt every time.
 | `category` | Required. A list of the Work filters it shows under, one or more of `"digital"`, `"brand"`, `"physical"`, like `["digital", "brand"]`. It counts under each, and once under All |
 | `featured` | Optional. `true` puts it on Home (aim for 3 to 5). Leave it out or set `false` and it's on Work only. Needs a `slug`, because a Home card opens the project's page |
 | `title` | Everywhere |
-| `oneLiner` | Under the home loop when that project is in the middle (8 words max) |
+| `oneLiner` | Under the home loop when that project is in the middle (3 words max) |
 | `type` | Work card (under the name), and as "Type" on the project page, like "Font design tool" |
 | `year` | The project page |
 | `roles` | Optional. A list, like `["UX Research", "Art Direction"]`. "Role" in the project page's metadata row; it doesn't affect the filters |
@@ -227,9 +227,9 @@ Otherwise, and for the other pages, it uses `assets/images/og.png`.
 
 **About's first sentence:** `"headline"` under `"about"` in `content/site.json`. Each string in
 the list is one line from 768px up (on phones they run together and wrap evenly); type it in
-capitals or not, it shows in capitals either way. It's Inter 500, line-height 1, -0.04em, 64px from
-1440px down to 32px on phones (`--size-display` and `.about-headline` in
-`assets/css/style.css`), centered in the window. Delete `"headline"` and About opens on the
+capitals or not, it shows in capitals either way. It's the display style (Inter Display 500,
+line-height 1, -0.04em; 41px, 51px from 1200px, 64px from 1440px: `--size-display`, and
+`.about-headline` in `assets/css/style.css`), centered in the window. Delete `"headline"` and About opens on the
 photo instead.
 
 **About's photo and text:** under the first screen, a block the size of the window runs edge to
@@ -253,8 +253,8 @@ steps were tried on 2026-11-05 and taken out the same day; even a light scroll f
 
 ## Header
 
-The name ("Kyuri Park", from `content/site.json`, shown in capitals) is at the left, in Inter at
-14px like the links and a weight heavier (`.identity` in `assets/css/style.css`), and Work, Archive,
+The name ("Kyuri Park", from `content/site.json`, shown in capitals) is at the left, in the name
+style like the links (Inter Display, 14px) and a weight heavier (`.identity` in `assets/css/style.css`), and Work, Archive,
 and About at the right, on one line at every width (down to 320px), from `templates/base.html` on
 every page. The current page's link is in the text color and the others are a light gray
 (`--color-faint`) until hovered (`.site-menu a` in `assets/css/style.css`; see Type and color). On phones the links close up. If a visitor has set
@@ -273,21 +273,26 @@ the window, with the header over it.
 ## Type and color
 
 Every size, line height, and color on the site is a token at the top of
-`assets/css/style.css`; no rule sets its own. Type is Inter at six sizes:
+`assets/css/style.css`; no rule sets its own. The type follows titarvl.framer.website/about
+(since 2026-11-05): two typefaces, Inter Display (the Inter file's optical size at 32, set on
+`body`) and Martian Mono, both self-hosted from Google Fonts under the SIL Open Font License, in
+five styles, each set once under "Shared text styles", plus a sixth, "name", that isn't
+titarvl's: on the user's ask (2026-11-05), the menu bar and project names went back to a sans
+while the labels stayed in Martian Mono:
 
-| Token | Size | Used for |
-| --- | --- | --- |
-| `--size-display` | 32px on phones, 64px from 1440px | About's first sentence |
-| `--size-title` | 28px on phones, up to 48px | project titles and statements, the 404 |
-| `--size-body` | 16px | body text (About's text too), Work's titles, section headings |
-| `--size-small` | 14px | the header, Home's one-liner, the intro's line |
-| `--size-label` | 12px | captions, the footer, project facts, Work's filters, About's "[ Scroll down ]" |
-| `--size-tiny` | 10px | Work's counts |
+| Style | Type | Size | Line height, tracking | Used for |
+| --- | --- | --- | --- | --- |
+| display | Inter Display 500, capitals | 41px, 51px from 1200px, 64px from 1440px (`--size-display`) | 1, -0.04em | About's first sentence and section headings (Experience, Contact), project titles, the 404 |
+| title | Inter Display 500, capitals | 18px, 23px from 768px, 29px from 1200px, 36px from 1440px (`--size-title`) | 0.9, -0.01em | impact numbers, Previous / Next titles |
+| body | Inter Display 500 | 16px (`--size-body`) | 1.1, 0 | text (About's too), project statements, Contact's links; links in text at 600 |
+| name | Inter Display 500, capitals | 14px (`--size-small`) | 1.3, -0.01em | the menu bar (the name at 600, Work, Archive, About, and the lightbox's Close) and project names: Home's card titles, Work's tiles, the lightbox |
+| label | Martian Mono 400, capitals | 12px (`--size-label`) | 1.3, -0.05em | Work's filters, Home's one-liners (in `--color-muted`), captions, project facts, the footer, the lightbox's type and year, About's "[ Scroll down ]" and Experience |
+| label, bold | Martian Mono 600, capitals | 12px | 1.3, -0.05em | a project's fact labels (Role, Year…) and its section and note headings |
 
-Display type is at line-height 1 and -0.04em, titles at 1.15 and -0.02em, everything else at
-1.5 (`--leading-*`, `--tracking-*`). Two things keep their reference's numbers: Home's caption
-(1.3 and 1.6) and the intro's line (600, -0.05em). Everything else is at 400, or 500 for headings,
-titles, the name, and links in text.
+Two things sit outside the styles: Home's intro line (Inter Display 600 at `--size-small`, 14px,
+-0.05em, as titarvl's) and Work's counts (`--size-tiny`, 10px). Until 2026-11-05 the type was
+Inter alone, at 400 and 500, with a 32-64px display, 28-48px titles, a 14px header, and line
+height 1.5 for all text.
 
 Color is the text color (`--color-text`), one gray (`--color-muted`, 5.6:1 on the background),
 a lighter gray for the header's links only (`--color-faint`, 3:1), and `--color-line` for rules.
@@ -297,14 +302,13 @@ project links, the lightbox's buttons, About's scroll link and Contact); **choic
 turn to the text color when hovered or current (the header's links, in the lighter gray, and Work's
 filters).
 
-**Capitals** are for the words the site uses to name, label, or steer: the header, Work's filters,
-About's scroll link, section headings (Experience, Contact, and a project's), note headings, the
-labels on a project's facts (Role, Year…) and impact numbers, Previous / Next, and the lightbox's
-Close. Type them in sentence case in `content/` and the templates; CSS sets the capitals (the
-"Capitals" rule under "Shared text styles"). What's content stays as written: titles, sentences,
-names, captions, and the footer's and Contact's links.
+**Capitals** come with the display, title, and label styles, so everything but body text is in
+capitals: titles, names, and captions too. Type them in sentence case in `content/` and the
+templates; CSS sets the capitals. Body text, Contact's links, and the footer's links stay as
+written (an email address in capitals reads badly).
 
-**Breakpoints** are 768px and 1200px, the same two on every page: under 768px is a phone.
+**Breakpoints** are 768px and 1200px, the same two on every page: under 768px is a phone. 1440px
+steps up the display and title sizes only, as titarvl's do.
 
 ## Spacing
 
@@ -334,7 +338,7 @@ motion turned on, all of it is off, and the home loop jumps from card to card wi
 Home loop: the home page shows the featured projects, fills the screen, and doesn't scroll; after the last project comes the first again, both
 ways. Mouse wheel or trackpad (down/right = next), drag, swipe, and the
 left/right arrow keys all move it; after a short pause it settles with one card in the middle,
-its title and one-liner under it (title at the card's left edge, one-liner at its right). Click the middle card to open it; click a side card to bring it to the middle.
+its title and one-liner under it (title at the card's left edge, one-liner at its right as a gray mono label, so the two don't read as one line). Click the middle card to open it; click a side card to bring it to the middle.
 Tab moves through the cards, bringing each to the middle. Without JavaScript, the home page is a
 plain list of the projects.
 
@@ -362,7 +366,7 @@ the tiles fade out (150 ms), the filter's tiles come on, and they fade in
 The address shows `#all`, `#digital`, and so on, so a link opens that filter, Back and Forward step
 through the ones picked, and Back from a project page returns to the same one; no hash or an
 unknown one means All, and `#visual` (a filter that's now part of Brand) opens Brand. Each filter is a button, and Tab goes from one to the next. The layout follows
-cedarstudio.framer.ai/work?view=Grid. The toggle is a row of labels set as About's "[ Scroll down ]" is (12px, in capitals): the one showing is bracketed ("[ ALL 11 ]") and in the text color, the others unbracketed and muted, and on a screen too narrow for all of
+cedarstudio.framer.ai/work?view=Grid. The toggle is a row of labels set as About's "[ Scroll down ]" is (Martian Mono, 12px, in capitals): the one showing is bracketed ("[ ALL 11 ]") and in the text color, the others unbracketed and muted, and on a screen too narrow for all of
 them the rest go on a second line. The grid is 1 column on phones, 2 from 768px, 3 from 1200px,
 and every image is 400px tall, as wide as its column, cropped to fill. Each tile's caption is its
 title alone, on one line under its image; a long title is cut short with "…", so every tile is the

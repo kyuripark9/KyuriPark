@@ -52,7 +52,7 @@ ARCHIVE_SIZES = "(min-width: 1200px) 25vw, (min-width: 768px) 33vw, 50vw"
 SMALL_SUFFIX = "-small"
 COVER_VIDEO_EXTS = (".mp4", ".webm")
 OG_IMAGE_EXTS = (".jpg", ".jpeg", ".png")
-MAX_ONE_LINER_WORDS = 8
+MAX_ONE_LINER_WORDS = 3
 MIN_FEATURED, MAX_FEATURED = 3, 5  # how many projects Home should show
 CATEGORIES = ("digital", "brand", "physical")  # Work's filters, in toggle order after All
 LOADING_ATTRS = {"lazy": 'loading="lazy"', "eager": "", "high": 'fetchpriority="high"'}

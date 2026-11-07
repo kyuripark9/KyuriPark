@@ -130,7 +130,11 @@
     const style = getComputedStyle(stage);
     const width = parseFloat(getComputedStyle(items[0]).width);  // unrounded, unscaled
     const css = (name) => parseFloat(style.getPropertyValue(name));
-    const gap = css("--card-gap");
+    // --card-gap-drawn in style.css: when less than --peek-min of a neighbor would show beside
+    // the middle card, the neighbor starts at the window's edge instead of as a thin strip.
+    const side = (stage.clientWidth - width) / 2;  // the window's edge to the middle card's
+    const base = css("--card-gap");
+    const gap = side - base < css("--peek-min") ? Math.max(base, side) : base;
     scales = [1, css("--scale-1"), css("--scale-2")];
     look = { opacity: css("--opacity-1"), grayscale: css("--grayscale-1"),
              brightness: css("--brightness-1"), fade: css("--fade-step"), blur: css("--blur-step") };

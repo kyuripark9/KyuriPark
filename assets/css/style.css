@@ -169,12 +169,12 @@
   --media-gap: 12px;              /* between images, side by side or one under another, on
                                      every page and screen: Work, Archive, Home, project
                                      pages, the lightbox */
-  --thumb-ratio: 1 / 1;           /* a project's thumbnail, width / height, wherever it shows:
+  --thumb-ratio: 4 / 5;           /* a project's thumbnail, width / height, wherever it shows:
                                      Home's cards (the middle one and its neighbors) and Work's
                                      tiles; the cover is cropped to fill it. Home's card math
-                                     reads it too, so any "w / h" works (until 2026-11-06: 3 / 4
-                                     on Home, and a 400px-tall frame as wide as the column on
-                                     Work) */
+                                     reads it too, so any "w / h" works (1 / 1 from 2026-11-06
+                                     to 2026-11-07; before that 3 / 4 on Home, and a 400px-tall
+                                     frame as wide as the column on Work) */
 
   --fade: 200ms ease;           /* colors, the lightbox, the brackets on Work's filters */
   --grow: 250ms ease;           /* Work's and Archive's images growing on hover, Work's videos
@@ -691,22 +691,46 @@ mark.placeholder {
 /* With JavaScript, Home fills the screen and doesn't scroll. The cards sit on a loop
    that track.js turns; these rules size them and set where they start.
    The layout follows the example (focuscarouselpro.framer.website), but the cards are
-   --thumb-ratio, as Work's tiles are (square since 2026-11-06; 3:4 at the example's sizes
-   before), and the gap between them is the site's gap between images; the card's top is the
-   page's starting line (main's --page-top), where Work's filter starts too, on any screen.
-   The middle card is large enough that on most windows the outermost cards run off the
-   screen's edges.
-     --card-share    the middle card's height, as a share of the window's: 62dvh (558px on a
-                     900px-tall window, 670px on a 1080px one), so a square card stands as
-                     tall as the 3:4 one did (until 2026-11-06: 3:4, 400px wide up to a
-                     940px-tall window and 247px kept under it on taller ones)
-     --card-w        the middle card's width: --card-share of the window's height, at
-                     --thumb-ratio; smaller when the window is too short for it, down to
-                     --room-bottom over the window's bottom edge; nearly full width on phones
-                     (--peek is how much of each neighbor shows there)
-     --card-h        its height, from --card-w and --thumb-ratio
+   --thumb-ratio, as Work's tiles are (4:5 since 2026-11-07, square the day before, 3:4 at the
+   example's sizes until then), and the gap between them is the site's gap between images.
+   The card's top is the page's starting line (main's --page-top), where Work's filter starts
+   too, except on a window too narrow for the card to fill its height (below). The middle card
+   is large enough that on most windows the outermost cards run off the screen's edges.
+   The space under the caption never runs past the space over the card (the window's top to
+   the card's top, the header included), so the card sits in the window, not at the top of an
+   empty one (until 2026-11-07 the card stayed at 62dvh and every taller window's extra height
+   went under it: 300px under, 165px over, on a 1310px-tall window).
+     --card-share    the middle card's height, as a share of the window's, at the least: from
+                     768px, 62dvh (558px on a 900px-tall window), which leaves less under the
+                     caption than over the card on windows up to about 950px tall; on taller
+                     ones the card grows until the two are the same (719px on 1080px, 949px on
+                     1310px). Under 768px, the whole stage (100cqh), so on a phone the card
+                     always runs between the side margins when the window's height allows
+                     (until 2026-11-07 a phone's card was 62dvh too: 330px wide on a 390 x 664
+                     window, 30px from each edge, 14px inside the header's)
+     --card-h        the middle card's height: --card-share, or taller as above; smaller when
+                     the window is too short for it, down to --room-bottom over the window's
+                     bottom edge; and no wider at --thumb-ratio than the page's side margins
+                     (--gutter) allow, so on phones and narrow windows its edges line up with
+                     the header's name and links (until 2026-11-07 it stopped 28px from each
+                     edge, 12px inside the header's, and 16px of each neighbor showed there)
+     --card-w        its width, from --card-h and --thumb-ratio
+     --card-y        its center: its top on the stage's top edge; when the card is held to the
+                     window's width and still leaves more under the caption than over the card
+                     (a phone held upright, a narrow desktop window), lowered by half of the
+                     difference, so the two are the same (until 2026-11-07 all of it went
+                     under: 715px, 54% of a 503 x 1322 window)
+     --room-top      the window's top to the card's top: the header and --page-top
+     --caption-h     the caption under the card, one line and the 16px over it
      --card-gap      space between cards as drawn, whatever their size: --media-gap, as
                      between images on every page
+     --peek-min      the least of a neighbor worth showing beside the middle card: 48px. When
+                     less would show, the neighbor starts at the window's edge instead, off
+                     screen, rather than as a thin strip
+     --card-side     the window's edge to the middle card's
+     --card-gap-drawn   the gap track.js and these rules use: --card-gap, or --card-side
+                     when that leaves less than --peek-min of the neighbor (the "* 1000" makes
+                     the switch a step; track.js does the same with an if)
      --room-bottom   the least kept free under the middle card: its caption (16px down, up
                      to two lines) and 24px under that, 71px, near the example's 72px (until
                      2026-11-05: 136px, for three lines, which kept the card small on any
@@ -738,14 +762,22 @@ mark.placeholder {
 
 .js .track {
   --card-gap: var(--media-gap);
-  --peek: var(--step-2);
-  --card-share: 62dvh;
+  --peek-min: var(--step-6);
+  --card-share: 100cqh;
+  --room-top: calc(var(--header-h) + var(--page-top));
+  --caption-h: calc(var(--space-1) + var(--leading-label) * var(--size-label));
   --room-bottom: calc(var(--space-1) + 2 * var(--leading-label) * var(--size-label) + var(--step-3));
-  /* "w / h" in brackets is a number, w divided by h: a width from a height. */
-  --card-w: min(min(var(--card-share), 100cqh - var(--room-bottom)) * (var(--thumb-ratio)),
-                100cqw - 2 * (var(--card-gap) + var(--peek)));
-  --card-h: calc(var(--card-w) / (var(--thumb-ratio)));
-  --card-y: calc(var(--card-h) / 2);  /* its center: its top on the stage's top edge */
+  /* "w / h" in brackets is a number, w divided by h: a height from a width, and back. */
+  --card-h: min(max(var(--card-share), 100cqh - var(--caption-h) - var(--room-top)),
+                100cqh - var(--room-bottom),
+                (100cqw - 2 * var(--gutter)) / (var(--thumb-ratio)));
+  --card-w: calc(var(--card-h) * (var(--thumb-ratio)));
+  --card-y: calc(var(--card-h) / 2
+                 + max(0px, (100cqh - var(--card-h) - var(--caption-h) - var(--room-top)) / 2));
+  --card-side: calc((100cqw - var(--card-w)) / 2);
+  --card-gap-drawn: calc(var(--card-gap) + clamp(0px,
+                      (var(--card-gap) + var(--peek-min) - var(--card-side)) * 1000,
+                      var(--card-side) - var(--card-gap)));
   --scale-1: 0.52;
   --scale-2: 0.52;
   --opacity-1: 1;
@@ -754,6 +786,12 @@ mark.placeholder {
   --fade-step: 0.86;
   --blur-step: 2.5px;
   flex: 1;
+}
+
+@media (min-width: 768px) {
+  .js .track {
+    --card-share: 62dvh;
+  }
 }
 
 .js .track-stage {
@@ -789,7 +827,7 @@ mark.placeholder {
           brightness(calc(1 - var(--d1) * var(--d1) * (1 - var(--brightness-1))))
           blur(calc(var(--beyond) * var(--blur-step)));
   transform:
-    translateX(calc(var(--d) * var(--card-gap) + var(--card-w) * (
+    translateX(calc(var(--d) * var(--card-gap-drawn) + var(--card-w) * (
       var(--d1) * (1 + var(--scale-1)) / 2
       + var(--d2) * (var(--scale-1) + var(--scale-2)) / 2
       + var(--dn) * var(--scale-2))))

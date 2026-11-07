@@ -32,7 +32,7 @@ DIST_DIR = os.path.join(ROOT, "dist")
 
 # Size of the gray placeholder for each kind of slot, used until a real file exists.
 PLACEHOLDER_SIZES = {
-    "cover": (1500, 1500),     # 1:1 (--thumb-ratio in style.css), home cards and Work tiles
+    "cover": (1600, 2000),     # 4:5 (--thumb-ratio in style.css), home cards and Work tiles
     "wide": (2400, 1350),      # 16:9, hero and full-width images and videos
     "pair": (1200, 1500),      # 4:5, each image in a two-image row
     "portrait": (2400, 1600),  # 3:2, the About photo (no placeholder: a plain gray block)

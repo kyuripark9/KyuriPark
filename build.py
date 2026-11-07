@@ -815,9 +815,9 @@ class Builder:
         return ""
 
     def work_card(self, p, index):
-        """'TypeLab' at the left and 'Font design playground' at the right, on one line under
-        the image, for one item: a project's one-liner, as under Home's middle card; an item
-        with no page has none, so its type. main.js filters the tiles on data-categories. A
+        """'TypeLab', then 'Font design playground' right after it, on one line under the
+        image, for one item: a project's one-liner, as under Home's middle card; an item with
+        no page has none, so its type. main.js filters the tiles on data-categories. A
         project's tile links to its page, and if the cover has a video next to it, main.js
         plays it while the tile is hovered. An item with no page opens the lightbox, which shows
         its 'Type · Year' from a hidden span in the tile."""

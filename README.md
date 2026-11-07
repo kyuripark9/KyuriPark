@@ -83,8 +83,8 @@ dist/                   the generated site. Never edit; it's rebuilt every time.
 | `category` | Required. A list of the Work filters it shows under, one or more of `"digital"`, `"brand"`, `"physical"`, like `["digital", "brand"]`. It counts under each, and once under All. Also "Category" on the project page, named as the filters are ("Digital, Brand") |
 | `featured` | Optional. `true` puts it on Home (aim for 3 to 5). Leave it out or set `false` and it's on Work only. Needs a `slug`, because a Home card opens the project's page |
 | `title` | Everywhere |
-| `oneLiner` | Under the home loop when that project is in the middle, and at the right of its Work card's caption (3 words max) |
-| `type` | Like "Font design tool". Not shown for a project (on its Work card until 2026-11-05, "Type" on its page until 2026-11-06); an item with no page shows it at the right of its Work card's caption, where a project's one-liner goes, and in the lightbox |
+| `oneLiner` | Under the home loop when that project is in the middle, and after the title in its Work card's caption (3 words max) |
+| `type` | Like "Font design tool". Not shown for a project (on its Work card until 2026-11-05, "Type" on its page until 2026-11-06); an item with no page shows it after the title in its Work card's caption, where a project's one-liner goes, and in the lightbox |
 | `year` | The project page |
 | `roles` | Optional. A list, like `["UX research", "Art direction"]`. "Role" in the project page's facts (Category · Role · Year); it doesn't affect the filters. (Service in its place for a day, 2026-11-05) |
 | `statement` | The one big sentence right under the project's title, in the lead style (leave it out to hide it) |
@@ -285,7 +285,7 @@ menu bar and project names are a sans while the small labels stay in Martian Mon
 | lead | Inter Display 500, as typed | 20px, growing with the window to 28px (from 800 to 1120px wide); lines up to 30em (`--measure-lead`) | 1.35, 0 | a project's statement, under its title, and About's text |
 | body | Inter Display 500, as typed | 16px | 1.1, 0 | text, a project's "Visit" link; links in text at 600 (Contact's links and About's text too, until 2026-11-06) |
 | name | Inter Display 500, capitals | 14px | 1.3, -0.01em | the menu bar (Work, Archive, About, the lightbox's Close; the name at 600, 16px and +0.02em, see below) and project names (Home's cards, Work's tiles, Archive, the lightbox); Home's intro line at 600 |
-| label | Martian Mono 400, capitals | 12px | 1.3, -0.05em | Work's filters, Home's one-liners (in `--color-muted`), captions, project facts, the footer, the lightbox's type and year, About's Experience; a label that names a column or a section (a project's fact labels, Category, Role, Year, its section and note headings, and About's Experience and Contact headings) looks as Work's filters do, in `--color-subtle` (at 600 in `--color-muted` until 2026-11-06) |
+| label | Martian Mono 400, capitals | 12px | 1.3, -0.05em | Work's filters, Home's and Work's one-liners (in `--color-subtle`, `--color-muted` until 2026-11-07), captions, project facts, the footer, the lightbox's type and year, About's Experience; a label that names a column or a section (a project's fact labels, Category, Role, Year, its section and note headings, and About's Experience and Contact headings) looks as Work's filters do, in `--color-subtle` (at 600 in `--color-muted` until 2026-11-06) |
 
 Two weights for Inter Display, 500 and 600, and one for Martian Mono, 400 (600 too until 2026-11-06). Two sizes
 sit outside the styles: Work's counts, a label at `--size-count` (10px), and the name in the
@@ -295,11 +295,13 @@ letters carrying less ink than theirs). Until 2026-11-05 the
 type was Inter alone, at 400 and 500, with a 32-64px display, 28-48px titles, a 14px header, and
 line height 1.5 for all text.
 
-Color is the text color (`--color-text`), one gray (`--color-muted`, 5.6:1 on the background),
-a step lighter for Work's filters and the labels that name a column or a section
-(`--color-subtle`, 4.6:1, the lightest small text stays easy to read at; since 2026-11-06), a
-lighter gray still for the header's links only (`--color-faint`, 3:1), and `--color-line` for
-rules.
+Color is the text color (`--color-text`), one gray for all gray text (`--color-subtle`, 4.6:1 on
+the background, the lightest small text stays easy to read at: one-liners, Work's filters,
+captions, the lightbox's type and year, the labels that name a column or a section, impact labels,
+Previous / Next, About's Experience companies and dates, the copyright; since 2026-11-07, most of
+them a step darker in `--color-muted`, 5.6:1, before), `--color-muted` now only for a hovered
+link, a lighter gray still for the header's links only (`--color-faint`, 3:1), and
+`--color-line` for rules.
 Things react to the pointer in one of two ways, and only by color:
 **links** are in the text color and turn muted on hover (the name, links in text, the footer,
 project links, the lightbox's buttons); **choices** are in a lighter gray and
@@ -388,9 +390,12 @@ unknown one means All, and `#visual` (a filter that's now part of Brand) opens B
 cedarstudio.framer.ai/work?view=Grid. The toggle is a row of labels (Martian Mono, 12px, in capitals): the one showing is bracketed ("[ ALL 11 ]") and in the text color, the others unbracketed and muted, and on a screen too narrow for all of
 them the rest go on a second line. The grid is 1 column under 640px, 2 from 640px, 3 from 1440px,
 and every image is as wide as its column at 4:5 (`--thumb-ratio`, the same as Home's cards),
-cropped to fill. Each tile's caption is one line under its image: the title at the left, the
-one-liner at the right as a gray mono label, as on Home (an item with no page shows its type
-there); when they don't both fit, each is cut short with "…", so every tile is the same height. Without JavaScript there's no toggle and the grid shows everything. To tune it:
+cropped to fill. Each tile's caption is one line under its image: the title, then 16px after it
+the one-liner as a gray mono label (an item with no page shows its type there), both from the
+tile's left edge, so a tile's two read together and stay well apart from the next tile's (until
+2026-11-07 the one-liner sat at the right, as on Home, and ran into the next tile's title 12px
+away). A caption too long for its line is cut short with "…" 24px before the column's edge, the
+one-liner first, so every tile is the same height. Without JavaScript there's no toggle and the grid shows everything. To tune it:
 - `assets/js/main.js`, the Work section: `FADE_OUT` / `FADE_IN`.
 - `assets/css/style.css`, "Work": `--thumb-ratio` at the top (the images' shape), `--tile-col-gap` (between
   columns: 12px, `--media-gap`), `--tile-row-gap` (a title to the next row's image: 32px, 64px from

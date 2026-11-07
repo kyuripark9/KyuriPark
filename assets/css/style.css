@@ -34,16 +34,22 @@
 
   --color-bg: #f5f4f0;
   --color-text: #161616;
-  --color-muted: #62615d;      /* 5.6:1 on the background */
+  --color-muted: #62615d;      /* 5.6:1 on the background: a link, hovered (the site's gray text
+                                  too until 2026-11-07) */
   --color-subtle: #706f6b;     /* 4.6:1 on the background, the lightest small text can be and
-                                  stay easy to read (WCAG AA, 4.5:1): Work's filters that aren't
-                                  showing, and the labels that name a column or a section, so
-                                  the two look alike (since 2026-11-06; --color-muted before) */
+                                  stay easy to read (WCAG AA, 4.5:1): all gray text, one gray
+                                  (since 2026-11-07): one-liners on Home and Work, Work's filters
+                                  that aren't showing, captions, the lightbox's type and year, the
+                                  labels that name a column or a section, impact labels, Previous /
+                                  Next, About's Experience companies and dates, the footer's
+                                  copyright (the filters and section labels since 2026-11-06, the
+                                  rest in --color-muted before) */
   --color-faint: #8f8e89;      /* 3:1 on the background: the header's links that aren't the
                                   current page (since 2026-11-05; --color-muted before) */
   --color-line: #dcdbd5;
   --color-fill: #e9e8e3;       /* behind media while it loads */
-  --color-mark: #e8e7e1;       /* [PLACEHOLDER] highlight; muted text on it stays at 5:1 */
+  --color-mark: #e8e7e1;       /* [PLACEHOLDER] highlight; gray text on it is at 4.1:1, under
+                                  AA, but a placeholder never ships */
 
   /* ↗ after a link that opens a new tab, as a mask (only its shape counts, not its color). */
   --icon-arrow-out: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='%23000' stroke-width='1.5'%3E%3Cpath d='M1 9 8.25 1.75M3 1.75h5.25V7'/%3E%3C/svg%3E");
@@ -460,7 +466,7 @@ button {
 
 .caption,
 .archive-text {
-  color: var(--color-muted);
+  color: var(--color-subtle);
 }
 
 .work-tab {
@@ -651,7 +657,7 @@ mark.placeholder {
 
 /* The title at the card's left edge, the one-liner at its right, kept to the right half (it
    wraps before it reaches the middle). The title is a name (see Shared text styles) in the
-   text color; the one-liner is a label, a tag, in --color-muted, so the two differ in
+   text color; the one-liner is a label, a tag, in --color-subtle, so the two differ in
    typeface, size, and color. Until 2026-11-05 (evening) both were plain labels in the text
    color and read as one line; before that, a 16px title and a 14px one-liner, as
    focuscarouselpro.framer.website. */
@@ -680,7 +686,7 @@ mark.placeholder {
   flex: none;
   max-width: calc(50% - var(--step-2));
   text-align: right;
-  color: var(--color-muted);
+  color: var(--color-subtle);
 }
 
 /* The caption under the middle card needs track.js. */
@@ -1029,17 +1035,22 @@ mark.placeholder {
   text-align: left;
 }
 
-/* One line under the image (it comes first in the page, for screen readers): the title at the
-   left in the name style, the one-liner at the right as a label in --color-muted, as under
-   Home's middle card (see Shared text styles). Neither wraps and the line's height is fixed,
-   so every tile is the same height; when the two don't fit side by side, both are cut short
-   with "…". (The title alone from 2026-11-05 to 2026-11-06; the type at the right before.) */
+/* One line under the image (it comes first in the page, for screen readers): the title in the
+   name style, then, 16px after it, the one-liner as a label in --color-subtle (see Shared text
+   styles), both from the tile's left edge. A tile's two are closer to each other than to the
+   next tile's: the rest of the column is empty after them, and a caption that runs long is
+   cut short with "…" --step-3 (24px) before the column's edge, so it never comes closer than
+   36px to the next title. The one-liner is cut first, then the title if it's longer than the
+   line on its own. Neither wraps and the line's height is fixed, so every tile is the same
+   height. (Until 2026-11-07 the one-liner sat at the column's right edge, as Home's does, and
+   ended 12px from the next tile's title, so across a row "FONT DESIGN PLAYGROUND CLACK" read
+   as one line. The title alone from 2026-11-05 to 2026-11-06; the type at the right before.) */
 .work-caption {
   order: 1;
   display: flex;
-  justify-content: space-between;
   align-items: baseline;
-  gap: var(--step-1);
+  gap: var(--step-2);
+  padding-right: var(--step-3);
   height: calc(var(--leading-name) * var(--size-name));  /* one line of the name */
 }
 
@@ -1051,9 +1062,13 @@ mark.placeholder {
   white-space: nowrap;
 }
 
+.work-name {
+  flex-shrink: 0;
+  max-width: 100%;
+}
+
 .work-text {
-  text-align: right;
-  color: var(--color-muted);
+  color: var(--color-subtle);
 }
 
 /* The image fills a frame as wide as the column at --thumb-ratio (a plain gray block until it
@@ -1101,7 +1116,7 @@ mark.placeholder {
 
 /* A filter with nothing in it yet. */
 .work-empty {
-  color: var(--color-muted);
+  color: var(--color-subtle);
 }
 
 /* Archive --------------------------------------------------------------- */
@@ -1275,7 +1290,7 @@ mark.placeholder {
 .lightbox-meta {
   flex: none;
   max-width: 60%;
-  color: var(--color-muted);
+  color: var(--color-subtle);
 }
 
 /* With no type, year, or date, nothing takes the gap after the name. (A name only for screen
@@ -1473,7 +1488,7 @@ mark.placeholder {
 }
 
 .impact-label {
-  color: var(--color-muted);
+  color: var(--color-subtle);
 }
 
 /* Images fade up as they come on screen (main.js adds these classes). */
@@ -1518,7 +1533,7 @@ mark.placeholder {
   display: inline-flex;
   align-items: center;
   gap: var(--step-1);
-  color: var(--color-muted);
+  color: var(--color-subtle);
 }
 
 .project-nav-label svg,
@@ -1668,7 +1683,7 @@ mark.placeholder {
 
 .experience-company,
 .experience-dates {
-  color: var(--color-muted);
+  color: var(--color-subtle);
 }
 
 .experience-dates {
@@ -1752,11 +1767,11 @@ mark.placeholder {
 .footer-links li + li::before {
   content: "·";
   margin-right: var(--step-2);
-  color: var(--color-muted);
+  color: var(--color-subtle);
 }
 
 .copyright {
-  color: var(--color-muted);
+  color: var(--color-subtle);
 }
 
 /* The footer is the same on every page, About's included (since 2026-11-06; About showed only

@@ -65,8 +65,8 @@
        display  Inter Display 500        capitals  About's first sentence, project titles, the
                                                    404
        title    Inter Display 500        capitals  impact numbers, Previous / Next titles
-       lead     Inter Display 500        as typed  a project's statement, under its title, and
-                                                   About's text
+       lead     Inter Display 500        as typed  a project's statement, under its title (About's
+                                                   text too, 2026-11-06 to 2026-11-07)
        body     Inter Display 500, 600   as typed  text (links in text at 600)
        name     Inter Display 500, 600   capitals  the menu bar (the header, the lightbox's
                                                    Close), project names (Home's cards, Work's
@@ -74,7 +74,8 @@
                                                    intro line (the name and the intro at 600)
        label    Martian Mono 400         capitals  Work's filters, Home's one-liners, captions,
                                                    project facts, the footer, the lightbox's
-                                                   type and year, About's Experience and
+                                                   type and year, About's text (since
+                                                   2026-11-07), About's Experience and
                                                    Contact (a label that names a column or a
                                                    section as Work's filters are, in
                                                    --color-subtle; at 600 until 2026-11-06)
@@ -382,11 +383,10 @@ button {
   text-transform: uppercase;
 }
 
-/* Lead: a project's statement, the sentence under its title, and About's text, which says the
-   same of Kyuri, as typed (since 2026-11-06; body text at 16px before), a step down from the
-   title and up from the text. */
-.project-statement,
-.about-text {
+/* Lead: a project's statement, the sentence under its title, as typed, a step down from the
+   title and up from the text. (About's text was in it from 2026-11-06 to 2026-11-07, body text
+   at 16px before; it's a label now, below.) */
+.project-statement {
   font-size: var(--size-lead);
   line-height: var(--leading-lead);
   letter-spacing: var(--tracking-lead);
@@ -409,7 +409,8 @@ button {
 .site-footer,
 .split-section > .section-heading,
 .about-contact,
-.experience li {
+.experience li,
+.about-text {
   font-family: var(--font-mono);
   font-size: var(--size-label);
   font-weight: 400;
@@ -1598,12 +1599,15 @@ mark.placeholder {
   pointer-events: none;
 }
 
-/* The lead style (see Shared text styles), as a project's statement is: left-aligned, lines up
-   to the lead's measure, --step-4 (32px) under the sentence as a statement is under its title,
+/* The label style (see Shared text styles; since 2026-11-07, in the text color, the lead style
+   for a day before): left-aligned, lines up to 30em of its own size (--measure-lead, 360px,
+   four lines at 1440px), --step-4 (32px) under the sentence as a statement is under its title,
    and --step-3 (24px) between paragraphs, as between a statement and its Visit link. Until
-   2026-11-06 centered on the gray block, with balanced lines. */
+   2026-11-06 centered on the gray block, with balanced lines. A paragraph's last line keeps
+   more than one word (text-wrap: pretty, since 2026-11-07). */
 .about-text {
   max-width: var(--measure-lead);
+  text-wrap: pretty;
 }
 
 .about-headline + .about-text {

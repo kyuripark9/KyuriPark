@@ -18,15 +18,16 @@
   "about": {
     "headline": [
       "KYURI IS A PRODUCT DESIGNER",
-      "WORKING ACROSS DIGITAL, UX",
-      "AND BRAND IDENTITY"
+      "WORKING WHERE DIGITAL",
+      "MEETS EVERYDAY LIFE"
     ],
     "portrait": {
       "src": "assets/images/about/portrait.webp",
       "alt": "[PLACEHOLDER] Portrait of Kyuri Park"
     },
     "paragraphs": [
-      "My background spans Industrial, Graphic, and UX Design, so I design objects people live with, brand identities, and digital products. I play with AI to see where it can take them."
+      "I bring together Industrial, Graphic, and UX Design to create brands, objects, and digital products.",
+      "I play with AI as a powerful tool to make something new, anywhere."
     ],
     "experience": [
       { "company": "Clayco", "role": "Junior Graphic Designer", "dates": "Jun – Sep 2026" },

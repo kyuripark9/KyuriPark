@@ -237,7 +237,8 @@ the height of Work's filter line and the space under it), so switching among the
 `"headline"` and About opens on the text instead.
 
 **About's text and photo:** About is laid out as a project page is (since 2026-11-06). The About
-text (`"paragraphs"`) is in the lead style, left-aligned, 32px under the sentence, as a
+text (`"paragraphs"`) is in the label style (Martian Mono, 12px, capitals, in the text color;
+since 2026-11-07, the lead style for a day before), left-aligned, 32px under the sentence, as a
 project's statement is under its title, with 24px between paragraphs. Then the photo
 (`"portrait"` in `content/site.json`, `assets/images/about/portrait.webp`) runs edge to edge at
 3:2, as a project's hero does, plain gray (`--color-fill`) until it exists; gray edge to edge
@@ -282,10 +283,10 @@ menu bar and project names are a sans while the small labels stay in Martian Mon
 | --- | --- | --- | --- | --- |
 | display | Inter Display 500, capitals | 41px, 51px from 1200px, 64px from 1440px | 1, -0.04em | About's first sentence, project titles, the 404 (About's section headings too, until 2026-11-06) |
 | title | Inter Display 500, capitals | 18px, 23px from 768px, 29px from 1200px, 36px from 1440px | 0.9, -0.01em | impact numbers, Previous / Next titles |
-| lead | Inter Display 500, as typed | 20px, growing with the window to 28px (from 800 to 1120px wide); lines up to 30em (`--measure-lead`) | 1.35, 0 | a project's statement, under its title, and About's text |
+| lead | Inter Display 500, as typed | 20px, growing with the window to 28px (from 800 to 1120px wide); lines up to 30em (`--measure-lead`) | 1.35, 0 | a project's statement, under its title (About's text too, 2026-11-06 to 2026-11-07) |
 | body | Inter Display 500, as typed | 16px | 1.1, 0 | text, a project's "Visit" link; links in text at 600 (Contact's links and About's text too, until 2026-11-06) |
 | name | Inter Display 500, capitals | 14px | 1.3, -0.01em | the menu bar (Work, Archive, About, the lightbox's Close; the name at 600, 16px and +0.02em, see below) and project names (Home's cards, Work's tiles, Archive, the lightbox); Home's intro line at 600 |
-| label | Martian Mono 400, capitals | 12px | 1.3, -0.05em | Work's filters, Home's and Work's one-liners (in `--color-subtle`, `--color-muted` until 2026-11-07), captions, project facts, the footer, the lightbox's type and year, About's Experience; a label that names a column or a section (a project's fact labels, Category, Role, Year, its section and note headings, and About's Experience and Contact headings) looks as Work's filters do, in `--color-subtle` (at 600 in `--color-muted` until 2026-11-06) |
+| label | Martian Mono 400, capitals | 12px | 1.3, -0.05em | Work's filters, Home's and Work's one-liners (in `--color-subtle`, `--color-muted` until 2026-11-07), captions, project facts, the footer, the lightbox's type and year, About's text (since 2026-11-07) and Experience; a label that names a column or a section (a project's fact labels, Category, Role, Year, its section and note headings, and About's Experience and Contact headings) looks as Work's filters do, in `--color-subtle` (at 600 in `--color-muted` until 2026-11-06) |
 
 Two weights for Inter Display, 500 and 600, and one for Martian Mono, 400 (600 too until 2026-11-06). Two sizes
 sit outside the styles: Work's counts, a label at `--size-count` (10px), and the name in the

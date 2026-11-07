@@ -419,7 +419,10 @@ To tune it:
 About's dust: on About, the first sentence breaks into dots where the pointer passes
 and they drift back into the letters (after soren-template.framer.website). Before that, a few
 dots on the letters' edges keep coming loose on their own, drifting a little way off and settling
-back, as a hint that the letters come apart. It works with a finger as well, until the page
+back, as a hint that the letters come apart. A few are loose from the first moment on the page
+(a fifth of the usual), and more come loose until the usual share are, over two seconds; the same
+happens whenever they start again (after a resize, back from another tab, once a selection is
+gone). It works with a finger as well, until the page
 starts to scroll. The sentence stays real text (it can be selected and read aloud as before); a
 canvas over it draws only the dots that have moved, with a patch of the background where each
 one sat in its letter. It runs only while some of the sentence is on screen, and with reduced
@@ -435,7 +438,8 @@ harder a fast pass pushes, and how far it carries the dots along: a fast pointer
 for only a frame or two, so it gets a bigger push, and every letter along its way is hit, not
 only the ones under the frames' positions); for the edges, `FRAY` (the share
 of edge dots loose at a time: 0 turns it off), `FRAY_NEAR` / `FRAY_FAR` (px they drift, least
-and most), `FRAY_TIME` (ms out and back). The dots take the sentence's color, the patches the
+and most), `FRAY_TIME` (ms out and back), `START` (the share of the usual loose from the first moment) and
+`RISE` (ms until the usual share are). The dots take the sentence's color, the patches the
 background behind it (a part with its own, like a `[PLACEHOLDER]`'s highlight or a link in
 another color, keeps its own).
 

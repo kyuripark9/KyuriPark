@@ -259,6 +259,9 @@
     const FRAY_NEAR = 2;     // px the nearest an edge dot drifts off its letter...
     const FRAY_FAR = 16;     // ...and the farthest (most stay near)
     const FRAY_TIME = 2400;  // ms to drift off and settle back (each 0.6 to 1.4 times this)
+    const START = 0.2;       // when the edges start coming loose (on arriving, say), this share
+                             // of the usual are loose at once...
+    const RISE = 2000;       // ...and the rest come over this many ms, a few more each frame
     const MAX_DOTS = 12000;  // past this the cells grow, so a long sentence stays smooth
     const AROUND = 3;        // the canvas runs this many reaches past the sentence: with the
                              // settings above a fast pass throws a dot 2.3 reaches at most
@@ -278,6 +281,9 @@
     const astir = new Set();  // the dots coming loose or on their way home: with the pointer
                               // away, the only ones a frame has to move
     let afloat = 0;  // edge dots due to come loose (a running count, so they come one by one)
+    let wasFraying = false;  // the edges were coming loose last frame
+    let rising = null;       // when they started coming loose, until all are
+    let ready = !document.fonts;  // the sentence's font is in (the letters are scanned only then)
     let shown = false;  // some of the sentence is on screen
     let focused = document.hasFocus();  // the edges come loose only while the page has focus:
                                         // the browser's find bar takes it, and a patch would
@@ -286,12 +292,14 @@
     let drawn = null;      // the part of the canvas the last frame drew on, to clear
     let density = null;    // the screen's pixel density, to draw afresh when it changes
     let built = false;
+    let scanned = "";  // the hero's and the sentence's sizes when the letters were last scanned
     let pending = 0;
     const pointer = { clientX: 0, clientY: 0, x: 0, y: 0, sx: 0, sy: 0, px: 0, py: 0,
                       inside: false, fresh: true };
     let frame = 0;
     let last = 0;
 
+    const measure = () => [hero, headline].map((el) => `${el.clientWidth}x${el.clientHeight}`).join();
     const clear = (color) => color === "transparent" || /^rgba\(.*,\s*0\)$|\/\s*0\)$/.test(color);
     // The color behind an element: its own background, or the nearest one under it.
     const backdrop = (el) => {
@@ -306,6 +314,7 @@
     // dot on every cell with ink in it.
     const build = () => {
       built = true;
+      scanned = measure();
       watchDensity();
       dots = [];
       edges = [];
@@ -446,6 +455,7 @@
         dots.push(d);
       }
       afloat = 0;
+      wasFraying = false;  // new dots, all home: the next frame tops the edges up
       look();
     };
 
@@ -509,22 +519,42 @@
         d.fray = null;
       }
       astir.clear();
+      wasFraying = false;
       draw([]);
     };
 
-    // An edge dot comes loose: out of its letter, give or take, and back, over FRAY_TIME.
-    const fray = (now) => {
+    // An edge dot comes loose: out of its letter, give or take, and back, over FRAY_TIME. It
+    // starts at its beginning, or (into) that share of the way through.
+    const fray = (now, into = 0) => {
       for (let tries = 0; tries < 4; tries++) {
         const d = edges[Math.floor(Math.random() * edges.length)];
         if (d.moving || d.fray) continue;
         const angle = Math.atan2(d.ny, d.nx) + (Math.random() - 0.5) * 1.2;
         const far = FRAY_NEAR + (FRAY_FAR - FRAY_NEAR) * Math.random() ** 1.5;
-        d.fray = { start: now, time: FRAY_TIME * (0.6 + 0.8 * Math.random()),
+        const time = FRAY_TIME * (0.6 + 0.8 * Math.random());
+        d.fray = { start: now - into * time, time,
                    dx: Math.cos(angle), dy: Math.sin(angle), far,
                    phase: Math.random() * Math.PI * 2 };
         astir.add(d);
         return;
       }
+    };
+
+    // When the edges start coming loose (on arriving, after a resize, back from another tab or
+    // window, once a selection is gone, or with the sentence back on screen), START of the usual
+    // share are loose at once, each somewhere along its way, so the hint is there from the first
+    // moment; then more come loose, each from its start, until the usual share are, after RISE.
+    const unsettled = (now) => {
+      let n = 0;
+      for (const d of astir) if (d.fray && now - d.fray.start < d.fray.time) n++;
+      return n;
+    };
+    const rise = (now, start) => {
+      const t = Math.min(1, (now - rising) / RISE);
+      const want = Math.round(edges.length * FRAY * (START + (1 - START) * t));
+      for (let n = want - unsettled(now); n > 0; n--) fray(now, start ? Math.random() : 0);
+      if (t >= 1) rising = null;
+      afloat = 0;
     };
 
     const tick = (now) => {
@@ -561,11 +591,17 @@
       const mx = step ? wx / step : 0;
       const my = step ? wy / step : 0;
       // About FRAY of the edge dots loose at a time, while the sentence is on screen.
-      const fraying = shown && focused && !selected && edges.length;
-      if (fraying) {
+      const fraying = shown && focused && !selected && edges.length > 0;
+      if (fraying && !wasFraying) {
+        rising = now;
+        rise(now, true);
+      } else if (fraying && rising !== null) {
+        rise(now, false);
+      } else if (fraying) {
         afloat += (ms * edges.length * FRAY) / FRAY_TIME;
         for (; afloat >= 1; afloat--) fray(now);
       }
+      wasFraying = fraying;
       const drag = DRAG ** dt;
       const push = reach * PUSH;
       const away = (cell * 0.55) ** 2;  // closer than this to home, the letter draws it
@@ -712,6 +748,11 @@
     window.addEventListener("blur", () => {
       focused = false;
     });
+    // No frames run in a hidden tab, so the dots loose when it hid are done by the time it's
+    // back: top them up then.
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) wasFraying = false;
+    });
     reduceMotion.addEventListener?.("change", () => {
       if (!reduceMotion.matches) {
         look();
@@ -723,7 +764,7 @@
     });
 
     // A resize moves the letters: the dots go at once, and come back once it rests, from the
-    // letters drawn and scanned again (the first time, right away).
+    // letters drawn and scanned again (the first time, right away, once the font is in).
     const rebuild = () => {
       clearTimeout(pending);
       if (dots.length) {
@@ -732,7 +773,7 @@
         astir.clear();
         draw([]);
       }
-      pending = setTimeout(build, built ? SETTLE : 0);
+      if (ready) pending = setTimeout(build, built ? SETTLE : 0);
     };
     // And so does moving to a screen of another pixel density, to stay as sharp as the text.
     const watchDensity = () => {
@@ -741,14 +782,28 @@
       density.addEventListener?.("change", rebuild);
     };
     if ("ResizeObserver" in window) {
-      const sizes = new ResizeObserver(rebuild);
+      // Not for a size it already has (its first look, say, once the letters are scanned).
+      const sizes = new ResizeObserver(() => {
+        if (!built || measure() !== scanned) rebuild();
+      });
       sizes.observe(hero);
       sizes.observe(headline);
     } else {
       window.addEventListener("resize", rebuild);
       rebuild();
     }
-    document.fonts?.ready.then(rebuild);
+    // The letters are first scanned once the sentence's font is in, not in the fallback's
+    // shapes and again a moment later, which would clear the dots loose on arriving.
+    if (!ready) {
+      const style = getComputedStyle(headline);
+      document.fonts.load(`${style.fontWeight} ${style.fontSize} ${style.fontFamily}`,
+                          headline.textContent)
+        .catch(() => {})
+        .then(() => {
+          ready = true;
+          rebuild();
+        });
+    }
   }
 
   // Project pages: images below the fold fade up as they come on screen.

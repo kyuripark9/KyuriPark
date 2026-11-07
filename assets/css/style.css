@@ -38,7 +38,7 @@
                                   too until 2026-11-07) */
   --color-subtle: #706f6b;     /* 4.6:1 on the background, the lightest small text can be and
                                   stay easy to read (WCAG AA, 4.5:1): all gray text, one gray
-                                  (since 2026-11-07): one-liners on Home and Work, Work's filters
+                                  (since 2026-11-07): Home's one-liners, Work's filters
                                   that aren't showing, captions, the lightbox's type and year, the
                                   labels that name a column or a section, impact labels, Previous /
                                   Next, About's Experience companies and dates, the footer's
@@ -1006,10 +1006,9 @@ mark.placeholder {
 }
 
 /* 1 across under 640px, 2 from 640px, 3 from 1440px (until 2026-11-06: 2 from 768px, 3 from
-   1200px; until 2026-11-05: 3 from 768px, 4 from 1200px). Each tile is its image, then one line
-   under it: "TypeLab" at the left and its one-liner at the right, as on Home (an item with no
-   page has no one-liner and shows its type). A tile with no page is a button (it opens the
-   lightbox) and looks the same. */
+   1200px; until 2026-11-05: 3 from 768px, 4 from 1200px). Each tile is its image, then its title
+   under it, "TypeLab", alone. A tile with no page is a button (it opens the lightbox) and looks
+   the same. */
 .work-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -1036,40 +1035,28 @@ mark.placeholder {
   text-align: left;
 }
 
-/* One line under the image (it comes first in the page, for screen readers): the title in the
-   name style, then, 16px after it, the one-liner as a label in --color-subtle (see Shared text
-   styles), both from the tile's left edge. A tile's two are closer to each other than to the
-   next tile's: the rest of the column is empty after them, and a caption that runs long is
-   cut short with "…" --step-3 (24px) before the column's edge, so it never comes closer than
-   36px to the next title. The one-liner is cut first, then the title if it's longer than the
-   line on its own. Neither wraps and the line's height is fixed, so every tile is the same
-   height. (Until 2026-11-07 the one-liner sat at the column's right edge, as Home's does, and
-   ended 12px from the next tile's title, so across a row "FONT DESIGN PLAYGROUND CLACK" read
-   as one line. The title alone from 2026-11-05 to 2026-11-06; the type at the right before.) */
+/* One line under the image (it comes first in the page, for screen readers): the title alone,
+   in the name style (see Shared text styles), from the tile's left edge. It doesn't wrap and
+   the line's height is fixed, so every tile is the same height; a title too long for its line
+   is cut short with "…" --step-3 (24px) before the column's edge, so it never comes closer
+   than 36px to the next tile's title. A project's one-liner is on Home, an item's type in the
+   lightbox. (Since 2026-11-07. Before, the one-liner, or an item's type, followed the title,
+   for part of that day 16px after it; until then it sat at the column's right edge, as Home's
+   does, and ended 12px from the next tile's title, so across a row "FONT DESIGN PLAYGROUND
+   CLACK" read as one line. The title alone from 2026-11-05 to 2026-11-06 too; the type at the
+   right before.) */
 .work-caption {
   order: 1;
   display: flex;
-  align-items: baseline;
-  gap: var(--step-2);
   padding-right: var(--step-3);
   height: calc(var(--leading-name) * var(--size-name));  /* one line of the name */
 }
 
-.work-name,
-.work-text {
+.work-name {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.work-name {
-  flex-shrink: 0;
-  max-width: 100%;
-}
-
-.work-text {
-  color: var(--color-subtle);
 }
 
 /* The image fills a frame as wide as the column at --thumb-ratio (a plain gray block until it

@@ -1301,9 +1301,18 @@ mark.placeholder {
 
 /* The title starts where Work's images do, --grid-top under the starting line, as About's first
    sentence and Archive's images do (since 2026-11-06; on the starting line, where Work's filter
-   is, before), so opening a project from Work keeps its first thing at the same height. */
+   is, before), so opening a project from Work keeps its first thing at the same height.
+   The header is the box main.js draws the title's dust in (since 2026-11-07), as About's hero
+   is, and the dots fly only as far as its edges: it takes main's --page-top into its own box
+   (the title stays where it is) so they have room over the title too, up to the header. */
+.project-header {
+  position: relative;
+  margin-top: calc(-1 * var(--page-top));
+  padding-top: var(--page-top);
+}
+
 .js .project-header {
-  margin-top: var(--grid-top);
+  padding-top: calc(var(--page-top) + var(--grid-top));
 }
 
 /* On that line go the capitals' tops, not the top of the title's line (--cap-display over them,
@@ -1577,9 +1586,11 @@ mark.placeholder {
   }
 }
 
-/* The sentence's loose dots (main.js), on a canvas over the sentence and as far around it as a
-   dot goes. main.js places and sizes it. It takes no clicks. */
-.about-dust {
+/* Display type's loose dots (main.js; About's first sentence, a project's title, the 404's), on
+   a canvas over the letters and as far around them as a dot goes, inside the box it's drawn in
+   (About's hero, a project's header, the 404's main). main.js places and sizes it. It takes no
+   clicks. */
+.dust {
   position: absolute;
   top: 0;
   left: 0;
@@ -1724,6 +1735,12 @@ mark.placeholder {
 }
 
 /* 404 ------------------------------------------------------------------- */
+
+/* The box main.js draws the title's dust in (since 2026-11-07): all of main, from the header
+   to the footer. */
+.page-not-found {
+  position: relative;
+}
 
 .not-found-title {
   margin-bottom: var(--step-2);

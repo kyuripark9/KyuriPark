@@ -421,32 +421,48 @@ To tune it:
   line), `--intro-size` (the line's type size), `--intro-image` (the corner image's size; it's
   square), `--intro-margin` (its distance from the bottom and right edges).
 
-About's dust: on About, the first sentence breaks into dots where the pointer passes
-and they drift back into the letters (after soren-template.framer.website). Before that, a few
-dots on the letters' edges keep coming loose on their own, drifting a little way off and settling
-back, as a hint that the letters come apart. A few are loose from the first moment on the page
-(a fifth of the usual), and more come loose until the usual share are, over two seconds; the same
-happens whenever they start again (after a resize, back from another tab, once a selection is
-gone). It works with a finger as well, until the page
-starts to scroll. The sentence stays real text (it can be selected and read aloud as before); a
-canvas over it draws only the dots that have moved, with a patch of the background where each
-one sat in its letter. It runs only while some of the sentence is on screen, and with reduced
-motion it's off (even if turned on with the page open). It rests while any of the sentence is
-selected, and while a mouse button is down (a drag may be selecting it), so no patch cuts into
-the selection's highlight; and the edges stop coming loose while the page doesn't have focus
-(the browser's find bar takes it, and its highlight would show the same cuts). To tune it: the top of the "About's first sentence" part of
-`assets/js/main.js`: `CELL` (px between dots: smaller is finer dust and more of it), `DOT` (a
-dot's width, in cells), `REACH` (how far the pointer reaches, in the sentence's font size),
-`PUSH` (how hard it pushes), `SPRING` / `DRAG` (how the dots hold and slow down near the
-pointer), `RETURN` (how fast they go home once it has passed), `SWEEP` / `WAKE` (how much
+Display type's dust: type in the display style is made of dots, wherever it is (About's first
+sentence, a project's title, the 404's; About's only until 2026-11-07). It breaks into dots where
+the pointer passes and they drift back into the letters (after soren-template.framer.website).
+The pointer counts over the box around it, and the dots fly as far as that box's edges: About's
+hero (the sentence, the text under it, and the space up to the header), a project's header (the
+title, statement, Visit link, and facts, and the space up to the header), the 404's whole main
+part. On a project page the pointer counts only over the title itself, since the work is what's
+to be looked at there, not the title: reading the statement or reaching for Visit leaves it be
+(the dots still fly as far as the header's edges).
+
+On arriving, a pointer of its own passes once, as if someone had swept a cursor across: a stroke
+from under the left of the letters up to over the right, fast at first and slowing to a stop, in
+under a second, and the dots are back in another. It shows what the letters do before anyone
+tries, on phones too, where there's no pointer to hover. Across a sentence of a few lines it
+crosses them all; across one line it's a slash, so a title never goes all at once. It happens the
+first time the sentence is on screen (on arriving, once it's scrolled to, or in a tab opened
+behind another once it's looked at), not again after a resize, and not if a real pointer is
+already over it; a real pointer coming in takes over from it. (Until 2026-11-07 a few edge dots
+kept coming loose on their own instead, each hopping out and back its own way, which read as
+fleas; for a few hours the same day, edge dots started out of the letters and came in together,
+which left the letters full of holes.)
+
+It works with a finger as well, until the page starts to scroll. The sentence stays real text
+(it can be selected and read aloud as before); a canvas over it draws only the dots that have
+moved, with a patch of the background where each one sat in its letter. It runs only while
+some of the sentence is on screen and something moves, and with reduced motion it's off (even
+if turned on with the page open). It rests while any of the sentence is selected, and while a
+mouse button is down (a drag may be selecting it), so no patch cuts into the selection's
+highlight.
+
+To tune it (one setting for all three): the top of the "Type in the display style is made of
+dots" part of `assets/js/main.js`: `CELL` (px between dots: smaller is finer dust and more of
+it), `DOT` (a dot's width, in cells), `REACH` (how far the pointer reaches, in the sentence's
+font size), `PUSH` (how hard it pushes), `SPRING` / `DRAG` (how the dots hold and slow down near
+the pointer), `RETURN` (how fast they go home once it has passed), `SWEEP` / `WAKE` (how much
 harder a fast pass pushes, and how far it carries the dots along: a fast pointer is over a dot
 for only a frame or two, so it gets a bigger push, and every letter along its way is hit, not
-only the ones under the frames' positions); for the edges, `FRAY` (the share
-of edge dots loose at a time: 0 turns it off), `FRAY_NEAR` / `FRAY_FAR` (px they drift, least
-and most), `FRAY_TIME` (ms out and back), `START` (the share of the usual loose from the first moment) and
-`RISE` (ms until the usual share are). The dots take the sentence's color, the patches the
-background behind it (a part with its own, like a `[PLACEHOLDER]`'s highlight or a link in
-another color, keeps its own).
+only the ones under the frames' positions); for the pass on arriving, `PASS_SPEED` (px per ms, on average), `PASS_TIME` (ms at the
+least), `PASS_RISE` (how far under the letters it starts and over them it ends, in reaches:
+smaller cuts a single line more nearly through the middle) and `PASS_BOW` (how far it bows up). The
+dots take the sentence's color, the patches the background behind it (a part with its own, like
+a `[PLACEHOLDER]`'s highlight or a link in another color, keeps its own).
 
 ## Deploy
 

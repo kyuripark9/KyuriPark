@@ -1,7 +1,7 @@
 // Enhancements on top of pages that already work without JavaScript:
-// Work's filter and card videos, the lightbox, About's first sentence breaking into dots under
-// the pointer, and project-page motion (image fade-up, count-up numbers, looping videos). The
-// home track is in track.js.
+// Work's filter and card videos, the lightbox, display type (About's first sentence, project
+// titles, the 404's) breaking into dots under the pointer, and project-page motion (image
+// fade-up, count-up numbers, looping videos). The home track is in track.js.
 (() => {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const fineHover = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -230,17 +230,25 @@
 
   if (reduceMotion.matches || !("IntersectionObserver" in window)) return;
 
-  // About's first sentence breaks into dots where the pointer passes, and they drift
-  // back (as on soren-template.framer.website). Until then, a few dots on the letters' edges come
-  // loose on their own, drift a little way off, and settle back, a hint that the letters are made
-  // of dots and come apart. The sentence stays real text: a canvas over it draws only what has
-  // moved, a patch of the background where each loose dot sat in a letter and the dot where it is
-  // now. While some of it is selected, everything rests, so no patch cuts into the highlight.
-  // It all happens inside the hero (the sentence, the About text under it, and the space over
-  // it up to the header): the pointer counts over it, and the dots fly as far as its edges.
-  const hero = document.querySelector(".about-hero");
-  const headline = hero?.querySelector(".about-headline");
-  if (hero && headline) {
+  // Type in the display style is made of dots, wherever it is: About's first sentence, a
+  // project's title, and the 404's (About's only until 2026-11-07). It breaks into dots where
+  // the pointer passes, and they drift back (as on soren-template.framer.website). On arriving,
+  // a pointer of its own passes once, a stroke from below the left of the letters up to above
+  // the right, so the sentence shows what it does before anyone tries, phones too; then it's
+  // still. A real pointer coming in takes over from it. (Since 2026-11-07. Before, a few edge dots
+  // came loose on their own all the while, hopping out and back each its own way, which read as
+  // fleas; for a few hours, edge dots started out of the letters and came in together, which
+  // left the letters full of holes.) The sentence stays real text:
+  // a canvas over it draws only what has moved, a patch of the background where each loose dot
+  // sat in a letter and the dot where it is now. While some of it is selected, everything rests,
+  // so no patch cuts into the highlight. It all happens inside its hero (on About, the sentence,
+  // the About text under it, and the space over it up to the header; on a project page, the
+  // header with the title, statement, and facts; on the 404, the page's main part): the pointer
+  // counts over it, and the dots fly as far as its edges. One per page.
+  // A calm one (a project page's, since 2026-11-07: there the work is what's to be looked at,
+  // not the title) is the same material, quieter: the pointer counts only over the title itself,
+  // so reading the statement under it, or reaching for the Visit link, leaves it be.
+  const dust = (hero, headline, { calm = false } = {}) => {
     const CELL = 4;          // px: one dot for each 4 x 4 square of the letters
     const DOT = 0.85;        // a dot's width, in cells
     const COVER = 1.35;      // the patch over a dot's place in a letter, in cells (over 1, so no
@@ -255,39 +263,36 @@
     const SWEEP = 4;         // a fast pass pushes up to 1 + SWEEP times harder (each dot 0.5 to
                              // 1.5 times that), since it's over a dot for a frame or two, not many
     const WAKE = 0.8;        // and carries the dots this much along the way it went
-    const FRAY = 0.03;       // share of the edge dots off their letter at any moment
-    const FRAY_NEAR = 2;     // px the nearest an edge dot drifts off its letter...
-    const FRAY_FAR = 16;     // ...and the farthest (most stay near)
-    const FRAY_TIME = 2400;  // ms to drift off and settle back (each 0.6 to 1.4 times this)
-    const START = 0.2;       // when the edges start coming loose (on arriving, say), this share
-                             // of the usual are loose at once...
-    const RISE = 2000;       // ...and the rest come over this many ms, a few more each frame
+    const PASS_SPEED = 1.2;  // px per ms the pass on arriving goes, on average: fast at first,
+                             // slowing to a stop, as a hand does
+    const PASS_TIME = 400;   // ms it takes at the least (a short title's pass isn't a flick)
+    const PASS_RISE = 0.6;   // how far it starts under the letters and ends over them, in
+                             // reaches: across one line it's a slash, the first letters' feet to
+                             // the last ones' tops, so the title never goes all at once
+    const PASS_BOW = 0.1;    // how far it bows up on its way, in the letters' height (top of the
+                             // highest to foot of the lowest)
     const MAX_DOTS = 12000;  // past this the cells grow, so a long sentence stays smooth
     const AROUND = 3;        // the canvas runs this many reaches past the sentence: with the
                              // settings above a fast pass throws a dot 2.3 reaches at most
     const SETTLE = 150;      // ms a resize has to rest before the letters are scanned again
 
     const canvas = document.createElement("canvas");
-    canvas.className = "about-dust";
+    canvas.className = "dust";
     canvas.setAttribute("aria-hidden", "true");
     hero.append(canvas);
     const ctx = canvas.getContext("2d");
     let cell = CELL;
     let reach = 0;
     let dots = [];   // the sentence's dots: their cell's middle (cx, cy), home (hx, hy), where
-                     // they are, their speed, their colors (ink, and paper for the patch), and
-                     // the way out of the letter (nx, ny) if on an edge
-    let edges = [];  // the dots on the letters' edges
-    const astir = new Set();  // the dots coming loose or on their way home: with the pointer
-                              // away, the only ones a frame has to move
-    let afloat = 0;  // edge dots due to come loose (a running count, so they come one by one)
-    let wasFraying = false;  // the edges were coming loose last frame
-    let rising = null;       // when they started coming loose, until all are
+                     // they are, their speed, and their colors (ink, and paper for the patch)
+    let inked = null;  // the box the dots are in: left, top, right, bottom
+    const astir = new Set();  // the dots on their way home: with the pointer away, the only
+                              // ones a frame has to move
+    let arrived = false;  // the pass has been (once a page: not again after a resize)
+    let pass = null;      // the pass under way: where it starts and ends, and when it started
+    const zone = calm ? headline : hero;  // where the pointer counts
     let ready = !document.fonts;  // the sentence's font is in (the letters are scanned only then)
     let shown = false;  // some of the sentence is on screen
-    let focused = document.hasFocus();  // the edges come loose only while the page has focus:
-                                        // the browser's find bar takes it, and a patch would
-                                        // cut into the find's highlight too
     let selected = false;  // some of the sentence is selected
     let drawn = null;      // the part of the canvas the last frame drew on, to clear
     let density = null;    // the screen's pixel density, to draw afresh when it changes
@@ -317,7 +322,7 @@
       scanned = measure();
       watchDensity();
       dots = [];
-      edges = [];
+      inked = null;
       astir.clear();
       drawn = null;
       const style = getComputedStyle(headline);
@@ -331,7 +336,7 @@
       const top = Math.max(0, Math.floor(lines.top - box.top) - 4);
       const right = Math.min(hero.clientWidth, Math.ceil(lines.right - box.left) + 4);
       const bottom = Math.min(hero.clientHeight, Math.ceil(lines.bottom - box.top) + 4);
-      const around = reach * AROUND + FRAY_FAR;
+      const around = reach * AROUND;
       const x0 = Math.max(0, Math.floor(left - around));
       const y0 = Math.max(0, Math.floor(top - around));
       const x1 = Math.max(x0, Math.min(hero.clientWidth, Math.ceil(right + around)));
@@ -416,16 +421,13 @@
       cell = CELL;
       let cells = sample(cell);
       while (cells.length > MAX_DOTS && cell < 16) cells = sample(++cell);
-      const key = (i, j) => j * 65536 + i;
-      const taken = new Set(cells.map(([i, j]) => key(i, j)));
       // Each dot's home is a little off its cell's middle, so the loose dots don't sit on a grid.
       const jitter = () => (Math.random() - 0.5) * cell * 0.7;
       for (const [i, j] of cells) {
         const cx = (i + 0.5) * cell;
         const cy = (j + 0.5) * cell;
         const d = { cx, cy, hx: cx + jitter(), hy: cy + jitter(), vx: 0, vy: 0,
-                    seed: Math.random(), grit: Math.random(), moving: false, fray: null,
-                    nx: 0, ny: 0, ink, paper };
+                    seed: Math.random(), grit: Math.random(), moving: false, ink, paper };
         d.x = d.hx;
         d.y = d.hy;
         // The innermost part with its own color that the cell is in, if any.
@@ -434,28 +436,11 @@
           d.ink = part.ink;
           if (part.paper) d.paper = part.paper;
         }
-        // On an edge if a cell around it is empty; the way out is toward the empty ones.
-        let open = 0;
-        for (let dj = -1; dj <= 1; dj++) {
-          for (let di = -1; di <= 1; di++) {
-            if ((di || dj) && !taken.has(key(i + di, j + dj))) {
-              d.nx += di;
-              d.ny += dj;
-              open++;
-            }
-          }
-        }
-        if (open) {
-          const length = Math.hypot(d.nx, d.ny);
-          const angle = length ? Math.atan2(d.ny, d.nx) : Math.random() * Math.PI * 2;
-          d.nx = Math.cos(angle);
-          d.ny = Math.sin(angle);
-          edges.push(d);
-        }
         dots.push(d);
+        if (!inked) inked = [cx, cy, cx, cy];
+        inked = [Math.min(inked[0], cx), Math.min(inked[1], cy),
+                 Math.max(inked[2], cx), Math.max(inked[3], cy)];
       }
-      afloat = 0;
-      wasFraying = false;  // new dots, all home: the next frame tops the edges up
       look();
     };
 
@@ -516,45 +501,36 @@
         d.y = d.hy;
         d.vx = d.vy = 0;
         d.moving = false;
-        d.fray = null;
       }
       astir.clear();
-      wasFraying = false;
+      pass = null;
       draw([]);
     };
 
-    // An edge dot comes loose: out of its letter, give or take, and back, over FRAY_TIME. It
-    // starts at its beginning, or (into) that share of the way through.
-    const fray = (now, into = 0) => {
-      for (let tries = 0; tries < 4; tries++) {
-        const d = edges[Math.floor(Math.random() * edges.length)];
-        if (d.moving || d.fray) continue;
-        const angle = Math.atan2(d.ny, d.nx) + (Math.random() - 0.5) * 1.2;
-        const far = FRAY_NEAR + (FRAY_FAR - FRAY_NEAR) * Math.random() ** 1.5;
-        const time = FRAY_TIME * (0.6 + 0.8 * Math.random());
-        d.fray = { start: now - into * time, time,
-                   dx: Math.cos(angle), dy: Math.sin(angle), far,
-                   phase: Math.random() * Math.PI * 2 };
-        astir.add(d);
+    // The pass on arriving: from half a reach left of the letters and PASS_RISE under them, to
+    // half a reach right of them and PASS_RISE over them, bowing up a little on the way. On a
+    // sentence of a few lines it crosses them all, the last line's start to the first's end.
+    const start = (now) => {
+      const [left, top, right, bottom] = inked;
+      const height = bottom - top + cell;
+      const x0 = left - reach / 2;
+      const y0 = bottom + reach * PASS_RISE;
+      const x1 = right + reach / 2;
+      const y1 = top - reach * PASS_RISE;
+      pass = { start: now, x0, y0, x1, y1, bow: height * PASS_BOW,
+               time: Math.max(PASS_TIME, Math.hypot(x1 - x0, y1 - y0) / PASS_SPEED) };
+      pointer.fresh = true;
+    };
+    // Where the pass is now: fast at first, slowing to a stop. Done, it's gone.
+    const follow = (now) => {
+      const t = (now - pass.start) / pass.time;
+      if (t >= 1) {
+        pass = null;
         return;
       }
-    };
-
-    // When the edges start coming loose (on arriving, after a resize, back from another tab or
-    // window, once a selection is gone, or with the sentence back on screen), START of the usual
-    // share are loose at once, each somewhere along its way, so the hint is there from the first
-    // moment; then more come loose, each from its start, until the usual share are, after RISE.
-    const unsettled = (now) => {
-      let n = 0;
-      for (const d of astir) if (d.fray && now - d.fray.start < d.fray.time) n++;
-      return n;
-    };
-    const rise = (now, start) => {
-      const t = Math.min(1, (now - rising) / RISE);
-      const want = Math.round(edges.length * FRAY * (START + (1 - START) * t));
-      for (let n = want - unsettled(now); n > 0; n--) fray(now, start ? Math.random() : 0);
-      if (t >= 1) rising = null;
-      afloat = 0;
+      const s = Math.sin((Math.max(0, t) * Math.PI) / 2);
+      pointer.x = pass.x0 + (pass.x1 - pass.x0) * s;
+      pointer.y = pass.y0 + (pass.y1 - pass.y0) * s - pass.bow * Math.sin(Math.PI * s);
     };
 
     const tick = (now) => {
@@ -566,6 +542,14 @@
       const ms = last ? Math.min(now - last, 1000 / 24) : 1000 / 60;
       const dt = Math.max(ms / (1000 / 60), 0.25);
       last = now;
+      // The pass goes the first time the sentence is on screen (on arriving, or once it's
+      // scrolled to, or in a tab opened behind another once it's looked at: no frames run till
+      // then), unless some of it is selected or a real pointer is already over it.
+      if (!arrived && shown && !selected && dots.length) {
+        arrived = true;
+        if (!pointer.inside) start(now);
+      }
+      if (pass) follow(now);
       // The dots feel a point that follows the pointer a little behind, along the whole way it
       // went since the last frame (from px, py to sx, sy): a fast pointer jumps tens of pixels
       // a frame, and would skip the letters in between.
@@ -580,7 +564,7 @@
         pointer.sx += (pointer.x - pointer.sx) * k;
         pointer.sy += (pointer.y - pointer.sy) * k;
       }
-      const inside = pointer.inside && !selected;
+      const inside = (pointer.inside || pass !== null) && !selected;
       const ax = pointer.px;
       const ay = pointer.py;
       const wx = pointer.sx - ax;
@@ -590,24 +574,12 @@
       const fast = reach ? Math.min(1, step / dt / reach) : 0;  // 1 at a reach a frame or faster
       const mx = step ? wx / step : 0;
       const my = step ? wy / step : 0;
-      // About FRAY of the edge dots loose at a time, while the sentence is on screen.
-      const fraying = shown && focused && !selected && edges.length > 0;
-      if (fraying && !wasFraying) {
-        rising = now;
-        rise(now, true);
-      } else if (fraying && rising !== null) {
-        rise(now, false);
-      } else if (fraying) {
-        afloat += (ms * edges.length * FRAY) / FRAY_TIME;
-        for (; afloat >= 1; afloat--) fray(now);
-      }
-      wasFraying = fraying;
       const drag = DRAG ** dt;
       const push = reach * PUSH;
       const away = (cell * 0.55) ** 2;  // closer than this to home, the letter draws it
       const loose = [];
       let busy = 0;
-      // With the pointer away, only the dots astir move; with it over the hero, any may.
+      // With the pointer away, only the dots astir move; with it where it counts, any may.
       for (const d of inside ? dots : astir) {
         let near = false;
         let r = 0;
@@ -621,24 +593,7 @@
           r = reach * (0.55 + 0.75 * d.seed);
           near = dx * dx + dy * dy < r * r;
         }
-        if (d.fray) {
-          const p = (now - d.fray.start) / d.fray.time;
-          if (near || p >= 1) {
-            d.fray = null;  // the pointer takes it from here, or it's home
-            if (!near) {
-              d.x = d.hx;
-              d.y = d.hy;
-            }
-          } else {
-            // Out and back, easing at both ends, with a little sway across the way out.
-            const out = Math.sin(Math.PI * p) ** 2 * d.fray.far;
-            const sway = Math.sin(p * Math.PI * 3 + d.fray.phase) * Math.min(out, 1.5);
-            d.x = d.hx + d.fray.dx * out - d.fray.dy * sway;
-            d.y = d.hy + d.fray.dy * out + d.fray.dx * sway;
-            busy++;
-          }
-        }
-        if (!d.fray && (near || d.moving)) {
+        if (near || d.moving) {
           if (near) {
             const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
             const f = (1 - dist / r) ** 2 * push * (1 + SWEEP * fast * (0.5 + d.grit));
@@ -666,15 +621,14 @@
             }
           }
         }
-        if (d.fray || d.moving) astir.add(d);
+        if (d.moving) astir.add(d);
         else astir.delete(d);
         if ((d.x - d.hx) ** 2 + (d.y - d.hy) ** 2 >= away) loose.push(d);
       }
 
       draw(loose);
-      // Keep going while anything moves, or may: the pointer is over the hero, or the
-      // edges come loose.
-      if (busy || inside || fraying) frame = requestAnimationFrame(tick);
+      // Keep going while anything moves, or may: the pointer (or the pass) is where it counts.
+      if (busy || inside) frame = requestAnimationFrame(tick);
     };
     const wake = () => {
       if (frame || reduceMotion.matches) return;
@@ -703,9 +657,9 @@
     document.addEventListener("pointermove", (e) => {
       pointer.clientX = e.clientX;
       pointer.clientY = e.clientY;
-      // Over the hero only: not over the photo or the header.
+      // Over the hero only (a calm one's title only): not over the photo or the header.
       // Nor with a mouse button down: that's a drag, perhaps selecting the sentence.
-      if (!hero.contains(e.target) || (e.pointerType === "mouse" && e.buttons)) {
+      if (!zone.contains(e.target) || (e.pointerType === "mouse" && e.buttons)) {
         leave();
         return;
       }
@@ -713,6 +667,7 @@
       if (!pointer.inside) {
         pointer.inside = true;
         pointer.fresh = true;
+        pass = null;  // the real one takes over from the pass, from where it is
       }
       wake();
     }, { passive: true });
@@ -726,7 +681,7 @@
     window.addEventListener("scroll", () => {
       look();
       if (!pointer.inside) return;
-      if (!hero.contains(document.elementFromPoint(pointer.clientX, pointer.clientY))) leave();
+      if (!zone.contains(document.elementFromPoint(pointer.clientX, pointer.clientY))) leave();
       else place();
     }, { passive: true });
     document.addEventListener("selectionchange", () => {
@@ -740,18 +695,6 @@
       selected = now;
       if (selected) settle();
       else wake();
-    });
-    window.addEventListener("focus", () => {
-      focused = true;
-      wake();
-    });
-    window.addEventListener("blur", () => {
-      focused = false;
-    });
-    // No frames run in a hidden tab, so the dots loose when it hid are done by the time it's
-    // back: top them up then.
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) wasFraying = false;
     });
     reduceMotion.addEventListener?.("change", () => {
       if (!reduceMotion.matches) {
@@ -769,7 +712,7 @@
       clearTimeout(pending);
       if (dots.length) {
         dots = [];
-        edges = [];
+        inked = null;
         astir.clear();
         draw([]);
       }
@@ -793,7 +736,7 @@
       rebuild();
     }
     // The letters are first scanned once the sentence's font is in, not in the fallback's
-    // shapes and again a moment later, which would clear the dots loose on arriving.
+    // shapes and again a moment later, which would clear the dots coming in on arriving.
     if (!ready) {
       const style = getComputedStyle(headline);
       document.fonts.load(`${style.fontWeight} ${style.fontSize} ${style.fontFamily}`,
@@ -804,7 +747,14 @@
           rebuild();
         });
     }
-  }
+  };
+  [[".about-hero", ".about-headline"],
+   [".project-header", ".project-title", { calm: true }],
+   [".page-not-found", ".not-found-title"]].forEach(([outer, inner, options]) => {
+    const hero = document.querySelector(outer);
+    const headline = hero?.querySelector(inner);
+    if (headline) dust(hero, headline, options);
+  });
 
   // Project pages: images below the fold fade up as they come on screen.
   const revealer = new IntersectionObserver((entries) => {

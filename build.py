@@ -3,6 +3,7 @@
 
     python3 build.py           build once
     python3 build.py serve     build, serve at http://localhost:8000, rebuild on refresh
+    python3 build.py images    make a smaller copy of each large image, for phones (macOS)
 
 Content lives in content/*.json and page structure in templates/*.html.
 Standard library only (Python 3.8+), so there is nothing to install.
@@ -18,6 +19,7 @@ import re
 import shutil
 import socket
 import struct
+import subprocess
 import sys
 import threading
 import time
@@ -49,12 +51,31 @@ ARCHIVE_COLUMNS = (2, 3, 4)  # Archive's columns on phones, from 768px, from 120
 # How wide an Archive image shows in its column, so the browser can take the smaller copy
 # (001-small.jpg next to 001.jpg) when there is one.
 ARCHIVE_SIZES = "(min-width: 1200px) 25vw, (min-width: 768px) 33vw, 50vw"
+# The same for the other images (since 2026-11-09; only Archive's before), as style.css lays
+# them out: Home's middle card (62% of the window's height and up, at 4:5, from 768px; the
+# page's width on phones), Work's tiles (1, 2, then 3 columns), images edge to edge or the
+# page's width, and the two in a two-image row.
+HOME_SIZES = "(min-width: 768px) 60vh, 100vw"
+WORK_SIZES = "(min-width: 1440px) 33vw, (min-width: 640px) 50vw, 100vw"
+WIDE_SIZES = "100vw"
+PAIR_SIZES = "(min-width: 768px) 50vw, 100vw"
 SMALL_SUFFIX = "-small"
+# `python3 build.py images` makes the smaller copies: 1200px wide (enough for a phone at 3x and
+# half a laptop's screen at 2x), or for Archive 800px on the long side, as its README part says;
+# only for an image at least SMALL_WORTH times that, or the copy saves too little.
+SMALL_WIDTH = 1200
+ARCHIVE_SMALL_SIDE = 800
+SMALL_WORTH = 1.25
+SMALL_SOURCE_EXTS = (".jpg", ".jpeg", ".png", ".webp", ".avif")
 COVER_VIDEO_EXTS = (".mp4", ".webm")
 OG_IMAGE_EXTS = (".jpg", ".jpeg", ".png")
 MAX_ONE_LINER_WORDS = 3
 MIN_FEATURED, MAX_FEATURED = 3, 5  # how many projects Home should show
 CATEGORIES = ("digital", "brand", "physical")  # Work's filters, in toggle order after All
+# Whether Work shows its filters. Off since 2026-11-09: with a short list, All / Digital / Brand /
+# Physical read as three careers, not one product designer's work. True brings them back as they
+# were ("category" still sorts every item, so nothing else needs to change).
+WORK_FILTERS = False
 LOADING_ATTRS = {"lazy": 'loading="lazy"', "eager": "", "high": 'fetchpriority="high"'}
 # Old addresses that now live elsewhere: /contact/ was a menu item and is now About's Contact
 # label, with the footer's links under it.
@@ -95,6 +116,27 @@ def media_path(src, folder):
 def placeholder_rel(rel):
     """Where the gray stand-in for a missing file goes: cover.webp -> cover.placeholder.svg."""
     return os.path.splitext(rel)[0] + ".placeholder.svg"
+
+
+def small_copy(rel):
+    """The smaller copy next to an image, if there is one: 001-small.jpg for 001.jpg, and for
+    001.webp either 001-small.webp or 001-small.jpg (the Mac's sips, which `python3 build.py
+    images` uses, reads WebP and AVIF but can't write them)."""
+    stem, ext = os.path.splitext(rel)
+    for candidate in dict.fromkeys((ext, ".jpg")):
+        if exists(stem + SMALL_SUFFIX + candidate):
+            return stem + SMALL_SUFFIX + candidate
+    return None
+
+
+def small_target(rel, size):
+    """How `python3 build.py images` sizes an image's smaller copy, as sips arguments, or None if
+    the image is small enough already."""
+    if rel.startswith(ARCHIVE_FOLDER + "/"):
+        if max(size) > ARCHIVE_SMALL_SIDE * SMALL_WORTH:
+            return ["-Z", str(ARCHIVE_SMALL_SIDE)]
+        return None
+    return ["--resampleWidth", str(SMALL_WIDTH)] if size[0] > SMALL_WIDTH * SMALL_WORTH else None
 
 
 def archive_first_screen(n):
@@ -392,12 +434,20 @@ def validate(site, items):
         if words > MAX_ONE_LINER_WORDS:
             warnings.append(f"{slug}: the one-liner is {words} words "
                             f"(aim for {MAX_ONE_LINER_WORDS} or fewer).")
-        for key in ("type", "year"):
-            if not p.get(key):
-                warnings.append(f'{slug}: "{key}" is empty, so the Work list shows a gap there.')
         roles = p.get("roles", [])
         if not isinstance(roles, list) or not all(isinstance(r, str) for r in roles):
             raise BuildError(f'{where}: "roles" should be a list, like ["Art direction"].')
+        for key in ("team", "timeline"):
+            value = p.get(key)
+            if value is not None and not isinstance(value, str) and not (
+                    isinstance(value, list) and all(isinstance(v, str) for v in value)):
+                raise BuildError(f'{where}: "{key}" should be text, like "2 designers, 3 engineers", '
+                                 'or a list of it.')
+        # A project's page shows Role, Team, and Timeline (since 2026-11-09): a "year" left over
+        # from before shows nowhere, so say so.
+        if "year" in p:
+            warnings.append(f'{slug}: "year" isn\'t shown on the project page any more; put it in '
+                            '"timeline", like "8 weeks, 2026".')
         meta = p.get("meta") or {}
         if not isinstance(meta, dict):
             raise BuildError(f'{where}: "meta" should be like {{ "link": null }}.')
@@ -429,8 +479,9 @@ def validate(site, items):
     if not exists(site["resume"]):
         warnings.append(f"{site['resume']} not found, so the Resume link won't work yet.")
     if not site.get("siteUrl"):
-        warnings.append('"siteUrl" in content/site.json is empty. Set it once the site has '
-                        "an address, so link previews show the right image.")
+        warnings.append('"siteUrl" in content/site.json is empty. Netlify fills it in when it '
+                        "builds the site; for any other host, set it to the site's address, so "
+                        "link previews show the image and the sitemap is made.")
     return warnings
 
 
@@ -473,6 +524,7 @@ class Builder:
         self.written = set()           # dist-relative paths this build produced
         self.missing_media = set()     # files the content mentions that don't exist yet
         self.placeholder_counts = {}   # page -> number of [PLACEHOLDER] notes left
+        self.needs_small = set()       # large images shown without a smaller copy next to them
         self.warnings = []
 
     # Output -----------------------------------------------------------------
@@ -608,11 +660,10 @@ class Builder:
 
     @staticmethod
     def srcset(rel, size, sizes):
-        """srcset and sizes for a smaller copy next to the file (001-small.jpg for 001.jpg),
-        or "" if there isn't one."""
-        stem, ext = os.path.splitext(rel)
-        small = stem + SMALL_SUFFIX + ext
-        small_size = exists(small) and media_size(small)
+        """srcset and sizes for a smaller copy next to the file (001-small.jpg for 001.jpg; see
+        small_copy), or "" if there isn't one."""
+        small = small_copy(rel)
+        small_size = small and media_size(small)
         if not small_size:
             return ""
         return (f'srcset="{url_for(small)} {small_size[0]}w, {url_for(rel)} {size[0]}w" '
@@ -629,6 +680,8 @@ class Builder:
             size = media_size(rel)
             if size and sizes:
                 srcset = self.srcset(rel, size, sizes)
+                if not srcset and small_target(rel, size):
+                    self.needs_small.add(rel)
             if not size:
                 self.warnings.append(f"Couldn't read the size of {rel}, so the page may "
                                      "shift slightly while it loads.")
@@ -673,7 +726,8 @@ class Builder:
             return self.text_block(b)
         if kind == "image":
             rel = media_path(need(b, "src", where), folder)
-            return figure("media-full", self.img(rel, b.get("alt"), "wide", p["title"], loading),
+            return figure("media-full", self.img(rel, b.get("alt"), "wide", p["title"], loading,
+                                                 sizes=WIDE_SIZES),
                           b.get("caption"))
         if kind == "imagePair":
             images = b.get("images")
@@ -681,7 +735,7 @@ class Builder:
                 raise BuildError(f'{where}: an "imagePair" block needs exactly two entries in "images".')
             imgs = "".join(
                 self.img(media_path(need(i, "src", where), folder), i.get("alt"), "pair",
-                         p["title"], loading)
+                         p["title"], loading, sizes=PAIR_SIZES)
                 for i in images)
             return figure("media-pair", f'<div class="pair">{imgs}</div>', b.get("caption"))
         if kind == "video":
@@ -763,15 +817,14 @@ class Builder:
         return "\n".join(out)
 
     def meta_rows(self, p):
-        """Category · Role · Year, under the statement and the Visit link. Category is the
-        project's Work filters, named as the filters are ("Digital, Brand"). Empty fields are
-        left out. (Role · Year · Type · Tools · Link until 2026-11-05, then Year · Type ·
-        Service · Link; on 2026-11-06 Link moved to "Visit …" (see visit_link), then Role ·
-        Year · Type, and Type, still on Work's cards, gave way to Category.)"""
-        category = ", ".join(c.capitalize() for c in p.get("category") or [])
+        """Role · Team · Timeline, under the statement and the Visit link: what a recruiter reads
+        a project's page for (since 2026-11-09). Empty fields are left out. (Role · Year · Type ·
+        Tools · Link until 2026-11-05, then Year · Type · Service · Link; on 2026-11-06 Link moved
+        to "Visit …" (see visit_link), then Role · Year · Type, and Type gave way to Category,
+        the project's Work filters, until 2026-11-09.)"""
         rows = []
-        for label, value in (("Category", category), ("Role", p.get("roles")),
-                             ("Year", p.get("year"))):
+        for label, value in (("Role", p.get("roles")), ("Team", p.get("team")),
+                             ("Timeline", p.get("timeline"))):
             if isinstance(value, list):
                 value = ", ".join(value)
             if value:
@@ -798,7 +851,7 @@ class Builder:
         if exists(rel):
             # All eager: the stage clips the cards, so lazy ones would only load once on screen.
             img = self.img(rel, p["cover"].get("alt"), "cover", p["title"],
-                           "high" if index == 0 else "eager")
+                           "high" if index == 0 else "eager", sizes=HOME_SIZES)
         else:
             img = ""  # a plain gray card until the cover exists; no label on Home
             self.missing_media.add(rel)
@@ -812,11 +865,28 @@ class Builder:
                 f'            </a>\n'
                 f'          </li>')
 
+    def home_intro(self):
+        """Home's opening (assets/js/intro.js, since 2026-11-09): About's first sentence, made the
+        same way About makes it, in a cover of the page's color that intro.js shows the first
+        time Home opens in a tab and removes otherwise. Nothing without a headline."""
+        headline = self.about_headline(self.site["about"])
+        if not headline:
+            return ""
+        return ('    <div class="intro" aria-hidden="true">\n'
+                '      <div class="intro-hero wrap">\n'
+                f'  {headline}'
+                '      </div>\n'
+                '    </div>\n')
+
     def build_home(self):
-        """The project loop: the featured projects, in "order"."""
-        cards = "\n".join(self.home_card(p, i, len(self.featured))
-                          for i, p in enumerate(self.featured))
+        """The project loop: the featured projects, in "order"; under the middle card's caption,
+        on phones, a dot for each, the middle one's dark (style.css, "Home: project track")."""
+        n = len(self.featured)
+        cards = "\n".join(self.home_card(p, i, n) for i, p in enumerate(self.featured))
+        dots = "".join('<span class="is-current"></span>' if i == 0 else "<span></span>"
+                       for i in range(n))
         content = render("home.html", cards=cards, caption=self.card_caption(self.featured[0]),
+                         dots=dots, intro=self.home_intro(),
                          intro_version=file_version("assets/js/intro.js"),
                          track_version=file_version("assets/js/track.js"))
         self.page("index.html", "home", "/", self.site["title"], self.site["description"],
@@ -841,13 +911,13 @@ class Builder:
         loading = "eager" if index < 3 else "lazy"
         if "slug" in p:
             rel, video = self.cover(p)
-            img = self.tile_image(rel, "cover", p["title"], loading)
+            img = self.tile_image(rel, "cover", p["title"], loading, sizes=WORK_SIZES)
             data = f' data-video="{url_for(video)}"' if video else ""
             tag, attrs = "a", f'href="/work/{p["slug"]}/"'
             meta, extra = "", ""
         else:
             rel = media_path(p["images"][0], PIECE_FOLDER)
-            img = self.tile_image(rel, "piece", p["title"], loading)
+            img = self.tile_image(rel, "piece", p["title"], loading, sizes=WORK_SIZES)
             data = ""
             tag, attrs = "button", 'type="button" data-item aria-haspopup="dialog"'
             meta = f'<span hidden data-lightbox-meta>{self.piece_meta(p)}</span>'
@@ -896,14 +966,15 @@ class Builder:
         return f"<template>{large}</template>"
 
     def build_work(self):
-        """One grid of tiles under the All / Digital / Brand / Physical toggle (main.js
-        shows one filter at a time). Without JavaScript, there's no toggle and it shows them all."""
+        """One grid of tiles, under the All / Digital / Brand / Physical toggle when WORK_FILTERS
+        is on (main.js shows one filter at a time). Without JavaScript, there's no toggle and it
+        shows them all."""
         s = self.site
         tabs = "\n".join(self.work_tab(name) for name in ("all", *CATEGORIES))
         cards = "\n".join(self.work_card(p, i) for i, p in enumerate(self.items))
         lightbox = render("lightbox.html") if len(self.items) > len(self.projects) else ""
-        content = render("work.html", tabs=render("work-tabs.html", tabs=tabs), cards=cards,
-                         lightbox=lightbox)
+        content = render("work.html", cards=cards, lightbox=lightbox,
+                         tabs=render("work-tabs.html", tabs=tabs) if WORK_FILTERS else "")
         self.page("work/index.html", "work", "/work/", f"Work — {s['name']}", s["description"],
                   content, "wrap page-work", current="work", image=self.og_image())
 
@@ -1049,6 +1120,23 @@ class Builder:
                 "redirect.html", page_title=esc(f"{title} — {self.site['name']}"),
                 target=esc(target), target_js=json.dumps(target), title=esc(title)))
 
+    def build_crawl_files(self):
+        """robots.txt, letting search engines in, and once the site's address is known
+        (siteUrl), sitemap.xml, listing the pages in full: Home, Work, each project, Archive,
+        About. Not the 404 or the old addresses that send visitors on. (Since 2026-11-09.)"""
+        base = (self.site.get("siteUrl") or "").rstrip("/")
+        robots = ["User-agent: *", "Allow: /"]
+        if base:
+            paths = ["/", "/work/", *(f"/work/{p['slug']}/" for p in self.projects),
+                     "/archive/", "/about/"]
+            urls = "".join(f"  <url><loc>{esc(base + path)}</loc></url>\n" for path in paths)
+            self.write("sitemap.xml",
+                       '<?xml version="1.0" encoding="UTF-8"?>\n'
+                       '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+                       f"{urls}</urlset>\n")
+            robots.append(f"Sitemap: {base}/sitemap.xml")
+        self.write("robots.txt", "\n".join(robots) + "\n")
+
     def report(self, seconds):
         pages = sum(1 for w in self.written
                     if w.endswith(".html") and w[:-len("/index.html")] not in REDIRECTS)
@@ -1058,6 +1146,9 @@ class Builder:
             print(f"  [PLACEHOLDER] notes left: {left}")
         if self.missing_media:
             print(f"  {len(self.missing_media)} images/videos not added yet (gray placeholders shown)")
+        if self.needs_small:
+            print(f"  {len(self.needs_small)} large images have no smaller copy for phones yet: "
+                  "run python3 build.py images")
         for w in dict.fromkeys(self.warnings):
             print(f"  Note: {w}")
 
@@ -1069,6 +1160,10 @@ def build(local_url=None):
     archive = load_json("archive.json")
     if local_url and not site.get("siteUrl"):
         site["siteUrl"] = local_url  # local preview: full links point at this server
+    elif not site.get("siteUrl") and os.environ.get("NETLIFY") == "true" and os.environ.get("URL"):
+        # On Netlify, the site's main address (its own domain, once it has one), so link
+        # previews and the sitemap work from the first deploy. (Since 2026-11-09.)
+        site["siteUrl"] = os.environ["URL"]
 
     warnings = validate(site, items)
     validate_archive(archive)
@@ -1086,8 +1181,55 @@ def build(local_url=None):
     builder.build_about()
     builder.build_404()
     builder.build_redirects()
+    builder.build_crawl_files()
     builder.remove_stale()
     builder.report(time.time() - start)
+
+
+# ---------------------------------------------------------------------------
+# Smaller copies of images (python3 build.py images)
+
+def make_small_copies():
+    """A smaller copy next to each large image in assets/images/ that has none yet (sizes in
+    small_target), with -small before its ending: cover-small.jpg next to cover.webp. Pages then
+    take the copy where it's enough (phones, mostly) and the full image where it isn't. Uses
+    sips, which comes with macOS; a WebP or AVIF image's copy is a JPG, since sips can't write
+    those. The copies are files like any other: keep them in the folder and push them. Nothing in
+    assets/images/ itself (og.png, the link preview, stays whole). (Since 2026-11-09.)"""
+    if not shutil.which("sips"):
+        sys.exit("This needs sips, which comes with macOS. On another computer, save the smaller "
+                 "copies by hand (see README, Swap in real images and videos).")
+    top = os.path.join(ASSET_DIR, "images")
+    made, failed = 0, 0
+    for dirpath, dirnames, filenames in os.walk(top):
+        dirnames[:] = sorted(d for d in dirnames if not d.startswith("."))
+        if dirpath == top:
+            continue
+        for name in sorted(filenames):
+            stem, ext = os.path.splitext(name)
+            if (name.startswith(".") or stem.endswith(SMALL_SUFFIX)
+                    or ext.lower() not in SMALL_SOURCE_EXTS):
+                continue
+            rel = os.path.relpath(os.path.join(dirpath, name), ROOT).replace(os.sep, "/")
+            size = media_size(rel)
+            args = size and small_target(rel, size)
+            if not args or small_copy(rel):
+                continue
+            out_ext = ext if ext.lower() in (".jpg", ".jpeg", ".png") else ".jpg"
+            out = os.path.splitext(rel)[0] + SMALL_SUFFIX + out_ext
+            fmt = [] if out_ext.lower() == ".png" else ["-s", "format", "jpeg",
+                                                         "-s", "formatOptions", "82"]
+            result = subprocess.run(["sips", *args, *fmt, os.path.join(ROOT, rel),
+                                     "--out", os.path.join(ROOT, out)],
+                                    capture_output=True, text=True)
+            if result.returncode or not exists(out):
+                failed += 1
+                print(f"  Couldn't make {out}: {(result.stderr or result.stdout).strip()}")
+                continue
+            made += 1
+            print(f"  {out}")
+    print(f"Made {made} smaller {'copy' if made == 1 else 'copies'}"
+          + (f", {failed} failed" if failed else "") + ".")
 
 
 # ---------------------------------------------------------------------------
@@ -1241,11 +1383,14 @@ def serve(port):
 
 def main():
     parser = argparse.ArgumentParser(description="Build the portfolio into dist/.")
-    parser.add_argument("command", nargs="?", choices=["build", "serve"], default="build")
+    parser.add_argument("command", nargs="?", choices=["build", "serve", "images"], default="build")
     parser.add_argument("--port", type=int, default=8000)
     args = parser.parse_args()
     if args.command == "serve":
         serve(args.port)
+        return
+    if args.command == "images":
+        make_small_copies()
         return
     try:
         build()

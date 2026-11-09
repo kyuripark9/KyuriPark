@@ -3,21 +3,33 @@
 // Each card is placed by its distance from the position, wrapped around the loop; when the
 // cards alone can't fill the screen, copies of them extend it. Card size, spacing, and
 // how the cards shrink, grey, fade, and blur away from the middle are set in style.css.
-// Each time a new card reaches the middle, a soft tick sounds.
+// Each time a new card reaches the middle, a soft tick can sound (off since 2026-11-09: a
+// visitor may be in an office or on a call; TICK_VOLUME 0.3 turns it back on).
 (() => {
   const WHEEL_SPEED = 1 / 600;   // cards moved per pixel of wheel or trackpad scroll
   const WHEEL_MAX = 30;          // pixels: one wheel event never counts for more than this
   const SETTLE_DELAY = 150;      // ms without input before the row settles on one card
   const EASE = 0.15;             // share of the remaining distance covered each frame
-  const TICK_VOLUME = 0.3;       // 0 to 1; 0 turns the tick off
+  const TICK_VOLUME = 0;         // 0 to 1; 0 turns the tick off (0.3 until 2026-11-09)
   const TICK_TONE = 1800;        // Hz: the pitch the tick centers on; higher sounds brighter
+  // On a phone the cards beside the middle one are off screen, so once a visit, as the page
+  // shows (after Home's opening, when it plays), the row leans toward the next card and back,
+  // showing there are more; the dots under the caption say so too. Not if the row has been
+  // moved first, or with reduced motion. (Since 2026-11-09.)
+  const LEAN = 0.3;              // cards: how far the row leans
+  const LEAN_HOLD = 450;         // ms before it comes back
+  const LEAN_DELAY = 400;        // ms after the page shows
+  const LEAN_SEEN = "home-lean-seen";  // sessionStorage key
 
   const root = document.querySelector(".track");
   if (!root) return;
   const stage = root.querySelector(".track-stage");
   const row = root.querySelector(".track-row");
   const caption = root.querySelector(".track-caption");
+  const dots = [...root.querySelectorAll(".track-dots > span")];  // one per project, phones only
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const phone = window.matchMedia("(max-width: 767px)");
+  let moved = false;   // the visitor has moved the row
 
   const originals = [...row.querySelectorAll(".track-item")];
   const items = [...originals];  // the loop: the originals, then any copies
@@ -181,6 +193,7 @@
       // A focused card is read out by the screen reader already; don't repeat it.
       caption.setAttribute("aria-live", cards.includes(document.activeElement) ? "off" : "polite");
       caption.innerHTML = middle.querySelector(".card-caption").innerHTML;
+      dots.forEach((dot, i) => dot.classList.toggle("is-current", originals[i] === middle));
       if (!reduceMotion.matches) {
         caption.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: "ease-out" });
       }
@@ -299,6 +312,37 @@
   root.addEventListener("pointerdown", wakeAudio);
   root.addEventListener("pointerup", wakeAudio);
   document.addEventListener("keydown", wakeAudio);
+
+  // The lean on phones (LEAN, at the top). Input on the row, or the arrow keys, first: no lean.
+  const touch = () => {
+    moved = true;
+  };
+  root.addEventListener("wheel", touch, { passive: true });
+  root.addEventListener("pointerdown", touch);
+  root.addEventListener("focusin", touch);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight") touch();
+  });
+  const lean = () => {
+    if (moved || reduceMotion.matches || !phone.matches) return;
+    try {
+      if (sessionStorage.getItem(LEAN_SEEN)) return;
+      sessionStorage.setItem(LEAN_SEEN, "1");
+    } catch (e) {
+      return;  // storage blocked: no lean, rather than one on every visit
+    }
+    const home = Math.round(target);
+    move(home + LEAN);
+    setTimeout(() => {
+      if (!moved) move(home);
+    }, LEAN_HOLD);
+  };
+  const leanSoon = () => setTimeout(lean, LEAN_DELAY);
+  if (document.documentElement.classList.contains("intro-on")) {
+    document.addEventListener("intro:done", leanSoon, { once: true });
+  } else {
+    leanSoon();
+  }
 
   window.addEventListener("resize", () => {
     measure();

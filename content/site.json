@@ -2,7 +2,7 @@
   "name": "Kyuri Park",
   "role": "Product Designer",
   "title": "Kyuri Park — Product Designer",
-  "description": "Kyuri Park is a Product Designer in Chicago working across brand identity, typefaces, digital products, and physical objects.",
+  "description": "Kyuri Park is a product designer working where digital meets everyday life.",
   "siteUrl": "",
   "ogImage": {
     "src": "assets/images/og.png",
@@ -26,12 +26,12 @@
       "alt": "[PLACEHOLDER] Portrait of Kyuri Park"
     },
     "paragraphs": [
-      "I bring together Industrial, Graphic, and UX Design to create brands, objects, and digital products.",
+      "With a background in Industrial, Graphic, and UX Design, I create brand and digital experiences.",
       "I play with AI as a powerful tool to make something new, anywhere."
     ],
     "experience": [
       { "company": "Clayco", "role": "Junior Graphic Designer", "dates": "Jun – Sep 2026" },
-      { "company": "NBC Universal", "role": "Product Design Intern", "dates": "May – Aug 2025" },
+      { "company": "NBCUniversal", "role": "Product Design Intern", "dates": "May – Aug 2025" },
       { "company": "Philly Fashion Week", "role": "Digital Design Intern", "dates": "Jul – Sep 2023" }
     ]
   }

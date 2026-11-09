@@ -248,7 +248,10 @@
   // A calm one (a project page's, since 2026-11-07: there the work is what's to be looked at,
   // not the title) is the same material, quieter: the pointer counts only over the title itself,
   // so reading the statement under it, or reaching for the Visit link, leaves it be.
-  const dust = (hero, headline, { calm = false } = {}) => {
+  // A waiting one (Home's opening, since 2026-11-09) passes only when told: intro.js sends
+  // "dust:pass" to its box (or has set data-cue="pass" on it, should this run later). Once the
+  // pass is over and every dot is home, it says "dust:still" to the box, so the opening can go on.
+  const dust = (hero, headline, { calm = false, wait = false } = {}) => {
     const CELL = 4;          // px: one dot for each 4 x 4 square of the letters
     const DOT = 0.85;        // a dot's width, in cells
     const COVER = 1.35;      // the patch over a dot's place in a letter, in cells (over 1, so no
@@ -289,6 +292,8 @@
     const astir = new Set();  // the dots on their way home: with the pointer away, the only
                               // ones a frame has to move
     let arrived = false;  // the pass has been (once a page: not again after a resize)
+    let cued = !wait || hero.dataset.cue === "pass";  // the pass may go
+    let told = false;     // "dust:still" has been sent
     let pass = null;      // the pass under way: where it starts and ends, and when it started
     const zone = calm ? headline : hero;  // where the pointer counts
     let ready = !document.fonts;  // the sentence's font is in (the letters are scanned only then)
@@ -535,6 +540,7 @@
 
     const tick = (now) => {
       frame = 0;
+      if (!hero.isConnected) return;  // Home's opening, gone
       if (reduceMotion.matches) {  // turned on with the page open
         settle();
         return;
@@ -545,7 +551,7 @@
       // The pass goes the first time the sentence is on screen (on arriving, or once it's
       // scrolled to, or in a tab opened behind another once it's looked at: no frames run till
       // then), unless some of it is selected or a real pointer is already over it.
-      if (!arrived && shown && !selected && dots.length) {
+      if (!arrived && cued && shown && !selected && dots.length) {
         arrived = true;
         if (!pointer.inside) start(now);
       }
@@ -628,7 +634,12 @@
 
       draw(loose);
       // Keep going while anything moves, or may: the pointer (or the pass) is where it counts.
-      if (busy || inside) frame = requestAnimationFrame(tick);
+      if (busy || inside) {
+        frame = requestAnimationFrame(tick);
+      } else if (arrived && !told) {
+        told = true;
+        hero.dispatchEvent(new Event("dust:still"));
+      }
     };
     const wake = () => {
       if (frame || reduceMotion.matches) return;
@@ -710,6 +721,7 @@
     // letters drawn and scanned again (the first time, right away, once the font is in).
     const rebuild = () => {
       clearTimeout(pending);
+      if (!hero.isConnected) return;
       if (dots.length) {
         dots = [];
         inked = null;
@@ -735,6 +747,10 @@
       window.addEventListener("resize", rebuild);
       rebuild();
     }
+    hero.addEventListener("dust:pass", () => {
+      cued = true;
+      look();
+    });
     // The letters are first scanned once the sentence's font is in, not in the fallback's
     // shapes and again a moment later, which would clear the dots coming in on arriving.
     if (!ready) {
@@ -749,6 +765,7 @@
     }
   };
   [[".about-hero", ".about-headline"],
+   [".intro-hero", ".about-headline", { wait: true }],
    [".project-header", ".project-title", { calm: true }],
    [".page-not-found", ".not-found-title"]].forEach(([outer, inner, options]) => {
     const hero = document.querySelector(outer);

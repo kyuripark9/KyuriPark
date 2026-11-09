@@ -21,8 +21,8 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 
 | Address | What it is |
 | --- | --- |
-| `/` | Home: one card per featured project on an endless loop, filling the screen. Home answers "what matters most" |
-| `/work/` | Work: everything. "All 11   Digital 08   Brand 05   Physical 02" at the top filters one grid of tiles (`/work/#all`, `#digital`, `#brand`, `#physical`; an old `#visual` link opens `#brand`). Work answers "what kind" |
+| `/` | Home: one card per featured project on an endless loop, filling the screen. The first time it opens in a tab, About's first sentence opens it, then gives way to the work (see Motion, "Home intro"). Home answers "who, and what matters most" |
+| `/work/` | Work: everything, the projects first, in one grid of tiles. Its filters ("All 08   Digital 06   Brand 04   Physical 02", `/work/#digital` and so on) are off since 2026-11-09: `WORK_FILTERS` in `build.py` brings them back. Work answers "what else" |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html` |
 | `/archive/` | Archive: personal work and hobbies, a gallery of images with nothing under them. A separate page with its own data |
 | `/about/` | Read like a project page: one sentence at the top left, where a project's title is, the About text under it, then the photo edge to edge (gray until it exists), Experience, and a Contact label over the footer (`/about/#contact`) |
@@ -41,7 +41,8 @@ the links one under another, and its footer showed only the copyright). They com
 
 ```
 content/projects.json   everything on Work: projects (order, category, featured, title, one-liner,
-                        year, page blocks) and items with no page (see "Items with no page" below)
+                        role, team, timeline, page blocks) and items with no page (see "Items
+                        with no page" below)
 content/archive.json    the images on Archive (see "Archive" below)
 content/site.json       name, email, LinkedIn, GitHub, resume, About's first sentence ("headline"),
                         About text, experience, SEO text
@@ -50,12 +51,15 @@ assets/images/about/    About photo
 assets/images/pieces/   images of the items with no page
 assets/images/archive/  images on Archive
 assets/images/og.png    link-preview image (1200×630)
+assets/icons/           the browser tab and home-screen icons: favicon.svg, favicon-32.png,
+                        apple-touch-icon.png (180×180). A K on the page's color, a stand-in
+                        since 2026-11-09; replace the three files, keeping their names
 assets/fonts/           Inter (with Inter Display) and Martian Mono, with their licenses
 assets/Kyuri-Park-Resume.pdf
 assets/css/style.css    all styling; colors, type sizes, and spacing are at the top
-assets/js/main.js       Work's filter, lightbox, fade-ups, count-up
-assets/js/track.js      the home project loop
-assets/js/intro.js      Home's intro, the first time Home opens in a tab
+assets/js/main.js       Work's filter, lightbox, display type's dots, fade-ups, count-up
+assets/js/track.js      the home project loop, its dots and lean on phones
+assets/js/intro.js      Home's opening, the first time Home opens in a tab
 templates/              page structure (header, footer, home, work and its toggle, archive,
                         lightbox, project, about, 404, and the /contact/ redirect)
 dist/                   the generated site. Never edit; it's rebuilt every time.
@@ -72,7 +76,7 @@ dist/                   the generated site. Never edit; it's rebuilt every time.
 
 1. In `content/projects.json`, copy an existing project (from its `{` to its matching `}`) and paste it
    anywhere. `order` sets where it shows, everywhere: the home cards, the Work cards, and
-   Previous / Next (which loop around at the ends). The counts on Work's toggle update on their own.
+   Previous / Next (which loop around at the ends). The counts on Work's toggle (when it's on) update on their own.
    To show it on Home too, give it `"featured": true`.
 2. Give it a new `slug`: lowercase letters, numbers, and hyphens. Its page will be `/work/<slug>/`.
 3. Create the folder `assets/images/<slug>/`.
@@ -80,14 +84,15 @@ dist/                   the generated site. Never edit; it's rebuilt every time.
 
 | Field | Where it shows |
 | --- | --- |
-| `order` | Required. A number; lower shows first. Work shows its cards in this order, within each filter |
-| `category` | Required. A list of the Work filters it shows under, one or more of `"digital"`, `"brand"`, `"physical"`, like `["digital", "brand"]`. It counts under each, and once under All. Also "Category" on the project page, named as the filters are ("Digital, Brand") |
+| `order` | Required. A number; lower shows first. Work shows its cards in this order (within each filter, when they're on) |
+| `category` | Required. A list of the Work filters it shows under, one or more of `"digital"`, `"brand"`, `"physical"`, like `["digital", "brand"]`. It counts under each, and once under All. The filters are off since 2026-11-09 (`WORK_FILTERS` in `build.py`), so it shows nowhere for now, but keep it filled in. ("Category" on the project page until 2026-11-09) |
 | `featured` | Optional. `true` puts it on Home (aim for 3 to 5). Leave it out or set `false` and it's on Work only. Needs a `slug`, because a Home card opens the project's page |
 | `title` | Everywhere |
 | `oneLiner` | Under the home loop when that project is in the middle (3 words max); also the page's description for search engines and link previews. Not on Work (after the title in its Work card's caption until 2026-11-07) |
 | `type` | Like "Font design tool". Not shown for a project (on its Work card until 2026-11-05, "Type" on its page until 2026-11-06); an item with no page shows it in the lightbox (after the title in its Work card's caption too, until 2026-11-07) |
-| `year` | The project page |
-| `roles` | Optional. A list, like `["UX research", "Art direction"]`. "Role" in the project page's facts (Category · Role · Year); it doesn't affect the filters. (Service in its place for a day, 2026-11-05) |
+| `roles` | Optional. A list, like `["UX research", "Art direction"]`. "Role" in the project page's facts, Role · Team · Timeline, what a recruiter reads a project's page for (since 2026-11-09; Category · Role · Year before). (Service in its place for a day, 2026-11-05) |
+| `team` | Optional. Who you worked with, like `"2 designers, 3 engineers, 1 PM"` or `"Solo"` (or a list). "Team" in the facts |
+| `timeline` | Optional. How long and when, like `"8 weeks, 2026"`. "Timeline" in the facts. (A project's `year` until 2026-11-09; the build reminds you if one is left. An item with no page keeps `year`) |
 | `statement` | The one big sentence right under the project's title, in the lead style (leave it out to hide it) |
 | `cover` | Home card and Work card |
 | `todo` | Optional. A note to yourself, like `"confirm category"`; the build prints it every time until you delete it. JSON has no comments, so this does that job |
@@ -199,10 +204,11 @@ image; the page shows them in the file's order, with nothing under them:
   on run down the first column, then the second.
 - **Remove:** delete the entry.
 - **Faster grid (optional):** the grid shows each image at a quarter to half of the page's
-  width, so a smaller copy saves a lot of loading, most of all on phones. Save one at about 800 px on the long side
-  next to the full one, with `-small` before the ending (`009-small.jpg` for `009.jpg`). The
-  grid then uses it where it's enough, and the lightbox always shows the full image. Leave
-  `src` as it is.
+  width, so a smaller copy saves a lot of loading, most of all on phones. Run
+  `python3 build.py images` (see "Smaller copies for phones" below), or save one by hand at
+  about 800 px on the long side next to the full one, with `-small` before the ending
+  (`009-small.jpg` for `009.jpg`). The grid then uses it where it's enough, and the lightbox
+  always shows the full image. Leave `src` as it is.
 
 Clicking an image opens it large: Esc, Close, or a click outside the image closes it, and ← and →
 step through the images. The gallery is 2 columns on phones, 3 from 768px, 4 from 1200px. Without
@@ -229,6 +235,16 @@ Aim for under ~500 KB per image. [Squoosh](https://squoosh.app) or Figma's expor
 Width and height are read from the file automatically, so the page doesn't jump while loading,
 and images further down the page load only when they're about to be seen.
 
+**Smaller copies for phones:** after adding images, run `python3 build.py images`. It saves a
+smaller copy next to each large image that has none yet (`cover-small.jpg` next to
+`cover.webp`: 1200 px wide, or on Archive 800 px on the long side; a WebP or AVIF image's copy is
+a JPG, since the Mac's built-in `sips`, which it uses, can't write those). Pages then load the
+copy where it's enough (phones, mostly) and the full image where it isn't: Home's cards, Work's
+tiles, project images, and Archive (the lightbox always shows the full image). Keep the copies
+in the folders and push them with the rest; running it again only makes the missing ones. The
+build reminds you while large images have no copy. Not on a Mac? Save the copies by hand under
+those names. (Since 2026-11-09; Archive's only before.)
+
 **Video on the Work tile:** put `cover.mp4` next to the cover image (same name, `.mp4`).
 Hovering that project's tile on the Work page then plays it muted on a loop over the
 image. Keep it short (3–8 s), silent, H.264, and under ~3 MB.
@@ -252,7 +268,8 @@ the height of Work's filter line and the space under it), so switching among the
 
 **About's text and photo:** About is laid out as a project page is (since 2026-11-06). The About
 text (`"paragraphs"`) is in the label style (Martian Mono, 12px, capitals, in the text color;
-since 2026-11-07, the lead style for a day before), left-aligned, 32px under the sentence, as a
+since 2026-11-07, the lead style for a day before; the body style for a few hours on 2026-11-09,
+then back to the label at Kyuri's call), left-aligned, 32px under the sentence, as a
 project's statement is under its title, with 24px between paragraphs. Then the photo
 (`"portrait"` in `content/site.json`, `assets/images/about/portrait.webp`) runs edge to edge at
 3:2, as a project's hero does, plain gray (`--color-fill`) until it exists; gray edge to edge
@@ -268,8 +285,9 @@ before (snapping and whole-screen steps were tried on 2026-11-05 and taken out t
 The name ("Kyuri Park", from `content/site.json`, shown in capitals) is at the left, in the name
 style like the links (Inter Display, 14px) and a weight heavier (`.identity` in `assets/css/style.css`), and Work, Archive,
 and About at the right, on one line at every width (down to 320px), from `templates/base.html` on
-every page. The current page's link is in the text color and the others are a light gray
-(`--color-faint`) until hovered (`.site-menu a` in `assets/css/style.css`; see Type and color). On phones the links close up. If a visitor has set
+every page. The current page's link is in the text color and the others are gray
+(`--color-subtle`, the lightest gray that passes WCAG AA; a lighter `--color-faint` at 3:1, which
+didn't, from 2026-11-05 to 2026-11-09) until hovered (`.site-menu a` in `assets/css/style.css`; see Type and color). On phones the links close up. If a visitor has set
 larger text in their browser or phone and it still doesn't fit, the links move to a second line, at
 the right.
 
@@ -298,9 +316,9 @@ menu bar and project names are a sans while the small labels stay in Martian Mon
 | display | Inter Display 500, capitals | 41px, 51px from 1200px, 64px from 1440px | 1, -0.04em | About's first sentence, project titles, the 404 (About's section headings too, until 2026-11-06) |
 | title | Inter Display 500, capitals | 18px, 23px from 768px, 29px from 1200px, 36px from 1440px | 0.9, -0.01em | impact numbers, Previous / Next titles |
 | lead | Inter Display 500, as typed | 20px, growing with the window to 28px (from 800 to 1120px wide); lines up to 30em (`--measure-lead`) | 1.35, 0 | a project's statement, under its title (About's text too, 2026-11-06 to 2026-11-07) |
-| body | Inter Display 500, as typed | 16px | 1.1, 0 | text, a project's "Visit" link; links in text at 600 (Contact's links and About's text too, until 2026-11-06) |
+| body | Inter Display 500, as typed | 16px | 1.5, 0 (1.1 from 2026-11-05 to 2026-11-09) | text, a project's "Visit" link; links in text at 600 (Contact's links and About's text too, until 2026-11-06) |
 | name | Inter Display 500, capitals | 14px | 1.3, -0.01em | the menu bar (Work, Archive, About, the lightbox's Close; the name at 600, 16px and +0.02em, see below) and project names (Home's cards, Work's tiles, Archive, the lightbox) |
-| label | Martian Mono 400, capitals | 12px | 1.3, -0.05em | Work's filters, Home's one-liners (in `--color-subtle`, `--color-muted` until 2026-11-07; on Work's tiles too, until the same day), captions, project facts, the footer, the lightbox's type and year, About's text (since 2026-11-07) and Experience; a label that names a column or a section (a project's fact labels, Category, Role, Year, its section and note headings, and About's Experience and Contact headings) looks as Work's filters do, in `--color-subtle` (at 600 in `--color-muted` until 2026-11-06) |
+| label | Martian Mono 400, capitals | 12px | 1.3, -0.05em | Work's filters, Home's one-liners (in `--color-subtle`, `--color-muted` until 2026-11-07; on Work's tiles too, until the same day), captions, project facts, the footer, the lightbox's type and year, About's text (since 2026-11-07) and Experience; a label that names a column or a section (a project's fact labels, Role, Team, Timeline, its section and note headings, and About's Experience and Contact headings) looks as Work's filters do, in `--color-subtle` (at 600 in `--color-muted` until 2026-11-06) |
 
 Two weights for Inter Display, 500 and 600, and one for Martian Mono, 400 (600 too until 2026-11-06). Two sizes
 sit outside the styles: Work's counts, a label at `--size-count` (10px), and the name in the
@@ -313,15 +331,15 @@ line height 1.5 for all text.
 Color is the text color (`--color-text`), one gray for all gray text (`--color-subtle`, 4.6:1 on
 the background, the lightest small text stays easy to read at: one-liners, Work's filters,
 captions, the lightbox's type and year, the labels that name a column or a section, impact labels,
-Previous / Next, About's Experience companies and dates, the copyright; since 2026-11-07, most of
-them a step darker in `--color-muted`, 5.6:1, before), `--color-muted` now only for a hovered
-link, a lighter gray still for the header's links only (`--color-faint`, 3:1), and
-`--color-line` for rules.
+Previous / Next, About's Experience companies and dates, the copyright, and since 2026-11-09 the
+header's links; since 2026-11-07, most of them a step darker in `--color-muted`, 5.6:1, before),
+`--color-muted` now only for a hovered link, and `--color-line` for rules. (From 2026-11-05 to
+2026-11-09 the header's links were lighter still, `--color-faint`, 3:1, under WCAG AA's 4.5:1.)
 Things react to the pointer in one of two ways, and only by color:
 **links** are in the text color and turn muted on hover (the name, links in text, the footer,
 project links, the lightbox's buttons); **choices** are in a lighter gray and
-turn to the text color when hovered or current (the header's links, in `--color-faint`, and Work's
-filters, in `--color-subtle`). A link that opens a new tab (LinkedIn, GitHub, the résumé PDF, a project's "Visit" link: any
+turn to the text color when hovered or current (the header's links and Work's filters, in
+`--color-subtle`). A link that opens a new tab (LinkedIn, GitHub, the résumé PDF, a project's "Visit" link: any
 `target="_blank"`, which `build.py` sets on every external link and PDF) ends in a small ↗,
 drawn by CSS in the link's color (since 2026-11-05). It hangs on the link's last word, so it never
 wraps onto a line alone, and in Windows' contrast themes it takes the theme's link color.
@@ -371,12 +389,19 @@ left/right arrow keys all move it; after a short pause it settles with one card 
 its title and one-liner under it (title at the card's left edge, one-liner at its right as a gray mono label, so the two don't read as one line). Click the middle card to open it; click a side card to bring it to the middle.
 Tab moves through the cards, bringing each to the middle. Without JavaScript, the home page is a
 plain list of the projects.
+On a phone the cards beside the middle one are off screen, so two things say there are more
+(since 2026-11-09): a dot for each project 16px under the caption, the middle card's dark (4px
+dots, 8px apart, `.track-dots` in `assets/css/style.css`; none from 768px, where the neighbors
+show), and, once a visit, as the page shows (after the opening, when it plays), the row leans
+toward the next card and back (`LEAN`, `LEAN_HOLD`, `LEAN_DELAY` at the top of
+`assets/js/track.js`). Not if the row has been moved first, or with reduced motion.
 
 To tune it:
 - `assets/js/track.js`, at the top: `WHEEL_SPEED` (cards per pixel of wheel/trackpad scroll),
   `WHEEL_MAX` (the most one wheel event can count for, which tames trackpad flicks),
   `SETTLE_DELAY` (ms of no input before it settles), `EASE` (how quickly it glides),
-  `TICK_VOLUME` (the soft tick each time a new card reaches the middle, 0 to 1; 0 turns it off),
+  `TICK_VOLUME` (the soft tick each time a new card reaches the middle, 0 to 1; 0 turns it off,
+  and it's 0 since 2026-11-09, since a visitor may be in an office or on a call; 0.3 before),
   `TICK_TONE` (its pitch in Hz; higher sounds brighter). The tick is made in the browser, no
   sound file, and stays silent until the visitor has clicked, tapped, or pressed a key on the page.
 - `assets/css/style.css`: `--thumb-ratio` at the top (the cards' shape, width / height, `4 / 5`;
@@ -396,7 +421,11 @@ To tune it:
   `--fade-step` (each further step multiplies the opacity by this), `--blur-step` (and adds
   this much blur).
 
-Work: All, Digital, Brand, and Physical at the top, each with its count, filter the grid:
+Work's filters are off since 2026-11-09 (`WORK_FILTERS = False` in `build.py`): with a short list
+they read as three careers rather than one product designer's work. The grid starts where it did
+under them, as Archive's images do, so nothing moves between pages. With `WORK_FILTERS = True`,
+all of this comes back as it was:
+All, Digital, Brand, and Physical at the top, each with its count, filter the grid:
 the tiles fade out (150 ms), the filter's tiles come on, and they fade in
 (250 ms); with reduced motion it just switches. A filter with nothing in it says "Coming soon".
 The address shows `#all`, `#digital`, and so on, so a link opens that filter, Back and Forward step
@@ -419,11 +448,27 @@ it ran into the next tile's title 12px away, then for part of that day right aft
   the values `category` can use). When one is merged into another or renamed, add the old name to
   `MERGED` in `assets/js/main.js`, so links to it still open the right filter.
 
-Home intro: the first time Home opens in a browser tab, the page fades in, header and all, with
-nothing moving: from transparent to whole in 1 s, slow to start and quick to finish
-(`cubic-bezier(0.32, 0, 0.67, 0)`), as soren-template.framer.website does, to the curve. Later
-arrivals at Home come with the 300 ms fade between pages, as every page does, so the two never
-stack; with reduced motion there's no fade. (Until 2026-11-08 the intro was a black screen over
+Home intro: the first time Home opens in a browser tab, an opening says who this is before the
+work shows (since 2026-11-09). Over the work and the header (the name and menu come in with the
+work as the cover fades; until the evening of 2026-11-09 they stayed on top), a cover of the page's own color
+holds About's first sentence ("Kyuri is a product designer working where digital meets everyday
+life", from `"headline"` in `content/site.json`), exactly where About has it and made of the same
+dots. It comes into focus from a 10px blur (0.5 s) with About's pass going through it once; once
+the dots are still it starts, 0.3 s on, to blur away slowly (2 s, gentle at first, so it's read as
+it goes), and 1 s into that the cover fades (1.2 s), the work coming in under it: the flow of the
+preloader on titarvl.framer.website, in the page's color and with the dust. About 4.5 s on a
+laptop; a pointer moving over the sentence plays with the dots as
+on About (the opening waits up to 3 s from the start for them). (Until the evening of 2026-11-09
+the pass went once the sentence was in focus and it left 0.2 s after the dots were still, which
+broke the sentence as it was being read; for a few hours that evening it then sat still 1.8 s
+before going in 0.6 s, which didn't read as an opening.) A click or tap on it, a key, or the wheel cuts it short
+(a key only does that: the row doesn't move). Later arrivals at Home come with the 300 ms fade
+between pages, as every page does; with reduced motion there's no opening. To tune it: the
+numbers at the top of `assets/js/intro.js` (`DELAY`, `IN`, `WAIT`, `READ`, `OUT`, `REVEAL_AT`, `REVEAL`, `CUT`,
+`BLUR`); the pass is About's (see "Display type's dust" below); "Home intro" in
+`assets/css/style.css` places the sentence. (From the morning of 2026-11-09 the page just faded
+in, header and all, over 1 s on `cubic-bezier(0.32, 0, 0.67, 0)`, as
+soren-template.framer.website does. Until 2026-11-08 the intro was a black screen over
 the page, with the name and role in capitals in the middle and the covers taking turns in a
 square in the bottom-right corner, all coming into focus and blurring away, then the black
 blurring off, about 3.7 s, after the preloader on titarvl.framer.website. On 2026-11-08 and 09
@@ -432,10 +477,8 @@ the empty page into the cards, after the day timeline in Kyuri's Light Life app;
 display type on the black, broken by About's pass, then a dive into one dot or a page fade; the
 black screen breaking into dots; About's pass breaking the covers on a page already whole, which
 read as an effect, not an opening; a leaning line sweeping the whole screen, which broke every
-cover at once into static; and the covers coming in from where the pass went. Home's part is to
-show the work; the dust stays on the display type, where a pointer can go on with it.)
-To tune it: `assets/css/style.css`, "Home intro": `--intro-time` (how long the fade takes) and
-`--intro-ease` (its curve). `assets/js/intro.js` only decides whether it plays.
+cover at once into static; and the covers coming in from where the pass went. What stays from
+them: the dust lives on the display type, here About's own sentence, never on the covers.)
 
 Display type's dust: type in the display style is made of dots, wherever it is (About's first
 sentence, a project's title, the 404's; About's only until 2026-11-07). It breaks into dots where
@@ -443,7 +486,7 @@ the pointer passes and they drift back into the letters (after soren-template.fr
 The pointer counts over the box around it, and the dots fly as far as that box's edges: About's
 hero (the sentence, the text under it, and the space up to the header), a project's header (the
 title, statement, Visit link, and facts, and the space up to the header), the 404's whole main
-part. On a project page the pointer counts only over the title itself, since the work is what's
+part, Home's opening (the whole window; it waits for intro.js to cue its pass). On a project page the pointer counts only over the title itself, since the work is what's
 to be looked at there, not the title: reading the statement or reaching for Visit leaves it be
 (the dots still fly as far as the header's edges).
 
@@ -487,8 +530,14 @@ On Netlify: Add new site → Import an existing project → pick the repo. `netl
 the build command (`python3 build.py`) and the output folder (`dist`).
 No Git? Run `python3 build.py` and drag the `dist` folder onto https://app.netlify.com/drop.
 
-After the first deploy, put the site's address in `"siteUrl"` in `content/site.json`
-(for example `"https://kyuripark.com"`) and push again. Link previews need the full address.
-Until then, `python3 build.py serve` uses the local address (http://localhost:...) in its place,
-and deployed builds simply leave those full-address tags out.
+Link previews (LinkedIn, Slack, iMessage) and the sitemap need the site's full address. When
+Netlify builds the site from Git, the build takes it from Netlify (its main address: the
+`.netlify.app` one, or your own domain once it's set), so there's nothing to do (since
+2026-11-09). For a drag-and-drop deploy or another host, put the address in `"siteUrl"` in
+`content/site.json` (for example `"https://kyuripark.com"`); `"siteUrl"` always wins when it's
+set. `python3 build.py serve` uses the local address (http://localhost:...) in its place, and a
+build with no address leaves those full-address tags and the sitemap out.
 Custom domains are set up in Netlify's domain settings.
+
+The build also writes `robots.txt` (search engines welcome) and, with the address,
+`sitemap.xml`, listing Home, Work, each project, Archive, and About (since 2026-11-09).

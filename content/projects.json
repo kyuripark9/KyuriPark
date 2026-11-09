@@ -7,10 +7,11 @@
     "title": "TypeLab",
     "oneLiner": "Font design playground",
     "type": "Font design tool",
-    "year": "2026",
     "roles": [
       "[PLACEHOLDER]"
     ],
+    "team": "[PLACEHOLDER]",
+    "timeline": "[PLACEHOLDER how long], 2026",
     "statement": "[PLACEHOLDER] One sentence, in big type, on what this project is and why it matters.",
     "cover": {
       "src": "cover.webp",
@@ -109,10 +110,11 @@
     "title": "Clack",
     "oneLiner": "While AI works",
     "type": "[PLACEHOLDER]",
-    "year": "[PLACEHOLDER]",
     "roles": [
       "[PLACEHOLDER]"
     ],
+    "team": "[PLACEHOLDER]",
+    "timeline": "[PLACEHOLDER]",
     "statement": "[PLACEHOLDER] One sentence, in big type, on what this project is and why it matters.",
     "cover": {
       "src": "cover.webp",
@@ -210,10 +212,11 @@
     "title": "NBCUniversal",
     "oneLiner": "[PLACEHOLDER one-liner]",
     "type": "[PLACEHOLDER]",
-    "year": "[PLACEHOLDER]",
     "roles": [
       "[PLACEHOLDER]"
     ],
+    "team": "[PLACEHOLDER]",
+    "timeline": "[PLACEHOLDER]",
     "statement": "[PLACEHOLDER] One sentence, in big type, on what this project is and why it matters.",
     "cover": {
       "src": "cover.webp",
@@ -309,10 +312,11 @@
     "title": "[PLACEHOLDER: Palette or Self-checkout]",
     "oneLiner": "[PLACEHOLDER one-liner]",
     "type": "[PLACEHOLDER]",
-    "year": "[PLACEHOLDER]",
     "roles": [
       "[PLACEHOLDER]"
     ],
+    "team": "[PLACEHOLDER]",
+    "timeline": "[PLACEHOLDER]",
     "statement": "[PLACEHOLDER] One sentence, in big type, on what this project is and why it matters.",
     "cover": {
       "src": "cover.webp",
@@ -408,10 +412,11 @@
     "title": "Light Life",
     "oneLiner": "[PLACEHOLDER one-liner]",
     "type": "[PLACEHOLDER]",
-    "year": "[PLACEHOLDER]",
     "roles": [
       "[PLACEHOLDER]"
     ],
+    "team": "[PLACEHOLDER]",
+    "timeline": "[PLACEHOLDER]",
     "statement": "[PLACEHOLDER] One sentence, in big type, on what this project is and why it matters.",
     "cover": {
       "src": "cover.webp",
@@ -536,41 +541,5 @@
       "item-3.webp"
     ],
     "alt": "[PLACEHOLDER] 3D Product Projects: image"
-  },
-  {
-    "order": 9,
-    "category": ["digital"],
-    "todo": "confirm category",
-    "title": "[PLACEHOLDER title]",
-    "type": "[PLACEHOLDER type]",
-    "year": "[PLACEHOLDER year]",
-    "images": [
-      "item-4.webp"
-    ],
-    "alt": "[PLACEHOLDER] Item 4: image"
-  },
-  {
-    "order": 10,
-    "category": ["digital"],
-    "todo": "confirm category",
-    "title": "[PLACEHOLDER title]",
-    "type": "[PLACEHOLDER type]",
-    "year": "[PLACEHOLDER year]",
-    "images": [
-      "item-5.webp"
-    ],
-    "alt": "[PLACEHOLDER] Item 5: image"
-  },
-  {
-    "order": 11,
-    "category": ["digital"],
-    "todo": "confirm category",
-    "title": "[PLACEHOLDER title]",
-    "type": "[PLACEHOLDER type]",
-    "year": "[PLACEHOLDER year]",
-    "images": [
-      "item-6.webp"
-    ],
-    "alt": "[PLACEHOLDER] Item 6: image"
   }
 ]

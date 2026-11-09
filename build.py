@@ -816,9 +816,8 @@ class Builder:
         """The project loop: the featured projects, in "order"."""
         cards = "\n".join(self.home_card(p, i, len(self.featured))
                           for i, p in enumerate(self.featured))
-        s = self.site
         content = render("home.html", cards=cards, caption=self.card_caption(self.featured[0]),
-                         intro_line=esc(f"{s['name']} — {s['role']}"),
+                         intro_version=file_version("assets/js/intro.js"),
                          track_version=file_version("assets/js/track.js"))
         self.page("index.html", "home", "/", self.site["title"], self.site["description"],
                   content, "page-home", image=self.og_image(), footer=False)

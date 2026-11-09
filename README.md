@@ -55,6 +55,7 @@ assets/Kyuri-Park-Resume.pdf
 assets/css/style.css    all styling; colors, type sizes, and spacing are at the top
 assets/js/main.js       Work's filter, lightbox, fade-ups, count-up
 assets/js/track.js      the home project loop
+assets/js/intro.js      Home's intro, the first time Home opens in a tab
 templates/              page structure (header, footer, home, work and its toggle, archive,
                         lightbox, project, about, 404, and the /contact/ redirect)
 dist/                   the generated site. Never edit; it's rebuilt every time.
@@ -298,7 +299,7 @@ menu bar and project names are a sans while the small labels stay in Martian Mon
 | title | Inter Display 500, capitals | 18px, 23px from 768px, 29px from 1200px, 36px from 1440px | 0.9, -0.01em | impact numbers, Previous / Next titles |
 | lead | Inter Display 500, as typed | 20px, growing with the window to 28px (from 800 to 1120px wide); lines up to 30em (`--measure-lead`) | 1.35, 0 | a project's statement, under its title (About's text too, 2026-11-06 to 2026-11-07) |
 | body | Inter Display 500, as typed | 16px | 1.1, 0 | text, a project's "Visit" link; links in text at 600 (Contact's links and About's text too, until 2026-11-06) |
-| name | Inter Display 500, capitals | 14px | 1.3, -0.01em | the menu bar (Work, Archive, About, the lightbox's Close; the name at 600, 16px and +0.02em, see below) and project names (Home's cards, Work's tiles, Archive, the lightbox); Home's intro line at 600 |
+| name | Inter Display 500, capitals | 14px | 1.3, -0.01em | the menu bar (Work, Archive, About, the lightbox's Close; the name at 600, 16px and +0.02em, see below) and project names (Home's cards, Work's tiles, Archive, the lightbox) |
 | label | Martian Mono 400, capitals | 12px | 1.3, -0.05em | Work's filters, Home's one-liners (in `--color-subtle`, `--color-muted` until 2026-11-07; on Work's tiles too, until the same day), captions, project facts, the footer, the lightbox's type and year, About's text (since 2026-11-07) and Experience; a label that names a column or a section (a project's fact labels, Category, Role, Year, its section and note headings, and About's Experience and Contact headings) looks as Work's filters do, in `--color-subtle` (at 600 in `--color-muted` until 2026-11-06) |
 
 Two weights for Inter Display, 500 and 600, and one for Martian Mono, 400 (600 too until 2026-11-06). Two sizes
@@ -418,21 +419,23 @@ it ran into the next tile's title 12px away, then for part of that day right aft
   the values `category` can use). When one is merged into another or renamed, add the old name to
   `MERGED` in `assets/js/main.js`, so links to it still open the right filter.
 
-Home intro: the first time Home opens in a browser tab, the screen is black (the site's own
-near-black text color, with the line in its background color: the page in reverse; pure black and
-white until 2026-11-06), with the name and role in capitals in the middle and the projects'
-covers taking turns in the bottom-right corner. Both come into focus, hold, and blur away; then
-the black blurs and fades and the page shows (about 3.7 s in all). A click, a key, or the mouse
-wheel skips to the end. After that, Home opens straight away in that tab, including on refresh;
-with reduced motion there's no intro at all.
-To tune it:
-- The script at the end of `templates/home.html`, at the top: `DELAY` (ms of black first),
-  `FADE_IN` (ms to come into focus), `HOLD` (ms in focus), `FADE_OUT` (ms to blur away),
-  `REVEAL` (ms for the black to go), `FLICK` (ms each cover stays), `BLUR` (px of blur on the
-  line and image at both ends), `REVEAL_BLUR` (px of blur on the black as it goes).
-- `assets/css/style.css`, "Home intro": `--intro-bg` / `--intro-color` (the screen and the
-  line), `--intro-size` (the line's type size), `--intro-image` (the corner image's size; it's
-  square), `--intro-margin` (its distance from the bottom and right edges).
+Home intro: the first time Home opens in a browser tab, the page fades in, header and all, with
+nothing moving: from transparent to whole in 1 s, slow to start and quick to finish
+(`cubic-bezier(0.32, 0, 0.67, 0)`), as soren-template.framer.website does, to the curve. Later
+arrivals at Home come with the 300 ms fade between pages, as every page does, so the two never
+stack; with reduced motion there's no fade. (Until 2026-11-08 the intro was a black screen over
+the page, with the name and role in capitals in the middle and the covers taking turns in a
+square in the bottom-right corner, all coming into focus and blurring away, then the black
+blurring off, about 3.7 s, after the preloader on titarvl.framer.website. On 2026-11-08 and 09
+many others were tried and dropped, most of them made of the display type's dust: ticks crossing
+the empty page into the cards, after the day timeline in Kyuri's Light Life app; the name in the
+display type on the black, broken by About's pass, then a dive into one dot or a page fade; the
+black screen breaking into dots; About's pass breaking the covers on a page already whole, which
+read as an effect, not an opening; a leaning line sweeping the whole screen, which broke every
+cover at once into static; and the covers coming in from where the pass went. Home's part is to
+show the work; the dust stays on the display type, where a pointer can go on with it.)
+To tune it: `assets/css/style.css`, "Home intro": `--intro-time` (how long the fade takes) and
+`--intro-ease` (its curve). `assets/js/intro.js` only decides whether it plays.
 
 Display type's dust: type in the display style is made of dots, wherever it is (About's first
 sentence, a project's title, the 404's; About's only until 2026-11-07). It breaks into dots where

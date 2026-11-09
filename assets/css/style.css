@@ -70,8 +70,8 @@
        body     Inter Display 500, 600   as typed  text (links in text at 600)
        name     Inter Display 500, 600   capitals  the menu bar (the header, the lightbox's
                                                    Close), project names (Home's cards, Work's
-                                                   tiles, Archive and the lightbox), Home's
-                                                   intro line (the name and the intro at 600)
+                                                   tiles, Archive and the lightbox; the name
+                                                   at 600)
        label    Martian Mono 400         capitals  Work's filters, Home's one-liners, captions,
                                                    project facts, the footer, the lightbox's
                                                    type and year, About's text (since
@@ -421,17 +421,16 @@ button {
 
 /* Name: Inter Display at 14px in capitals, for the menu bar (the name, the links, and the
    lightbox's Close, which stands in for it), project names (Home's cards, Work's tiles,
-   Archive and the lightbox), and Home's intro line. Set by name, so it wins over the label
-   its caption is in. (Labels in Martian Mono for a few hours on 2026-11-05; Inter at 14px for
-   the header and 16px for names before. The intro line had its own -0.05em until the same
-   day.) */
+   Archive and the lightbox). Set by name, so it wins over the label its caption is in.
+   (Labels in Martian Mono for a few hours on 2026-11-05; Inter at 14px for the header and 16px
+   for names before. Home's intro line, the name and role on a black screen, was in this style
+   too until 2026-11-08, when the intro stopped having a screen.) */
 .site-header,
 .lightbox-close,
 .card-title,
 .work-name,
 .archive-name,
-.lightbox-name,
-.intro-line {
+.lightbox-name {
   font-family: var(--font);
   font-size: var(--size-name);
   font-weight: 500;
@@ -440,9 +439,8 @@ button {
   text-transform: uppercase;
 }
 
-/* At 600: the name in the header (a weight up from the links) and Home's intro line. */
-.identity,
-.intro-line {
+/* At 600: the name in the header (a weight up from the links). */
+.identity {
   font-weight: 600;
 }
 
@@ -871,55 +869,37 @@ mark.placeholder {
 
 /* Home intro ------------------------------------------------------------ */
 
-/* First visit to Home in a browser session: a black screen with the name and role in the
-   middle and each project's cover in turn in the bottom-right corner. Both come into focus,
-   blur away, and then the black fades to show the page (the script and its timing are at
-   the end of templates/home.html). Until the page shows, the header and the track stay
-   hidden.
-     --intro-bg        the screen's color: the site's text color, its near-black, the page
-                       in reverse (pure black until 2026-11-06, a color nowhere else on the site)
-     --intro-color     the line's color: the page's background (pure white until 2026-11-06)
-     --intro-size      the line's type size
-     --intro-image     the corner image's width and height (it's square)
-     --intro-margin    the corner image's distance from the bottom and right edges */
-.js:not(.intro-done) body:has(> .page-home) :is(.identity, .site-nav, .track-row, .track-caption) {
+/* The first time Home opens in a browser tab, the page fades in, header and all, with nothing
+   moving: from transparent to whole in 1 s, slow to start and quick to finish (as
+   soren-template.framer.website, to the curve). assets/js/intro.js decides whether it plays;
+   until it has, the page stays hidden. Later arrivals at Home come with the 300 ms fade between
+   pages, as every page does.
+   Until 2026-11-08 the intro was a black screen over the page, with the name and role in the
+   middle and the covers taking turns in a square in the corner, all blurring in and away, then
+   the black blurring off, after the preloader on titarvl.framer.website. On 2026-11-08 and 09
+   several intros made of the display type's dust were tried (the covers breaking under About's
+   pass, or coming in from where it went, and others), and dropped for this: Home's part is to
+   show the work, and the dust stays on the display type, where a pointer can go on with it.
+     --intro-time    how long the fade takes
+     --intro-ease    its curve */
+.js:not(.intro-done):not(.intro-on) body:has(> .page-home) > :is(.site-header, main) {
   opacity: 0;
 }
 
-.intro {
-  --intro-bg: var(--color-text);
-  --intro-color: var(--color-bg);
-  --intro-size: var(--size-name);
-  --intro-image: 160px;
-  --intro-margin: 20px;
-  position: fixed;
-  inset: 0;
-  z-index: 30;
-  display: grid;
-  place-items: center;
-  background: var(--intro-bg);
-  color: var(--intro-color);
+.intro-on body:has(> .page-home) > :is(.site-header, main) {
+  --intro-time: 1s;
+  --intro-ease: cubic-bezier(0.32, 0, 0.67, 0);
+  animation: intro-in var(--intro-time) var(--intro-ease) both;
 }
 
-/* One line, in the name style at 600 (see Shared text styles), at --intro-size. */
-.intro-line {
-  font-size: var(--intro-size);
-  white-space: nowrap;
-}
+@keyframes intro-in {
+  from {
+    opacity: 0.001;
+  }
 
-.intro-image {
-  position: fixed;
-  right: var(--intro-margin);
-  bottom: var(--intro-margin);
-  width: var(--intro-image);
-  height: var(--intro-image);
-}
-
-/* The covers, stacked; the script shows one at a time. */
-.intro-image .track-media {
-  position: absolute;
-  inset: 0;
-  aspect-ratio: auto;
+  to {
+    opacity: 1;
+  }
 }
 
 /* Work ------------------------------------------------------------------ */

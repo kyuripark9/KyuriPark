@@ -123,6 +123,8 @@ Blocks appear in the order you list them. The template uses Context → Explore 
     { "value": 1250, "suffix": "+", "label": "What the number counts" },
     { "value": 4.5, "prefix": "$", "label": "..." }
   ] }
+
+{ "type": "prototype", "src": "assets/prototypes/light-life", "title": "Light Life app prototype" }
 ```
 
 - `"loop": true` plays the video muted on repeat while it's on screen, like a GIF.
@@ -131,6 +133,17 @@ Blocks appear in the order you list them. The template uses Context → Explore 
 - **Impact numbers** count up when they scroll into view. Use only real, verifiable numbers.
   A `value` that isn't a plain number (empty, `[PLACEHOLDER]`, "TBD") is left out, and if no numbers
   are left the whole block disappears, so it's safe to leave a draft in place. No project has one yet.
+- **Prototype** shows a working prototype that visitors can use, in a phone-sized frame on a
+  gray stage, with an "Open in a new tab" link under it (on a phone, that fills the screen).
+  `src` is a folder with its own `index.html`. The page inside draws itself at 390 × 844 and
+  scales to the frame. Light Life's app lives in `assets/prototypes/light-life/`
+  (`index.html`, `app.css`, `app.js`, no libraries, using the site's fonts). `sky.js` plans
+  the light around where the visitor lives: sunrise and sunset worked out in the browser, the
+  weather and the city search from Open-Meteo (free, no key; credited in the app), the first
+  city guessed from the computer's time zone, and a recommended scene per part of the day,
+  with its one-sentence reason (`recommend()`, the rules and the words). It is built on
+  the Light Life design system (https://claude.ai/artifact/EM7wMb1WZ6GntbUNgzRzLW, private):
+  `app.css` copies its Night tokens and `ll-` components, so change a value there first.
 
 ## Items with no page
 

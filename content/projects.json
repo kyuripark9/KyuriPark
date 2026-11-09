@@ -402,7 +402,7 @@
   },
   {
     "order": 5,
-    "category": ["physical", "brand"],
+    "category": ["digital", "physical"],
     "featured": true,
     "slug": "light-life",
     "title": "Light Life",
@@ -472,6 +472,11 @@
         "body": [
           "[PLACEHOLDER] What you made and the key decisions behind it."
         ]
+      },
+      {
+        "type": "prototype",
+        "src": "assets/prototypes/light-life",
+        "title": "Light Life app prototype"
       },
       {
         "type": "image",

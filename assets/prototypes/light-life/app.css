@@ -1,0 +1,352 @@
+/* Light Life, phone prototype (2026 redesign), built on the Light Life design system
+   (Night theme): its tokens and its ll- components, copied here because the system lives
+   on claude.ai. Change a value there first, then here.
+   One screen, drawn at 390 x 844 and scaled to fit the frame it's shown in (app.js), or
+   filling a phone's screen when opened on its own. */
+
+@font-face {
+  font-family: "Inter";
+  src: url("../../fonts/inter-latin.woff2") format("woff2");
+  font-weight: 400 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Martian Mono";
+  src: url("../../fonts/martian-mono-latin.woff2") format("woff2");
+  font-weight: 400 600;
+  font-display: swap;
+}
+
+/* Tokens (Night) -------------------------------------------------------- */
+:root {
+  --bg: #0a0a0b;
+  --surface: #141416;
+  --surface-raised: #1e1e21;
+  --glass: #ffffff1f;
+  --line: #ffffff1a;
+  --ink: #f5f3ef;
+  --ink-muted: #a7a39c;
+  --ink-on-light: #141210;
+  --signal: #ffd84d;
+  --on-signal: #141210;
+  --glow-sunrise: #f2917a;
+  --glow-morning: #f6ead6;
+  --glow-day: #dde7f7;
+  --glow-golden: #f4b85e;
+  --glow-winddown: #e8734d;
+  --glow-night: #5a4fa8;
+  --focus-ring: 0 0 0 2px #0a0a0b, 0 0 0 4px #ffd84d;
+  --shadow-sheet: 0 -12px 40px #00000073;
+  --shadow-knob: 0 2px 8px #00000080;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 32px;
+  --radius-pill: 999px;
+  --font-sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "Martian Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Opened on its own on a computer: a gray room, like the portfolio's media. */
+html.is-alone body {
+  background: #e9e8e3;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The phone ------------------------------------------------------------- */
+
+.device {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 390px;
+  height: 844px;
+  overflow: hidden;
+  overflow: clip;   /* hidden alone can still be scrolled by focus(), shifting the screen */
+  border-radius: 47px;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.35;
+  transform: translate(-50%, -50%);
+  transform-origin: 50% 50%;
+}
+
+html.is-fill .device {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  transform: none;
+}
+
+.status {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 47px;
+  padding: 16px 0 0 50px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  z-index: 3;
+}
+
+.home-bar {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  width: 134px;
+  height: 5px;
+  margin-left: -67px;
+  border-radius: 3px;
+  background: rgba(245, 243, 239, 0.7);
+  pointer-events: none;
+  z-index: 6;
+}
+
+html.is-fill :is(.status, .home-bar) {
+  display: none;
+}
+
+.app {
+  position: absolute;
+  inset: 47px 0 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--space-4) 30px;
+}
+
+html.is-fill .app {
+  top: env(safe-area-inset-top, 0px);
+  padding-top: var(--space-3);
+  padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+}
+
+/* The brand, and where you live (the city and its weather now; opens the city sheet). */
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  height: 30px;
+  margin-bottom: var(--space-1);
+  padding-left: var(--space-1);
+}
+
+.brand {
+  flex: none;
+  color: var(--ink-muted);
+}
+
+.place {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  height: 30px;
+  margin-right: -10px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+  color: var(--ink);
+}
+
+.place .icon {
+  width: 14px;
+  height: 14px;
+  color: var(--ink-muted);
+}
+
+.place-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.place-weather {
+  color: var(--ink-muted);
+}
+
+/* Components (from the design system) ------------------------------------ */
+
+.ll-label { font-family: var(--font-mono); font-size: 11px; line-height: 14px; letter-spacing: 0.04em; text-transform: uppercase; }
+.ll-data { font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: 0.02em; text-transform: uppercase; }
+
+.ll-tag { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px 0 9px; border-radius: var(--radius-pill); background: var(--glass); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); color: inherit; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; }
+.ll-tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--signal); }
+.ll-tag[hidden] { display: none; }
+
+/* GlowPanel: --glow and --glow-strength come from app.js. */
+.ll-panel { position: relative; isolation: isolate; overflow: hidden; overflow: clip; display: flex; flex: 1 1 auto; flex-direction: column; min-height: 300px; padding: var(--space-5); border-radius: var(--radius-lg); background: var(--surface); color: var(--ink); }
+.ll-panel::before,
+.ll-panel::after { content: ""; position: absolute; z-index: -1; pointer-events: none; }
+.ll-panel::before { inset: 0; background: radial-gradient(130% 80% at 50% 16%, var(--glow) 0%, var(--glow) 30%, transparent 86%); opacity: var(--glow-strength, 1); }
+.ll-panel::after { inset: -20%; background: radial-gradient(45% 35% at 50% 34%, var(--glow) 0%, transparent 100%); filter: blur(24px); opacity: calc(var(--glow-strength, 1) * 0.8); }
+/* The light fills the top two thirds and fades out toward the bottom, so the head and the
+   time take the light's ink and the sentence at the bottom always sits on the dark. */
+.ll-panel.is-bright :is(.ll-panel-head, .ll-panel-center) { color: var(--ink-on-light); }
+.ll-panel.is-bright .ll-tag,
+.ll-panel.is-bright .ll-pill.is-glass { background: #0000001a; }
+.ll-panel-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); min-height: 32px; }
+.ll-panel-center { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); margin: auto 0; }
+
+.panel-title { font-size: 24px; font-weight: 500; line-height: 28px; letter-spacing: -0.02em; }
+.panel-foot { display: flex; flex-direction: column; gap: var(--space-2); }
+.about { max-width: 300px; font-size: 17px; line-height: 23px; letter-spacing: -0.01em; text-wrap: balance; }
+.panel-foot .ll-data { color: var(--ink-muted); }
+
+/* DotDigits */
+.ll-digits { --dot: 6px; display: inline-flex; align-items: flex-end; gap: calc(var(--dot) * 1.5); color: inherit; }
+.ll-glyph { display: grid; grid-template-columns: repeat(var(--cols, 5), var(--dot)); grid-auto-rows: var(--dot); gap: calc(var(--dot) / 2); }
+.ll-glyph i { border-radius: 50%; background: currentColor; opacity: 0; }
+.ll-glyph i.on { opacity: 1; }
+
+/* LightRuler */
+.ruler-block { margin-top: var(--space-5); }
+.ruler-head { display: flex; justify-content: space-between; margin-bottom: var(--space-1); color: var(--ink-muted); }
+.hint[hidden] { display: none; }
+.ll-ruler { position: relative; height: 72px; cursor: ew-resize; touch-action: pan-y; border-radius: var(--radius-sm); }
+.ll-ruler::after { content: ""; position: absolute; inset: -8px 0 -26px; }   /* the axis is part of the drag area */
+.ll-ruler-ticks { position: absolute; inset: 12px 0 0; display: flex; align-items: flex-end; justify-content: space-between; }
+.ll-ruler-ticks i { width: 2px; min-height: 6px; border-radius: 1px; background: var(--line); }
+/* When the sun is up where you live: a faint band behind the ticks, from sunrise to sunset,
+   so you can see where the lamp carries on without it. */
+.ruler-sun { position: absolute; top: 0; bottom: 0; border-radius: 8px; background: #ffffff0f; pointer-events: none; }
+.ruler-sun[hidden] { display: none; }
+.ruler-sun-icon { position: absolute; top: 3px; left: 5px; width: 9px; height: 9px; color: var(--ink-muted); }
+/* Sunrise and sunset times, on the axis under the band's two edges. */
+.sun-times { position: relative; height: 0; }
+.sun-times span { position: absolute; bottom: 0; transform: translateX(-50%); color: var(--ink); font-family: var(--font-mono); font-size: 10px; line-height: 14px; letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap; }
+.ll-ruler-now { position: absolute; top: 0; bottom: -4px; width: 2px; margin-left: -1px; border-radius: 1px; background: var(--signal); pointer-events: none; z-index: 1; }
+.ll-ruler-now::before { content: ""; position: absolute; top: -2px; left: -4px; width: 10px; height: 10px; border-radius: 50%; background: var(--signal); box-shadow: var(--shadow-knob); }
+.ll-axis { position: relative; height: 14px; margin-top: var(--space-2); color: var(--ink-muted); font-family: var(--font-mono); font-size: 10px; line-height: 14px; letter-spacing: 0.02em; text-transform: uppercase; }
+.ll-axis span { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
+.ll-axis span:first-child { transform: none; }
+.ll-axis span:last-child { transform: translateX(-100%); }
+
+/* SceneChips */
+.ll-chips { display: flex; gap: var(--space-2); margin: var(--space-5) calc(var(--space-4) * -1) 0; padding: 2px var(--space-4) 4px; overflow-x: auto; scrollbar-width: none; scroll-padding: 0 var(--space-4); }
+.ll-chips::-webkit-scrollbar { display: none; }
+.ll-chip { flex: none; height: 40px; padding: 0 var(--space-4); border: 1.5px solid transparent; border-radius: var(--radius-pill); background: linear-gradient(var(--bg), var(--bg)) padding-box, linear-gradient(90deg, var(--a), var(--b)) border-box; color: var(--ink); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
+.ll-chip[aria-checked="true"] { background: linear-gradient(90deg, var(--a), var(--b)) border-box; color: var(--ink-on-light); }
+.ll-chip.is-dark[aria-checked="true"] { color: var(--ink); }
+/* The scene Light Life recommends for where you live wears a small spark. */
+.chip-mark { width: 10px; height: 10px; margin: 0 6px 0 -2px; vertical-align: -1px; }
+
+/* PillButton */
+.actions { display: flex; margin-top: var(--space-4); }
+.ll-pill { display: inline-flex; align-items: center; gap: var(--space-3); height: 52px; padding: 0 6px 0 22px; border-radius: var(--radius-pill); background: var(--surface-raised); color: var(--ink); font-size: 15px; font-weight: 500; line-height: 20px; }
+.ll-pill.is-glass { background: var(--glass); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+.ll-pill.is-small { height: 32px; padding: 0 14px; font-size: 13px; }
+.ll-pill[hidden] { display: none; }
+.ll-pill-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--ink); color: var(--bg); }
+.ll-pill-icon svg { width: 16px; height: 16px; }
+
+/* The two times, and Edit */
+.times { display: flex; align-items: center; gap: 18px; margin-top: var(--space-4); padding: var(--space-3) var(--space-1) 0; border-top: 1px solid var(--line); font-weight: 500; }
+.times p { display: flex; align-items: center; gap: var(--space-2); }
+.times .icon { color: var(--ink-muted); }
+.text-button { margin-left: auto; padding: 6px 2px 6px 10px; border-radius: var(--radius-pill); font-weight: 600; }
+
+/* Sheet */
+.scrim { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.3); opacity: 0; visibility: hidden; transition: opacity 0.35s, visibility 0s 0.35s; z-index: 4; }
+.has-sheet .scrim { opacity: 1; visibility: visible; transition: opacity 0.35s; }
+.sheet { position: absolute; inset: auto 0 0; transform: translateY(100%); visibility: hidden; transition: transform 0.4s var(--ease), visibility 0s 0.4s; z-index: 5; }
+.sheet.is-open { transform: none; visibility: visible; transition: transform 0.4s var(--ease); }
+.ll-sheet { padding: var(--space-2) var(--space-4) 40px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; background: var(--surface); box-shadow: var(--shadow-sheet); color: var(--ink); }
+.ll-grabber { display: block; width: 36px; height: 5px; margin: 0 auto 14px; border-radius: 3px; background: var(--surface-raised); }
+.ll-sheet-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); padding: 0 4px var(--space-4); }
+.ll-sheet-title { font-size: 24px; font-weight: 500; line-height: 28px; letter-spacing: -0.02em; outline: none; box-shadow: none; }
+.ll-sheet-sub { margin-top: 4px; color: var(--ink-muted); font-size: 14px; line-height: 20px; }
+.ll-done { flex: none; height: 36px; padding: 0 18px; border-radius: var(--radius-pill); background: var(--ink); color: var(--bg); font-size: 15px; font-weight: 500; }
+.ll-fields { border-radius: var(--radius-md); background: var(--surface-raised); }
+.ll-field { display: flex; align-items: center; justify-content: space-between; min-height: 64px; padding: 0 var(--space-4); }
+.ll-field + .ll-field { border-top: 1px solid var(--line); }
+.ll-field-label { display: flex; align-items: center; gap: 10px; font-weight: 500; }
+.ll-field-label svg { width: 16px; height: 16px; color: var(--ink-muted); }
+.ll-stepper { display: flex; align-items: center; gap: 6px; }
+.ll-stepper output { min-width: 96px; font-size: 20px; font-weight: 500; line-height: 24px; letter-spacing: -0.02em; text-align: center; font-variant-numeric: tabular-nums; }
+.ll-round { display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--radius-pill); background: var(--glass); color: var(--ink); font-size: 20px; line-height: 1; }
+.ll-round:disabled { opacity: 0.3; cursor: default; }
+
+/* The city sheet: tall, so the search field sits at the top, above a phone's keyboard. */
+.sheet.is-tall { top: 56px; display: flex; flex-direction: column; }
+.search { display: flex; flex: none; align-items: center; gap: 10px; height: 48px; padding: 0 var(--space-4); border-radius: var(--radius-md); background: var(--surface-raised); color: var(--ink-muted); cursor: text; }
+.search:focus-within { box-shadow: var(--focus-ring); }
+.search input { flex: 1; min-width: 0; height: 100%; border: 0; outline: none; background: none; color: var(--ink); font: inherit; font-size: 17px; letter-spacing: -0.01em; -webkit-appearance: none; appearance: none; }
+.search input:focus-visible { box-shadow: none; }   /* the field wears the ring */
+.search input::placeholder { color: var(--ink-muted); }
+.search input::-webkit-search-cancel-button { display: none; }
+.search-status { padding: var(--space-3) 4px 0; color: var(--ink-muted); font-size: 14px; line-height: 20px; }
+.search-status:empty { display: none; }
+.results { position: relative; flex: 0 1 auto; min-height: 0; margin-top: var(--space-3); overflow-y: auto; list-style: none; overscroll-behavior: contain; }
+.results:empty { display: none; }
+.result { display: flex; align-items: center; gap: var(--space-3); min-height: 60px; padding: 10px var(--space-4); cursor: pointer; }
+.result + .result { border-top: 1px solid var(--line); }
+.result.is-active { background: var(--glass); }
+.result-text { display: flex; flex-direction: column; min-width: 0; }
+.result-name { font-weight: 500; }
+.result-where { overflow: hidden; color: var(--ink-muted); font-size: 13px; line-height: 18px; text-overflow: ellipsis; white-space: nowrap; }
+.result .icon { margin-left: auto; }
+.credit { margin-top: auto; padding-top: var(--space-4); color: var(--ink-muted); font-size: 12px; line-height: 16px; text-align: center; }
+.credit a { color: inherit; }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01s !important;
+  }
+}

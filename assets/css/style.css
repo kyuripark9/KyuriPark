@@ -1465,6 +1465,32 @@ mark.placeholder {
   border: 0;
 }
 
+/* A working prototype (build.py's "prototype" block): the phone, 390 x 844, on a gray stage,
+   as tall as fits in the window under the header, never over its real size. */
+.prototype {
+  display: grid;
+  place-items: center;
+  padding: var(--step-6) var(--space-1);
+  background: var(--color-fill);
+}
+
+.prototype iframe {
+  display: block;
+  width: min(390px, 100%, calc((100svh - var(--header-h) - 2 * var(--step-6)) * 390 / 844));
+  aspect-ratio: 390 / 844;
+  border: 0;
+  border-radius: 12% / 5.6%;  /* the phone's own 47px corners, at any size */
+}
+
+.prototype-open {
+  margin-top: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: var(--size-label);
+  line-height: var(--leading-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
 /* Impact numbers: only built when the project lists real numbers. */
 .impact {
   display: grid;

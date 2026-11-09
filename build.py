@@ -689,8 +689,25 @@ class Builder:
                           b.get("caption"))
         if kind == "impact":
             return self.impact_block(b, where)
+        if kind == "prototype":
+            return figure("media-full", self.prototype(b, where), b.get("caption"))
         raise BuildError(f'{where}: unknown block type "{kind}". '
-                         'Use text, image, imagePair, video, or impact.')
+                         'Use text, image, imagePair, video, impact, or prototype.')
+
+    def prototype(self, b, where):
+        """A working prototype: a folder in assets/prototypes/ with its own index.html, shown in
+        a phone-sized frame on a gray stage (the page scales itself to the frame), and a link
+        to open it alone, which fills the screen on a phone. Added 2026-11-08 for Light Life."""
+        folder = need(b, "src", where).strip("/")
+        if not exists(f"{folder}/index.html"):
+            raise BuildError(f'{where}: a "prototype" block needs {folder}/index.html.')
+        url = url_for(folder) + "/"
+        title = esc(b.get("title") or "Prototype")
+        return (f'<div class="prototype"><iframe src="{url}" title="{title}" loading="lazy">'
+                '</iframe></div>'
+                f'<p class="prototype-open"><a class="text-link" href="{url}" target="_blank" '
+                'rel="noopener">Open in a new <span class="link-end">tab</span>'
+                '<span class="visually-hidden"> (opens in a new tab)</span></a></p>')
 
     def impact_block(self, b, where):
         """Large numbers that count up on screen. Only real numbers are shown: an item whose

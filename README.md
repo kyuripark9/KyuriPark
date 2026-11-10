@@ -286,10 +286,9 @@ before (snapping and whole-screen steps were tried on 2026-11-05 and taken out t
 ## Header
 
 The name ("Kyuri Park", from `content/site.json`, shown in capitals) is at the left, in the name
-style like the links (Inter Display, 14px) and a weight heavier (`.identity` in `assets/css/style.css`), with the
-role (`"role"` in `content/site.json`, PRODUCT DESIGNER) as a gray label beside it, or under it on
-phones, so every page says what Kyuri does (since 2026-11-09; the header had the role until
-2026-10-30, then only Home's opening did). Work, Archive,
+style like the links (Inter Display, 14px) and a weight heavier (`.identity` in `assets/css/style.css`), on its
+own (the role, PRODUCT DESIGNER, was a gray label beside it, or under it on phones, from
+2026-11-09 to 2026-11-10, and until 2026-10-30). Work, Archive,
 and About at the right, on one line at every width (down to 320px), from `templates/base.html` on
 every page. The current page's link is in the text color and the others are gray
 (`--color-subtle`, the lightest gray that passes WCAG AA; a lighter `--color-faint` at 3:1, which
@@ -324,7 +323,7 @@ menu bar and project names are a sans while the small labels stay in Martian Mon
 | lead | Inter Display 500, as typed | 20px, growing with the window to 28px (from 800 to 1120px wide); lines up to 30em (`--measure-lead`) | 1.35, 0 | a project's statement, under its title (About's text too, 2026-11-06 to 2026-11-07) |
 | body | Inter Display 500, as typed | 16px | 1.5, 0 (1.1 from 2026-11-05 to 2026-11-09) | text, a project's "Visit" link; links in text at 600 (Contact's links and About's text too, until 2026-11-06) |
 | name | Inter Display 500, capitals | 14px | 1.3, -0.01em | the menu bar (Work, Archive, About, the lightbox's Close; the name at 600, 16px and +0.02em, see below) and project names (Home's cards, Work's tiles, Archive, the lightbox) |
-| label | Martian Mono 400, capitals | 12px | 1.3, -0.05em | Work's filters, Home's type and year (one-liners until 2026-11-09; in `--color-subtle`, `--color-muted` until 2026-11-07; on Work's tiles too, until the same day), the header's role, captions, project facts, the footer, the lightbox's type and year, About's text (since 2026-11-07) and Experience; a label that names a column or a section (a project's fact labels, Role, Team, Timeline, its section and note headings, and About's Experience and Contact headings) looks as Work's filters do, in `--color-subtle` (at 600 in `--color-muted` until 2026-11-06) |
+| label | Martian Mono 400, capitals | 12px | 1.3, -0.05em | Work's filters, Home's type and year (one-liners until 2026-11-09; in `--color-subtle`, `--color-muted` until 2026-11-07; on Work's tiles too, until the same day), captions, project facts, the footer, the lightbox's type and year, About's text (since 2026-11-07) and Experience; a label that names a column or a section (a project's fact labels, Role, Team, Timeline, its section and note headings, and About's Experience and Contact headings) looks as Work's filters do, in `--color-subtle` (at 600 in `--color-muted` until 2026-11-06) |
 
 Two weights for Inter Display, 500 and 600, and one for Martian Mono, 400 (600 too until 2026-11-06). Two sizes
 sit outside the styles: Work's counts, a label at `--size-count` (10px), and the name in the
@@ -335,7 +334,7 @@ type was Inter alone, at 400 and 500, with a 32-64px display, 28-48px titles, a 
 line height 1.5 for all text.
 
 Color is the text color (`--color-text`), one gray for all gray text (`--color-subtle`, 4.6:1 on
-the background, the lightest small text stays easy to read at: Home's type and year, the header's role, Work's filters,
+the background, the lightest small text stays easy to read at: Home's type and year, Work's filters,
 captions, the lightbox's type and year, the labels that name a column or a section, impact labels,
 Previous / Next, About's Experience companies and dates, the copyright, and since 2026-11-09 the
 header's links; since 2026-11-07, most of them a step darker in `--color-muted`, 5.6:1, before),

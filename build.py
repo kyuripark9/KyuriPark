@@ -587,7 +587,6 @@ class Builder:
             css_version=file_version("assets/css/style.css"),
             js_version=file_version("assets/js/main.js"),
             site_name=esc(s["name"]),
-            site_role=esc(s["role"]),
             nav_work={"work": ' aria-current="page"', "project": ' aria-current="true"'}.get(current, ""),
             nav_archive=' aria-current="page"' if current == "archive" else "",
             nav_about=' aria-current="page"' if current == "about" else "",

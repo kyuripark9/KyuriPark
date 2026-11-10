@@ -1,8 +1,11 @@
 // Home: an endless row of cards. Wheel, trackpad, drag, swipe, and the arrow keys
 // all move a target position, and each frame the row eases toward it.
-// Each card is placed by its distance from the position, wrapped around the loop; when the
-// cards alone can't fill the screen, copies of them extend it. Card size, spacing, and
-// how the cards shrink, grey, fade, and blur away from the middle are set in style.css.
+// Each card is placed by its distance from the position, wrapped around the loop. Five show
+// at most, the middle one and two each side: past two steps out a card fades away, and it is
+// gone before it crosses from one end of the loop to the other (since 2026-11-09; until then
+// copies of the cards filled wide windows, so the same project could show twice). Card size,
+// spacing, and how the cards shrink, grey, fade, and blur away from the middle are set in
+// style.css.
 // Each time a new card reaches the middle, a soft tick can sound (off since 2026-11-09: a
 // visitor may be in an office or on a call; TICK_VOLUME 0.3 turns it back on).
 (() => {
@@ -10,6 +13,8 @@
   const WHEEL_MAX = 30;          // pixels: one wheel event never counts for more than this
   const SETTLE_DELAY = 150;      // ms without input before the row settles on one card
   const EASE = 0.15;             // share of the remaining distance covered each frame
+  const FADE_OUT = 0.5;          // cards (more than 0): past two steps out, a card fades away
+                                 // over this much of a step
   const TICK_VOLUME = 0;         // 0 to 1; 0 turns the tick off (0.3 until 2026-11-09)
   const TICK_TONE = 1800;        // Hz: the pitch the tick centers on; higher sounds brighter
   // On a phone the cards beside the middle one are off screen, so once a visit, as the page
@@ -31,18 +36,16 @@
   const phone = window.matchMedia("(max-width: 767px)");
   let moved = false;   // the visitor has moved the row
 
-  const originals = [...row.querySelectorAll(".track-item")];
-  const items = [...originals];  // the loop: the originals, then any copies
+  const items = [...row.querySelectorAll(".track-item")];
   const cards = items.map((item) => item.querySelector(".track-card"));
   cards.forEach((card) => { card.draggable = false; });
-  const count = items.length;
-  let n = count;       // cards on the loop, copies included
+  const n = items.length;  // cards on the loop
 
   let position = 0;    // the card in the middle; 1.5 = halfway between the 2nd and 3rd
   let target = 0;
   let direction = 0;   // which way the last input moved: 1, -1, or 0
-  let scales, look, stops, far;
-  let shown = originals[0];  // the card whose caption is showing
+  let scales, look, stops, rest, gone;
+  let shown = items[0];  // the card whose caption is showing
   let frame = 0;
   let settleTimer;
   let drag = null;
@@ -99,35 +102,6 @@
     return d > n / 2 ? d - n : d;
   };
 
-  // One more copy of every card, at the end of the loop. Copies are for the eye and
-  // the mouse only: hidden from screen readers and skipped by Tab.
-  const addCopies = () => {
-    originals.forEach((item) => {
-      const copy = item.cloneNode(true);
-      copy.setAttribute("aria-hidden", "true");
-      const card = copy.querySelector(".track-card");
-      card.tabIndex = -1;
-      row.append(copy);
-      items.push(copy);
-      cards.push(card);
-    });
-    n = items.length;
-  };
-
-  // A copy looks just like its original, so turning the whole loop by a multiple of
-  // `count` changes nothing on screen. This puts original i where its twin nearest
-  // the target was, so the keyboard never has to land on a copy.
-  const swapIn = (i) => {
-    let s = 0;
-    for (let t = i + count; t < n; t += count) {
-      if (Math.abs(offset(t, target)) < Math.abs(offset(i + s, target))) s = t - i;
-    }
-    position -= s;
-    target -= s;
-    if (drag) drag.from -= s;
-    render();
-  };
-
   // values[k] is for a card k whole steps from the middle; in between, a straight line.
   // Past the last one, cards keep its value.
   const at = (values, a) => {
@@ -136,8 +110,8 @@
   };
 
   // stops[k]: from the middle card's center to the center of the card k steps out.
-  // The gap is measured between cards as drawn, after they shrink. far: between cards
-  // past the last step.
+  // The gap is measured between cards as drawn, after they shrink. rest: between cards
+  // past the last step, as they fade away. gone: how far out a card is no longer seen.
   const measure = () => {
     const style = getComputedStyle(stage);
     const width = parseFloat(getComputedStyle(items[0]).width);  // unrounded, unscaled
@@ -155,14 +129,10 @@
       stops.push(stops[k - 1] + (scales[k - 1] + scales[k]) / 2 * width + gap);
     }
     const last = scales.length - 1;
-    const rest = scales[last] * width + gap;
-    // The card that crosses from one end of the loop to the other (n/2 steps out) has to be
-    // off screen when it does. Copies make the loop long enough; past four rounds of them,
-    // the outer cards spread out instead.
-    const least = () =>
-      (stage.clientWidth / 2 + scales[last] * width / 2 - stops[last]) / (n / 2 - last);
-    while ((n / 2 <= last || least() > rest) && n < 4 * count) addCopies();
-    far = n / 2 > last ? Math.max(rest, least()) : rest;
+    rest = scales[last] * width + gap;
+    // FADE_OUT past the last step (two out), or sooner with fewer than five cards: the card
+    // that crosses from one end of the loop to the other (n/2 steps out) is gone when it does.
+    gone = Math.min(last + FADE_OUT, n / 2);
   };
 
   // Card centers, d cards from the middle. Size and position both move in straight lines
@@ -170,7 +140,7 @@
   const x = (d) => {
     const a = Math.abs(d);
     const last = stops.length - 1;
-    return Math.sign(d) * (a < last ? at(stops, a) : stops[last] + (a - last) * far);
+    return Math.sign(d) * (a < last ? at(stops, a) : stops[last] + (a - last) * rest);
   };
 
   const render = () => {
@@ -179,21 +149,22 @@
       const a = Math.abs(d);
       const near = Math.min(a, 1);        // 0 in the middle, 1 from one step out
       const beyond = Math.max(a - 1, 0);  // steps past the first
-      const opacity = (1 - near * (1 - look.opacity)) * look.fade ** beyond;
+      const fading = Math.min(Math.max((gone - a) / FADE_OUT, 0), 1);  // 1, down to 0 at `gone`
+      const opacity = (1 - near * (1 - look.opacity)) * look.fade ** beyond * fading;
       item.style.transform = `translateX(${x(d)}px) scale(${at(scales, a)})`;
       item.style.opacity = opacity;
       item.style.filter = a === 0 ? "none" : `grayscale(${near * look.grayscale}) ` +
         `brightness(${1 - near * (1 - look.brightness)}) blur(${beyond * look.blur}px)`;
       item.style.pointerEvents = opacity > 0 ? "" : "none";  // no clicks on a hidden card
     });
-    const middle = originals[wrap(Math.round(position)) % count];
+    const middle = items[wrap(Math.round(position))];
     if (middle !== shown) {
       shown = middle;
       playTick();
       // A focused card is read out by the screen reader already; don't repeat it.
       caption.setAttribute("aria-live", cards.includes(document.activeElement) ? "off" : "polite");
       caption.innerHTML = middle.querySelector(".card-caption").innerHTML;
-      dots.forEach((dot, i) => dot.classList.toggle("is-current", originals[i] === middle));
+      dots.forEach((dot, i) => dot.classList.toggle("is-current", items[i] === middle));
       if (!reduceMotion.matches) {
         caption.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: "ease-out" });
       }
@@ -285,10 +256,7 @@
   // Tabbing to a card brings it to the middle.
   root.addEventListener("focusin", (e) => {
     const i = cards.indexOf(e.target);
-    if (i >= 0 && e.target.matches(":focus-visible")) {
-      swapIn(i);
-      center(i);
-    }
+    if (i >= 0 && e.target.matches(":focus-visible")) center(i);
   });
 
   // Left/right arrows work while focus is on the track or nowhere in particular.
@@ -301,9 +269,7 @@
     e.preventDefault();
     go(by);
     if (cards.includes(focused)) {
-      const i = wrap(Math.round(target)) % count;
-      swapIn(i);
-      cards[i].focus({ preventScroll: true });
+      cards[wrap(Math.round(target))].focus({ preventScroll: true });
     }
   });
 

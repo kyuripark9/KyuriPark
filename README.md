@@ -21,7 +21,7 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 
 | Address | What it is |
 | --- | --- |
-| `/` | Home: one card per featured project on an endless loop, filling the screen. The first time it opens in a tab, About's first sentence opens it, then gives way to the work (see Motion, "Home intro"). Home answers "who, and what matters most" |
+| `/` | Home: one card per featured project on an endless loop, five at most on screen. The first time it opens in a tab, About's first sentence opens it, then gives way to the work (see Motion, "Home intro"). Home answers "who, and what matters most" |
 | `/work/` | Work: everything, the projects first, in one grid of tiles. Its filters ("All 08   Digital 06   Brand 04   Physical 02", `/work/#digital` and so on) are off since 2026-11-09: `WORK_FILTERS` in `build.py` brings them back. Work answers "what else" |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html` |
 | `/archive/` | Archive: personal work and hobbies, a gallery of images with nothing under them. A separate page with its own data |
@@ -88,8 +88,8 @@ dist/                   the generated site. Never edit; it's rebuilt every time.
 | `category` | Required. A list of the Work filters it shows under, one or more of `"digital"`, `"brand"`, `"physical"`, like `["digital", "brand"]`. It counts under each, and once under All. The filters are off since 2026-11-09 (`WORK_FILTERS` in `build.py`), so it shows nowhere for now, but keep it filled in. ("Category" on the project page until 2026-11-09) |
 | `featured` | Optional. `true` puts it on Home (aim for 3 to 5). Leave it out or set `false` and it's on Work only. Needs a `slug`, because a Home card opens the project's page |
 | `title` | Everywhere |
-| `oneLiner` | Under the home loop when that project is in the middle (3 words max); also the page's description for search engines and link previews. Not on Work (after the title in its Work card's caption until 2026-11-07) |
-| `type` | Like "Font design tool". Not shown for a project (on its Work card until 2026-11-05, "Type" on its page until 2026-11-06); an item with no page shows it in the lightbox (after the title in its Work card's caption too, until 2026-11-07) |
+| `oneLiner` | The project page's description for search engines and link previews (3 words max). Not on the page itself: under the home loop until 2026-11-09, when the type and year took its place; after the title in its Work card's caption until 2026-11-07 |
+| `type` | Like "Font design tool": what it is, in a recruiter's words. Under the home loop when that project is in the middle, with the last year in `timeline` after it: "Font design tool · 2026" (since 2026-11-09; on its Work card until 2026-11-05, "Type" on its page until 2026-11-06). An item with no page shows it in the lightbox (after the title in its Work card's caption too, until 2026-11-07) |
 | `roles` | Optional. A list, like `["UX research", "Art direction"]`. "Role" in the project page's facts, Role · Team · Timeline, what a recruiter reads a project's page for (since 2026-11-09; Category · Role · Year before). (Service in its place for a day, 2026-11-05) |
 | `team` | Optional. Who you worked with, like `"2 designers, 3 engineers, 1 PM"` or `"Solo"` (or a list). "Team" in the facts |
 | `timeline` | Optional. How long and when, like `"8 weeks, 2026"`. "Timeline" in the facts. (A project's `year` until 2026-11-09; the build reminds you if one is left. An item with no page keeps `year`) |
@@ -283,7 +283,10 @@ before (snapping and whole-screen steps were tried on 2026-11-05 and taken out t
 ## Header
 
 The name ("Kyuri Park", from `content/site.json`, shown in capitals) is at the left, in the name
-style like the links (Inter Display, 14px) and a weight heavier (`.identity` in `assets/css/style.css`), and Work, Archive,
+style like the links (Inter Display, 14px) and a weight heavier (`.identity` in `assets/css/style.css`), with the
+role (`"role"` in `content/site.json`, PRODUCT DESIGNER) as a gray label beside it, or under it on
+phones, so every page says what Kyuri does (since 2026-11-09; the header had the role until
+2026-10-30, then only Home's opening did). Work, Archive,
 and About at the right, on one line at every width (down to 320px), from `templates/base.html` on
 every page. The current page's link is in the text color and the others are gray
 (`--color-subtle`, the lightest gray that passes WCAG AA; a lighter `--color-faint` at 3:1, which
@@ -318,7 +321,7 @@ menu bar and project names are a sans while the small labels stay in Martian Mon
 | lead | Inter Display 500, as typed | 20px, growing with the window to 28px (from 800 to 1120px wide); lines up to 30em (`--measure-lead`) | 1.35, 0 | a project's statement, under its title (About's text too, 2026-11-06 to 2026-11-07) |
 | body | Inter Display 500, as typed | 16px | 1.5, 0 (1.1 from 2026-11-05 to 2026-11-09) | text, a project's "Visit" link; links in text at 600 (Contact's links and About's text too, until 2026-11-06) |
 | name | Inter Display 500, capitals | 14px | 1.3, -0.01em | the menu bar (Work, Archive, About, the lightbox's Close; the name at 600, 16px and +0.02em, see below) and project names (Home's cards, Work's tiles, Archive, the lightbox) |
-| label | Martian Mono 400, capitals | 12px | 1.3, -0.05em | Work's filters, Home's one-liners (in `--color-subtle`, `--color-muted` until 2026-11-07; on Work's tiles too, until the same day), captions, project facts, the footer, the lightbox's type and year, About's text (since 2026-11-07) and Experience; a label that names a column or a section (a project's fact labels, Role, Team, Timeline, its section and note headings, and About's Experience and Contact headings) looks as Work's filters do, in `--color-subtle` (at 600 in `--color-muted` until 2026-11-06) |
+| label | Martian Mono 400, capitals | 12px | 1.3, -0.05em | Work's filters, Home's type and year (one-liners until 2026-11-09; in `--color-subtle`, `--color-muted` until 2026-11-07; on Work's tiles too, until the same day), the header's role, captions, project facts, the footer, the lightbox's type and year, About's text (since 2026-11-07) and Experience; a label that names a column or a section (a project's fact labels, Role, Team, Timeline, its section and note headings, and About's Experience and Contact headings) looks as Work's filters do, in `--color-subtle` (at 600 in `--color-muted` until 2026-11-06) |
 
 Two weights for Inter Display, 500 and 600, and one for Martian Mono, 400 (600 too until 2026-11-06). Two sizes
 sit outside the styles: Work's counts, a label at `--size-count` (10px), and the name in the
@@ -329,7 +332,7 @@ type was Inter alone, at 400 and 500, with a 32-64px display, 28-48px titles, a 
 line height 1.5 for all text.
 
 Color is the text color (`--color-text`), one gray for all gray text (`--color-subtle`, 4.6:1 on
-the background, the lightest small text stays easy to read at: one-liners, Work's filters,
+the background, the lightest small text stays easy to read at: Home's type and year, the header's role, Work's filters,
 captions, the lightbox's type and year, the labels that name a column or a section, impact labels,
 Previous / Next, About's Experience companies and dates, the copyright, and since 2026-11-09 the
 header's links; since 2026-11-07, most of them a step darker in `--color-muted`, 5.6:1, before),
@@ -386,9 +389,15 @@ motion turned on, all of it is off, and the home loop jumps from card to card wi
 Home loop: the home page shows the featured projects, fills the screen, and doesn't scroll; after the last project comes the first again, both
 ways. Mouse wheel or trackpad (down/right = next), drag, swipe, and the
 left/right arrow keys all move it; after a short pause it settles with one card in the middle,
-its title and one-liner under it (title at the card's left edge, one-liner at its right as a gray mono label, so the two don't read as one line). Click the middle card to open it; click a side card to bring it to the middle.
+its title and its type and year under it (title at the card's left edge, "FONT DESIGN TOOL · 2026" at its right as a gray mono label, so the two don't read as one line; the one-liner was there until 2026-11-09). Click the middle card to open it; click a side card to bring it to the middle.
 Tab moves through the cards, bringing each to the middle. Without JavaScript, the home page is a
 plain list of the projects.
+Five cards show at most: the middle one and two each side. As the row turns, a card past them
+fades away over half a step (`FADE_OUT` at the top of `assets/js/track.js`) and the next one fades
+in at the other end, so no project ever shows twice (since 2026-11-09; until then copies of the
+cards filled wide windows, and the same project could show at both ends). On a window about three
+middle cards wide or narrower, the outermost cards still run off its edges; on a wider one the row
+ends inside them (about 75px from each edge on a 1480 × 840 window, 200px on 1920 × 960).
 On a phone the cards beside the middle one are off screen, so two things say there are more
 (since 2026-11-09): a dot for each project 16px under the caption, the middle card's dark (4px
 dots, 8px apart, `.track-dots` in `assets/css/style.css`; none from 768px, where the neighbors
@@ -400,6 +409,7 @@ To tune it:
 - `assets/js/track.js`, at the top: `WHEEL_SPEED` (cards per pixel of wheel/trackpad scroll),
   `WHEEL_MAX` (the most one wheel event can count for, which tames trackpad flicks),
   `SETTLE_DELAY` (ms of no input before it settles), `EASE` (how quickly it glides),
+  `FADE_OUT` (over how much of a step a card past the two each side fades away, 0.5),
   `TICK_VOLUME` (the soft tick each time a new card reaches the middle, 0 to 1; 0 turns it off,
   and it's 0 since 2026-11-09, since a visitor may be in an office or on a call; 0.3 before),
   `TICK_TONE` (its pitch in Hz; higher sounds brighter). The tick is made in the browser, no
@@ -436,7 +446,7 @@ them the rest go on a second line. The grid is 1 column under 640px, 2 from 640p
 and every image is as wide as its column at 4:5 (`--thumb-ratio`, the same as Home's cards),
 cropped to fill. Each tile's caption is its title alone, one line under its image; a title too
 long for its line is cut short with "…" 24px before the column's edge, so every tile is the same
-height. A project's one-liner is on Home, and an item's type in the lightbox (since 2026-11-07;
+height. A project's type and year are on Home, and an item's in the lightbox (since 2026-11-07;
 until then the one-liner, or the type, was in the caption too: at the right, as on Home, where
 it ran into the next tile's title 12px away, then for part of that day right after the title). Without JavaScript there's no toggle and the grid shows everything. To tune it:
 - `assets/js/main.js`, the Work section: `FADE_OUT` / `FADE_IN`.

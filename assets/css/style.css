@@ -72,7 +72,8 @@
                                                    Close), project names (Home's cards, Work's
                                                    tiles, Archive and the lightbox; the name
                                                    at 600)
-       label    Martian Mono 400         capitals  Work's filters, Home's one-liners, captions,
+       label    Martian Mono 400         capitals  Work's filters, Home's type · year, the
+                                                   header's role, captions,
                                                    project facts, the footer, the lightbox's
                                                    type and year, About's text (since
                                                    2026-11-07), About's Experience and
@@ -153,10 +154,15 @@
   --header-top: 12px;             /* over the header's text: 12px, 16px from 768px (until
                                      2026-11-05: 24/32px, then 16/24px over and under) */
   --header-pad: var(--step-2);    /* under the header's text: 16px, 24px from 768px */
-  /* The header's box on one line (the name's line, the taller one, between the two above):
-     what the sticky header takes up at the window's top, and what About's first screen leaves
-     for it. If larger browser text pushes the links to a second line, the box is a line taller. */
-  --header-h: calc(var(--header-top) + var(--leading-name) * var(--size-identity) + var(--header-pad));
+  /* The role's line under the name on phones (PRODUCT DESIGNER, a label); 0 from 768px, where it
+     sits beside the name (since 2026-11-09). */
+  --header-role: calc(var(--leading-label) * var(--size-label));
+  /* The header's box on one line (the name's line, the taller one, between the two above), and
+     on phones the role's line under it: what the sticky header takes up at the window's top, and
+     what About's first screen leaves for it. If larger browser text pushes the links to a second
+     line, the box is a line taller. */
+  --header-h: calc(var(--header-top) + var(--leading-name) * var(--size-identity) + var(--header-role)
+                   + var(--header-pad));
   /* Where every page starts: the header's box to the page's first thing (Home's middle card,
      Work's filter, the 404; Archive's images, a project's title, and About's first sentence
      start lower, where Work's images do: --grid-top), the same on every page so nothing jumps
@@ -200,6 +206,7 @@
     --space-3: var(--step-16);
     --header-top: var(--step-2);
     --header-pad: var(--step-3);
+    --header-role: 0px;
     --col-gap: var(--step-4);
     --section-gap: var(--step-12);
     --block-gap: var(--step-8);
@@ -410,7 +417,8 @@ button {
 .split-section > .section-heading,
 .about-contact,
 .experience li,
-.about-text {
+.about-text,
+.identity-role {
   font-family: var(--font-mono);
   font-size: var(--size-label);
   font-weight: 400;
@@ -464,7 +472,8 @@ button {
 }
 
 .caption,
-.archive-text {
+.archive-text,
+.identity-role {
   color: var(--color-subtle);
 }
 
@@ -589,12 +598,38 @@ mark.placeholder {
 /* "KYURI PARK" (the name in content/site.json, in capitals here only), in the name style as
    the links are, at 600 (see Shared text styles), and at --size-identity and
    --tracking-identity: a step bigger and more open than the links, as its open letters (K, Y,
-   A, R, a lone I) carry less ink than theirs. On hover it steps back to the muted gray. */
+   A, R, a lone I) carry less ink than theirs. On hover it steps back to the muted gray.
+   With it, the role (PRODUCT DESIGNER, "role" in content/site.json) as a label in
+   --color-subtle, as Home's caption pairs a project's name with its type: beside the name from
+   768px, under it on phones, where the links leave no room beside it (--header-role makes the
+   header that much taller there). Always on screen, so a visitor who skips Home's opening still
+   reads what Kyuri does (since 2026-11-09; the header had it until 2026-10-30, then only Home's
+   opening did). */
 .identity {
   flex: none;
+  display: flex;
+  flex-direction: column;
   font-size: var(--size-identity);
   letter-spacing: var(--tracking-identity);
   white-space: nowrap;
+}
+
+/* On phones the role, wider than the name, doesn't widen the name's box (it shows past it), so
+   the links keep their room beside the name, down to 320px. */
+.identity-role {
+  contain: inline-size;
+}
+
+@media (min-width: 768px) {
+  .identity {
+    flex-direction: row;
+    align-items: baseline;
+    column-gap: var(--step-2);
+  }
+
+  .identity-role {
+    contain: none;
+  }
 }
 
 .site-nav {
@@ -652,10 +687,11 @@ mark.placeholder {
   object-fit: cover;
 }
 
-/* The title at the card's left edge, the one-liner at its right, kept to the right half (it
-   wraps before it reaches the middle). The title is a name (see Shared text styles) in the
-   text color; the one-liner is a label, a tag, in --color-subtle, so the two differ in
-   typeface, size, and color. Until 2026-11-05 (evening) both were plain labels in the text
+/* The title at the card's left edge, its type and year at its right ("FONT DESIGN TOOL · 2026",
+   build.py's card_tag; the one-liner until 2026-11-09), kept to the right half (it wraps before
+   it reaches the middle). The title is a name (see Shared text styles) in the text color; the
+   type and year are a label, a tag, in --color-subtle, so the two differ in typeface, size,
+   and color. Until 2026-11-05 (evening) both were plain labels in the text
    color and read as one line; before that, a 16px title and a 14px one-liner, as
    focuscarouselpro.framer.website. */
 .card-caption,
@@ -697,8 +733,11 @@ mark.placeholder {
    --thumb-ratio, as Work's tiles are (4:5 since 2026-11-07, square the day before, 3:4 at the
    example's sizes until then), and the gap between them is the site's gap between images.
    The card's top is the page's starting line (main's --page-top), where Work's filter starts
-   too, except on a window too narrow for the card to fill its height (below). The middle card
-   is large enough that on most windows the outermost cards run off the screen's edges.
+   too, except on a window too narrow for the card to fill its height (below). Five cards show
+   at most, the middle one and two each side; past them a card fades away (FADE_OUT in
+   track.js). Where the window is about three middle cards wide or narrower, the outermost
+   cards run off its edges; on a wider one the row ends inside them (since 2026-11-09; until
+   then copies of the cards filled wide windows, so the same project could show twice).
    The space under the caption never runs past the space over the card (the window's top to
    the card's top, the header included), so the card sits in the window, not at the top of an
    empty one (until 2026-11-07 the card stayed at 62dvh and every taller window's extra height
@@ -748,7 +787,8 @@ mark.placeholder {
    track.js eases between the steps.
    Before track.js runs, each card sits at its --d (a whole number of steps out), split
    into its first step --d1 and second --d2 (each -1, 0, or 1) and any further ones --dn;
-   --beyond counts the steps past the first. */
+   --beyond counts the steps past the first. A card with further steps (more than five
+   featured projects) is hidden, as track.js hides it. */
 .js body:has(> .page-home) {
   height: 100vh;
   height: 100dvh;
@@ -831,7 +871,8 @@ mark.placeholder {
   width: var(--card-w);
   margin: calc(var(--card-h) * -0.5) 0 0 calc(var(--card-w) * -0.5);
   opacity: calc((1 - var(--d1) * var(--d1) * (1 - var(--opacity-1)))
-                * pow(var(--fade-step), var(--beyond)));
+                * pow(var(--fade-step), var(--beyond))
+                * max(0, 1 - sqrt(var(--dn) * var(--dn))));
   filter: grayscale(calc(var(--d1) * var(--d1) * var(--grayscale-1)))
           brightness(calc(1 - var(--d1) * var(--d1) * (1 - var(--brightness-1))))
           blur(calc(var(--beyond) * var(--blur-step)));

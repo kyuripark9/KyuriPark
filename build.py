@@ -86,6 +86,7 @@ PLACEHOLDER_RE = re.compile(r"\[PLACEHOLDER[^\]]*\]")
 LINK_RE = re.compile(r"\[([^\]]+)\]\(((?:https?://|mailto:|/)[^)\s]*)\)")
 SLUG_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 NUMBER_RE = re.compile(r"^-?\d+(?:\.\d+)?$")
+YEAR_RE = re.compile(r"\b(?:19|20)\d\d\b")
 
 
 class BuildError(Exception):
@@ -586,6 +587,7 @@ class Builder:
             css_version=file_version("assets/css/style.css"),
             js_version=file_version("assets/js/main.js"),
             site_name=esc(s["name"]),
+            site_role=esc(s["role"]),
             nav_work={"work": ' aria-current="page"', "project": ' aria-current="true"'}.get(current, ""),
             nav_archive=' aria-current="page"' if current == "archive" else "",
             nav_about=' aria-current="page"' if current == "about" else "",
@@ -841,10 +843,24 @@ class Builder:
         return rel, video
 
     def card_caption(self, p):
-        """'TypeLab' on the left, 'Font design playground' on the right: on each home card,
-        and under the middle one."""
+        """'TypeLab' on the left, 'Font design tool · 2026' on the right: on each home card,
+        and under the middle one. What the project is and when, so a recruiter can tell the
+        projects apart without opening them (since 2026-11-09; the one-liner was there before,
+        and is now only the page's description for search engines and link previews)."""
         return (f'<span class="card-title">{inline(p["title"])}</span> '
-                f'<span class="card-text">{inline(p["oneLiner"])}</span>')
+                f'<span class="card-text">{self.card_tag(p)}</span>')
+
+    def card_tag(self, p):
+        """'Type · Year', as an item with no page shows in the lightbox (piece_meta). The year
+        is the last one in "timeline" ("8 weeks, 2026" gives 2026); what's empty is left out.
+        "· 2026" keeps to the type's last word, so on a phone, where it can take two lines, it
+        wraps as "FONT DESIGN / TOOL · 2026", never leaving the dot at a line's end."""
+        timeline = p.get("timeline") or ""
+        if isinstance(timeline, list):
+            timeline = " ".join(timeline)
+        years = YEAR_RE.findall(PLACEHOLDER_RE.sub("", timeline))
+        parts = [inline(p["type"])] if p.get("type") else []
+        return "&nbsp;·&nbsp;".join(parts + years[-1:])
 
     def home_card(self, p, index, total):
         rel, _ = self.cover(p)

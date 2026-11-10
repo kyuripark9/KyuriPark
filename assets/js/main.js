@@ -248,7 +248,7 @@
   // A calm one (a project page's, since 2026-11-07: there the work is what's to be looked at,
   // not the title) is the same material, quieter: the pointer counts only over the title itself,
   // so reading the statement under it, or reaching for the Visit link, leaves it be.
-  // A waiting one (Home's opening, since 2026-11-09) passes only when told: intro.js sends
+  // A waiting one (Home's opening, 2026-11-09 to 2026-11-10; none since) passes only when told: intro.js sends
   // "dust:pass" to its box (or has set data-cue="pass" on it, should this run later). Once the
   // pass is over and every dot is home, it says "dust:still" to the box, so the opening can go on.
   const dust = (hero, headline, { calm = false, wait = false } = {}) => {
@@ -765,7 +765,6 @@
     }
   };
   [[".about-hero", ".about-headline"],
-   [".intro-hero", ".about-headline", { wait: true }],
    [".project-header", ".project-title", { calm: true }],
    [".page-not-found", ".not-found-title"]].forEach(([outer, inner, options]) => {
     const hero = document.querySelector(outer);

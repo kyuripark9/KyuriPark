@@ -76,11 +76,18 @@ CATEGORIES = ("digital", "brand", "physical")  # Work's filters, in toggle order
 # Physical read as three careers, not one product designer's work. True brings them back as they
 # were ("category" still sorts every item, so nothing else needs to change).
 WORK_FILTERS = False
+# What the site opens on. Since 2026-11-10, Work's grid, at /, with Home's opening over it (About's
+# first sentence, intro.js), so a visitor sees every project at once; /work/ sends them on to /.
+# True brings back Home's project track (track.js: the featured projects one at a time, at /) and
+# the grid at /work/, as they were until then.
+HOME_TRACK = False
 LOADING_ATTRS = {"lazy": 'loading="lazy"', "eager": "", "high": 'fetchpriority="high"'}
 # Old addresses that now live elsewhere: /contact/ was a menu item and is now About's Contact
 # label, with the footer's links under it.
 # Each becomes <old>/index.html, which sends the visitor on (build_redirects).
 REDIRECTS = {"contact": ("/about/#contact", "Contact")}
+if not HOME_TRACK:
+    REDIRECTS["work"] = ("/", "Work")  # Work is the first page (HOME_TRACK)
 
 PLACEHOLDER_RE = re.compile(r"\[PLACEHOLDER[^\]]*\]")
 LINK_RE = re.compile(r"\[([^\]]+)\]\(((?:https?://|mailto:|/)[^)\s]*)\)")
@@ -413,7 +420,7 @@ def validate(site, items):
             warnings.append(f'{where}: {p["todo"]}.')
         if "slug" not in p:  # no page of its own: its tile opens the lightbox
             need(p, "title", where)
-            if p.get("featured"):
+            if p.get("featured") and HOME_TRACK:
                 raise BuildError(f'{where}: "featured" needs a "slug", because a Home card '
                                  "opens the project's page.")
             images = need(p, "images", where)
@@ -469,11 +476,12 @@ def validate(site, items):
 
     if not seen:
         raise BuildError('content/projects.json needs at least one project with a "slug".')
+    # Only Home's track shows "featured" (HOME_TRACK); Work's grid shows everything, in "order".
     featured = sum(bool(p.get("featured")) for p in items)
-    if not featured:
+    if HOME_TRACK and not featured:
         raise BuildError('content/projects.json needs at least one item with "featured": true, '
                          "or Home has no cards.")
-    if not MIN_FEATURED <= featured <= MAX_FEATURED:
+    if HOME_TRACK and not MIN_FEATURED <= featured <= MAX_FEATURED:
         warnings.append(f"{featured} projects are featured on Home "
                         f"(aim for {MIN_FEATURED} to {MAX_FEATURED}).")
 
@@ -587,6 +595,7 @@ class Builder:
             css_version=file_version("assets/css/style.css"),
             js_version=file_version("assets/js/main.js"),
             site_name=esc(s["name"]),
+            work_url="/work/" if HOME_TRACK else "/",
             nav_work={"work": ' aria-current="page"', "project": ' aria-current="true"'}.get(current, ""),
             nav_archive=' aria-current="page"' if current == "archive" else "",
             nav_about=' aria-current="page"' if current == "about" else "",
@@ -881,15 +890,19 @@ class Builder:
                 f'          </li>')
 
     def home_intro(self):
-        """Home's opening (assets/js/intro.js, since 2026-11-09): About's first sentence, made the
-        same way About makes it, in a cover of the page's color that intro.js shows the first
-        time Home opens in a tab and removes otherwise. Nothing without a headline."""
-        headline = self.about_headline(self.site["about"])
-        if not headline:
-            return ""
+        """Home's opening (assets/js/intro.js): a black screen with the name, then the role, in
+        its middle, fading off the page (since 2026-11-10; About's first
+        sentence, made of dots, from 2026-11-09). Each word is a span of its own, so it can
+        rise in on its own."""
+        s = self.site
+
+        def words(text):
+            return " ".join(f"<span>{esc(w)}</span>" for w in text.split())
+
         return ('    <div class="intro" aria-hidden="true">\n'
-                '      <div class="intro-hero wrap">\n'
-                f'  {headline}'
+                '      <div class="intro-lines">\n'
+                f'        <p class="intro-line intro-name">{words(s["name"])}</p>\n'
+                f'        <p class="intro-line intro-role">{words(s["role"])}</p>\n'
                 '      </div>\n'
                 '    </div>\n')
 
@@ -983,15 +996,21 @@ class Builder:
     def build_work(self):
         """One grid of tiles, under the All / Digital / Brand / Physical toggle when WORK_FILTERS
         is on (main.js shows one filter at a time). Without JavaScript, there's no toggle and it
-        shows them all."""
+        shows them all. With HOME_TRACK off (since 2026-11-10) it's the site's first page, at /,
+        under Home's opening."""
         s = self.site
         tabs = "\n".join(self.work_tab(name) for name in ("all", *CATEGORIES))
         cards = "\n".join(self.work_card(p, i) for i, p in enumerate(self.items))
         lightbox = render("lightbox.html") if len(self.items) > len(self.projects) else ""
-        content = render("work.html", cards=cards, lightbox=lightbox,
+        opening = "" if HOME_TRACK else (
+            f'{self.home_intro()}    <script src="/assets/js/intro.js'
+            f'?v={file_version("assets/js/intro.js")}"></script>\n')
+        content = render("work.html", cards=cards, lightbox=lightbox, opening=opening,
                          tabs=render("work-tabs.html", tabs=tabs) if WORK_FILTERS else "")
-        self.page("work/index.html", "work", "/work/", f"Work — {s['name']}", s["description"],
-                  content, "wrap page-work", current="work", image=self.og_image())
+        rel, path, title = (("work/index.html", "/work/", f"Work — {s['name']}") if HOME_TRACK
+                            else ("index.html", "/", s["title"]))
+        self.page(rel, "work", path, title, s["description"], content, "wrap page-work",
+                  current="work", image=self.og_image())
 
     def archive_tile(self, item, box, loading):
         """An image on Archive with nothing under it, linking to the image itself; its number
@@ -1142,7 +1161,8 @@ class Builder:
         base = (self.site.get("siteUrl") or "").rstrip("/")
         robots = ["User-agent: *", "Allow: /"]
         if base:
-            paths = ["/", "/work/", *(f"/work/{p['slug']}/" for p in self.projects),
+            paths = ["/", *(["/work/"] if HOME_TRACK else []),
+                     *(f"/work/{p['slug']}/" for p in self.projects),
                      "/archive/", "/about/"]
             urls = "".join(f"  <url><loc>{esc(base + path)}</loc></url>\n" for path in paths)
             self.write("sitemap.xml",
@@ -1187,7 +1207,8 @@ def build(local_url=None):
     builder.warnings += warnings
     os.makedirs(DIST_DIR, exist_ok=True)
     builder.copy_assets()
-    builder.build_home()
+    if HOME_TRACK:  # otherwise Work's grid is the first page (build_work)
+        builder.build_home()
     builder.build_work()
     builder.build_archive()
     projects = builder.projects

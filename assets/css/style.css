@@ -426,9 +426,11 @@ button {
    lightbox's Close, which stands in for it), project names (Home's cards, Work's tiles,
    Archive and the lightbox). Set by name, so it wins over the label its caption is in.
    (Labels in Martian Mono for a few hours on 2026-11-05; Inter at 14px for the header and 16px
-   for names before. Home's intro line, the name and role on a black screen, was in this style
-   too until 2026-11-08, when the intro stopped having a screen.) */
+   for names before.) Home's opening, the name and then the role on a black screen, is in this
+   style too, at the header name's weight and size (until 2026-11-08, and again since
+   2026-11-10). */
 .site-header,
+.intro-line,
 .lightbox-close,
 .card-title,
 .work-name,
@@ -918,22 +920,21 @@ mark.placeholder {
 /* Home intro ------------------------------------------------------------ */
 
 /* The first time Home opens in a browser tab, an opening says who this is before the work shows
-   (since 2026-11-09): a cover of the page's own color over the work and the header (the name
-   and menu come in with the work, as the cover fades; until the evening of 2026-11-09 they
-   stayed on top of it, at the user's call), with
-   About's first sentence where About has it, made of the same dots. It comes into focus, About's
-   pass goes through it once, and once the dots are still it blurs away and the cover fades,
-   showing the work, after the preloader on titarvl.framer.website. assets/js/intro.js runs it
-   (timings at its top); the dust is main.js's. Later arrivals at Home come with the 300 ms fade
-   between pages, as every page does.
-   (Before: from 2026-11-09 morning, the page fading in over 1 s, after
+   (since 2026-11-10, after mastak.framer.website): a black screen (the text color) over the work
+   and the header, the name in its middle, each word rising in, then the name rising away as the
+   role takes its place, and then the black fading away, showing the page.
+   assets/js/intro.js runs it (timings at its top). Later arrivals at Home come with the 300 ms
+   fade between pages, as every page does.
+   (Before: from 2026-11-09, About's first sentence made of dots, blurring away as a cover of the
+   page's color faded; that morning, the page fading in over 1 s, after
    soren-template.framer.website; until 2026-11-08 a black screen with the name and role and the
    covers taking turns in a corner, after titarvl; between them several intros made of the dust,
    dropped: see the README.)
    Until intro.js has decided, the work and the header stay hidden, so they can't show for a
-   moment first. */
-.js:not(.intro-done):not(.intro-on) .page-home,
-.js:not(.intro-done):not(.intro-on) [data-page="home"] .site-header {
+   moment first. The page is found by its cover (.intro): since 2026-11-10 the first page is
+   Work's grid, not Home's track (HOME_TRACK in build.py), and the opening goes over either. */
+.js:not(.intro-done):not(.intro-on) main:has(> .intro),
+.js:not(.intro-done):not(.intro-on) body:has(> main > .intro) .site-header {
   opacity: 0;
 }
 
@@ -953,16 +954,31 @@ mark.placeholder {
   position: fixed;
   inset: 0;
   z-index: 25;  /* over the work and the header (20), under the skip link (30) */
-  background: var(--color-bg);
+  background: var(--color-text);
 }
 
-/* As About's hero: the sentence starts the header's box, --page-top, and --grid-top down, on the
-   header's left edge (.wrap), and the box runs to the window's bottom, so the dots have room on
-   every side. Hidden until intro.js brings it into focus. */
-.intro-hero {
+/* The name and the role, one in the other's place in the window's middle, in the name style
+   (see Shared text styles) at the header name's 600, --size-identity and --tracking-identity, in
+   the page's color. Each word is hidden until intro.js brings it in. */
+.intro-lines {
   position: relative;
+  display: grid;
+  place-items: center;
   height: 100%;
-  padding-top: calc(var(--header-h) + var(--page-top) + var(--grid-top));
+  color: var(--color-bg);
+}
+
+.intro-line {
+  grid-area: 1 / 1;
+  margin: 0;
+  font-size: var(--size-identity);
+  font-weight: 600;
+  letter-spacing: var(--tracking-identity);
+  white-space: nowrap;
+}
+
+.intro-line > span {
+  display: inline-block;
   opacity: 0;
 }
 

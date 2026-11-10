@@ -21,16 +21,16 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 
 | Address | What it is |
 | --- | --- |
-| `/` | Home: one card per featured project on an endless loop, five at most on screen. The first time it opens in a tab, About's first sentence opens it, then gives way to the work (see Motion, "Home intro"). Home answers "who, and what matters most" |
-| `/work/` | Work: everything, the projects first, in one grid of tiles. Its filters ("All 08   Digital 06   Brand 04   Physical 02", `/work/#digital` and so on) are off since 2026-11-09: `WORK_FILTERS` in `build.py` brings them back. Work answers "what else" |
+| `/` | Work: everything, the projects first, in one grid of tiles, so a visitor sees every project at once. The first time it opens in a tab, About's first sentence opens it, then gives way to the work (see Motion, "Home intro"). Its filters ("All 08   Digital 06   Brand 04   Physical 02", `/#digital` and so on) are off since 2026-11-09: `WORK_FILTERS` in `build.py` brings them back. Until 2026-11-10 Home was here, one card per featured project on an endless loop, and Work was at `/work/`: `HOME_TRACK = True` in `build.py` brings that back |
+| `/work/` | Not a page while Work is at `/`: it sends visitors on to `/` (old links keep working) |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html` |
 | `/archive/` | Archive: personal work and hobbies, a gallery of images with nothing under them. A separate page with its own data |
 | `/about/` | Read like a project page: one sentence at the top left, where a project's title is, the About text under it, then the photo edge to edge (gray until it exists), Experience, and a Contact label over the footer (`/about/#contact`) |
 | `/contact/` | Not a page: it sends visitors straight on to `/about/#contact` (old links keep working) |
 
 Contact is not a menu item: the links (email, LinkedIn, GitHub, Resume) are in the footer, one
-line under a rule, with the copyright at the right, the same on every page except Home, which
-has no footer (`templates/footer.html`, `.site-footer` in `assets/css/style.css`). On a phone the
+line under a rule, with the copyright at the right, the same on every page (Home's project
+loop, with `HOME_TRACK` on, has no footer) (`templates/footer.html`, `.site-footer` in `assets/css/style.css`). On a phone the
 links wrap onto a second line where they must, with no dots between them, and the copyright
 takes the next line. On About a Contact label sits just over the footer, so the footer reads as
 its list, and `/about/#contact` goes there (until 2026-11-06 About had a Contact section listing
@@ -80,7 +80,7 @@ dist/                   the generated site. Never edit; it's rebuilt every time.
 1. In `content/projects.json`, copy an existing project (from its `{` to its matching `}`) and paste it
    anywhere. `order` sets where it shows, everywhere: the home cards, the Work cards, and
    Previous / Next (which loop around at the ends). The counts on Work's toggle (when it's on) update on their own.
-   To show it on Home too, give it `"featured": true`.
+   To show it on Home's loop too (with `HOME_TRACK` on in `build.py`), give it `"featured": true`.
 2. Give it a new `slug`: lowercase letters, numbers, and hyphens. Its page will be `/work/<slug>/`.
 3. Create the folder `assets/images/<slug>/`.
 4. Fill in the fields:
@@ -89,7 +89,7 @@ dist/                   the generated site. Never edit; it's rebuilt every time.
 | --- | --- |
 | `order` | Required. A number; lower shows first. Work shows its cards in this order (within each filter, when they're on) |
 | `category` | Required. A list of the Work filters it shows under, one or more of `"digital"`, `"brand"`, `"physical"`, like `["digital", "brand"]`. It counts under each, and once under All. The filters are off since 2026-11-09 (`WORK_FILTERS` in `build.py`), so it shows nowhere for now, but keep it filled in. ("Category" on the project page until 2026-11-09) |
-| `featured` | Optional. `true` puts it on Home (aim for 3 to 5). Leave it out or set `false` and it's on Work only. Needs a `slug`, because a Home card opens the project's page |
+| `featured` | Optional. `true` puts it on Home's loop (aim for 3 to 5), which shows only with `HOME_TRACK` on in `build.py` (off since 2026-11-10: the first page is Work's grid, which shows everything). Leave it out or set `false` and it's on Work only. Needs a `slug`, because a Home card opens the project's page |
 | `title` | Everywhere |
 | `oneLiner` | The project page's description for search engines and link previews (3 words max). Not on the page itself: under the home loop until 2026-11-09, when the type and year took its place; after the title in its Work card's caption until 2026-11-07 |
 | `type` | Like "Font design tool": what it is, in a recruiter's words. Under the home loop when that project is in the middle, with the last year in `timeline` after it: "Font design tool · 2026" (since 2026-11-09; on its Work card until 2026-11-05, "Type" on its page until 2026-11-06). An item with no page shows it in the lightbox (after the title in its Work card's caption too, until 2026-11-07) |
@@ -288,8 +288,8 @@ before (snapping and whole-screen steps were tried on 2026-11-05 and taken out t
 The name ("Kyuri Park", from `content/site.json`, shown in capitals) is at the left, in the name
 style like the links (Inter Display, 14px) and a weight heavier (`.identity` in `assets/css/style.css`), on its
 own (the role, PRODUCT DESIGNER, was a gray label beside it, or under it on phones, from
-2026-11-09 to 2026-11-10, and until 2026-10-30). Work, Archive,
-and About at the right, on one line at every width (down to 320px), from `templates/base.html` on
+2026-11-09 to 2026-11-10, and until 2026-10-30). Work (`/` since 2026-11-10, the same page as
+the name's link), Archive, and About at the right, on one line at every width (down to 320px), from `templates/base.html` on
 every page. The current page's link is in the text color and the others are gray
 (`--color-subtle`, the lightest gray that passes WCAG AA; a lighter `--color-faint` at 3:1, which
 didn't, from 2026-11-05 to 2026-11-09) until hovered (`.site-menu a` in `assets/css/style.css`; see Type and color). On phones the links close up. If a visitor has set
@@ -388,7 +388,8 @@ The site keeps motion to a short list: the home loop and its intro, About's firs
 fading up on project pages, a 300 ms fade between pages (in browsers that support it; others switch pages instantly), the lightbox fading in and out (200 ms), impact numbers counting up, and a smooth scroll to a spot on a page (`/about/#contact`). If a visitor has reduced
 motion turned on, all of it is off, and the home loop jumps from card to card without easing.
 
-Home loop: the home page shows the featured projects, fills the screen, and doesn't scroll; after the last project comes the first again, both
+Home loop (off since 2026-11-10, when Work's grid became the first page; `HOME_TRACK = True` in
+`build.py` brings it back): the home page shows the featured projects, fills the screen, and doesn't scroll; after the last project comes the first again, both
 ways. Mouse wheel or trackpad (down/right = next), drag, swipe, and the
 left/right arrow keys all move it; after a short pause it settles with one card in the middle,
 its title and its type and year under it (title at the card's left edge, "FONT DESIGN TOOL · 2026" at its right as a gray mono label, so the two don't read as one line; the one-liner was there until 2026-11-09). Click the middle card to open it; click a side card to bring it to the middle.
@@ -461,24 +462,25 @@ it ran into the next tile's title 12px away, then for part of that day right aft
   `MERGED` in `assets/js/main.js`, so links to it still open the right filter.
 
 Home intro: the first time Home opens in a browser tab, an opening says who this is before the
-work shows (since 2026-11-09). Over the work and the header (the name and menu come in with the
-work as the cover fades; until the evening of 2026-11-09 they stayed on top), a cover of the page's own color
-holds About's first sentence ("Kyuri is a product designer working where digital meets everyday
-life", from `"headline"` in `content/site.json`), exactly where About has it and made of the same
-dots. It comes into focus from a 10px blur (0.5 s) with About's pass going through it once; once
-the dots are still it starts, 0.3 s on, to blur away slowly (2 s, gentle at first, so it's read as
-it goes), and 1 s into that the cover fades (1.2 s), the work coming in under it: the flow of the
-preloader on titarvl.framer.website, in the page's color and with the dust. About 4.5 s on a
-laptop; a pointer moving over the sentence plays with the dots as
-on About (the opening waits up to 3 s from the start for them). (Until the evening of 2026-11-09
-the pass went once the sentence was in focus and it left 0.2 s after the dots were still, which
-broke the sentence as it was being read; for a few hours that evening it then sat still 1.8 s
-before going in 0.6 s, which didn't read as an opening.) A click or tap on it, a key, or the wheel cuts it short
-(a key only does that: the row doesn't move). Later arrivals at Home come with the 300 ms fade
-between pages, as every page does; with reduced motion there's no opening. To tune it: the
-numbers at the top of `assets/js/intro.js` (`DELAY`, `IN`, `WAIT`, `READ`, `OUT`, `REVEAL_AT`, `REVEAL`, `CUT`,
-`BLUR`); the pass is About's (see "Display type's dust" below); "Home intro" in
-`assets/css/style.css` places the sentence. (From the morning of 2026-11-09 the page just faded
+work shows (since 2026-11-09; over Work's grid since 2026-11-10, over the home loop before). Since
+2026-11-10, after mastak.framer.website: a black screen (the text color) over the work and the
+header, with the name ("KYURI PARK", `"name"` in `content/site.json`) in its middle, in the
+header name's style and in the page's color, each word rising 0.8em into place as it fades in
+(0.6 s, 0.1 s apart); 0.5 s later the name rises away and fades (0.4 s) as the role ("PRODUCT
+DESIGNER", `"role"`) comes in the same way, and 0.7 s after that the black fades away (0.95 s),
+the role with it, showing the page; about 3.9 s in all (4.9 s at first, made faster twice the
+same day). (Earlier on 2026-11-10 the page opened
+from the middle in a growing circle, as mastak's does, then the black lifted away with a soft
+gradient edge; both were dropped for the plain fade.) A click or tap on it, a key, or the wheel
+cuts it short (the black then fades in 0.3 s; a key only does that: the page doesn't move). Later arrivals
+at Home come with the 300 ms fade between pages, as every page does; with reduced motion there's
+no opening. To tune it: the numbers at the top of `assets/js/intro.js` (`DELAY`, `WORD_IN`,
+`STAGGER`, `RISE`, `HOLD`, `SWAP`, `ROLE_AT`, `READ`, `OPEN`, `CUT`); "Home intro" in
+`assets/css/style.css` has the black and the type. (From 2026-11-09 to 2026-11-10
+a cover of the page's own color held About's first sentence, exactly where About has it and made
+of the same dots: it came into focus from a 10px blur with About's pass going through it once,
+then blurred away as the cover faded, about 4.5 s, after the preloader on
+titarvl.framer.website.) (From the morning of 2026-11-09 the page just faded
 in, header and all, over 1 s on `cubic-bezier(0.32, 0, 0.67, 0)`, as
 soren-template.framer.website does. Until 2026-11-08 the intro was a black screen over
 the page, with the name and role in capitals in the middle and the covers taking turns in a
@@ -498,7 +500,7 @@ the pointer passes and they drift back into the letters (after soren-template.fr
 The pointer counts over the box around it, and the dots fly as far as that box's edges: About's
 hero (the sentence, the text under it, and the space up to the header), a project's header (the
 title, statement, Visit link, and facts, and the space up to the header), the 404's whole main
-part, Home's opening (the whole window; it waits for intro.js to cue its pass). On a project page the pointer counts only over the title itself, since the work is what's
+part (and Home's opening, the whole window, from 2026-11-09 to 2026-11-10). On a project page the pointer counts only over the title itself, since the work is what's
 to be looked at there, not the title: reading the statement or reaching for Visit leaves it be
 (the dots still fly as far as the header's edges).
 

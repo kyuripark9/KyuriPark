@@ -1,34 +1,32 @@
-// Home's opening, the first time Home opens in a browser tab (since 2026-11-09): over the work
-// and the header (they come in together as the cover fades), a cover of the page's own color
-// with About's first sentence where About has it ("Kyuri is a product designer working where
-// digital meets everyday life"). The sentence comes into focus with About's pass going through
-// its dots once, and once they're still it starts to blur away, slowly at first, and halfway the
-// cover starts to fade, showing the work: the preloader on titarvl.framer.website (into focus
-// from a 10px blur, held, blurred away, then the cover goes), in the page's color and with the
-// dust. A click or tap on it, a key, or the wheel cuts it short. Later arrivals at Home come with
-// the 300 ms fade between pages, as every page does; with reduced motion, or with storage blocked,
-// there's no opening.
+// Home's opening, the first time Home opens in a browser tab (since 2026-11-10, after
+// mastak.framer.website): a black screen over the work and the header, the name in its middle,
+// each word rising in, then the name rising away as the role takes its place the same way, and
+// then the black fading away, showing the page (mastak's opens from the middle in a growing
+// shape; a circle doing that, then the black lifting away with a gradient edge, were tried the
+// same day). A click or tap, a key, or the wheel cuts it short. Later arrivals at Home come with the 300 ms fade between pages, as every page
+// does; with reduced motion, or with storage blocked, there's no opening.
+// (From 2026-11-09: About's first sentence, made of dots, blurring away as a cover of the page's
+// color faded. Since 2026-11-10 Home is Work's grid, HOME_TRACK in build.py; Home's project track
+// before.)
 // Loaded at the end of Home's page, so it decides at once (style.css keeps the work hidden until
-// then). The dust is main.js's dust(), waiting: this cues its pass ("dust:pass" on the sentence's
-// box) and hears when the dots are still ("dust:still"). The cover is built by build.py
-// (home_intro) and removed here when the opening doesn't play.
-// The pass goes as the sentence comes in, not once it's in focus (until 2026-11-09): then it
-// broke the sentence just as it was being read, and it went soon after the dots were back.
-// Nor does the sentence then sit still for long (it did for 1.8 s, on the evening of 2026-11-09,
-// which didn't read as an opening): it's read as it starts to go, and the work comes in under it.
+// then). The cover is built by build.py (home_intro) and removed here when the opening doesn't
+// play.
 (() => {
-  const DELAY = 200;      // ms of the plain cover first, once the sentence's font is in
-  const IN = 500;         // ms: the sentence comes into focus
-  const WAIT = 3000;      // ms at most, from the start, for the pass to end and the dots to be
-                          // still (a pointer playing with them keeps them going)
-  const READ = 300;       // ms the sentence stays, whole and still, before it starts to go
-  const OUT = 2000;       // ms: it blurs and fades away, slowly at first, so it's still read
-  const REVEAL_AT = 1000; // ms into that the cover starts to fade, the work coming in under it
-  const REVEAL = 1200;    // ms: the cover fades and the work shows (about 4.5 s in all on a
-                          // laptop; titarvl's takes 3.7 s)
-  const CUT = 250;        // ms the cover takes to go when the opening is cut short
-  const BLUR = 10;        // px: how blurred the sentence is at both ends
+  const DELAY = 200;      // ms of the plain black screen first, once the name's font is in
+  const WORD_IN = 600;    // ms: a word rises into its place as it comes up from nothing
+  const STAGGER = 100;    // ms between one word starting and the next
+  const RISE = 0.8;       // em: how far under its place a word starts, and how far up the name goes
+  const HOLD = 500;       // ms the name stays, whole, before the role takes its place
+  const SWAP = 400;       // ms: the name rises away and fades
+  const ROLE_AT = 120;    // ms into that the role's first word starts in
+  const READ = 700;       // ms the role stays, whole, before the page opens
+  const OPEN = 950;       // ms: the black fades away, showing the page (about 3.9 s in all,
+                          // made faster twice from the 4.9 s it took first on 2026-11-10;
+                          // mastak's takes about 4)
+  const CUT = 300;        // ms it takes when the opening is cut short
   const FONT_WAIT = 2000; // ms at most to wait for the font
+  const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";      // words: quick, then settling
+  const EASE_OPEN = "ease-in-out";                    // the black's fade
   const SEEN = "home-intro-seen";  // sessionStorage key
 
   const html = document.documentElement;
@@ -47,13 +45,16 @@
     return;
   }
   html.classList.add("intro-on");
-  const hero = intro.querySelector(".intro-hero");
-  const line = intro.querySelector(".about-headline");
+  const lines = intro.querySelector(".intro-lines");
+  const name = intro.querySelector(".intro-name");
+  const words = (line) => [...line.children];
 
   let state = "on";  // then "revealing", then "done"
   const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-  const blurred = { opacity: 0, filter: `blur(${BLUR}px)` };
-  const sharp = { opacity: 1, filter: "blur(0px)" };
+  const rise = (line) => words(line).forEach((word, i) => word.animate(
+    [{ opacity: 0, transform: `translateY(${RISE}em)` }, { opacity: 1, transform: "none" }],
+    { duration: WORD_IN, delay: i * STAGGER, easing: EASE, fill: "both" }));
+  const risen = (line) => WORD_IN + STAGGER * (words(line).length - 1);
 
   const end = () => {
     if (state === "done") return;
@@ -65,16 +66,17 @@
     html.classList.add("intro-done");
     document.dispatchEvent(new Event("intro:done"));  // track.js waits for it on phones
   };
-  // The cover fades and the work shows. From here, input reaches the page.
+  // The black fades away, the name or role on it too, showing the page. From here, input
+  // reaches the page.
   const reveal = (time) => {
     if (state !== "on") return;
     state = "revealing";
     intro.style.pointerEvents = "none";
-    intro.animate({ opacity: [1, 0] }, { duration: time, easing: "ease-in-out", fill: "forwards" })
+    intro.animate({ opacity: [1, 0] }, { duration: time, easing: EASE_OPEN, fill: "forwards" })
       .finished.then(end, end);
   };
   const cut = () => reveal(CUT);
-  // While the sentence is on, a key only cuts the opening short: the row doesn't move.
+  // While the name and role are on, a key only cuts the opening short: the page doesn't move.
   const onKey = (e) => {
     if (state === "on") e.stopPropagation();
     cut();
@@ -83,27 +85,27 @@
   addEventListener("wheel", cut, { passive: true });
   intro.addEventListener("pointerdown", cut);
 
-  const style = getComputedStyle(line);
+  const style = getComputedStyle(name);
   const font = document.fonts
     ? document.fonts.load(`${style.fontWeight} ${style.fontSize} ${style.fontFamily}`,
-                          line.textContent).catch(() => {})
+                          lines.textContent).catch(() => {})
     : Promise.resolve();
 
   (async () => {
     await Promise.race([font, wait(FONT_WAIT)]);
     await wait(DELAY);
     if (state !== "on") return;
-    // Into focus, and the pass with it. data-cue tells main.js to pass on its own, should it run
-    // only after this.
-    const still = new Promise((resolve) => hero.addEventListener("dust:still", resolve, { once: true }));
-    hero.animate([blurred, sharp], { duration: IN, easing: "ease-out", fill: "forwards" });
-    hero.dataset.cue = "pass";
-    hero.dispatchEvent(new Event("dust:pass"));
-    await Promise.race([Promise.all([still, wait(IN)]), wait(WAIT)]);
-    await wait(READ);
+    rise(name);
+    await wait(risen(name) + HOLD);
     if (state !== "on") return;
-    hero.animate([sharp, blurred], { duration: OUT, easing: "ease-in", fill: "forwards" });
-    await wait(REVEAL_AT);
-    reveal(REVEAL);
+    name.animate([{ opacity: 1, transform: "none" },
+                  { opacity: 0, transform: `translateY(-${RISE}em)` }],
+                 { duration: SWAP, easing: EASE, fill: "forwards" });
+    await wait(ROLE_AT);
+    if (state !== "on") return;
+    const role = intro.querySelector(".intro-role");
+    rise(role);
+    await wait(risen(role) + READ);
+    reveal(OPEN);
   })();
 })();

@@ -52,8 +52,11 @@ assets/images/pieces/   images of the items with no page
 assets/images/archive/  images on Archive
 assets/images/og.png    link-preview image (1200×630)
 assets/icons/           the browser tab and home-screen icons: favicon.svg, favicon-32.png,
-                        apple-touch-icon.png (180×180). A K on the page's color, a stand-in
-                        since 2026-11-09; replace the three files, keeping their names
+                        apple-touch-icon.png (180×180). A halftone K: Inter Display's K as
+                        page-colored hexagon dots on an ink square, the dots growing with the
+                        letter's tone and getting smaller toward the top right, the way the
+                        pass goes (12 dots across for the tab, 24 for the home screen); to
+                        change it, replace the three files, keeping their names
 assets/fonts/           Inter (with Inter Display) and Martian Mono, with their licenses
 assets/Kyuri-Park-Resume.pdf
 assets/css/style.css    all styling; colors, type sizes, and spacing are at the top

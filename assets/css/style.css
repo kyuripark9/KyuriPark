@@ -244,15 +244,9 @@
   margin: 0;
 }
 
-/* Every page keeps room for a scrollbar at the right, Home too, though it doesn't scroll (since
-   2026-11-10): where scrollbars take room (a mouse plugged in, or "Show scroll bars: Always"),
-   Home had none and the other pages did, so Home's header links sat 7.5px further right and
-   its icons 15px, and the header seemed to move when you switched. Scrollbars that float over
-   the page (a Mac trackpad's) take no room, so there nothing changes. */
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  scrollbar-gutter: stable;
 }
 
 body {
@@ -426,7 +420,8 @@ button {
 .split-section > .section-heading,
 .about-contact,
 .experience li,
-.about-text {
+.about-text,
+.sound-toggle {
   font-family: var(--font-mono);
   font-size: var(--size-label);
   font-weight: 400;
@@ -1035,10 +1030,51 @@ mark.placeholder {
                     page's right edge, the icons'
    The cards pass under the header, whose name, links, and icons turn light over them where
    they're dark (Header). (For an hour on 2026-11-10 the cards faded away at the window's top
-   and bottom edges instead.) */
+   and bottom edges instead.)
+   Under the sentence, the switch for the click the cards make as the visitor turns them
+   (track.js; since 2026-11-10, after theoportfolio.framer.photos): a 14px line speaker, as the
+   header's icons are, with waves or a cross, and SOUND ON or SOUND OFF in the label style,
+   gray, the text color on hover. It needs track.js, so not without JavaScript. From 1200px it
+   hangs 32px under the sentence without moving it, so the sentence stays across from the
+   middle card's center. */
+.page-home .home-side {
+  margin-bottom: var(--space-2);
+}
+
 .page-home .home-lead {
-  max-width: calc(var(--measure-lead) + 2 * var(--gutter));
-  margin: 0 0 var(--space-2);
+  max-width: var(--measure-lead);
+  margin: 0;
+}
+
+.sound-toggle {
+  display: none;
+}
+
+.js .sound-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--step-1);
+  margin: calc(var(--step-2) - 4px) -4px -4px;
+  padding: 4px;
+  border: 0;
+  background: none;
+  color: var(--color-subtle);
+  cursor: pointer;
+  transition: color var(--fade);
+}
+
+.sound-toggle:hover,
+.sound-toggle:focus-visible {
+  color: var(--color-text);
+}
+
+.sound-toggle svg {
+  flex: none;
+}
+
+.sound-toggle[aria-pressed="true"] .sound-off,
+.sound-toggle[aria-pressed="false"] .sound-on {
+  display: none;
 }
 
 /* Under 1200px the card sits right under the sentence, its top on the stage's top edge: the
@@ -1054,17 +1090,27 @@ mark.placeholder {
     --home-left: max(var(--gutter), (100vw - var(--page-max)) / 2);
   }
 
-  .js .page-home .home-lead {
+  .js .page-home .home-side {
     position: fixed;
     top: 50%;
     left: var(--home-left);
     z-index: 1;
     width: calc((100vw - var(--home-card-h) * (var(--thumb-ratio))) / 2 - var(--home-left)
                 - var(--step-6));
-    max-width: 15em;
     margin: 0;
     padding: 0;
     transform: translateY(-50%);
+  }
+
+  .js .page-home .home-lead {
+    max-width: 15em;
+  }
+
+  .js .page-home .sound-toggle {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: calc(var(--space-2) - 4px);
   }
 
   .js .page-home .track {
@@ -1134,12 +1180,6 @@ mark.placeholder {
   position: fixed;
   inset: 0;
   z-index: 25;  /* over the work and the header (20), under the skip link (30) */
-  background: var(--color-text);
-}
-
-/* The room kept for a scrollbar (Base) is outside the cover, so it's black too, or a strip of
-   the page's color would show at the right where scrollbars take room. */
-html.intro-on {
   background: var(--color-text);
 }
 

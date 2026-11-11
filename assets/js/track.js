@@ -19,8 +19,12 @@
 // copies of the cards filled wide windows, so the same project could show twice). Card size,
 // spacing, and how the cards shrink, grey, fade, and blur away from the middle are set in
 // style.css.
-// Each time a new card reaches the middle, a soft tick can sound (off since 2026-11-09: a
-// visitor may be in an office or on a call; TICK_VOLUME 0.3 turns it back on).
+// Each time the visitor brings a new card to the middle (the wheel, a drag, a swipe, the keys, a
+// click or tab to a card; not as the row drifts on its own), it clicks like a dial's notch
+// (since 2026-11-10, after theoportfolio.framer.photos; a softer tick from 2026-11-05, off from
+// 2026-11-09, since a visitor may be in an office or on a call). Home's SOUND ON / OFF switch,
+// under the sentence (.sound-toggle in templates/home.html), turns it off, and the browser
+// remembers that for the next visit. A page without the switch makes no sound.
 (() => {
   const WHEEL_SPEED = 1 / 600;   // cards moved per pixel of wheel or trackpad scroll
   const WHEEL_MAX = 30;          // pixels: one wheel event never counts for more than this
@@ -28,8 +32,11 @@
   const EASE = 0.15;             // share of the remaining distance covered each frame
   const FADE_OUT = 0.5;          // cards (more than 0): past two steps out, a card fades away
                                  // over this much of a step
-  const TICK_VOLUME = 0;         // 0 to 1; 0 turns the tick off (0.3 until 2026-11-09)
-  const TICK_TONE = 1800;        // Hz: the pitch the tick centers on; higher sounds brighter
+  const TICK_VOLUME = 0.5;       // 0 to 1, the click's loudness; 0 turns the sound off for good,
+                                 // and takes the switch away (0 from 2026-11-09 to 2026-11-10)
+  const TICK_FROM = 1300;        // Hz: the click's pitch falls from this
+  const TICK_TO = 500;           // Hz: to this; both higher sound brighter
+  const SOUND_OFF = "home-sound-off";  // localStorage key: the visitor turned the sound off
   // On a phone the cards beside the middle one are off screen, so once a visit, as the page
   // shows (after Home's opening, when it plays), the row leans toward the next card and back,
   // showing there are more; the dots under the caption say so too. Not if the row has been
@@ -76,48 +83,79 @@
   let settleTimer;
   let drag = null;
   let dragged = false;
+  let driven = false;  // the row is moving on its own (the drift), not by the visitor's hand
 
-  // The tick: a 90 ms burst of noise that fades as it goes, narrowed to a band around
-  // TICK_TONE and cut off after 50 ms. No sound file. Browsers allow sound only once the
-  // visitor has clicked, tapped, or pressed a key on the page, so until then it's silent.
+  // The click: 6 ms of noise, fading fast, with only its highs (over 3.2 kHz) kept, over a
+  // 16 ms blip whose pitch falls from TICK_FROM to TICK_TO in 12 ms. Made in the browser, no
+  // sound file. On unless the visitor turns it off: the switch says SOUND ON from the start
+  // (since 2026-11-10, the user's call; for an hour it said SOUND OFF until the sound could
+  // play). Browsers allow sound only once the visitor has clicked, tapped, or pressed a key on
+  // the page, so until then it's silent all the same; that first input, anywhere on the page,
+  // wakes it.
+  const toggle = document.querySelector(".sound-toggle");
+  const Context = window.AudioContext || window.webkitAudioContext;
   let audio = null;    // { context, noise }, made at the visitor's first input
-  let lastTick = 0;
+  let lastTick = -Infinity;  // performance.now() at the last click
+  let wanted = true;   // the visitor hasn't turned the sound off
+  try {
+    wanted = localStorage.getItem(SOUND_OFF) !== "1";
+  } catch (e) {
+    // Storage blocked: on, as for anyone; the switch still works on this page.
+  }
+  if (toggle && (!TICK_VOLUME || !Context)) toggle.remove();
 
+  const soundOn = () => Boolean(wanted && audio && audio.context.state === "running");
+  const showSound = () => {
+    if (toggle) toggle.setAttribute("aria-pressed", String(wanted));
+  };
+  showSound();
+
+  // Makes the sound ready, if it's wanted; resolves once it can play.
   const wakeAudio = () => {
-    if (!TICK_VOLUME) return;
+    if (!TICK_VOLUME || !Context || !toggle || !toggle.isConnected || !wanted) {
+      return Promise.resolve();
+    }
     if (!audio) {
-      const Context = window.AudioContext || window.webkitAudioContext;
-      if (!Context) return;
       const context = new Context();
-      const length = Math.floor(context.sampleRate * 0.09);
+      const length = Math.floor(context.sampleRate * 0.006);
       const noise = context.createBuffer(1, length, context.sampleRate);
       const data = noise.getChannelData(0);
-      for (let i = 0; i < length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / length);
+      for (let i = 0; i < length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / length) ** 4;
       audio = { context, noise };
     }
-    if (audio.context.state === "suspended") audio.context.resume().catch(() => {});
+    if (audio.context.state === "running") return Promise.resolve();
+    return audio.context.resume().catch(() => {});
   };
 
   const playTick = () => {
-    if (!audio || audio.context.state !== "running") return;
+    if (!soundOn()) return;
+    // At most one click every 30 ms, however fast the row moves.
+    if (performance.now() - lastTick < 30) return;
+    lastTick = performance.now();
     const { context, noise } = audio;
     const now = context.currentTime;
-    if (now - lastTick < 0.03) return;  // at most one tick every 30 ms, however fast the row moves
-    lastTick = now;
+    const out = context.createGain();
+    out.gain.value = TICK_VOLUME;
+    out.connect(context.destination);
     const source = context.createBufferSource();
     source.buffer = noise;
-    const band = context.createBiquadFilter();
-    band.type = "bandpass";
-    band.frequency.value = TICK_TONE;
-    band.Q.value = 4.5;
-    const gain = context.createGain();
-    gain.gain.setValueAtTime(TICK_VOLUME, now);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
-    source.connect(band);
-    band.connect(gain);
-    gain.connect(context.destination);
+    const highs = context.createBiquadFilter();
+    highs.type = "highpass";
+    highs.frequency.value = 3200;
+    source.connect(highs);
+    highs.connect(out);
+    const blip = context.createOscillator();
+    blip.frequency.setValueAtTime(TICK_FROM, now);
+    blip.frequency.exponentialRampToValueAtTime(TICK_TO, now + 0.012);
+    const level = context.createGain();
+    level.gain.setValueAtTime(0.0001, now);
+    level.gain.exponentialRampToValueAtTime(0.5, now + 0.001);
+    level.gain.exponentialRampToValueAtTime(0.0001, now + 0.016);
+    blip.connect(level);
+    level.connect(out);
     source.start(now);
-    source.stop(now + 0.07);
+    blip.start(now);
+    blip.stop(now + 0.03);
   };
 
   const wrap = (i) => ((i % n) + n) % n;
@@ -223,7 +261,7 @@
     const middle = items[wrap(Math.round(position))];
     if (middle !== shown) {
       shown = middle;
-      playTick();
+      if (!driven) playTick();
       // A focused card is read out by the screen reader already; don't repeat it. Nor every
       // card the drift brings past.
       caption.setAttribute("aria-live",
@@ -246,7 +284,10 @@
   const tick = (now) => {
     frame = 0;
     const turning = drifting();
-    if (turning) target += drift * Math.min(now - (last || now), 50) / 1000;
+    if (turning) {
+      target += drift * Math.min(now - (last || now), 50) / 1000;
+      driven = true;
+    }
     last = turning ? now : 0;
     position = reduceMotion.matches ? Math.round(target) : position + (target - position) * EASE;
     if (Math.abs(target - position) < 0.001) position = target;
@@ -268,6 +309,7 @@
   const move = (to) => {
     direction = Math.sign(to - target) || direction;
     target = to;
+    driven = false;
     if (!frame) frame = requestAnimationFrame(tick);
   };
 
@@ -352,7 +394,8 @@
   });
 
   // Left/right arrows (and up/down, when the row runs down) work while focus is on the track,
-  // on Work's view switch (just clicked to show the slider), or nowhere in particular.
+  // on Work's view switch (just clicked to show the slider), on Home's sound switch (just
+  // clicked to hear the cards), or nowhere in particular.
   // On a card, focus moves along with the row.
   const step = (e) => ({ ArrowLeft: -1, ArrowRight: 1,
                          ...(axis === "Y" && { ArrowUp: -1, ArrowDown: 1 }) })[e.key];
@@ -361,7 +404,7 @@
     if (!by || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || !visible()) return;
     const focused = document.activeElement;
     if (focused && focused !== document.body && !root.contains(focused)
-        && !focused.closest(".work-views")) return;
+        && !focused.closest(".work-views, .sound-toggle")) return;
     e.preventDefault();
     go(by);
     if (cards.includes(focused)) {
@@ -369,11 +412,33 @@
     }
   });
 
-  // Any input that can move the row also readies the sound.
-  root.addEventListener("wheel", wakeAudio, { passive: true });
-  root.addEventListener("pointerdown", wakeAudio);
-  root.addEventListener("pointerup", wakeAudio);
-  document.addEventListener("keydown", wakeAudio);
+  // The visitor's first click, tap, or key anywhere on the page readies the sound (the ones
+  // browsers count; the wheel isn't one), caught on the way down so it's there before the row
+  // moves. Not on the switch, whose own click decides. Turning it back on plays one click, to
+  // hear it by.
+  const readySound = (e) => {
+    if (!toggle || !toggle.contains(e.target)) wakeAudio();
+  };
+  ["pointerdown", "keydown", "touchend"].forEach((type) => {
+    document.addEventListener(type, readySound, { capture: true });
+  });
+  if (toggle) {
+    toggle.addEventListener("click", () => {
+      wanted = !wanted;
+      try {
+        if (wanted) localStorage.removeItem(SOUND_OFF);
+        else localStorage.setItem(SOUND_OFF, "1");
+      } catch (e) {
+        // Storage blocked: the choice holds on this page only.
+      }
+      showSound();
+      if (wanted) {
+        wakeAudio().then(playTick);
+      } else if (audio) {
+        audio.context.suspend().catch(() => {});
+      }
+    });
+  }
 
   // The lean on phones (LEAN, at the top). Input on the row, or the arrow keys, first: no lean.
   const touch = () => {

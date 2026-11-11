@@ -316,13 +316,6 @@ rather than keeping its place apart from it (`view-transition-name: site-header`
 the same on every page, so it still looks still. `/about/#contact` scrolls to About's Contact label, as far as the page
 goes, kept clear of the header.
 
-Every page keeps room for a scrollbar at the right, Home too, though it doesn't scroll
-(`scrollbar-gutter: stable` on `html`, since 2026-11-10). Where scrollbars take room (a mouse
-plugged in, or "Show scroll bars: Always" on a Mac), Home had none and the other pages did, so
-Home's links sat 7.5px further right and its icons 15px. Scrollbars that float over the page (a
-Mac trackpad's) take no room, so there nothing changes. During Home's opening that room is black
-with the cover and fades with it (`html.intro-on`, and `assets/js/intro.js`).
-
 `<body data-page="…">` names the kind of page (`home`, `work`, `project`, `archive`, `about`,
 `404`), for CSS that applies to one page only, like the space over About's footer.
 
@@ -465,10 +458,21 @@ To tune it:
   `WHEEL_MAX` (the most one wheel event can count for, which tames trackpad flicks),
   `SETTLE_DELAY` (ms of no input before it settles), `EASE` (how quickly it glides),
   `FADE_OUT` (over how much of a step a card past the two each side fades away, 0.5),
-  `TICK_VOLUME` (the soft tick each time a new card reaches the middle, 0 to 1; 0 turns it off,
-  and it's 0 since 2026-11-09, since a visitor may be in an office or on a call; 0.3 before),
-  `TICK_TONE` (its pitch in Hz; higher sounds brighter). The tick is made in the browser, no
-  sound file, and stays silent until the visitor has clicked, tapped, or pressed a key on the page.
+  `TICK_VOLUME` (the click each time the visitor brings a new card to the middle, 0 to 1, `0.5`;
+  `0` turns the sound off for good and takes its switch away; it was 0 from 2026-11-09 to
+  2026-11-10), `TICK_FROM` and `TICK_TO` (the click's pitch falls from one to the other in Hz,
+  1300 to 500; higher sounds brighter). Since 2026-11-10, after theoportfolio.framer.photos, the
+  click is a dial's notch: a few milliseconds of bright noise over a short falling blip, made in
+  the browser, no sound file. It sounds only when the visitor turns the cards (wheel, drag,
+  swipe, keys, a click or tab to a card), never as they drift on their own. Browsers allow sound
+  only once the visitor has clicked, tapped, or pressed a key on the page, so until then it's
+  silent. Under Home's sentence, a SOUND ON / SOUND OFF switch (a 14px speaker line icon and a
+  gray label, `.sound-toggle` in `templates/home.html` and `assets/css/style.css`; from 1200px it
+  hangs under the sentence without moving it). The sound is on unless the visitor turns it off,
+  so the switch reads ON from the start (the user's call, 2026-11-10; for an hour it read OFF
+  until that first input). Turning it off is remembered in the browser (`localStorage`, `home-sound-off`) for
+  later visits, and turning it on plays one click to hear it by. A page without the switch
+  makes no sound.
 - `assets/css/style.css`: `--thumb-ratio` at the top (the cards' shape, width / height, `4 / 3`, `4 / 5` until 2026-11-10;
   Work's tiles use it too). "Home: project track": `--card-gap` (space between cards: `--media-gap`,
   12px, as between images on every page), `--card-share` (the middle card's least height as a share

@@ -273,7 +273,8 @@ the height of Work's filter line and the space under it), so switching among the
 **About's text and photo:** About is laid out as a project page is (since 2026-11-06). The About
 text (`"paragraphs"`) is in the label style (Martian Mono, 12px, capitals, in the text color;
 since 2026-11-07, the lead style for a day before; the body style for a few hours on 2026-11-09,
-then back to the label at Kyuri's call), left-aligned, 32px under the sentence, as a
+then back to the label at Kyuri's call; at the body's line height, 1.5, since 2026-11-11, the
+label's 1.3 before), left-aligned, 32px under the sentence, as a
 project's statement is under its title, with 24px between paragraphs. Then the photo
 (`"portrait"` in `content/site.json`, `assets/images/about/portrait.webp`) runs edge to edge at
 3:2, as a project's hero does, plain gray (`--color-fill`) until it exists; gray edge to edge
@@ -287,7 +288,7 @@ before (snapping and whole-screen steps were tried on 2026-11-05 and taken out t
 ## Header
 
 The name ("Kyuri Park", from `content/site.json`, shown in capitals) is at the left, in the name
-style like the links (Inter Display, 14px) and a weight heavier (`.identity` in `assets/css/style.css`), on its
+style like the links (Inter, 14px) and a weight heavier (`.identity` in `assets/css/style.css`), on its
 own (the role, PRODUCT DESIGNER, was a gray label beside it, or under it on phones, from
 2026-11-09 to 2026-11-10, and until 2026-10-30). Work, Archive, and About in the window's middle
 from 768px (at the right until 2026-11-10, and still on phones), on one line at every width
@@ -302,7 +303,7 @@ larger text in their browser or phone and it still doesn't fit, the links move t
 the right.
 
 Since 2026-11-10 the header's type is smaller: the name 14px (`--size-identity`, 16px before)
-and the links 12px at +0.02em (`--size-menu`, `--tracking-menu`; 14px in the name style before).
+and the links 12px (`--size-menu`; 14px before), both at the name style's +0.02em.
 
 The header is sticky: it stays at the top of the window while the page scrolls, with no
 background, so the page scrolls under the name and links (`.site-header` in
@@ -329,32 +330,44 @@ with the cover and fades with it (`html.intro-on`, and `assets/js/intro.js`).
 ## Type and color
 
 Every size, line height, and color on the site is a token at the top of
-`assets/css/style.css`; no rule sets its own. The type follows titarvl.framer.website/about
-(since 2026-11-05): two typefaces, Inter Display (the Inter file's optical size at 32, set on
-`body`) and Martian Mono, both self-hosted from Google Fonts under the SIL Open Font License, in
-six styles. Each style is a typeface, a size, a line height, and a tracking, with tokens named
-after it (`--size-name`, `--leading-name`, `--tracking-name`…), and each is set once, under
-"Shared text styles". Four are titarvl's; "name" was added on the user's ask (2026-11-05), so the
-menu bar and project names are a sans while the small labels stay in Martian Mono, and "lead" on
-2026-11-06, so a project's statement reads as the step between its title and its text.
+`assets/css/style.css`; no rule sets its own. The Type comment there is the spec; this table
+repeats it, and `git log -- assets/css/style.css` has how it got here. The type follows
+titarvl.framer.website/about: two typefaces, Inter and Martian Mono, both self-hosted from
+Google Fonts under the SIL Open Font License, in six styles. Each style is a typeface and cut, a
+size, a line height, a tracking, and a case, with tokens named after it (`--size-name`,
+`--leading-name`, `--tracking-name`…), and each is set once, under "Shared text styles".
 
 | Style | Type | Size | Line height, tracking | Used for |
 | --- | --- | --- | --- | --- |
-| display | Inter Display 500, capitals | 41px, 51px from 1200px, 64px from 1440px | 1, -0.04em | About's first sentence, project titles, the 404 (About's section headings too, until 2026-11-06) |
+| display | Inter Display 500, capitals | 41px, 51px from 1200px, 64px from 1440px | 1, -0.04em | About's first sentence, project titles, the 404 |
 | title | Inter Display 500, capitals | 18px, 23px from 768px, 29px from 1200px, 36px from 1440px | 0.9, -0.01em | impact numbers, Previous / Next titles |
-| lead | Inter Display 500, as typed | 20px, growing with the window to 28px (from 800 to 1120px wide); lines up to 30em (`--measure-lead`) | 1.35, 0 | a project's statement, under its title (About's text too, 2026-11-06 to 2026-11-07) |
-| body | Inter Display 500, as typed | 16px | 1.5, 0 (1.1 from 2026-11-05 to 2026-11-09) | text, a project's "Visit" link; links in text at 600 (Contact's links and About's text too, until 2026-11-06) |
-| name | Inter Display 500, capitals | 14px | 1.3, -0.01em | the menu bar (the lightbox's Close; Work, Archive, About until 2026-11-10, 12px since; the name at 600, 14px and +0.02em, see below) and project names (Home's cards, Work's tiles, Archive, the lightbox) |
-| label | Martian Mono 400, capitals | 12px | 1.3, -0.05em | Work's filters, Home's type and year (one-liners until 2026-11-09; in `--color-subtle`, `--color-muted` until 2026-11-07; on Work's tiles too, until the same day), captions, project facts, the footer, the lightbox's type and year, About's text (since 2026-11-07) and Experience; a label that names a column or a section (a project's fact labels, Role, Team, Timeline, its section and note headings, and About's Experience and Contact headings) looks as Work's filters do, in `--color-subtle` (at 600 in `--color-muted` until 2026-11-06) |
+| lead | Inter Display 500, as typed | 20px, growing with the window to 28px (from 800 to 1120px wide); lines up to 30em (`--measure-lead`) | 1.35, 0 | Home's sentence, a project's statement |
+| body | Inter 500, as typed; links 600 | 16px | 1.5, 0 | text, a project's "Visit" link, the 404's link |
+| name | Inter 500 (the header's name and the opening 600), capitals | 14px; the header's links 12px (`--size-menu`), the opening 16px (`--size-opening`) | 1.3, +0.02em | the header, Home's opening, project names (Home's cards, Work's tiles, Archive, the lightbox), the lightbox's Close |
+| label | Martian Mono 400, capitals | 12px; Work's counts 10px (`--size-count`) | 16px, -0.05em; About's paragraphs 1.5 | captions, Home's type and year and SOUND ON / OFF, a project's facts and section headings, the prototype's "Open in a new tab", About's text, Experience, and Contact, the footer, the lightbox's type and year, Work's filters and counts; a label that names a column or a section (a project's fact labels, its section and note headings, About's Experience and Contact) in `--color-subtle` |
 
-Two weights for Inter Display, 500 and 600, and one for Martian Mono, 400 (600 too until 2026-11-06). Two sizes
-sit outside the styles: Work's counts, a label at `--size-count` (10px), and the name in the
-header, 14px (`--size-identity`; 16px from 2026-11-05 to 2026-11-10) at +0.02em
-(`--tracking-identity`), a step bigger and more open than the 12px links beside it (since
-2026-11-05; at the links' size and -0.01em it read weaker, its open letters carrying less ink
-than theirs). Until 2026-11-05 the
-type was Inter alone, at 400 and 500, with a 32-64px display, 28-48px titles, a 14px header, and
-line height 1.5 for all text.
+The rules behind the table (since 2026-11-11):
+
+- **Cuts.** Inter's optical size follows the font size (`font-optical-sizing: auto` on `body`):
+  body text, names, and the menu (12-16px) get Inter's text cut, drawn to read at small sizes;
+  display, title, and lead (18px and up) are held at Inter Display (`"opsz" 32`), the cut their
+  tracking and `--cap-display` are measured for. Until 2026-11-11 everything was Inter Display,
+  which set 16px text about 8% tighter.
+- **Weights.** Inter at 500 and 600; Martian Mono at 400 only, so a link in a label stays at 400.
+- **Tracking.** One value per style. The name style's small capitals are a little open
+  (+0.02em, the header's name and links, the opening, and project names alike; project names were
+  -0.01em before). Martian Mono's letters are 0.7em wide, open enough to close up at -0.05em.
+- **Lines.** A label's line is 16px, so a label line and `--space-2` under it make Work's 48px
+  (`--grid-top`). About's paragraphs, the one label that runs on for lines, take the body's 1.5.
+  Display and title lines that wrap come out even (`text-wrap: balance`).
+- **Phones.** Display and title shrink with the window under 342px and 328px wide
+  (`min(2.5625rem, 12vw)`, `min(1.125rem, 5.5vw)`), so the longest word, NBCUNIVERSAL, never
+  breaks in the middle, even at a larger text setting.
+- **Font files.** `assets/fonts/` holds only what the site and the Light Life prototype use, cut
+  from Google Fonts' files with fontTools' instancer: Inter with optical sizes 14-32 and
+  weights 400-600 (52KB, from 73KB), Martian Mono at 400 (10KB, from 24KB). To use another
+  weight, take the full file from git history (before 2026-11-11) or Google Fonts and cut it
+  again.
 
 Color is the text color (`--color-text`), one gray for all gray text (`--color-subtle`, 4.6:1 on
 the background, the lightest small text stays easy to read at: Home's type and year, Work's filters,

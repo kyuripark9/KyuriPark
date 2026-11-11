@@ -1,10 +1,12 @@
 /* Kyuri Park portfolio. One stylesheet for every page.
    Quiet by design: no accent color, the project images bring the color. */
 
-/* Two typefaces, as titarvl.framer.website (since 2026-11-05; Inter alone before): Inter
-   Display for headings and text, Martian Mono for labels. Both from Google Fonts, latin only,
-   SIL Open Font License (LICENSE-*.txt beside them). The Inter file carries the optical-size
-   axis (opsz 14-32); the body sets it to 32, which is Inter Display. */
+/* Two typefaces, after titarvl.framer.website: Inter for headings, text, and names, Martian
+   Mono for labels. Both from Google Fonts, latin only, SIL Open Font License (LICENSE-*.txt
+   beside them), cut down to what the site and the Light Life prototype use (2026-11-11, with
+   fontTools' instancer; git has the full files): Inter keeps its optical-size axis (opsz
+   14-32) and weights 400-600 (the prototype uses 400; the site 500 and 600), Martian Mono is
+   400 only. See Type in the tokens for which cut and weight each style takes. */
 @font-face {
   font-family: "Inter";
   src: url("/assets/fonts/inter-latin.woff2") format("woff2");
@@ -19,7 +21,7 @@
 @font-face {
   font-family: "Martian Mono";
   src: url("/assets/fonts/martian-mono-latin.woff2") format("woff2");
-  font-weight: 400 600;
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
@@ -57,48 +59,53 @@
   --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   --font-mono: "Martian Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-  /* Type: two typefaces, six styles, after titarvl.framer.website/about (since 2026-11-05).
-     Each style is a typeface, a size, a line height, and a tracking (the tokens below, by the
-     style's name), plus its weights and case; each is set once, in Shared text styles. No
-     rule sets its own type.
-       style    typeface, weights        case      used for
-       display  Inter Display 500        capitals  About's first sentence, project titles, the
-                                                   404
-       title    Inter Display 500        capitals  impact numbers, Previous / Next titles
-       lead     Inter Display 500        as typed  a project's statement, under its title (About's
-                                                   text too, 2026-11-06 to 2026-11-07)
-       body     Inter Display 500, 600   as typed  text (links in text at 600)
-       name     Inter Display 500, 600   capitals  the menu bar (the header, the lightbox's
-                                                   Close), project names (Home's cards, Work's
-                                                   tiles, Archive and the lightbox; the name
-                                                   at 600)
-       label    Martian Mono 400         capitals  Work's filters, Home's type · year,
-                                                   captions,
-                                                   project facts, the footer, the lightbox's
-                                                   type and year, About's text (since
-                                                   2026-11-07), About's Experience and
-                                                   Contact (a label that names a column or a
-                                                   section as Work's filters are, in
-                                                   --color-subtle; at 600 until 2026-11-06)
-     Two weights for Inter Display, 500 and 600, and one for Martian Mono, 400. An
-     email address stays as typed, even in a label. Two sizes sit outside the styles: Work's
-     counts, a label at --size-count, and the name in the header, the name style at
-     --size-identity and --tracking-identity, a step bigger and more open than the links beside
-     it (since 2026-11-05; 14px at -0.01em like the links before, and it read weaker than them).
-     Until 2026-11-05: Inter alone at 400 and 500, a fluid 32-64px display, 28-48px titles,
-     14px header, line height 1.5 for all text. */
-  --size-display: 2.5625rem;   /* 41px; 51px from 1200px, 64px from 1440px (below) */
-  --size-title: 1.125rem;      /* 18px; 23px from 768px, 29px from 1200px, 36px from 1440px */
+  /* Type: two typefaces, six styles. This table is the spec (README's Type and color repeats
+     it; git log has how it got here). Each style is a typeface and cut, a size, a line height,
+     a tracking, and a case (the tokens below, by the style's name), set once in Shared text
+     styles; no other rule sets type.
+
+       style    typeface              size, px                   line    tracking  case
+       display  Inter Display 500     41, 51 at 1200, 64 at 1440   1       -0.04em   capitals
+       title    Inter Display 500     18, 23 at 768, 29, 36        0.9     -0.01em   capitals
+       lead     Inter Display 500     20, growing to 28 (800-1120) 1.35    0         as typed
+       body     Inter 500, links 600  16                           1.5     0         as typed
+       name     Inter 500, 600        14; 12 (menu), 16 (opening)  1.3     +0.02em   capitals
+       label    Martian Mono 400      12; 10 (Work's counts)       16px    -0.05em   capitals
+
+       display  About's first sentence, project titles, the 404
+       title    impact numbers, Previous / Next titles
+       lead     Home's sentence, a project's statement
+       body     text, a project's Visit link, the 404's link
+       name     the header (the name at 600, the links at --size-menu), Home's opening (600,
+                at --size-opening), project names (Home, Work, Archive, the lightbox), the
+                lightbox's Close
+       label    captions, Home's type · year and SOUND ON / OFF, a project's facts and section
+                headings, the prototype's Open link, About's text, Experience, and Contact, the
+                footer, the lightbox's type and year, Work's filters and counts
+
+     Cuts: Inter's optical size follows the font size (font-optical-sizing: auto), so body,
+     names, and the menu (12-16px) get Inter's text cut, drawn for small sizes, and display,
+     title, and lead (18px and up) are held at opsz 32, Inter Display, the cut their tracking
+     is set for. Weights: Inter 500 and 600; Martian Mono 400 only (the file has no other), so
+     a link in a label stays at 400. Tracking: small capitals in Inter (the name style) are a
+     little open, all at one value; Martian Mono's letters are 0.7em wide, open enough to close
+     up. Lines: a label's is 16px, so a label line and --space-2 under it make Work's 48px
+     (--grid-top); About's paragraphs, the one label that runs on for lines, take the body's
+     1.5. Phones: display and title shrink with the window under 342px and 328px, so the
+     longest word (NBCUNIVERSAL) never breaks, even at a larger text setting. An email address
+     stays as typed, even in a label. */
+  --size-display: min(2.5625rem, 12vw);  /* 41px; 51px from 1200px, 64px from 1440px (below) */
+  --size-title: min(1.125rem, 5.5vw);    /* 18px; 23px from 768px, 29px from 1200px, 36px from
+                                            1440px */
   --size-lead: clamp(1.25rem, 2.5vw, 1.75rem);  /* 20px, growing with the window from 800px
-                                                  to 28px at 1120px (24-32px, then 22-30px,
-                                                  on its first day) */
+                                                  to 28px at 1120px */
   --size-body: 1rem;           /* 16px */
   --size-name: 0.875rem;       /* 14px */
   --size-label: 0.75rem;       /* 12px */
   --size-count: 0.625rem;      /* 10px, Work's counts */
-  --size-identity: var(--size-name);  /* 14px, the name in the header (16px until 2026-11-10) */
-  --size-menu: var(--size-label);     /* 12px, the header's links (14px, the name style, until
-                                         2026-11-10) */
+  --size-identity: var(--size-name);  /* 14px, the name in the header */
+  --size-menu: var(--size-label);     /* 12px, the header's links */
+  --size-opening: var(--size-body);   /* 16px, the name and role in Home's opening */
 
   --leading-display: 1;
   /* Over the display style's capitals, inside its line: Inter Display's ascent less its cap
@@ -109,20 +116,18 @@
   --cap-display: 0.13em;
   --leading-title: 0.9;
   --leading-lead: 1.35;
-  --leading-body: 1.5;         /* 24px at 16px, so a paragraph reads easily (1.1 from
-                                  2026-11-05 to 2026-11-09) */
+  --leading-body: 1.5;         /* 24px at 16px, so a paragraph reads easily */
   --leading-name: 1.3;
-  --leading-label: 1.3;
+  --leading-label: calc(16 / 12);  /* 16px at 12px */
 
   --tracking-display: -0.04em;
   --tracking-title: -0.01em;
   --tracking-lead: 0;
   --tracking-body: 0;
   --measure-lead: 30em;        /* the lead's longest line, in its own size: 600-840px */
-  --tracking-name: -0.01em;
+  --tracking-name: 0.02em;     /* small capitals read better a little open: the header's name
+                                  and links, the opening, project names */
   --tracking-label: -0.05em;
-  --tracking-identity: 0.02em; /* the name in the header */
-  --tracking-menu: 0.02em;     /* the header's links: small capitals read better a little open */
 
   /* Two ways things react to the pointer, both in the text color and --color-muted:
        links      in the text color, muted on hover (the name, links in text, the footer,
@@ -264,7 +269,7 @@ body {
   font-family: var(--font);
   font-size: var(--size-body);
   font-weight: 500;
-  font-variation-settings: "opsz" 32;  /* Inter Display */
+  font-optical-sizing: auto;  /* Inter's cut follows the size; display, title, and lead hold 32 */
   line-height: var(--leading-body);
   letter-spacing: var(--tracking-body);
   -webkit-font-smoothing: antialiased;
@@ -373,43 +378,46 @@ button {
 
 /* The styles in Type (see the tokens), each set once here. Templates and content spell
    everything in sentence case; only these set the capitals. Body text, the lead, and email
-   addresses stay as written (an email address in capitals reads badly). Until 2026-11-05,
-   titles, names, and captions stayed as written too. */
+   addresses stay as written (an email address in capitals reads badly). */
 
-/* Display: About's first sentence, project titles, the 404. (About's section headings too,
-   until 2026-11-06: now labels, as a project's are.) */
+/* Display: About's first sentence, project titles, the 404. Inter Display (opsz 32); lines
+   that wrap come out even. */
 .about-headline,
 .project-title,
 .not-found-title {
   font-size: var(--size-display);
   font-weight: 500;
+  font-variation-settings: "opsz" 32;
   line-height: var(--leading-display);
   letter-spacing: var(--tracking-display);
   text-transform: uppercase;
+  text-wrap: balance;
 }
 
-/* Title: impact numbers, and a project page's Previous / Next titles. */
+/* Title: impact numbers, and a project page's Previous / Next titles. Inter Display. */
 .impact-value,
 .project-nav-title {
   font-size: var(--size-title);
   font-weight: 500;
+  font-variation-settings: "opsz" 32;
   line-height: var(--leading-title);
   letter-spacing: var(--tracking-title);
   text-transform: uppercase;
+  text-wrap: balance;
 }
 
-/* Lead: a project's statement, the sentence under its title, as typed, a step down from the
-   title and up from the text, and Home's sentence (since 2026-11-10). (About's text was in it
-   from 2026-11-06 to 2026-11-07, body text at 16px before; it's a label now, below.) */
+/* Lead: Home's sentence, and a project's statement under its title, as typed, a step down
+   from the title and up from the text. Inter Display. */
 .project-statement,
 .home-lead {
   font-size: var(--size-lead);
+  font-variation-settings: "opsz" 32;
   line-height: var(--leading-lead);
   letter-spacing: var(--tracking-lead);
 }
 
-/* Label: Martian Mono at 12px in capitals, wherever it is. Headings set here by name, since
-   h1-h3 set their own weight. */
+/* Label: Martian Mono at 12px in capitals, wherever it is, at its one weight, 400. Headings
+   set here by name, since h1-h3 set their own weight. */
 .work-tab,
 .work-caption,
 .card-caption,
@@ -427,7 +435,8 @@ button {
 .about-contact,
 .experience li,
 .about-text,
-.sound-toggle {
+.sound-toggle,
+.prototype-open {
   font-family: var(--font-mono);
   font-size: var(--size-label);
   font-weight: 400;
@@ -436,13 +445,11 @@ button {
   text-transform: uppercase;
 }
 
-/* Name: Inter Display at 14px in capitals, for the menu bar (the name, the links, and the
-   lightbox's Close, which stands in for it), project names (Home's cards, Work's tiles,
-   Archive and the lightbox). Set by name, so it wins over the label its caption is in.
-   (Labels in Martian Mono for a few hours on 2026-11-05; Inter at 14px for the header and 16px
-   for names before.) Home's opening, the name and then the role on a black screen, is in this
-   style too, at the header name's weight and size (until 2026-11-08, and again since
-   2026-11-10). */
+/* Name: Inter at 14px in capitals, a little open, for the menu bar (the name, the links, and
+   the lightbox's Close, which stands in for it), project names (Home's cards, Work's tiles,
+   Archive and the lightbox), and Home's opening (the name and then the role on a black
+   screen, at 600 and --size-opening). Set by name, so it wins over the label its caption is
+   in. The header's links are at --size-menu (12px), the name at 600 (below). */
 .site-header,
 .intro-line,
 .lightbox-close,
@@ -491,12 +498,15 @@ button {
   white-space: nowrap;
 }
 
-/* Links in text stand out by weight: 600, a step up from the text's 500 (500 over 400 until
-   2026-11-05). */
+/* Links in text stand out by weight: 600, a step up from the text's 500. A link in a label
+   (the prototype's Open link) stays at the label's 400, Martian Mono's one weight. */
 .text-body a,
-.text-link,
-.project-meta a {
+.text-link {
   font-weight: 600;
+}
+
+.prototype-open .text-link {
+  font-weight: 400;
 }
 
 /* Links and choices (see the tokens): only the color changes, never an underline. */
@@ -648,15 +658,15 @@ mark.placeholder {
 }
 
 /* "KYURI PARK" (the name in content/site.json, in capitals here only), in the name style as
-   the links are, at 600 (see Shared text styles), and at --size-identity and
-   --tracking-identity: a step bigger and more open than the links, as its open letters (K, Y,
-   A, R, a lone I) carry less ink than theirs. On hover it steps back to the muted gray.
-   The name stands alone: the role (PRODUCT DESIGNER) was a gray label beside it, or under it
-   on phones, from 2026-11-09 to 2026-11-10 (and until 2026-10-30). */
+   the links are, at 600 (see Shared text styles) and --size-identity, a step bigger than the
+   links. On hover it steps back to the muted gray. The name stands alone: the role (PRODUCT
+   DESIGNER) was a gray label beside it, or under it on phones, from 2026-11-09 to 2026-11-10
+   (and until 2026-10-30). */
 .identity {
   flex: none;
   font-size: var(--size-identity);
-  letter-spacing: var(--tracking-identity);
+  letter-spacing: var(--tracking-name);  /* set again at its own size: em tracking is worked
+                                            out where it's set, and inherited as pixels */
   white-space: nowrap;
 }
 
@@ -672,7 +682,7 @@ mark.placeholder {
   flex-wrap: wrap;
   gap: 0 min(3vw, var(--step-3));
   font-size: var(--size-menu);
-  letter-spacing: var(--tracking-menu);
+  letter-spacing: var(--tracking-name);  /* at 12px, not the header's 14px (see .identity) */
 }
 
 @media (min-width: 768px) {
@@ -1212,9 +1222,8 @@ html.intro-on {
 }
 
 /* The name and the role, one in the other's place in the window's middle, in the name style
-   (see Shared text styles) at the header name's 600 and --tracking-identity, 16px (the header
-   name's size until 2026-11-10, when the header's type got smaller), in the page's color. Each
-   word is hidden until intro.js brings it in. */
+   (see Shared text styles) at the header name's 600 and --size-opening (16px), in the page's
+   color. Each word is hidden until intro.js brings it in. */
 .intro-lines {
   position: relative;
   display: grid;
@@ -1226,9 +1235,8 @@ html.intro-on {
 .intro-line {
   grid-area: 1 / 1;
   margin: 0;
-  font-size: var(--size-body);
+  font-size: var(--size-opening);
   font-weight: 600;
-  letter-spacing: var(--tracking-identity);
   white-space: nowrap;
 }
 
@@ -2013,13 +2021,9 @@ html.intro-on {
   border-radius: 12% / 5.6%;  /* the phone's own 47px corners, at any size */
 }
 
+/* In the label style (see Shared text styles). */
 .prototype-open {
   margin-top: var(--space-1);
-  font-family: var(--font-mono);
-  font-size: var(--size-label);
-  line-height: var(--leading-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
 }
 
 /* Impact numbers: only built when the project lists real numbers. */
@@ -2129,10 +2133,10 @@ html.intro-on {
    until 2026-11-06). On that line go the capitals' tops, as a project's title's do
    (--cap-display over them inside the line, 8px at 64px; since 2026-11-06): the text and the
    rest move up with it. From 768px each line of "headline" in content/site.json is its own
-   line; on phones the sentence runs on and wraps evenly. */
+   line; on phones the sentence runs on and wraps evenly (text-wrap: balance, as all display
+   type does). */
 .about-headline {
   margin-top: calc(-1 * var(--cap-display));
-  text-wrap: balance;
 }
 
 @media (min-width: 768px) {
@@ -2147,9 +2151,12 @@ html.intro-on {
    1440px), --step-4 (32px) under the sentence as a statement is under its title,
    and --step-3 (24px) between paragraphs, as between a statement and its Visit link. Until
    2026-11-06 centered on the gray block, with balanced lines. A paragraph's last line keeps
-   more than one word (text-wrap: pretty, since 2026-11-07). */
+   more than one word (text-wrap: pretty, since 2026-11-07). The one label that runs on for
+   lines, so it takes the body's line height (18px at 12px; since 2026-11-11, the label's
+   before). */
 .about-text {
   max-width: var(--measure-lead);
+  line-height: var(--leading-body);
   text-wrap: pretty;
 }
 

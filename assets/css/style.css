@@ -848,7 +848,8 @@ mark.placeholder {
                      near the example's 72px (until
                      2026-11-05: 136px, for three lines, which kept the card small on any
                      window under 870px tall)
-     --scale-1      size one step from the middle; --scale-2 two steps or more
+     --scale-1      size one step from the middle; --scale-2 two steps or more: 0.62 (0.52
+                    until 2026-11-10, when the user found the middle card too far above the rest)
      --opacity-1, --grayscale-1, --brightness-1   one step from the middle and beyond
      --fade-step     each step past the first multiplies the opacity by this
      --blur-step     and adds this much blur
@@ -894,8 +895,8 @@ mark.placeholder {
   --card-gap-drawn: calc(var(--card-gap) + clamp(0px,
                       (var(--card-gap) + var(--peek-min) - var(--card-side)) * 1000,
                       var(--card-side) - var(--card-gap)));
-  --scale-1: 0.52;
-  --scale-2: 0.52;
+  --scale-1: 0.62;
+  --scale-2: 0.62;
   --opacity-1: 1;
   --grayscale-1: 1;
   --brightness-1: 0.92;
@@ -1023,7 +1024,7 @@ mark.placeholder {
      --card-y       its center: the window's
      --track-arc    the circle the cards run on, its radius in middle-card heights (track.js):
                     2, its middle off to the left, as drawn, so a card swings left as it leaves
-                    the middle (54px one step out, 170px two, on a 900px-tall window)
+                    the middle (61px one step out, 221px two, on a 900px-tall window)
      --track-tilt   0: the cards stay upright, as drawn, and only their path bends (1 tilts
                     each with its spoke, about 13 degrees one step out on a radius of 4, as
                     for part of 2026-11-10)
@@ -1032,11 +1033,17 @@ mark.placeholder {
                     drag, the keys, or focus on a card stop them, and they start again 2.5 s
                     after (DRIFT_RESUME in track.js); never with reduced motion
      --home-left    the page's left edge, the header name's; the sentence starts there and
-                    stops 48px short of the middle card (and at 15em). The name ends at the
-                    page's right edge, the icons'
+                    stops at 15em, or 48px short of where a centered middle card would start.
+                    The name ends at the page's right edge, the icons'
    The cards pass under the header, whose name, links, and icons turn light over them where
    they're dark (Header). (For an hour on 2026-11-10 the cards faded away at the window's top
    and bottom edges instead.)
+   Each card turns on its left edge, not its center (since 2026-11-10, the user's ask): the
+   circle runs through the cards' left edges, and a card grows and shrinks from there, so the
+   middle card reaches out to the right while the ones over and under it stay to the left,
+   where they were when the cards turned on their centers. On a 1440 x 900 window the left
+   edges are 365, 525, and 586px in: the middle card 82px right of centered, its neighbors
+   unmoved. (For a few minutes that day the whole wheel moved 136px right instead.)
    Under the sentence, the switch for the click the cards make as the visitor turns them
    (track.js; since 2026-11-10, after theoportfolio.framer.photos): a 14px line speaker, as the
    header's icons are, with waves or a cross, and SOUND ON or SOUND OFF in the label style,
@@ -1127,12 +1134,20 @@ mark.placeholder {
     --card-y: 50cqh;
   }
 
+  /* Turning on the left edge (above): that edge sits where a smaller card's was, centered. */
+  .js .page-home .track-item {
+    left: calc(50% - var(--card-w) * var(--scale-1) / 2);
+    margin-left: 0;
+    transform-origin: 0 50%;
+  }
+
   .js .page-home .track-meta {
     top: var(--card-y);
     left: auto;
     right: var(--meta-left);
     width: auto;
-    max-width: calc(var(--card-side) - var(--meta-left) - var(--step-6));
+    max-width: calc(var(--card-side) - var(--card-w) * (1 - var(--scale-1)) / 2
+                    - var(--meta-left) - var(--step-6));
     margin: 0;
     transform: translateY(-50%);
   }

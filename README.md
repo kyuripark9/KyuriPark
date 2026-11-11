@@ -316,6 +316,13 @@ rather than keeping its place apart from it (`view-transition-name: site-header`
 the same on every page, so it still looks still. `/about/#contact` scrolls to About's Contact label, as far as the page
 goes, kept clear of the header.
 
+Every page keeps room for a scrollbar at the right, Home too, though it doesn't scroll
+(`scrollbar-gutter: stable` on `html`, since 2026-11-10). Where scrollbars take room (a mouse
+plugged in, or "Show scroll bars: Always" on a Mac), Home had none and the other pages did, so
+Home's links sat 7.5px further right and its icons 15px. Scrollbars that float over the page (a
+Mac trackpad's) take no room, so there nothing changes. During Home's opening that room is black
+with the cover and fades with it (`html.intro-on`, and `assets/js/intro.js`).
+
 `<body data-page="…">` names the kind of page (`home`, `work`, `project`, `archive`, `about`,
 `404`), for CSS that applies to one page only, like the space over About's footer.
 

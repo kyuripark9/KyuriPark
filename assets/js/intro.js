@@ -50,6 +50,7 @@
   const words = (line) => [...line.children];
 
   let state = "on";  // then "revealing", then "done"
+  let edge = null;   // the room kept for a scrollbar, black with the cover (style.css), fading with it
   const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const rise = (line) => words(line).forEach((word, i) => word.animate(
     [{ opacity: 0, transform: `translateY(${RISE}em)` }, { opacity: 1, transform: "none" }],
@@ -62,6 +63,7 @@
     removeEventListener("keydown", onKey, true);
     removeEventListener("wheel", cut);
     intro.remove();
+    edge?.cancel();
     html.classList.remove("intro-on");
     html.classList.add("intro-done");
     document.dispatchEvent(new Event("intro:done"));  // track.js waits for it on phones
@@ -72,8 +74,10 @@
     if (state !== "on") return;
     state = "revealing";
     intro.style.pointerEvents = "none";
-    intro.animate({ opacity: [1, 0] }, { duration: time, easing: EASE_OPEN, fill: "forwards" })
-      .finished.then(end, end);
+    const timing = { duration: time, easing: EASE_OPEN, fill: "forwards" };
+    edge = html.animate({ backgroundColor: [getComputedStyle(html).backgroundColor,
+                                            getComputedStyle(document.body).backgroundColor] }, timing);
+    intro.animate({ opacity: [1, 0] }, timing).finished.then(end, end);
   };
   const cut = () => reveal(CUT);
   // While the name and role are on, a key only cuts the opening short: the page doesn't move.

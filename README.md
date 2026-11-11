@@ -61,7 +61,7 @@ assets/icons/           the browser tab and home-screen icons: favicon.svg, favi
 assets/fonts/           Inter (with Inter Display) and Martian Mono, with their licenses
 assets/Kyuri-Park-Resume.pdf
 assets/css/style.css    all styling; colors, type sizes, and spacing are at the top
-assets/js/main.js       Work's filter, lightbox, display type's dots, fade-ups, count-up
+assets/js/main.js       Work's filter, lightbox, fade-ups, count-up
 assets/js/track.js      the project loop (Work's slider; Home's with HOME_TRACK), its dots and lean on phones
 assets/js/intro.js      Home's opening, the first time Home opens in a tab
 templates/              page structure (header, footer, home, work and its toggle, archive,
@@ -407,7 +407,7 @@ spacing inside things (`--step-3` is 24px).
 
 ## Motion
 
-The site keeps motion to a short list: the home loop and its intro, About's first sentence breaking into dots under the pointer, the Work toggle's fade and its grid / slider switch's (the same 150 ms out, 250 ms in), the Work and Archive images growing slightly (3%) and Work's videos playing on hover, images
+The site keeps motion to a short list: the home loop and its intro, the Work toggle's fade and its grid / slider switch's (the same 150 ms out, 250 ms in), the Work and Archive images growing slightly (3%) and Work's videos playing on hover, images
 fading up on project pages, a 300 ms fade between pages (in browsers that support it; others switch pages instantly), the lightbox fading in and out (200 ms), impact numbers counting up, and a smooth scroll to a spot on a page (`/about/#contact`). If a visitor has reduced
 motion turned on, all of it is off, and the home loop jumps from card to card without easing.
 
@@ -554,51 +554,15 @@ the empty page into the cards, after the day timeline in Kyuri's Light Life app;
 display type on the black, broken by About's pass, then a dive into one dot or a page fade; the
 black screen breaking into dots; About's pass breaking the covers on a page already whole, which
 read as an effect, not an opening; a leaning line sweeping the whole screen, which broke every
-cover at once into static; and the covers coming in from where the pass went. What stays from
-them: the dust lives on the display type, here About's own sentence, never on the covers.)
+cover at once into static; and the covers coming in from where the pass went. What stayed from
+them, until the dots went on 2026-11-11: the dust lived on the display type, never on the covers.)
 
-Display type's dust: type in the display style is made of dots, wherever it is (About's first
-sentence, a project's title, the 404's; About's only until 2026-11-07). It breaks into dots where
-the pointer passes and they drift back into the letters (after soren-template.framer.website).
-The pointer counts over the box around it, and the dots fly as far as that box's edges: About's
-hero (the sentence, the text under it, and the space up to the header), a project's header (the
-title, statement, Visit link, and facts, and the space up to the header), the 404's whole main
-part (and Home's opening, the whole window, from 2026-11-09 to 2026-11-10). On a project page the pointer counts only over the title itself, since the work is what's
-to be looked at there, not the title: reading the statement or reaching for Visit leaves it be
-(the dots still fly as far as the header's edges).
-
-On arriving, a pointer of its own passes once, as if someone had swept a cursor across: a stroke
-from under the left of the letters up to over the right, fast at first and slowing to a stop, in
-under a second, and the dots are back in another. It shows what the letters do before anyone
-tries, on phones too, where there's no pointer to hover. Across a sentence of a few lines it
-crosses them all; across one line it's a slash, so a title never goes all at once. It happens the
-first time the sentence is on screen (on arriving, once it's scrolled to, or in a tab opened
-behind another once it's looked at), not again after a resize, and not if a real pointer is
-already over it; a real pointer coming in takes over from it. (Until 2026-11-07 a few edge dots
-kept coming loose on their own instead, each hopping out and back its own way, which read as
-fleas; for a few hours the same day, edge dots started out of the letters and came in together,
-which left the letters full of holes.)
-
-It works with a finger as well, until the page starts to scroll. The sentence stays real text
-(it can be selected and read aloud as before); a canvas over it draws only the dots that have
-moved, with a patch of the background where each one sat in its letter. It runs only while
-some of the sentence is on screen and something moves, and with reduced motion it's off (even
-if turned on with the page open). It rests while any of the sentence is selected, and while a
-mouse button is down (a drag may be selecting it), so no patch cuts into the selection's
-highlight.
-
-To tune it (one setting for all three): the top of the "Type in the display style is made of
-dots" part of `assets/js/main.js`: `CELL` (px between dots: smaller is finer dust and more of
-it), `DOT` (a dot's width, in cells), `REACH` (how far the pointer reaches, in the sentence's
-font size), `PUSH` (how hard it pushes), `SPRING` / `DRAG` (how the dots hold and slow down near
-the pointer), `RETURN` (how fast they go home once it has passed), `SWEEP` / `WAKE` (how much
-harder a fast pass pushes, and how far it carries the dots along: a fast pointer is over a dot
-for only a frame or two, so it gets a bigger push, and every letter along its way is hit, not
-only the ones under the frames' positions); for the pass on arriving, `PASS_SPEED` (px per ms, on average), `PASS_TIME` (ms at the
-least), `PASS_RISE` (how far under the letters it starts and over them it ends, in reaches:
-smaller cuts a single line more nearly through the middle) and `PASS_BOW` (how far it bows up). The
-dots take the sentence's color, the patches the background behind it (a part with its own, like
-a `[PLACEHOLDER]`'s highlight or a link in another color, keeps its own).
+Display type is still: About's first sentence, a project's title, and the 404's sit as plain
+text. (From 2026-11-07 to 2026-11-11 it was made of dots that broke apart where the pointer
+passed and drifted back, after soren-template.framer.website, with one pass of its own on
+arriving; dropped at Kyuri's call once Home became the dial of cards with its click, since the
+dots no longer matched the rest of the site and broke the title in the first moment it's read.
+Before that, a few edge dots came loose on their own, which read as fleas.)
 
 ## Deploy
 

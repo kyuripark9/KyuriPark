@@ -1832,9 +1832,8 @@ html.intro-on {
 /* The title starts where Work's images do, --grid-top under the starting line, as About's first
    sentence and Archive's images do (since 2026-11-06; on the starting line, where Work's filter
    is, before), so opening a project from Work keeps its first thing at the same height.
-   The header is the box main.js draws the title's dust in (since 2026-11-07), as About's hero
-   is, and the dots fly only as far as its edges: it takes main's --page-top into its own box
-   (the title stays where it is) so they have room over the title too, up to the header. */
+   The header takes main's --page-top into its own box (the title stays where it is), as About's
+   hero does: room for the title's dots, 2026-11-07 to 2026-11-11, kept so nothing shifts. */
 .project-header {
   position: relative;
   margin-top: calc(-1 * var(--page-top));
@@ -2109,9 +2108,8 @@ html.intro-on {
    window-tall first screen with "[ Scroll down ]" at its foot, the text sat centered on a
    window-tall gray block (the photo's place), and the page scrolled in a sticky stack, each
    block sliding over the one before.
-   The hero is the box main.js draws the sentence's dust in, and the dots fly only as far as its
-   edges: it takes main's --page-top into its own box (the sentence stays where it is) so they
-   have room over the sentence too, up to the header. */
+   The hero takes main's --page-top into its own box (the sentence stays where it is): room for
+   the sentence's dots, 2026-11-07 to 2026-11-11, kept so nothing shifts. */
 .about-hero {
   position: relative;
   margin-top: calc(-1 * var(--page-top));
@@ -2140,17 +2138,6 @@ html.intro-on {
   .about-headline-line {
     display: block;
   }
-}
-
-/* Display type's loose dots (main.js; About's first sentence, a project's title, the 404's), on
-   a canvas over the letters and as far around them as a dot goes, inside the box it's drawn in
-   (About's hero, a project's header, the 404's main). main.js places and sizes it. It takes no
-   clicks. */
-.dust {
-  position: absolute;
-  top: 0;
-  left: 0;
-  pointer-events: none;
 }
 
 /* The label style (see Shared text styles; since 2026-11-07, in the text color, the lead style
@@ -2292,12 +2279,6 @@ html.intro-on {
 }
 
 /* 404 ------------------------------------------------------------------- */
-
-/* The box main.js draws the title's dust in (since 2026-11-07): all of main, from the header
-   to the footer. */
-.page-not-found {
-  position: relative;
-}
 
 .not-found-title {
   margin-bottom: var(--step-2);

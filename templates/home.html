@@ -1,14 +1,3 @@
-    <h1 class="visually-hidden">Work</h1>
-    <section class="track" aria-roledescription="carousel" aria-label="Work">
-      <div class="track-stage">
-        <ul class="track-row" id="track-row" role="list">
-{{ cards }}
-        </ul>
-        <div class="track-meta">
-          <p class="track-caption" aria-live="polite">{{ caption }}</p>
-          <p class="track-dots" aria-hidden="true">{{ dots }}</p>
-        </div>
-      </div>
-    </section>
-{{ intro }}    <script src="/assets/js/track.js?v={{ track_version }}" defer></script>
+    <h1 class="home-lead wrap">{{ lead }}</h1>
+{{ track }}{{ intro }}    <script src="/assets/js/track.js?v={{ track_version }}" defer></script>
     <script src="/assets/js/intro.js?v={{ intro_version }}"></script>

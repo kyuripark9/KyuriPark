@@ -21,14 +21,15 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 
 | Address | What it is |
 | --- | --- |
-| `/` | Work: everything, the projects first, in one grid of tiles, so a visitor sees every project at once. The first time it opens in a tab, About's first sentence opens it, then gives way to the work (see Motion, "Home intro"). Its filters ("All 08   Digital 06   Brand 04   Physical 02", `/#digital` and so on) are off since 2026-11-09: `WORK_FILTERS` in `build.py` brings them back. Until 2026-11-10 Home was here, one card per featured project on an endless loop, and Work was at `/work/`: `HOME_TRACK = True` in `build.py` brings that back |
-| `/work/` | Not a page while Work is at `/`: it sends visitors on to `/` (old links keep working) |
+| `/` | Home, laid out from the user's own sketch (2026-11-10): the sentence that says who this is (`"home"` → `"lead"` in `content/site.json`) at the left, the featured projects on a wheel in the window's middle, one at a time, and the middle one's name, with a dot after it, at the right (see Motion, "Home loop"). Under 1200px the sentence sits at the top and the cards run across under it. The first time it opens in a tab, the opening plays over it (see Motion, "Home intro"). `HOME_TRACK = False` in `build.py` puts Work's grid here instead, as it was earlier that day |
+| `/work/` | Work: everything, the projects first, in one grid of tiles, so a visitor sees every project at once. Its filters ("All 08   Digital 06   Brand 04   Physical 02", `/#digital` and so on) are off since 2026-11-09: `WORK_FILTERS` in `build.py` brings them back. `WORK_VIEWS = True` in `build.py` adds two icons over the grid (grid, slider; `VIEW_ICONS`) that switch it to the same items on the loop; off since Home came back, as Home's wheel is that slider now |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html` |
 | `/archive/` | Archive: personal work and hobbies, a gallery of images with nothing under them. A separate page with its own data |
 | `/about/` | Read like a project page: one sentence at the top left, where a project's title is, the About text under it, then the photo edge to edge (gray until it exists), Experience, and a Contact label over the footer (`/about/#contact`) |
 | `/contact/` | Not a page: it sends visitors straight on to `/about/#contact` (old links keep working) |
 
-Contact is not a menu item: the links (email, LinkedIn, GitHub, Resume) are in the footer, one
+Contact is not a menu item: LinkedIn, GitHub, and email are icons at the header's right from
+768px (see Header), and the links (email, LinkedIn, GitHub, Resume) are in the footer, one
 line under a rule, with the copyright at the right, the same on every page (Home's project
 loop, with `HOME_TRACK` on, has no footer) (`templates/footer.html`, `.site-footer` in `assets/css/style.css`). On a phone the
 links wrap onto a second line where they must, with no dots between them, and the copyright
@@ -61,7 +62,7 @@ assets/fonts/           Inter (with Inter Display) and Martian Mono, with their 
 assets/Kyuri-Park-Resume.pdf
 assets/css/style.css    all styling; colors, type sizes, and spacing are at the top
 assets/js/main.js       Work's filter, lightbox, display type's dots, fade-ups, count-up
-assets/js/track.js      the home project loop, its dots and lean on phones
+assets/js/track.js      the project loop (Work's slider; Home's with HOME_TRACK), its dots and lean on phones
 assets/js/intro.js      Home's opening, the first time Home opens in a tab
 templates/              page structure (header, footer, home, work and its toggle, archive,
                         lightbox, project, about, 404, and the /contact/ redirect)
@@ -89,7 +90,7 @@ dist/                   the generated site. Never edit; it's rebuilt every time.
 | --- | --- |
 | `order` | Required. A number; lower shows first. Work shows its cards in this order (within each filter, when they're on) |
 | `category` | Required. A list of the Work filters it shows under, one or more of `"digital"`, `"brand"`, `"physical"`, like `["digital", "brand"]`. It counts under each, and once under All. The filters are off since 2026-11-09 (`WORK_FILTERS` in `build.py`), so it shows nowhere for now, but keep it filled in. ("Category" on the project page until 2026-11-09) |
-| `featured` | Optional. `true` puts it on Home's loop (aim for 3 to 5), which shows only with `HOME_TRACK` on in `build.py` (off since 2026-11-10: the first page is Work's grid, which shows everything). Leave it out or set `false` and it's on Work only. Needs a `slug`, because a Home card opens the project's page |
+| `featured` | Optional. `true` puts it on Home's loop (aim for 3 to 5), which shows only with `HOME_TRACK` on in `build.py` (on again since 2026-11-10, after a few hours off that day). Leave it out or set `false` and it's on Work only. Needs a `slug`, because a Home card opens the project's page |
 | `title` | Everywhere |
 | `oneLiner` | The project page's description for search engines and link previews (3 words max). Not on the page itself: under the home loop until 2026-11-09, when the type and year took its place; after the title in its Work card's caption until 2026-11-07 |
 | `type` | Like "Font design tool": what it is, in a recruiter's words. Under the home loop when that project is in the middle, with the last year in `timeline` after it: "Font design tool · 2026" (since 2026-11-09; on its Work card until 2026-11-05, "Type" on its page until 2026-11-06). An item with no page shows it in the lightbox (after the title in its Work card's caption too, until 2026-11-07) |
@@ -227,11 +228,11 @@ Recommended exports (WebP, or AVIF; JPG and PNG work too):
 
 | Slot | Size | Notes |
 | --- | --- | --- |
-| Cover (Home cards and Work tiles) | 1600 × 2000 | 4:5 on Home and Work, one file for both (`--thumb-ratio` in `assets/css/style.css`; 1:1 on 2026-11-06, 3:4 on Home before that). Another shape is cropped to fill the 4:5 frame, so keep the subject near the middle |
+| Cover (Home cards and Work tiles) | 1600 × 1200 | 4:3 on Home and Work, one file for both (`--thumb-ratio` in `assets/css/style.css`; 4:5 from 2026-11-07 to 2026-11-10, 1:1 on 2026-11-06, 3:4 on Home before that). Another shape is cropped to fill the 4:3 frame, so keep the subject near the middle; a tall piece (a product, a package) needs its own wide crop |
 | Hero and full-width | 2400 px wide | Any height; the hero runs edge to edge |
 | Two-image row | 1200 px wide each | Same ratio for both looks best |
 | About photo | 2400 × 1600 | Runs edge to edge under the About text at 3:2, as a project's hero does (up to 1920px wide). Until it exists its place is plain gray, with no label |
-| Image of an item with no page | 1200 × 1500 | The same 4:5 as a cover, so the Work tile shows all of it; another shape is cropped to fill the tile. The lightbox shows the whole image |
+| Image of an item with no page | 1600 × 1200 | The same 4:3 as a cover, so the Work tile shows all of it; another shape is cropped to fill the tile. The lightbox shows the whole image |
 | Archive image | 1500 px on the long side | Any shape; never cropped |
 
 Aim for under ~500 KB per image. [Squoosh](https://squoosh.app) or Figma's export both make WebP.
@@ -288,17 +289,31 @@ before (snapping and whole-screen steps were tried on 2026-11-05 and taken out t
 The name ("Kyuri Park", from `content/site.json`, shown in capitals) is at the left, in the name
 style like the links (Inter Display, 14px) and a weight heavier (`.identity` in `assets/css/style.css`), on its
 own (the role, PRODUCT DESIGNER, was a gray label beside it, or under it on phones, from
-2026-11-09 to 2026-11-10, and until 2026-10-30). Work (`/` since 2026-11-10, the same page as
-the name's link), Archive, and About at the right, on one line at every width (down to 320px), from `templates/base.html` on
-every page. The current page's link is in the text color and the others are gray
+2026-11-09 to 2026-11-10, and until 2026-10-30). Work, Archive, and About in the window's middle
+from 768px (at the right until 2026-11-10, and still on phones), on one line at every width
+(down to 320px), from `templates/base.html` on every page. At the right, from 768px, LinkedIn,
+GitHub, and email as 14px line icons, 16px apart, in the links' gray (`social_links` and
+`SOCIAL_ICONS` in `build.py`, `.site-social` in `assets/css/style.css`; from the user's sketch,
+2026-11-10; solid shapes at 16px for an hour first). On phones there's no room for them beside the name and links, so they're left out;
+About's footer has the same links. The current page's link is in the text color and the others are gray
 (`--color-subtle`, the lightest gray that passes WCAG AA; a lighter `--color-faint` at 3:1, which
 didn't, from 2026-11-05 to 2026-11-09) until hovered (`.site-menu a` in `assets/css/style.css`; see Type and color). On phones the links close up. If a visitor has set
 larger text in their browser or phone and it still doesn't fit, the links move to a second line, at
 the right.
 
+Since 2026-11-10 the header's type is smaller: the name 14px (`--size-identity`, 16px before)
+and the links 12px at +0.02em (`--size-menu`, `--tracking-menu`; 14px in the name style before).
+
 The header is sticky: it stays at the top of the window while the page scrolls, with no
 background, so the page scrolls under the name and links (`.site-header` in
-`assets/css/style.css`). `/about/#contact` scrolls to About's Contact label, as far as the page
+`assets/css/style.css`). Its name, links, and icons take the opposite of whatever is under them
+(since 2026-11-10, after theoportfolio.framer.photos): dark on the page, light where an image
+under them is dark. They're drawn in `--header-ink` (the page's color less the text's) and set
+over the page by their difference (`mix-blend-mode: difference`), so on the page they come out the
+text color exactly, and the gray links are the same ink at `--header-dim` (0.6), which comes out
+`--color-subtle`. So it can be set over the page, the header now fades with it between pages
+rather than keeping its place apart from it (`view-transition-name: site-header` until then); it's
+the same on every page, so it still looks still. `/about/#contact` scrolls to About's Contact label, as far as the page
 goes, kept clear of the header.
 
 `<body data-page="…">` names the kind of page (`home`, `work`, `project`, `archive`, `about`,
@@ -322,14 +337,15 @@ menu bar and project names are a sans while the small labels stay in Martian Mon
 | title | Inter Display 500, capitals | 18px, 23px from 768px, 29px from 1200px, 36px from 1440px | 0.9, -0.01em | impact numbers, Previous / Next titles |
 | lead | Inter Display 500, as typed | 20px, growing with the window to 28px (from 800 to 1120px wide); lines up to 30em (`--measure-lead`) | 1.35, 0 | a project's statement, under its title (About's text too, 2026-11-06 to 2026-11-07) |
 | body | Inter Display 500, as typed | 16px | 1.5, 0 (1.1 from 2026-11-05 to 2026-11-09) | text, a project's "Visit" link; links in text at 600 (Contact's links and About's text too, until 2026-11-06) |
-| name | Inter Display 500, capitals | 14px | 1.3, -0.01em | the menu bar (Work, Archive, About, the lightbox's Close; the name at 600, 16px and +0.02em, see below) and project names (Home's cards, Work's tiles, Archive, the lightbox) |
+| name | Inter Display 500, capitals | 14px | 1.3, -0.01em | the menu bar (the lightbox's Close; Work, Archive, About until 2026-11-10, 12px since; the name at 600, 14px and +0.02em, see below) and project names (Home's cards, Work's tiles, Archive, the lightbox) |
 | label | Martian Mono 400, capitals | 12px | 1.3, -0.05em | Work's filters, Home's type and year (one-liners until 2026-11-09; in `--color-subtle`, `--color-muted` until 2026-11-07; on Work's tiles too, until the same day), captions, project facts, the footer, the lightbox's type and year, About's text (since 2026-11-07) and Experience; a label that names a column or a section (a project's fact labels, Role, Team, Timeline, its section and note headings, and About's Experience and Contact headings) looks as Work's filters do, in `--color-subtle` (at 600 in `--color-muted` until 2026-11-06) |
 
 Two weights for Inter Display, 500 and 600, and one for Martian Mono, 400 (600 too until 2026-11-06). Two sizes
 sit outside the styles: Work's counts, a label at `--size-count` (10px), and the name in the
-header, 16px (`--size-identity`) at +0.02em (`--tracking-identity`), a step bigger and more open
-than the links beside it (since 2026-11-05; at 14px and -0.01em like them it read weaker, its open
-letters carrying less ink than theirs). Until 2026-11-05 the
+header, 14px (`--size-identity`; 16px from 2026-11-05 to 2026-11-10) at +0.02em
+(`--tracking-identity`), a step bigger and more open than the 12px links beside it (since
+2026-11-05; at the links' size and -0.01em it read weaker, its open letters carrying less ink
+than theirs). Until 2026-11-05 the
 type was Inter alone, at 400 and 500, with a 32-64px display, 28-48px titles, a 14px header, and
 line height 1.5 for all text.
 
@@ -384,15 +400,15 @@ spacing inside things (`--step-3` is 24px).
 
 ## Motion
 
-The site keeps motion to a short list: the home loop and its intro, About's first sentence breaking into dots under the pointer, the Work toggle's fade, the Work and Archive images growing slightly (3%) and Work's videos playing on hover, images
+The site keeps motion to a short list: the home loop and its intro, About's first sentence breaking into dots under the pointer, the Work toggle's fade and its grid / slider switch's (the same 150 ms out, 250 ms in), the Work and Archive images growing slightly (3%) and Work's videos playing on hover, images
 fading up on project pages, a 300 ms fade between pages (in browsers that support it; others switch pages instantly), the lightbox fading in and out (200 ms), impact numbers counting up, and a smooth scroll to a spot on a page (`/about/#contact`). If a visitor has reduced
 motion turned on, all of it is off, and the home loop jumps from card to card without easing.
 
-Home loop (off since 2026-11-10, when Work's grid became the first page; `HOME_TRACK = True` in
-`build.py` brings it back): the home page shows the featured projects, fills the screen, and doesn't scroll; after the last project comes the first again, both
+Home loop (back on Home since 2026-11-10, after a few hours as Work's SLIDER; `HOME_TRACK` in
+`build.py`): the home page shows the featured projects, fills the screen, and doesn't scroll; after the last project comes the first again, both
 ways. Mouse wheel or trackpad (down/right = next), drag, swipe, and the
 left/right arrow keys all move it; after a short pause it settles with one card in the middle,
-its title and its type and year under it (title at the card's left edge, "FONT DESIGN TOOL · 2026" at its right as a gray mono label, so the two don't read as one line; the one-liner was there until 2026-11-09). Click the middle card to open it; click a side card to bring it to the middle.
+its title and its type and year under it (title at the card's left edge, "FONT DESIGN TOOL · 2026" at its right as a gray mono label, so the two don't read as one line; the one-liner was there until 2026-11-09). Click the middle card to open it (an item with no page opens the lightbox); click a side card to bring it to the middle.
 Tab moves through the cards, bringing each to the middle. Without JavaScript, the home page is a
 plain list of the projects.
 Five cards show at most: the middle one and two each side. As the row turns, a card past them
@@ -408,6 +424,35 @@ show), and, once a visit, as the page shows (after the opening, when it plays), 
 toward the next card and back (`LEAN`, `LEAN_HOLD`, `LEAN_DELAY` at the top of
 `assets/js/track.js`). Not if the row has been moved first, or with reduced motion.
 
+From 1200px Home's loop runs down a wheel, as the user drew it (2026-11-10): the middle card,
+36% of the window's height, in the window's middle; the sentence at the page's left edge and the
+middle card's name, with a 4px dot after it, at its right edge, both across from the card's
+center. The cards run on a circle whose middle is off to the left (`--track-arc: 2`, in
+middle-card heights), so the cards over and under the middle one swing left as they go, two
+showing each side, and they stay upright (`--track-tilt: 0`; `1` tilts each with its spoke). The
+cards pass under the header, whose type turns light where they're dark (see Header; for an hour
+they faded away at the window's top and bottom edges instead). The wheel,
+a drag, or the up/down arrows move it (`.page-home` rules in `assets/css/style.css`, "Home, as
+the user drew it"). Left alone, the cards turn on their own, slowly, along the same circle: one
+card every 8 seconds (`--track-drift: 0.125`, cards a second; `0` turns it off). A pointer over a
+card stops them where they are, and so do the wheel, a drag, the keys, and focus on a card; they
+start again 2.5 s after the last of these (`DRIFT_RESUME` in `assets/js/track.js`). Not during
+the opening, and never with reduced motion; screen readers aren't told each name as it drifts by.
+
+Work's slider (`WORK_VIEWS`, off since Home came back) runs down from 1200px (since 2026-11-10,
+after theoportfolio.framer.photos, without its tilted ring and blur): the wheel, a drag, or the up/down arrows bring the next card up from below,
+and the cards pass under the header. The middle card's top is where the grid's first images start,
+and it's half the window's height, so the next card shows under it; that's why the cards, the
+grid's too, are 4:3 since the same day (at 4:5 the slider showed one tall card and little else).
+At the page's left edge, a dial of 4px dots, one tick per item (three dots; the middle card's five
+and dark), with the middle card's name and its type and year beside its tick. Under 1200px there
+isn't room for the name beside the card, so it runs across, as above. `--track-axis` in
+`assets/css/style.css` sets the direction. The cards run around a flat wheel, not in a straight
+line (same day): its hub is off to the right, so a card swings out and tilts as it leaves the
+middle (about 13 degrees one step out) and stands straight again in it. `--track-arc` sets the
+wheel's radius in middle-card heights (`-4`; less than 0 puts the hub on the right; larger is
+flatter; `0` is a straight line).
+
 To tune it:
 - `assets/js/track.js`, at the top: `WHEEL_SPEED` (cards per pixel of wheel/trackpad scroll),
   `WHEEL_MAX` (the most one wheel event can count for, which tames trackpad flicks),
@@ -417,7 +462,7 @@ To tune it:
   and it's 0 since 2026-11-09, since a visitor may be in an office or on a call; 0.3 before),
   `TICK_TONE` (its pitch in Hz; higher sounds brighter). The tick is made in the browser, no
   sound file, and stays silent until the visitor has clicked, tapped, or pressed a key on the page.
-- `assets/css/style.css`: `--thumb-ratio` at the top (the cards' shape, width / height, `4 / 5`;
+- `assets/css/style.css`: `--thumb-ratio` at the top (the cards' shape, width / height, `4 / 3`, `4 / 5` until 2026-11-10;
   Work's tiles use it too). "Home: project track": `--card-gap` (space between cards: `--media-gap`,
   12px, as between images on every page), `--card-share` (the middle card's least height as a share
   of the window's, `62dvh` from 768px: 558px on a 900px-tall window; under 768px the whole stage,
@@ -446,7 +491,7 @@ through the ones picked, and Back from a project page returns to the same one; n
 unknown one means All, and `#visual` (a filter that's now part of Brand) opens Brand. Each filter is a button, and Tab goes from one to the next. The layout follows
 cedarstudio.framer.ai/work?view=Grid. The toggle is a row of labels (Martian Mono, 12px, in capitals): the one showing is bracketed ("[ ALL 11 ]") and in the text color, the others unbracketed and muted, and on a screen too narrow for all of
 them the rest go on a second line. The grid is 1 column under 640px, 2 from 640px, 3 from 1440px,
-and every image is as wide as its column at 4:5 (`--thumb-ratio`, the same as Home's cards),
+and every image is as wide as its column at 4:3 (`--thumb-ratio`, the same as Home's cards),
 cropped to fill. Each tile's caption is its title alone, one line under its image; a title too
 long for its line is cut short with "…" 24px before the column's edge, so every tile is the same
 height. A project's type and year are on Home, and an item's in the lightbox (since 2026-11-07;

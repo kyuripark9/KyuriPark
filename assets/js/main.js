@@ -1,16 +1,70 @@
 // Enhancements on top of pages that already work without JavaScript:
-// Work's filter and card videos, the lightbox, display type (About's first sentence, project
-// titles, the 404's) breaking into dots under the pointer, and project-page motion (image
-// fade-up, count-up numbers, looping videos). The home track is in track.js.
+// Work's views, filter, and card videos, the lightbox, display type (About's first sentence,
+// project titles, the 404's) breaking into dots under the pointer, and project-page motion (image
+// fade-up, count-up numbers, looping videos). The track (Home's, or Work's slider) is in track.js.
 (() => {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const fineHover = window.matchMedia("(hover: hover) and (pointer: fine)");
+
+  // Work: two views of the same items, GRID and SLIDER (WORK_VIEWS in build.py, since
+  // 2026-11-10), one at a time: the one showing fades out, and the other fades in. The pick is
+  // remembered in this browser, so Back from a project page, or a later visit, opens the same
+  // view (work.html's script applies it before the page shows). The slider is the track;
+  // track.js sizes it once it shows.
+  const viewButtons = [...document.querySelectorAll(".work-views [data-view]")];
+  if (viewButtons.length) {
+    const FADE_OUT = 150;  // ms, as the filters'
+    const FADE_IN = 250;   // ms
+    const KEY = "work-view";  // localStorage
+    const html = document.documentElement;
+    const panes = { grid: document.getElementById("work-panel"),
+                    slider: document.querySelector(".page-work .track") };
+    let shown = html.classList.contains("view-slider") ? "slider" : "grid";
+    let wanted = shown;
+    let fade = null;
+
+    const mark = (name) => viewButtons.forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.view === name));
+    });
+    const show = (name) => {
+      shown = name;
+      html.classList.toggle("view-slider", name === "slider");
+      window.scrollTo({ top: 0, behavior: "instant" });
+    };
+    // Picking again while one fades out changes what comes on; picking the one showing then
+    // keeps it.
+    const pick = (name) => {
+      if (name === wanted) return;
+      wanted = name;
+      mark(name);
+      try {
+        localStorage.setItem(KEY, name);
+      } catch (e) {
+        // Storage blocked: the pick holds until the page is left.
+      }
+      fade?.cancel();
+      fade = null;
+      if (reduceMotion.matches || name === shown) {
+        show(name);
+        return;
+      }
+      fade = panes[shown].animate({ opacity: [1, 0] },
+        { duration: FADE_OUT, easing: "ease-in", fill: "forwards" });
+      fade.onfinish = () => {
+        fade.cancel();
+        show(wanted);
+        fade = panes[wanted].animate({ opacity: [0, 1] }, { duration: FADE_IN, easing: "ease-out" });
+      };
+    };
+    viewButtons.forEach((button) => button.addEventListener("click", () => pick(button.dataset.view)));
+    mark(shown);
+  }
 
   // Work: All or one category at a time, on one grid. The tiles fade out, the filter's tiles
   // come on, and they fade in. The address says which (#all, #digital, ...),
   // so a link opens that filter, Back and Forward step through the ones picked, and Back from
   // a project page returns to the same one.
-  const workTabs = [...document.querySelectorAll(".work-tab")];
+  const workTabs = [...document.querySelectorAll(".work-tab[data-filter]")];
   if (workTabs.length) {
     const FADE_OUT = 150;  // ms
     const FADE_IN = 250;   // ms
@@ -196,7 +250,9 @@
       // Archive's tiles are links to the image: with a modifier key they open it as usual.
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       e.preventDefault();
-      thumbs = allThumbs.filter((other) => !other.closest("li").hidden);
+      // On screen: not under a filter that's off, nor in the view that's not showing (Work's
+      // grid and slider each have a button per item with no page).
+      thumbs = allThumbs.filter((other) => other.getClientRects().length > 0);
       open(thumbs.indexOf(thumb));
     }));
     lightbox.addEventListener("click", (e) => {

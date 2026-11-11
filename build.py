@@ -34,11 +34,11 @@ DIST_DIR = os.path.join(ROOT, "dist")
 
 # Size of the gray placeholder for each kind of slot, used until a real file exists.
 PLACEHOLDER_SIZES = {
-    "cover": (1600, 2000),     # 4:5 (--thumb-ratio in style.css), home cards and Work tiles
+    "cover": (1600, 1200),     # 4:3 (--thumb-ratio in style.css), home cards and Work tiles
     "wide": (2400, 1350),      # 16:9, hero and full-width images and videos
     "pair": (1200, 1500),      # 4:5, each image in a two-image row
     "portrait": (2400, 1600),  # 3:2, the About photo (no placeholder: a plain gray block)
-    "piece": (1200, 1500),     # 4:5, the images of an item with no page of its own
+    "piece": (1600, 1200),     # 4:3, the images of an item with no page of its own
     "archive": (1200, 1500),   # 4:5, an Archive image whose size can't be read
 }
 # The gray boxes that stand in for Archive images until the files exist, in turn: 4:5, 1:1,
@@ -52,10 +52,11 @@ ARCHIVE_COLUMNS = (2, 3, 4)  # Archive's columns on phones, from 768px, from 120
 # (001-small.jpg next to 001.jpg) when there is one.
 ARCHIVE_SIZES = "(min-width: 1200px) 25vw, (min-width: 768px) 33vw, 50vw"
 # The same for the other images (since 2026-11-09; only Archive's before), as style.css lays
-# them out: Home's middle card (62% of the window's height and up, at 4:5, from 768px; the
-# page's width on phones), Work's tiles (1, 2, then 3 columns), images edge to edge or the
-# page's width, and the two in a two-image row.
-HOME_SIZES = "(min-width: 768px) 60vh, 100vw"
+# them out: the track's middle card (on Home, and Work's slider: from 768px, 62% of the
+# window's height and up across, half of it down from 1200px, at 4:3, so about 67vh to 85vh
+# wide, the larger taken; the page's width on phones), Work's tiles (1, 2, then 3 columns),
+# images edge to edge or the page's width, and the two in a two-image row.
+HOME_SIZES = "(min-width: 768px) 85vh, 100vw"
 WORK_SIZES = "(min-width: 1440px) 33vw, (min-width: 640px) 50vw, 100vw"
 WIDE_SIZES = "100vw"
 PAIR_SIZES = "(min-width: 768px) 50vw, 100vw"
@@ -76,11 +77,18 @@ CATEGORIES = ("digital", "brand", "physical")  # Work's filters, in toggle order
 # Physical read as three careers, not one product designer's work. True brings them back as they
 # were ("category" still sorts every item, so nothing else needs to change).
 WORK_FILTERS = False
-# What the site opens on. Since 2026-11-10, Work's grid, at /, with Home's opening over it (About's
-# first sentence, intro.js), so a visitor sees every project at once; /work/ sends them on to /.
-# True brings back Home's project track (track.js: the featured projects one at a time, at /) and
-# the grid at /work/, as they were until then.
-HOME_TRACK = False
+# What the site opens on. True (again since 2026-11-10, laid out from the user's own sketch):
+# Home, at /: the intro sentence at the left, the featured projects on a wheel in the middle
+# (track.js), and the middle one's name at the right; the grid is at /work/. False (earlier on
+# 2026-11-10): Work's grid at /, with the opening over it (intro.js), and /work/ sends visitors
+# on to /.
+HOME_TRACK = True
+# Whether Work offers a second view of the same items (since 2026-11-10): two icons, grid and
+# slider, at the right of the line over the grid, where the filters were (work_views). The
+# slider is Home's track (track.js) with every item on Work, one at a time. The grid shows
+# first; the browser remembers a visitor's pick (localStorage, main.js). False: the grid alone.
+# Off since Home came back (HOME_TRACK), later the same day: Home's wheel is that slider now.
+WORK_VIEWS = False
 LOADING_ATTRS = {"lazy": 'loading="lazy"', "eager": "", "high": 'fetchpriority="high"'}
 # Old addresses that now live elsewhere: /contact/ was a menu item and is now About's Contact
 # label, with the footer's links under it.
@@ -595,6 +603,7 @@ class Builder:
             css_version=file_version("assets/css/style.css"),
             js_version=file_version("assets/js/main.js"),
             site_name=esc(s["name"]),
+            social=self.social_links(),
             work_url="/work/" if HOME_TRACK else "/",
             nav_work={"work": ' aria-current="page"', "project": ' aria-current="true"'}.get(current, ""),
             nav_archive=' aria-current="page"' if current == "archive" else "",
@@ -643,6 +652,49 @@ class Builder:
                 return rel, cover.get("alt")
         og = self.site.get("ogImage") or {}
         return og.get("src"), og.get("alt")
+
+    # The header's links to elsewhere (since 2026-11-10, from the user's sketch: "social media
+    # icons" at the top right), each a 14px icon drawn in a thin line of currentColor, about as
+    # heavy as the header's 12px links (solid shapes, a cut-out "in", GitHub's filled mark and a
+    # filled envelope, for an hour before): LinkedIn's "in" in a square, GitHub's cat (Feather's
+    # "github", on its 24px grid), and an envelope. Each is (viewBox, line width in its units,
+    # corners, shapes); the line comes out the same 1.2px in all three.
+    SOCIAL_ICONS = {
+        "linkedin": ("0 0 16 16", 1.4, "square",
+                     '<path d="M1.7 1.7h12.6v12.6H1.7z'
+                     'M5 4.9v.2M5 7.2v4.4M8.1 11.6V7.2M8.1 9.3c0-1.3.8-2.1 1.9-2.1s1.9.7 1.9 2v2.4"/>'),
+        "github": ("0 0 24 24", 2.1, "round",
+                   '<path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 '
+                   '6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 '
+                   '2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 '
+                   '5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>'),
+        "email": ("0 0 16 16", 1.4, "square",
+                  '<path d="M1.7 3.2h12.6v9.6H1.7z"/><path d="M1.7 3.2 8 8.4l6.3-5.2"/>'),
+    }
+
+    def social_links(self):
+        """The header's icons, at its right: LinkedIn, GitHub, and email, from content/site.json.
+        Each is named for screen readers; the two sites open in a new tab and say so."""
+        s = self.site
+        rel = "noopener noreferrer"
+        links = (("linkedin", s["linkedin"], "LinkedIn"), ("github", s["github"], "GitHub"),
+                 ("email", "mailto:" + s["email"], "Email"))
+        items = []
+        for key, href, name in links:
+            box, line, corners, shapes = self.SOCIAL_ICONS[key]
+            joins = "round" if corners == "round" else "miter"
+            svg = (f'<svg viewBox="{box}" width="14" height="14" fill="none" '
+                   f'stroke="currentColor" stroke-width="{line}" stroke-linecap="{corners}" '
+                   f'stroke-linejoin="{joins}" aria-hidden="true" focusable="false">'
+                   f'{shapes}</svg>')
+            if href.startswith("mailto:"):
+                attrs, label = "", name
+            else:
+                attrs, label = f' target="_blank" rel="{rel}"', f"{name} (opens in a new tab)"
+            items.append(f'        <li><a class="social-link" href="{esc(href)}"{attrs} '
+                         f'aria-label="{label}">{svg}</a></li>')
+        return ('    <ul class="site-social" aria-label="Elsewhere">\n'
+                + "\n".join(items) + "\n    </ul>")
 
     def contact_links(self, indent):
         """The email, LinkedIn, GitHub, and resume links from content/site.json, for the footer
@@ -851,12 +903,15 @@ class Builder:
         return rel, video
 
     def card_caption(self, p):
-        """'TypeLab' on the left, 'Font design tool · 2026' on the right: on each home card,
-        and under the middle one. What the project is and when, so a recruiter can tell the
-        projects apart without opening them (since 2026-11-09; the one-liner was there before,
-        and is now only the page's description for search engines and link previews)."""
-        return (f'<span class="card-title">{inline(p["title"])}</span> '
-                f'<span class="card-text">{self.card_tag(p)}</span>')
+        """'TypeLab' on the left, 'Font design tool · 2026' on the right: on each track card
+        (Home's, or Work's slider), and under the middle one. What the project is and when, so a
+        recruiter can tell the projects apart without opening them (since 2026-11-09; the
+        one-liner was there before, and is now only the page's description for search engines
+        and link previews). An item with no page shows its 'Type · Year' (piece_meta); the
+        lightbox reads both halves when the card opens it."""
+        tag = self.card_tag(p) if "slug" in p else self.piece_meta(p)
+        return (f'<span class="card-title" data-lightbox-name>{inline(p["title"])}</span> '
+                f'<span class="card-text" data-lightbox-meta>{tag}</span>')
 
     def card_tag(self, p):
         """'Type · Year', as an item with no page shows in the lightbox (piece_meta). The year
@@ -870,24 +925,49 @@ class Builder:
         parts = [inline(p["type"])] if p.get("type") else []
         return "&nbsp;·&nbsp;".join(parts + years[-1:])
 
-    def home_card(self, p, index, total):
-        rel, _ = self.cover(p)
+    def home_card(self, p, index, total, loading=None):
+        """One card on the track: Home's (HOME_TRACK) or Work's slider (WORK_VIEWS). A project's
+        card links to its page; an item with no page is a button that opens the lightbox, its
+        images waiting in a <template>, as its grid tile does (main.js)."""
+        if "slug" in p:
+            rel, _ = self.cover(p)
+            slot, alt = "cover", p["cover"].get("alt")
+        else:
+            rel, slot, alt = media_path(p["images"][0], PIECE_FOLDER), "piece", p.get("alt")
         if exists(rel):
-            # All eager: the stage clips the cards, so lazy ones would only load once on screen.
-            img = self.img(rel, p["cover"].get("alt"), "cover", p["title"],
-                           "high" if index == 0 else "eager", sizes=HOME_SIZES)
+            # Home: all eager, as the stage clips the cards, so lazy ones would only load once
+            # on screen. Work's slider passes "lazy", so while the grid shows, the hidden
+            # slider loads nothing; track.js makes them eager once it shows.
+            img = self.img(rel, alt, slot, p["title"],
+                           loading or ("high" if index == 0 else "eager"), sizes=HOME_SIZES)
         else:
             img = ""  # a plain gray card until the cover exists; no label on Home
             self.missing_media.add(rel)
+        if "slug" in p:
+            tag, attrs, extra = "a", f'href="/work/{p["slug"]}/"', ""
+        else:
+            tag, attrs = "button", 'type="button" data-item aria-haspopup="dialog"'
+            extra = f'            {self.piece_images(p)}\n'
         # Where the card sits before track.js runs: first card in the middle, the rest
         # around it as on a loop (with five: 0, 1, 2, -2, -1).
         offset = index if index <= total / 2 else index - total
         return (f'          <li class="track-item" style="--d: {offset}">\n'
-                f'            <a class="track-card" href="/work/{p["slug"]}/">\n'
+                f'            <{tag} class="track-card" {attrs}>\n'
                 f'              <span class="track-media">{img}</span>\n'
                 f'              <span class="card-caption">{self.card_caption(p)}</span>\n'
-                f'            </a>\n'
+                f'            </{tag}>\n'
+                f'{extra}'
                 f'          </li>')
+
+    def track(self, items, loading=None):
+        """The track's markup (templates/track.html): a card per item, in "order", and under
+        the middle card's caption, on phones, a dot for each, the middle one's dark (style.css,
+        "Home: project track")."""
+        n = len(items)
+        cards = "\n".join(self.home_card(p, i, n, loading) for i, p in enumerate(items))
+        dots = "".join('<span class="is-current"></span>' if i == 0 else "<span></span>"
+                       for i in range(n))
+        return render("track.html", cards=cards, caption=self.card_caption(items[0]), dots=dots)
 
     def home_intro(self):
         """Home's opening (assets/js/intro.js): a black screen with the name, then the role, in
@@ -907,14 +987,12 @@ class Builder:
                 '    </div>\n')
 
     def build_home(self):
-        """The project loop: the featured projects, in "order"; under the middle card's caption,
-        on phones, a dot for each, the middle one's dark (style.css, "Home: project track")."""
-        n = len(self.featured)
-        cards = "\n".join(self.home_card(p, i, n) for i, p in enumerate(self.featured))
-        dots = "".join('<span class="is-current"></span>' if i == 0 else "<span></span>"
-                       for i in range(n))
-        content = render("home.html", cards=cards, caption=self.card_caption(self.featured[0]),
-                         dots=dots, intro=self.home_intro(),
+        """Home, as the user drew it (2026-11-10): the sentence that says who this is (its h1,
+        "lead" in content/site.json's "home"), and the featured projects, in "order", on the
+        track, with the middle one's name."""
+        lead = need(need(self.site, "home", "content/site.json"), "lead", "content/site.json (home)")
+        content = render("home.html", lead=inline(lead), track=self.track(self.featured),
+                         intro=self.home_intro(),
                          intro_version=file_version("assets/js/intro.js"),
                          track_version=file_version("assets/js/track.js"))
         self.page("index.html", "home", "/", self.site["title"], self.site["description"],
@@ -978,6 +1056,46 @@ class Builder:
                 f'{self.work_count(n)}<span class="work-bracket" aria-hidden="true"> ]</span>'
                 f'</button>')
 
+    # Work's two views as icons, 22 x 16, in sharp-cornered blocks as the site's images are: the
+    # grid's three columns of tiles in two rows, and the slider's middle card with its
+    # neighbors, smaller, at its sides, or over and under it where it runs down (from 1200px;
+    # style.css shows the one that fits).
+    # Each is its shape, then any lighter part: the slider's neighbors, grayed as the slider's are.
+    VIEW_ICONS = {
+        "grid": ("M0 0h10v7H0zM12 0h10v7H12zM0 9h10v7H0zM12 9h10v7H12z",),
+        "across": ("M4 3h14v10H4z", "M0 5h2v6H0zM20 5h2v6h-2z"),
+        "down": ("M5 4h12v8H5z", "M8 0h6v2H8zM8 14h6v2H8z"),
+    }
+
+    def work_views(self):
+        """The two views (WORK_VIEWS), as icons (VIEW_ICONS; the words '[ GRID ]  SLIDER'
+        until later on 2026-11-10), the one showing in the text color. Screen readers get
+        each one's name. main.js switches between them and remembers the pick; the script
+        after them applies a remembered slider before the page shows, so the grid doesn't
+        flash first. Without JavaScript there's no switch, and the grid shows."""
+        def icon(name, cls=""):
+            shape, *neighbors = self.VIEW_ICONS[name]
+            paths = f'<path d="{shape}"/>' + "".join(
+                f'<path d="{d}" opacity="0.4"/>' for d in neighbors)
+            return (f'<svg{cls} viewBox="0 0 22 16" width="22" height="16" fill="currentColor" '
+                    f'aria-hidden="true" focusable="false">{paths}</svg>')
+
+        def button(view, label, icons):
+            return (f'      <button class="work-view" type="button" data-view="{view}" '
+                    f'aria-pressed="{str(view == "grid").lower()}" aria-label="{label}">'
+                    f'{icons}</button>')
+
+        slider = icon("across", ' class="view-icon-across"') + icon("down", ' class="view-icon-down"')
+
+        return ('    <div class="work-views" role="group" aria-label="View">\n'
+                f'{button("grid", "Grid", icon("grid"))}\n{button("slider", "Slider", slider)}\n'
+                '    </div>\n'
+                '    <script>try{if(localStorage.getItem("work-view")==="slider"){'
+                'document.documentElement.classList.add("view-slider");'
+                'document.querySelectorAll(".work-views [data-view]").forEach((b)=>'
+                'b.setAttribute("aria-pressed",String(b.dataset.view==="slider")))}}'
+                'catch(e){}</script>\n')
+
     def piece_meta(self, item):
         """'Type · Year', leaving out what's empty."""
         return " · ".join(inline(item[k]) for k in ("type", "year") if item.get(k))
@@ -997,7 +1115,8 @@ class Builder:
         """One grid of tiles, under the All / Digital / Brand / Physical toggle when WORK_FILTERS
         is on (main.js shows one filter at a time). Without JavaScript, there's no toggle and it
         shows them all. With HOME_TRACK off (since 2026-11-10) it's the site's first page, at /,
-        under Home's opening."""
+        under Home's opening. With WORK_VIEWS on, the same items on the track too, the slider,
+        under the GRID / SLIDER switch (work_views)."""
         s = self.site
         tabs = "\n".join(self.work_tab(name) for name in ("all", *CATEGORIES))
         cards = "\n".join(self.work_card(p, i) for i, p in enumerate(self.items))
@@ -1005,12 +1124,20 @@ class Builder:
         opening = "" if HOME_TRACK else (
             f'{self.home_intro()}    <script src="/assets/js/intro.js'
             f'?v={file_version("assets/js/intro.js")}"></script>\n')
+        views = slider = ""
+        if WORK_VIEWS:
+            views = self.work_views()
+            slider = (f'{self.track(self.items, "lazy")}    <script src="/assets/js/track.js'
+                      f'?v={file_version("assets/js/track.js")}" defer></script>\n')
         content = render("work.html", cards=cards, lightbox=lightbox, opening=opening,
+                         views=views, slider=slider,
                          tabs=render("work-tabs.html", tabs=tabs) if WORK_FILTERS else "")
         rel, path, title = (("work/index.html", "/work/", f"Work — {s['name']}") if HOME_TRACK
                             else ("index.html", "/", s["title"]))
         self.page(rel, "work", path, title, s["description"], content, "wrap page-work",
                   current="work", image=self.og_image())
+        # The slider repeats the grid's items, so its notes aren't counted twice in the report.
+        self.placeholder_counts["work"] -= len(PLACEHOLDER_RE.findall(slider))
 
     def archive_tile(self, item, box, loading):
         """An image on Archive with nothing under it, linking to the image itself; its number

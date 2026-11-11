@@ -96,7 +96,9 @@
   --size-name: 0.875rem;       /* 14px */
   --size-label: 0.75rem;       /* 12px */
   --size-count: 0.625rem;      /* 10px, Work's counts */
-  --size-identity: var(--size-body);  /* 16px, the name in the header */
+  --size-identity: var(--size-name);  /* 14px, the name in the header (16px until 2026-11-10) */
+  --size-menu: var(--size-label);     /* 12px, the header's links (14px, the name style, until
+                                         2026-11-10) */
 
   --leading-display: 1;
   /* Over the display style's capitals, inside its line: Inter Display's ascent less its cap
@@ -120,6 +122,7 @@
   --tracking-name: -0.01em;
   --tracking-label: -0.05em;
   --tracking-identity: 0.02em; /* the name in the header */
+  --tracking-menu: 0.02em;     /* the header's links: small capitals read better a little open */
 
   /* Two ways things react to the pointer, both in the text color and --color-muted:
        links      in the text color, muted on hover (the name, links in text, the footer,
@@ -179,12 +182,15 @@
   --media-gap: 12px;              /* between images, side by side or one under another, on
                                      every page and screen: Work, Archive, Home, project
                                      pages, the lightbox */
-  --thumb-ratio: 4 / 5;           /* a project's thumbnail, width / height, wherever it shows:
+  --thumb-ratio: 4 / 3;           /* a project's thumbnail, width / height, wherever it shows:
                                      Home's cards (the middle one and its neighbors) and Work's
                                      tiles; the cover is cropped to fill it. Home's card math
-                                     reads it too, so any "w / h" works (1 / 1 from 2026-11-06
-                                     to 2026-11-07; before that 3 / 4 on Home, and a 400px-tall
-                                     frame as wide as the column on Work) */
+                                     reads it too, so any "w / h" works. 4 / 3 since
+                                     2026-11-10, wide like the screens most of the work is
+                                     for, so Work's slider running down has room for the next
+                                     card (4 / 5 from 2026-11-07; 1 / 1 from 2026-11-06; before
+                                     that 3 / 4 on Home, and a 400px-tall frame as wide as the
+                                     column on Work) */
 
   --fade: 200ms ease;           /* colors, the lightbox, the brackets on Work's filters */
   --grow: 250ms ease;           /* Work's and Archive's images growing on hover, Work's videos
@@ -387,9 +393,10 @@ button {
 }
 
 /* Lead: a project's statement, the sentence under its title, as typed, a step down from the
-   title and up from the text. (About's text was in it from 2026-11-06 to 2026-11-07, body text
-   at 16px before; it's a label now, below.) */
-.project-statement {
+   title and up from the text, and Home's sentence (since 2026-11-10). (About's text was in it
+   from 2026-11-06 to 2026-11-07, body text at 16px before; it's a label now, below.) */
+.project-statement,
+.home-lead {
   font-size: var(--size-lead);
   line-height: var(--leading-lead);
   letter-spacing: var(--tracking-lead);
@@ -495,7 +502,8 @@ button {
 .lightbox-close,
 .lightbox-arrow,
 .site-menu a,
-.work-tab {
+.work-tab,
+.work-view {
   transition: color var(--fade);
 }
 
@@ -548,7 +556,8 @@ button {
    in --color-muted until 2026-11-06; the header's links lighter still from 2026-11-05 to
    2026-11-09, in --color-faint, 3:1, which failed it.) */
 .site-menu a,
-.work-tab {
+.work-tab,
+.work-view {
   color: var(--color-subtle);
 }
 
@@ -556,7 +565,9 @@ button {
 .site-menu a:focus-visible,
 .site-menu [aria-current],
 .work-tab:hover,
-.work-tab[aria-pressed="true"] {
+.work-tab[aria-pressed="true"],
+.work-view:hover,
+.work-view[aria-pressed="true"] {
   color: var(--color-text);
 }
 
@@ -588,7 +599,45 @@ mark.placeholder {
   gap: 0 var(--step-1);
   padding-top: var(--header-top);
   padding-bottom: var(--header-pad);
-  view-transition-name: site-header;
+  /* Its name, links, and icons take the opposite of whatever is under them (since 2026-11-10,
+     after theoportfolio.framer.photos): dark on the page, light over a dark image. Drawn in
+     --header-ink, the page's color less the text's, and set over what's under it by its
+     difference, so on the page it comes out the text color exactly. The grays are the same ink
+     at --header-dim, which comes out --color-subtle on the page.
+     (Until then it kept its place through the 300 ms fade between pages, apart from the page,
+     view-transition-name: site-header. Taken apart like that it can't be set over the page,
+     so now it fades with it; it's the same on every page, so it looks still all the same.) */
+  --header-ink: #dfdeda;
+  --header-dim: 0.6;
+  color: var(--header-ink);
+  mix-blend-mode: difference;
+}
+
+@media (forced-colors: active) {
+  .site-header {
+    mix-blend-mode: normal;
+  }
+}
+
+.site-header .identity,
+.site-header .site-menu a,
+.site-header .social-link {
+  color: inherit;
+  transition: opacity var(--fade);
+}
+
+.site-header .site-menu a,
+.site-header .social-link,
+.site-header .identity:hover {
+  opacity: var(--header-dim);
+}
+
+.site-header .site-menu a:hover,
+.site-header .site-menu a:focus-visible,
+.site-header .site-menu [aria-current],
+.site-header .social-link:hover,
+.site-header .social-link:focus-visible {
+  opacity: 1;
 }
 
 /* "KYURI PARK" (the name in content/site.json, in capitals here only), in the name style as
@@ -615,6 +664,8 @@ mark.placeholder {
   display: flex;
   flex-wrap: wrap;
   gap: 0 min(3vw, var(--step-3));
+  font-size: var(--size-menu);
+  letter-spacing: var(--tracking-menu);
 }
 
 @media (min-width: 768px) {
@@ -623,7 +674,45 @@ mark.placeholder {
   }
 
   .site-menu {
-    gap: var(--step-4);
+    gap: var(--step-3);
+  }
+}
+
+/* LinkedIn, GitHub, and email (build.py's social_links), as 14px line icons at the right
+   (since 2026-11-10, from the user's sketch), 16px apart, in the links' gray and the text color
+   on hover (Header, above). From 768px, where the header has three columns: the name at the left, the links in
+   the window's middle (at the right until then), the icons at the right. A phone's header has
+   room for the name and the links only, so there the icons are left out; About's footer has
+   the same links. */
+.site-social {
+  display: none;
+}
+
+.social-link {
+  display: block;
+  margin: -4px;
+  padding: 4px;
+}
+
+@media (min-width: 768px) {
+  .site-header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+  }
+
+  .identity {
+    justify-self: start;
+  }
+
+  .site-nav {
+    margin-left: 0;
+  }
+
+  .site-social {
+    display: flex;
+    justify-self: end;
+    align-self: center;
+    gap: var(--step-2);
   }
 }
 
@@ -702,8 +791,8 @@ mark.placeholder {
 /* With JavaScript, Home fills the screen and doesn't scroll. The cards sit on a loop
    that track.js turns; these rules size them and set where they start.
    The layout follows the example (focuscarouselpro.framer.website), but the cards are
-   --thumb-ratio, as Work's tiles are (4:5 since 2026-11-07, square the day before, 3:4 at the
-   example's sizes until then), and the gap between them is the site's gap between images.
+   --thumb-ratio, as Work's tiles are (4:3 since 2026-11-10, 4:5 from 2026-11-07, square the day
+   before, 3:4 at the example's sizes until then), and the gap between them is the site's gap between images.
    The card's top is the page's starting line (main's --page-top), where Work's filter starts
    too, except on a window too narrow for the card to fill its height (below). Five cards show
    at most, the middle one and two each side; past them a card fades away (FADE_OUT in
@@ -917,6 +1006,98 @@ mark.placeholder {
   opacity: 1;
 }
 
+/* Home, as the user drew it (2026-11-10): the sentence that says who this is (h1, in the lead
+   style), then the featured projects on the track. Under 1200px the sentence sits at the top,
+   over the track, which runs across as above. From 1200px, the sketch: the sentence at the
+   left, the cards running down a wheel in the window's middle, and the middle card's name, with
+   a dot after it, at the right, all three across from the middle card's center.
+     --card-h       the middle card's height: 36% of the window's, so its neighbors show over
+                    and under it, and the one after them, at the window's edges
+     --card-y       its center: the window's
+     --track-arc    the circle the cards run on, its radius in middle-card heights (track.js):
+                    2, its middle off to the left, as drawn, so a card swings left as it leaves
+                    the middle (54px one step out, 170px two, on a 900px-tall window)
+     --track-tilt   0: the cards stay upright, as drawn, and only their path bends (1 tilts
+                    each with its spoke, about 13 degrees one step out on a radius of 4, as
+                    for part of 2026-11-10)
+     --track-drift  left alone, the cards turn on their own, this many a second: 0.125, one
+                    card every 8 seconds (0: they don't). A pointer over a card, the wheel, a
+                    drag, the keys, or focus on a card stop them, and they start again 2.5 s
+                    after (DRIFT_RESUME in track.js); never with reduced motion
+     --home-left    the page's left edge, the header name's; the sentence starts there and
+                    stops 48px short of the middle card (and at 15em). The name ends at the
+                    page's right edge, the icons'
+   The cards pass under the header, whose name, links, and icons turn light over them where
+   they're dark (Header). (For an hour on 2026-11-10 the cards faded away at the window's top
+   and bottom edges instead.) */
+.page-home .home-lead {
+  max-width: calc(var(--measure-lead) + 2 * var(--gutter));
+  margin: 0 0 var(--space-2);
+}
+
+/* Under 1200px the card sits right under the sentence, its top on the stage's top edge: the
+   track's evening out of the space over and under it (--card-y, above) doesn't know the
+   sentence is there. */
+.js .page-home .track {
+  --card-y: calc(var(--card-h) / 2);
+}
+
+@media (min-width: 1200px) {
+  .js .page-home {
+    --home-card-h: 36dvh;
+    --home-left: max(var(--gutter), (100vw - var(--page-max)) / 2);
+  }
+
+  .js .page-home .home-lead {
+    position: fixed;
+    top: 50%;
+    left: var(--home-left);
+    z-index: 1;
+    width: calc((100vw - var(--home-card-h) * (var(--thumb-ratio))) / 2 - var(--home-left)
+                - var(--step-6));
+    max-width: 15em;
+    margin: 0;
+    padding: 0;
+    transform: translateY(-50%);
+  }
+
+  .js .page-home .track {
+    --track-arc: 2;
+    --track-tilt: 0;
+    --track-drift: 0.125;
+    --card-h: var(--home-card-h);
+    --card-y: 50cqh;
+  }
+
+  .js .page-home .track-meta {
+    top: var(--card-y);
+    left: auto;
+    right: var(--meta-left);
+    width: auto;
+    max-width: calc(var(--card-side) - var(--meta-left) - var(--step-6));
+    margin: 0;
+    transform: translateY(-50%);
+  }
+
+  .js .page-home .track-caption {
+    align-items: center;
+    gap: var(--step-1);
+  }
+
+  .js .page-home .track-caption .card-text {
+    display: none;
+  }
+
+  .js .page-home .track-caption::after {
+    content: "";
+    flex: none;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+}
+
 /* Home intro ------------------------------------------------------------ */
 
 /* The first time Home opens in a browser tab, an opening says who this is before the work shows
@@ -938,13 +1119,6 @@ mark.placeholder {
   opacity: 0;
 }
 
-/* Arriving at Home from another page while the opening plays, the header doesn't stay put
-   through the 300 ms fade between pages (it would show over the cover, then vanish): it fades
-   out with the old page, under the cover. */
-.intro-on .site-header {
-  view-transition-name: none;
-}
-
 .intro {
   display: none;
 }
@@ -958,8 +1132,9 @@ mark.placeholder {
 }
 
 /* The name and the role, one in the other's place in the window's middle, in the name style
-   (see Shared text styles) at the header name's 600, --size-identity and --tracking-identity, in
-   the page's color. Each word is hidden until intro.js brings it in. */
+   (see Shared text styles) at the header name's 600 and --tracking-identity, 16px (the header
+   name's size until 2026-11-10, when the header's type got smaller), in the page's color. Each
+   word is hidden until intro.js brings it in. */
 .intro-lines {
   position: relative;
   display: grid;
@@ -971,7 +1146,7 @@ mark.placeholder {
 .intro-line {
   grid-area: 1 / 1;
   margin: 0;
-  font-size: var(--size-identity);
+  font-size: var(--size-body);
   font-weight: 600;
   letter-spacing: var(--tracking-identity);
   white-space: nowrap;
@@ -1070,6 +1245,215 @@ mark.placeholder {
   font-size: var(--size-count);  /* 10px */
   letter-spacing: var(--tracking-label);
   line-height: 1;  /* so the smaller number doesn't make its line taller */
+}
+
+/* Work's two views of the same items, GRID and SLIDER (WORK_VIEWS in build.py, since
+   2026-11-10), as two icons (build.py's VIEW_ICONS; the words "[ GRID ]  SLIDER" at the left,
+   in the filters' style, the hour before) at the right end of the line where the filters were,
+   the last icon's edge on the page's right edge, with the header's links. Choices (see Shared
+   text styles): --color-subtle, the one showing and the one hovered in the text color. Each is
+   24px tall to tap or click while the line stays a label's line, so the grid starts --space-2
+   under it, where it starts with the filters off, and nothing moves. 16px between the icons.
+   Without JavaScript there's no switch, and the grid shows. */
+.work-views {
+  --view-pad: 4px;  /* around an icon, inside its button */
+  display: none;
+}
+
+.js .work-views {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--step-1);
+  margin: 0 calc(-1 * var(--view-pad)) var(--space-2);
+}
+
+.work-view {
+  padding: var(--view-pad);
+  margin-block: calc((var(--leading-label) * var(--size-label) - 16px) / 2 - var(--view-pad));
+}
+
+.work-view[aria-pressed="true"] {
+  cursor: default;
+}
+
+/* In forced colors (Windows' contrast themes) both icons take the theme's text color: the one
+   showing takes its highlight instead. */
+@media (forced-colors: active) {
+  .work-view[aria-pressed="true"] {
+    color: Highlight;
+  }
+}
+
+/* SLIDER: the track (Home: project track, above), with every item, in place of the grid. As on
+   Home, the page fills the window and doesn't scroll, and there's no footer (About has the
+   contact links). The track runs the window's full width, out of the page's side margins, and
+   its middle card's top is --space-2 under the switch, where the grid's first images start
+   (--room-top). main.js switches the views; track.js sizes the track once it shows. */
+.page-work .track,
+.js .page-work .track {
+  display: none;
+}
+
+.js.view-slider body {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.js.view-slider .page-work {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.js.view-slider .page-work .track {
+  --room-top: calc(var(--header-h) + var(--page-top) + var(--grid-top));
+  display: flex;
+  margin-inline: calc(50% - 50vw);
+}
+
+.js.view-slider .work-panel,
+.js.view-slider .site-footer {
+  display: none;
+}
+
+/* From 1200px the slider runs down (since 2026-11-10, after theoportfolio.framer.photos, without
+   its 3D ring of small images): track.js reads --track-axis, and the wheel, a drag, and the up
+   and down arrows bring the next card up from below, around a flat wheel (--track-arc). The track fills the window behind the header and
+   the switch, as the grid scrolls under them, so the cards pass under the name and links.
+     --card-h       the middle card's height: half the window's (62% across), so a 4:3 card
+                    leaves room beside it for the dial and the name, and a good part of the
+                    next card shows under it (--peek-min, 48px, at the least); the one before
+                    it shows over it
+     --card-y       its center: its top is on the grid's line (--room-top), where the grid's
+                    first images start, so switching views moves nothing there
+     --meta-left    the page's left edge, the header name's
+     --track-arc    the wheel the cards run on, its radius in middle-card heights: 4, its hub
+                    off to the right (less than 0; more than 0, the left), so a card swings
+                    right and tilts as it leaves the middle, about 13 degrees one step out, and
+                    stands straight again in the middle, closest to the dial. Larger, flatter;
+                    0, a straight line (track.js)
+   At the page's left edge, across from the card's middle, a dial: a tick of 4px dots per item
+   (the phones' dots, as ticks), three dots each, the middle card's five and dark. The ticks
+   don't move; when another card comes to the middle, its tick grows a dot at a time, and the
+   card's name, with its type and year under it, slides to sit beside it. Under 1200px there
+   isn't room beside the card for the name, so the slider runs across, as Home's did, its name
+   under the card. */
+@media (min-width: 1200px) {
+  /* Home's track runs down from 1200px too (Home, above). */
+  .js .page-home .track,
+  .js.view-slider .page-work .track {
+    --track-axis: y;
+    --meta-left: max(var(--gutter), (100cqw - var(--page-max)) / 2);
+    position: fixed;
+    inset: 0;
+    margin: 0;
+  }
+
+  .js.view-slider .page-work .track {
+    --track-arc: -4;
+    --card-h: min(50dvh, 100cqh - var(--room-top) - var(--card-gap) - var(--peek-min),
+                  (100cqw - 2 * var(--gutter)) / (var(--thumb-ratio)));
+    --card-y: calc(var(--room-top) + var(--card-h) / 2);
+  }
+
+  /* Over the track, which comes later in the page. */
+  .js.view-slider .work-views {
+    position: relative;
+    z-index: 1;
+  }
+
+  .js .page-home .track-stage,
+  .js.view-slider .page-work .track-stage {
+    touch-action: pan-x pinch-zoom;
+  }
+
+  /* Before track.js runs: as across (Home: project track), down, in a straight line;
+     track.js puts the cards on the wheel. */
+  .js .page-home .track-item,
+  .js.view-slider .page-work .track-item {
+    transform:
+      translateY(calc(var(--d) * var(--card-gap) + var(--card-h) * (
+        var(--d1) * (1 + var(--scale-1)) / 2
+        + var(--d2) * (var(--scale-1) + var(--scale-2)) / 2
+        + var(--dn) * var(--scale-2))))
+      scale(calc(1 - var(--d1) * var(--d1) * (1 - var(--scale-1))
+                   - var(--d2) * var(--d2) * (var(--scale-1) - var(--scale-2))));
+  }
+
+  .js.view-slider .page-work .track-meta {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--step-3);
+    top: var(--card-y);
+    left: var(--meta-left);
+    right: auto;
+    width: calc(var(--card-side) - var(--meta-left) - var(--space-2));
+    margin: 0;
+    transform: translateY(-50%);
+  }
+
+  /* The name sits across from its own tick: the dial's --dial-at-th (track.js sets it, 0 for
+     the first), ticks 4px tall and --step-1 apart. It slides there as the middle card changes. */
+  .js.view-slider .page-work .track-caption {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--step-1);
+    min-width: 0;
+    transform: translateY(calc(var(--dial-at, 0) * (4px + var(--step-1)) + 2px
+                               - var(--leading-name) * var(--size-name) / 2));
+    transition: transform 200ms var(--ease-out);
+  }
+
+  .js.view-slider .page-work .track-caption .card-title {
+    max-width: 100%;
+  }
+
+  .js.view-slider .page-work .track-caption .card-text {
+    max-width: none;
+    text-align: left;
+  }
+
+  .js.view-slider .page-work .track-dots {
+    display: flex;
+    flex-direction: column;
+    gap: var(--step-1);
+    order: -1;
+    flex: none;
+    width: 36px;
+    margin: 0;
+  }
+
+  /* A tick: dots 4px wide, 8px apart, drawn as a pattern 8px wide, so a tick's width says how
+     many show (20px, three; 36px, five), and growing in two steps adds one dot at a time. */
+  .js.view-slider .page-work .track-dots > span {
+    width: 20px;
+    border-radius: 0;
+    background: radial-gradient(circle at 2px 2px, currentColor 1.5px, transparent 2px)
+                0 0 / 8px 4px repeat-x;
+    color: var(--color-subtle);
+    transition: width 200ms steps(2), opacity var(--fade), color var(--fade);
+  }
+
+  .js.view-slider .page-work .track-dots > .is-current {
+    width: 36px;
+    color: var(--color-text);
+  }
+}
+
+/* The slider's icon runs the way the slider does: across under 1200px, down from 1200px. */
+.view-icon-down {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .view-icon-across {
+    display: none;
+  }
+
+  .view-icon-down {
+    display: block;
+  }
 }
 
 /* 1 across under 640px, 2 from 640px, 3 from 1440px (until 2026-11-06: 2 from 768px, 3 from

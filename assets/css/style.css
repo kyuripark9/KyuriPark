@@ -1029,9 +1029,10 @@ mark.placeholder {
                     each with its spoke, about 13 degrees one step out on a radius of 4, as
                     for part of 2026-11-10)
      --track-drift  left alone, the cards turn on their own, this many a second: 0.125, one
-                    card every 8 seconds (0: they don't). A pointer over a card, the wheel, a
-                    drag, the keys, or focus on a card stop them, and they start again 2.5 s
-                    after (DRIFT_RESUME in track.js); never with reduced motion
+                    card every 8 seconds (0: they don't), from the moment the page shows.
+                    Moving the mouse onto a card, the wheel, a drag, the keys, or tabbing to a
+                    card stop them, and they start again 2.5 s after (DRIFT_RESUME in
+                    track.js); never with reduced motion
      --home-left    the page's left edge, the header name's; the sentence starts there and
                     stops at 15em, or 48px short of where a centered middle card would start.
                     The name ends at the page's right edge, the icons'

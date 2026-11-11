@@ -11,8 +11,13 @@
 // the middle and back as it comes to it; each card tilts with its spoke, or with --track-tilt
 // at 0, stays upright (Home's, since 2026-11-10).
 // Left alone, the row can turn on its own, slowly (--track-drift; Home's wheel, since
-// 2026-11-10): a pointer over a card, the wheel, a drag, the keys, or focus on a card stop it,
-// and it turns again DRIFT_RESUME ms after the last of them. Never with reduced motion.
+// 2026-11-10), from the moment the page shows: as Home's opening starts to fade, or at once
+// without it (since 2026-11-11; until then DRIFT_RESUME ms after). Moving the mouse onto a card,
+// the wheel, a drag, the keys, or tabbing to a card stop it, and it turns again DRIFT_RESUME ms
+// after the last of them. A card the row brings under a mouse that isn't moving doesn't stop
+// it, nor does a card clicked keeping focus (Chrome); until 2026-11-11 both did, so the row
+// stopped halfway between cards wherever the mouse rested on its path, and stayed stopped after
+// a click on a card. Never with reduced motion.
 // Each card is placed by its distance from the position, wrapped around the loop. Five show
 // at most, the middle one and two each side: past two steps out a card fades away, and it is
 // gone before it crosses from one end of the loop to the other (since 2026-11-09; until then
@@ -276,10 +281,14 @@
     }
   };
 
+  // Focus that stops the drift: the keyboard's. A card clicked keeps focus too (in Chrome), and
+  // that would stop it until a click somewhere else.
+  const KEY_FOCUS = window.CSS && CSS.supports("selector(:focus-visible)") ? ":focus-visible" : ":focus";
+
   // The drift (--track-drift): only with nothing else going on, and never with reduced motion,
   // during Home's opening, or while the track is hidden (Work's grid showing).
   const drifting = () => drift > 0 && !paused && !hovering && !drag && !opening
-    && !reduceMotion.matches && visible() && !root.contains(document.activeElement);
+    && !reduceMotion.matches && visible() && !root.querySelector(KEY_FOCUS);
 
   const tick = (now) => {
     frame = 0;
@@ -295,15 +304,17 @@
     if ((position !== target || turning) && !reduceMotion.matches) frame = requestAnimationFrame(tick);
   };
 
+  // Let the drift go, now.
+  const start = () => {
+    paused = false;
+    if (!frame && drifting()) frame = requestAnimationFrame(tick);
+  };
+
   // Stop the drift; it starts again DRIFT_RESUME ms later, if nothing has stopped it since.
   const pause = () => {
     paused = true;
     clearTimeout(resumeTimer);
-    if (!drift) return;
-    resumeTimer = setTimeout(() => {
-      paused = false;
-      if (!frame) frame = requestAnimationFrame(tick);
-    }, DRIFT_RESUME);
+    if (drift) resumeTimer = setTimeout(start, DRIFT_RESUME);
   };
 
   const move = (to) => {
@@ -466,46 +477,63 @@
     }, LEAN_HOLD);
   };
   const leanSoon = () => setTimeout(lean, LEAN_DELAY);
+  // With Home's opening, the drift starts as its black starts to fade, so the cards are already
+  // turning as the page shows; the lean, on phones, waits until the black is gone.
   let opening = document.documentElement.classList.contains("intro-on");
   if (opening) {
-    document.addEventListener("intro:done", () => {
+    document.addEventListener("intro:reveal", () => {
       opening = false;
-      leanSoon();
-      pause();
+      start();
     }, { once: true });
+    document.addEventListener("intro:done", leanSoon, { once: true });
   }
 
-  // The pointer over a card stops the drift where it is, so the card stays under it; leaving
-  // the cards lets it go again. (A mouse only: a touch is an input, above.)
-  root.addEventListener("pointerover", (e) => {
+  // The mouse moved onto a card stops the drift where it is, so the card stays under it; moved
+  // off the cards, it lets it go again. Only the mouse's own moving counts: browsers also report
+  // a card coming under a mouse that isn't moving (pointerover, and in some a pointermove at the
+  // same spot), and the middle card is in the window's middle, where a mouse often rests.
+  // (A mouse only: a touch is an input, above.)
+  const hover = (over) => {
+    if (over === hovering) return;
+    hovering = over;
+    pause();
+  };
+  let mouseAt = "";  // where the mouse last moved to, over the track
+  root.addEventListener("pointermove", (e) => {
     if (e.pointerType !== "mouse") return;
-    hovering = !!e.target.closest(".track-card");
-    pause();
+    const at = `${e.clientX},${e.clientY}`;
+    if (at === mouseAt) return;
+    mouseAt = at;
+    hover(!!e.target.closest(".track-card"));
   });
-  root.addEventListener("pointerleave", () => {
-    hovering = false;
-    pause();
+  // Off the cards, though, however it got there: the wheel can turn a card out from under it.
+  root.addEventListener("pointerover", (e) => {
+    if (e.pointerType === "mouse" && !e.target.closest(".track-card")) hover(false);
   });
+  root.addEventListener("pointerleave", () => hover(false));
   root.addEventListener("focusout", pause);
 
   // Measured whenever the stage changes size: on resizing the window, and on Work when the
   // slider shows (hidden, it has no size, so it waits). The first time it shows, its images,
   // lazy until then so a hidden slider loads nothing, all load at once (the stage clips the
   // cards, so lazy ones would only load as they came on screen), and on a phone it leans.
-  // Where the drift stops for good (a window narrowed out of the wheel), the row settles on a card.
+  // Where the drift stops for good (a window narrowed out of the wheel), the row settles on a card;
+  // where it can start (the page showing, or a window widened into the wheel), it does, at once.
   let seen = false;
   const fit = () => {
     if (!visible()) return;
     measure();
     render();
     if (!drift && target !== Math.round(target)) move(Math.round(target));
-    if (seen) return;
-    seen = true;
-    row.querySelectorAll('img[loading="lazy"]').forEach((img) => { img.loading = "eager"; });
-    if (!opening) {
-      leanSoon();
-      pause();
+    if (!seen) {
+      seen = true;
+      row.querySelectorAll('img[loading="lazy"]').forEach((img) => { img.loading = "eager"; });
+      if (!opening) {
+        leanSoon();
+        paused = false;
+      }
     }
+    if (!frame && drifting()) frame = requestAnimationFrame(tick);
   };
   if ("ResizeObserver" in window) new ResizeObserver(fit).observe(stage);
   window.addEventListener("resize", fit);

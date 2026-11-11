@@ -74,6 +74,7 @@
     if (state !== "on") return;
     state = "revealing";
     intro.style.pointerEvents = "none";
+    document.dispatchEvent(new Event("intro:reveal"));  // track.js starts Home's cards turning
     const timing = { duration: time, easing: EASE_OPEN, fill: "forwards" };
     edge = html.animate({ backgroundColor: [getComputedStyle(html).backgroundColor,
                                             getComputedStyle(document.body).backgroundColor] }, timing);

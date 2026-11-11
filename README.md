@@ -441,10 +441,15 @@ cards pass under the header, whose type turns light where they're dark (see Head
 they faded away at the window's top and bottom edges instead). The wheel,
 a drag, or the up/down arrows move it (`.page-home` rules in `assets/css/style.css`, "Home, as
 the user drew it"). Left alone, the cards turn on their own, slowly, along the same circle: one
-card every 8 seconds (`--track-drift: 0.125`, cards a second; `0` turns it off). A pointer over a
-card stops them where they are, and so do the wheel, a drag, the keys, and focus on a card; they
-start again 2.5 s after the last of these (`DRIFT_RESUME` in `assets/js/track.js`). Not during
-the opening, and never with reduced motion; screen readers aren't told each name as it drifts by.
+card every 8 seconds (`--track-drift: 0.125`, cards a second; `0` turns it off). They start
+turning the moment the page shows: as the opening's black starts to fade, or at once without it
+(since 2026-11-11; until then 2.5 s after). Moving the mouse onto a card stops them where they
+are, and so do the wheel, a drag, the keys, and tabbing to a card; they start again 2.5 s after
+the last of these (`DRIFT_RESUME` in `assets/js/track.js`). A card that turns under a mouse
+resting on its path doesn't stop them, nor does a card keeping focus after a click (in Chrome);
+until 2026-11-11 both did, so the cards stopped halfway wherever the mouse rested (often the
+window's middle, where the middle card is) and stayed stopped after a click on a card. Never
+with reduced motion; screen readers aren't told each name as it drifts by.
 
 Work's slider (`WORK_VIEWS`, off since Home came back) runs down from 1200px (since 2026-11-10,
 after theoportfolio.framer.photos, without its tilted ring and blur): the wheel, a drag, or the up/down arrows bring the next card up from below,

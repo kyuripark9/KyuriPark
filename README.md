@@ -445,14 +445,17 @@ toward the next card and back (`LEAN`, `LEAN_HOLD`, `LEAN_DELAY` at the top of
 `assets/js/track.js`). Not if the row has been moved first, or with reduced motion.
 
 From 1200px Home's loop runs down a wheel, as the user drew it (2026-11-10): the middle card,
-36% of the window's height, centered in the window, under the header's links (since 2026-11-11;
+40% of the window's height (480 x 360 on a 1440 x 900 window, the size of
+theoportfolio.framer.photos's; 36% until 2026-11-11), centered in the window, under the header's links (since 2026-11-11;
 until then 82px right of centered, so nothing lined up with it), each card turning on its left
 edge so the middle one reaches out right of its neighbors; the sentence at the page's left edge and the
 middle card's name, alone, 32px to the card's right, both across from the card's center, and a
 4px dot 8px before the name that stays still as the names change (since 2026-11-11; until then
 the dot after the name, at the page's right edge, far from the card). The cards run on a circle whose middle is off to the left (`--track-arc: 2`, in
-middle-card heights), so the cards over and under the middle one swing left as they go, two
-showing each side, and they stay upright (`--track-tilt: 0`; `1` tilts each with its spoke). The
+middle-card heights), so the cards over and under the middle one swing left as they go. The cards over and under it are 0.75 of its size there (`--scale-1`/`--scale-2`
+in the `.page-home` rules; 0.62 until 2026-11-11, with the next cards out showing at the
+window's edges), which puts the next cards out just past the window's top and bottom, so three
+show; they stay upright (`--track-tilt: 0`; `1` tilts each with its spoke). The
 cards pass under the header, whose type turns light where they're dark (see Header; for an hour
 they faded away at the window's top and bottom edges instead). The wheel,
 a drag, or the up/down arrows move it (`.page-home` rules in `assets/css/style.css`, "Home, as

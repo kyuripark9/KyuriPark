@@ -1041,12 +1041,20 @@ mark.placeholder {
    left, the cards running down a wheel in the window's middle, and the middle card's name
    beside it, at its right, a dot before it (after it, at the page's edge, until 2026-11-11),
    all three across from the middle card's center.
-     --card-h       the middle card's height: 36% of the window's, so its neighbors show over
-                    and under it, and the one after them, at the window's edges
+     --card-h       the middle card's height: 40% of the window's, 480 x 360 on a 1440 x 900
+                    window, the size of theoportfolio.framer.photos's (since 2026-11-11, the
+                    user's ask; 36% until then, 432 x 324, with the next cards out showing too)
+     --scale-1, --scale-2   the cards over and under it: 0.75 of its size here (0.62 elsewhere),
+                    larger, as that example's are, and the size that puts the next cards out
+                    just past the window's edges on any window: their near edges land 24px
+                    beyond them, (0.5 + 0.75) x 40% + 24px from the middle, so three cards
+                    show, the middle one and one over and under it, those two running 12px off
+                    the window's top and bottom. Smaller neighbors would leave the next cards
+                    as thin strips at the edges (under 48px, --peek-min; 23px at 0.62)
      --card-y       its center: the window's
      --track-arc    the circle the cards run on, its radius in middle-card heights (track.js):
                     2, its middle off to the left, as drawn, so a card swings left as it leaves
-                    the middle (61px one step out, 221px two, on a 900px-tall window)
+                    the middle (79px one step out on a 900px-tall window)
      --track-tilt   0: the cards stay upright, as drawn, and only their path bends (1 tilts
                     each with its spoke, about 13 degrees one step out on a radius of 4, as
                     for part of 2026-11-10)
@@ -1066,8 +1074,7 @@ mark.placeholder {
    and nothing else on the page lined up with it). Each card turns on its left edge, not its
    center (since 2026-11-10, the user's ask): the circle runs through the cards' left edges,
    and a card grows and shrinks from there, so the middle card reaches out to the right of the
-   ones over and under it. On a 1440 x 900 window the left edges are about 276, 436, and 497px
-   in. (For a few minutes on 2026-11-10 the whole wheel moved 136px right instead.)
+   ones over and under it. On a 1440 x 900 window the left edges are about 401 and 480px in. (For a few minutes on 2026-11-10 the whole wheel moved 136px right instead.)
    Under the sentence, the switch for the click the cards make as the visitor turns them
    (track.js; since 2026-11-10, after theoportfolio.framer.photos): a 14px line speaker, as the
    header's icons are, with waves or a cross, and SOUND ON or SOUND OFF in the label style,
@@ -1126,7 +1133,7 @@ mark.placeholder {
 
 @media (min-width: 1200px) {
   .js .page-home {
-    --home-card-h: 36dvh;
+    --home-card-h: 40dvh;
     --home-left: max(var(--gutter), (100% - var(--page-max)) / 2);
   }
 
@@ -1179,6 +1186,8 @@ mark.placeholder {
     --track-arc: 2;
     --track-tilt: 0;
     --track-drift: 0.125;
+    --scale-1: 0.75;
+    --scale-2: 0.75;
     --card-h: var(--home-card-h);
     --card-y: 50cqh;
   }

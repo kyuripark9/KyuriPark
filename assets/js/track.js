@@ -60,6 +60,7 @@
   const caption = root.querySelector(".track-caption");
   const meta = root.querySelector(".track-meta");
   const dots = [...root.querySelectorAll(".track-dots > span")];  // one per project, phones only
+  const countAt = root.querySelector(".track-count-at");  // "01" in "01 / 05", Home from 1200px
   const visible = () => stage.clientWidth > 0;  // not while Work's grid shows instead
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const phone = window.matchMedia("(max-width: 767px)");
@@ -273,6 +274,7 @@
                            cards.includes(document.activeElement) || drifting() ? "off" : "polite");
       caption.innerHTML = middle.querySelector(".card-caption").innerHTML;
       dots.forEach((dot, i) => dot.classList.toggle("is-current", items[i] === middle));
+      if (countAt) countAt.textContent = String(items.indexOf(middle) + 1).padStart(2, "0");
       // Down (Work's slider from 1200px), the name slides beside its tick (style.css).
       meta.style.setProperty("--dial-at", items.indexOf(middle));
       if (!reduceMotion.matches) {

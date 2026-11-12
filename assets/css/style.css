@@ -436,6 +436,7 @@ button {
 .experience li,
 .about-text,
 .sound-toggle,
+.track-count,
 .prototype-open {
   font-family: var(--font-mono);
   font-size: var(--size-label);
@@ -800,9 +801,19 @@ mark.placeholder {
   color: var(--color-subtle);
 }
 
-/* The caption under the middle card, and the dots under it, need track.js. */
-.track-meta {
+/* The caption under the middle card, and the dots under it, need track.js. So does Home's
+   count of the cards, which shows from 1200px only (Home, below). */
+.track-meta,
+.track-count {
   display: none;
+}
+
+.track-count {
+  color: var(--color-subtle);
+}
+
+.track-count-at {
+  color: var(--color-text);
 }
 
 /* With JavaScript, Home fills the screen and doesn't scroll. The cards sit on a loop
@@ -1027,8 +1038,9 @@ mark.placeholder {
 /* Home, as the user drew it (2026-11-10): the sentence that says who this is (h1, in the lead
    style), then the featured projects on the track. Under 1200px the sentence sits at the top,
    over the track, which runs across as above. From 1200px, the sketch: the sentence at the
-   left, the cards running down a wheel in the window's middle, and the middle card's name, with
-   a dot after it, at the right, all three across from the middle card's center.
+   left, the cards running down a wheel in the window's middle, and the middle card's name
+   beside it, at its right, a dot before it (after it, at the page's edge, until 2026-11-11),
+   all three across from the middle card's center.
      --card-h       the middle card's height: 36% of the window's, so its neighbors show over
                     and under it, and the one after them, at the window's edges
      --card-y       its center: the window's
@@ -1044,23 +1056,27 @@ mark.placeholder {
                     card stop them, and they start again 2.5 s after (DRIFT_RESUME in
                     track.js); never with reduced motion
      --home-left    the page's left edge, the header name's; the sentence starts there and
-                    stops at 15em, or 48px short of where a centered middle card would start.
-                    The name ends at the page's right edge, the icons'
+                    stops at 15em, or 48px short of the middle card. The sound switch starts
+                    there too, and the count ends at the page's right edge, the icons'
    The cards pass under the header, whose name, links, and icons turn light over them where
    they're dark (Header). (For an hour on 2026-11-10 the cards faded away at the window's top
    and bottom edges instead.)
-   Each card turns on its left edge, not its center (since 2026-11-10, the user's ask): the
-   circle runs through the cards' left edges, and a card grows and shrinks from there, so the
-   middle card reaches out to the right while the ones over and under it stay to the left,
-   where they were when the cards turned on their centers. On a 1440 x 900 window the left
-   edges are 365, 525, and 586px in: the middle card 82px right of centered, its neighbors
-   unmoved. (For a few minutes that day the whole wheel moved 136px right instead.)
+   The middle card is centered in the window, under the header's links, so the wheel and the
+   header share one middle (since 2026-11-11; from 2026-11-10 it sat 82px right of centered,
+   and nothing else on the page lined up with it). Each card turns on its left edge, not its
+   center (since 2026-11-10, the user's ask): the circle runs through the cards' left edges,
+   and a card grows and shrinks from there, so the middle card reaches out to the right of the
+   ones over and under it. On a 1440 x 900 window the left edges are about 276, 436, and 497px
+   in. (For a few minutes on 2026-11-10 the whole wheel moved 136px right instead.)
    Under the sentence, the switch for the click the cards make as the visitor turns them
    (track.js; since 2026-11-10, after theoportfolio.framer.photos): a 14px line speaker, as the
    header's icons are, with waves or a cross, and SOUND ON or SOUND OFF in the label style,
    gray, the text color on hover. It needs track.js, so not without JavaScript. From 1200px it
-   hangs 32px under the sentence without moving it, so the sentence stays across from the
-   middle card's center. */
+   sits in the window's bottom left corner, and the count of the cards, 01 / 05, the middle
+   one's number in the text color, in the bottom right: a line along the window's bottom that
+   answers the header along its top, each as far from its edge as the header's text is from
+   the top (since 2026-11-11; until then the switch hung 32px under the sentence, and nothing
+   held the bottom edge). */
 .page-home .home-side {
   margin-bottom: var(--space-2);
 }
@@ -1111,19 +1127,33 @@ mark.placeholder {
 @media (min-width: 1200px) {
   .js .page-home {
     --home-card-h: 36dvh;
-    --home-left: max(var(--gutter), (100vw - var(--page-max)) / 2);
+    --home-left: max(var(--gutter), (100% - var(--page-max)) / 2);
   }
 
+  /* The window's height, the sentence in its middle. Not moved there with a transform, which
+     would hold the sound switch (position: fixed) to this box instead of the window. Only the
+     sentence and the switch take the pointer, so the cards under the rest can still be
+     turned. --home-left and the width are in %, the window's width less the scrollbar's room,
+     as the header's are (in vw until 2026-11-11, 8px off the header's name on a 1920px
+     window with a scrollbar). */
   .js .page-home .home-side {
     position: fixed;
-    top: 50%;
+    top: 0;
+    bottom: 0;
     left: var(--home-left);
     z-index: 1;
-    width: calc((100vw - var(--home-card-h) * (var(--thumb-ratio))) / 2 - var(--home-left)
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: calc((100% - var(--home-card-h) * (var(--thumb-ratio))) / 2 - var(--home-left)
                 - var(--step-6));
     margin: 0;
     padding: 0;
-    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .js .page-home .home-side > * {
+    pointer-events: auto;
   }
 
   .js .page-home .home-lead {
@@ -1131,10 +1161,18 @@ mark.placeholder {
   }
 
   .js .page-home .sound-toggle {
+    position: fixed;
+    left: var(--home-left);
+    bottom: var(--header-top);
+    margin: 0 0 -4px -4px;
+  }
+
+  .js .page-home .track-count {
+    display: block;
     position: absolute;
-    top: 100%;
-    left: 0;
-    margin-top: calc(var(--space-2) - 4px);
+    right: var(--meta-left);
+    bottom: var(--header-top);
+    margin: 0;
   }
 
   .js .page-home .track {
@@ -1145,40 +1183,42 @@ mark.placeholder {
     --card-y: 50cqh;
   }
 
-  /* Turning on the left edge (above): that edge sits where a smaller card's was, centered. */
+  /* Turning on the left edge (above), the middle card centered. */
   .js .page-home .track-item {
-    left: calc(50% - var(--card-w) * var(--scale-1) / 2);
+    left: calc(50% - var(--card-w) / 2);
     margin-left: 0;
     transform-origin: 0 50%;
   }
 
+  /* The middle card's name, alone, sits beside it, 32px to its right, across from the card's
+     center, as the sentence is (since 2026-11-11; until then at the page's right edge, 310px
+     off the card on a 1440 x 900 window, where it read as a stray label, not the card's. Its
+     type and year showed under it for an hour that day; the user took them out). The dot from
+     the user's sketch stands 8px before the name, on the card's side, and stays still while
+     the names change: it marks the middle, as a dial's index does (after the name, at the
+     page's edge, until 2026-11-11). */
   .js .page-home .track-meta {
     top: var(--card-y);
-    left: auto;
+    left: calc(50% + var(--card-w) / 2 + var(--space-2));
     right: var(--meta-left);
     width: auto;
-    max-width: calc(var(--card-side) - var(--card-w) * (1 - var(--scale-1)) / 2
-                    - var(--meta-left) - var(--step-6));
     margin: 0;
     transform: translateY(-50%);
   }
 
-  .js .page-home .track-caption {
-    align-items: center;
-    gap: var(--step-1);
-  }
-
-  .js .page-home .track-caption .card-text {
-    display: none;
-  }
-
-  .js .page-home .track-caption::after {
+  .js .page-home .track-meta::before {
     content: "";
-    flex: none;
+    position: absolute;
+    top: calc(var(--leading-name) * var(--size-name) / 2 - 2px);
+    left: calc(-4px - var(--step-1));
     width: 4px;
     height: 4px;
     border-radius: 50%;
     background: currentColor;
+  }
+
+  .js .page-home .track-caption .card-text {
+    display: none;
   }
 }
 

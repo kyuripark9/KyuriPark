@@ -21,7 +21,7 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 
 | Address | What it is |
 | --- | --- |
-| `/` | Home, laid out from the user's own sketch (2026-11-10): the sentence that says who this is (`"home"` → `"lead"` in `content/site.json`) at the left, the featured projects on a wheel in the window's middle, one at a time, and the middle one's name, with a dot after it, at the right (see Motion, "Home loop"). Under 1200px the sentence sits at the top and the cards run across under it. The first time it opens in a tab, the opening plays over it (see Motion, "Home intro"). `HOME_TRACK = False` in `build.py` puts Work's grid here instead, as it was earlier that day |
+| `/` | Home, laid out from the user's own sketch (2026-11-10): the sentence that says who this is (`"home"` → `"lead"` in `content/site.json`) at the left, the featured projects on a wheel in the window's middle, one at a time, and the middle one's name beside it, at its right, with a dot before it; along the window's bottom, the sound switch at the left and the count of the cards (01 / 05) at the right (see Motion, "Home loop"). Under 1200px the sentence sits at the top and the cards run across under it. The first time it opens in a tab, the opening plays over it (see Motion, "Home intro"). `HOME_TRACK = False` in `build.py` puts Work's grid here instead, as it was earlier that day |
 | `/work/` | Work: everything, the projects first, in one grid of tiles, so a visitor sees every project at once. Its filters ("All 08   Digital 06   Brand 04   Physical 02", `/#digital` and so on) are off since 2026-11-09: `WORK_FILTERS` in `build.py` brings them back. `WORK_VIEWS = True` in `build.py` adds two icons over the grid (grid, slider; `VIEW_ICONS`) that switch it to the same items on the loop; off since Home came back, as Home's wheel is that slider now |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html` |
 | `/archive/` | Archive: personal work and hobbies, a gallery of images with nothing under them. A separate page with its own data |
@@ -445,9 +445,12 @@ toward the next card and back (`LEAN`, `LEAN_HOLD`, `LEAN_DELAY` at the top of
 `assets/js/track.js`). Not if the row has been moved first, or with reduced motion.
 
 From 1200px Home's loop runs down a wheel, as the user drew it (2026-11-10): the middle card,
-36% of the window's height, in the window's middle; the sentence at the page's left edge and the
-middle card's name, with a 4px dot after it, at its right edge, both across from the card's
-center. The cards run on a circle whose middle is off to the left (`--track-arc: 2`, in
+36% of the window's height, centered in the window, under the header's links (since 2026-11-11;
+until then 82px right of centered, so nothing lined up with it), each card turning on its left
+edge so the middle one reaches out right of its neighbors; the sentence at the page's left edge and the
+middle card's name, alone, 32px to the card's right, both across from the card's center, and a
+4px dot 8px before the name that stays still as the names change (since 2026-11-11; until then
+the dot after the name, at the page's right edge, far from the card). The cards run on a circle whose middle is off to the left (`--track-arc: 2`, in
 middle-card heights), so the cards over and under the middle one swing left as they go, two
 showing each side, and they stay upright (`--track-tilt: 0`; `1` tilts each with its spoke). The
 cards pass under the header, whose type turns light where they're dark (see Header; for an hour
@@ -493,7 +496,9 @@ To tune it:
   only once the visitor has clicked, tapped, or pressed a key on the page, so until then it's
   silent. Under Home's sentence, a SOUND ON / SOUND OFF switch (a 14px speaker line icon and a
   gray label, `.sound-toggle` in `templates/home.html` and `assets/css/style.css`; from 1200px it
-  hangs under the sentence without moving it). The sound is on unless the visitor turns it off,
+  sits in the window's bottom left corner, across from the count of the cards, `01 / 05`, in the
+  bottom right, the two a line that answers the header, since 2026-11-11; until then it hung
+  under the sentence). The sound is on unless the visitor turns it off,
   so the switch reads ON from the start (the user's call, 2026-11-10; for an hour it read OFF
   until that first input). Turning it off is remembered in the browser (`localStorage`, `home-sound-off`) for
   later visits, and turning it on plays one click to hear it by. A page without the switch

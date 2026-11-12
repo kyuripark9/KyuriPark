@@ -962,12 +962,16 @@ class Builder:
     def track(self, items, loading=None):
         """The track's markup (templates/track.html): a card per item, in "order", and under
         the middle card's caption, on phones, a dot for each, the middle one's dark (style.css,
-        "Home: project track")."""
+        "Home: project track"). And the count, "01 / 05", the middle card's number first, which
+        Home shows in the window's bottom right from 1200px (style.css, "Home, as the user drew
+        it"); track.js changes the number as the cards turn."""
         n = len(items)
         cards = "\n".join(self.home_card(p, i, n, loading) for i, p in enumerate(items))
         dots = "".join('<span class="is-current"></span>' if i == 0 else "<span></span>"
                        for i in range(n))
-        return render("track.html", cards=cards, caption=self.card_caption(items[0]), dots=dots)
+        count = f'<span class="track-count-at">01</span> / {n:02d}'
+        return render("track.html", cards=cards, caption=self.card_caption(items[0]), dots=dots,
+                      count=count)
 
     def home_intro(self):
         """Home's opening (assets/js/intro.js): a black screen with the name, then the role, in

@@ -1037,10 +1037,12 @@ mark.placeholder {
 
 /* Home, as the user drew it (2026-11-10): the sentence that says who this is (h1, in the lead
    style), then the featured projects on the track. Under 1200px the sentence sits at the top,
-   over the track, which runs across as above. From 1200px, the sketch: the sentence at the
-   left, the cards running down a wheel in the window's middle, and the middle card's name
-   beside it, at its right, a dot before it (after it, at the page's edge, until 2026-11-11),
-   all three across from the middle card's center.
+   over the track, which runs across as above. From 1200px, the sketch, turned around after
+   theoportfolio.framer.photos (2026-11-11, the user's ask): the middle card's name at the
+   page's left edge, a dot before it, the cards running down a wheel in the window's left half,
+   and the sentence in its right half, 128px past the card, all three across from the middle
+   card's center. (Until then the sentence at the left, the card centered in the window, and
+   the name beside it, at its right.)
      --card-h       the middle card's height: 40% of the window's, 480 x 360 on a 1440 x 900
                     window, the size of theoportfolio.framer.photos's (since 2026-11-11, the
                     user's ask; 36% until then, 432 x 324, with the next cards out showing too)
@@ -1063,18 +1065,21 @@ mark.placeholder {
                     Moving the mouse onto a card, the wheel, a drag, the keys, or tabbing to a
                     card stop them, and they start again 2.5 s after (DRIFT_RESUME in
                     track.js); never with reduced motion
-     --home-left    the page's left edge, the header name's; the sentence starts there and
-                    stops at 15em, or 48px short of the middle card. The sound switch starts
-                    there too, and the count ends at the page's right edge, the icons'
+     --home-left    the page's left edge, the header name's; the middle card's name and the
+                    sound switch start there, and the sentence and the count end at the
+                    page's right edge, the icons'
+     --home-name-room   room for the middle card's name, 128px, and 32px from it to the
+                    card: the card keeps clear of it
    The cards pass under the header, whose name, links, and icons turn light over them where
    they're dark (Header). (For an hour on 2026-11-10 the cards faded away at the window's top
    and bottom edges instead.)
-   The middle card is centered in the window, under the header's links, so the wheel and the
-   header share one middle (since 2026-11-11; from 2026-11-10 it sat 82px right of centered,
-   and nothing else on the page lined up with it). Each card turns on its left edge, not its
+   The middle card's right edge is the window's middle, under the header's links' middle, so
+   the cards keep the left half and the sentence the right (since 2026-11-11, the user's ask,
+   for room beside the sentence; earlier that day the card was centered there, and from
+   2026-11-10 82px right of centered). Each card turns on its left edge, not its
    center (since 2026-11-10, the user's ask): the circle runs through the cards' left edges,
    and a card grows and shrinks from there, so the middle card reaches out to the right of the
-   ones over and under it. On a 1440 x 900 window the left edges are about 401 and 480px in. (For a few minutes on 2026-11-10 the whole wheel moved 136px right instead.)
+   ones over and under it. On a 1440 x 900 window the left edges are about 161 and 240px in. (For a few minutes on 2026-11-10 the whole wheel moved 136px right instead.)
    Under the sentence, the switch for the click the cards make as the visitor turns them
    (track.js; since 2026-11-10, after theoportfolio.framer.photos): a 14px line speaker, as the
    header's icons are, with waves or a cross, and SOUND ON or SOUND OFF in the label style,
@@ -1135,25 +1140,29 @@ mark.placeholder {
   .js .page-home {
     --home-card-h: 40dvh;
     --home-left: max(var(--gutter), (100% - var(--page-max)) / 2);
+    --home-name-room: calc(var(--step-16) + var(--space-2));
   }
 
-  /* The window's height, the sentence in its middle. Not moved there with a transform, which
-     would hold the sound switch (position: fixed) to this box instead of the window. Only the
-     sentence and the switch take the pointer, so the cards under the rest can still be
-     turned. --home-left and the width are in %, the window's width less the scrollbar's room,
-     as the header's are (in vw until 2026-11-11, 8px off the header's name on a 1920px
-     window with a scrollbar). */
+  /* The window's height, the sentence in its middle, in the window's right half, --space-3
+     (128px) right of the middle card, whose right edge is the window's middle; it runs up to
+     15em, and never past the page's right edge, the icons'. Not moved there with a transform,
+     which would hold the sound switch (position: fixed) to this box instead of the window.
+     Only the sentence and the switch take the pointer, so the cards under the rest can still
+     be turned. The edges are in %, the window's width less the scrollbar's room, as the
+     header's are (in vw until 2026-11-11, 8px off the header's name on a 1920px window with a
+     scrollbar). */
   .js .page-home .home-side {
     position: fixed;
     top: 0;
     bottom: 0;
-    left: var(--home-left);
+    left: calc(max(50%, var(--home-left) + var(--home-name-room)
+                        + var(--home-card-h) * (var(--thumb-ratio))) + var(--space-3));
+    right: var(--home-left);
     z-index: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    width: calc((100% - var(--home-card-h) * (var(--thumb-ratio))) / 2 - var(--home-left)
-                - var(--step-6));
+    width: auto;
     margin: 0;
     padding: 0;
     pointer-events: none;
@@ -1190,27 +1199,35 @@ mark.placeholder {
     --scale-2: 0.75;
     --card-h: var(--home-card-h);
     --card-y: 50cqh;
+    --home-card-left: max(50cqw - var(--card-w), var(--meta-left) + var(--home-name-room));
   }
 
-  /* Turning on the left edge (above), the middle card centered. */
+  /* Turning on the left edge (above), the middle card's right edge on the window's middle,
+     under the header's links' middle, so the cards keep the window's left half and the
+     sentence its right; on a window too narrow for that and the name's room beside it
+     (under about 1340px, 900px tall), the card starts after the name's room instead, at its
+     full size (shrunk to fit, the next cards out would show as strips at the window's top
+     and bottom, under the header's name and the sound switch). */
   .js .page-home .track-item {
-    left: calc(50% - var(--card-w) / 2);
+    left: var(--home-card-left);
     margin-left: 0;
     transform-origin: 0 50%;
   }
 
-  /* The middle card's name, alone, sits beside it, 32px to its right, across from the card's
-     center, as the sentence is (since 2026-11-11; until then at the page's right edge, 310px
-     off the card on a 1440 x 900 window, where it read as a stray label, not the card's. Its
-     type and year showed under it for an hour that day; the user took them out). The dot from
-     the user's sketch stands 8px before the name, on the card's side, and stays still while
-     the names change: it marks the middle, as a dial's index does (after the name, at the
-     page's edge, until 2026-11-11). */
+  /* The middle card's name, alone, at the page's left edge, the header name's and the sound
+     switch's, across from the card's center, as the sentence is (since 2026-11-11, after
+     theoportfolio.framer.photos, whose name sits at the window's left edge; until then 32px
+     right of the card, and before that at the page's right edge). It stops 32px short of the
+     card, a long one cut with "…" (.card-title), and has 128px at the least: the card moves
+     right before it takes that room (--home-name-room, above). The dot from the user's sketch
+     stands 8px before the name, hanging in the page's margin, and stays still while the names
+     change: it marks the middle, as a dial's index does, as that example's ticks at the
+     window's edge do. */
   .js .page-home .track-meta {
     top: var(--card-y);
-    left: calc(50% + var(--card-w) / 2 + var(--space-2));
-    right: var(--meta-left);
-    width: auto;
+    left: var(--meta-left);
+    right: auto;
+    width: calc(var(--home-card-left) - var(--meta-left) - var(--space-2));
     margin: 0;
     transform: translateY(-50%);
   }

@@ -446,12 +446,20 @@ toward the next card and back (`LEAN`, `LEAN_HOLD`, `LEAN_DELAY` at the top of
 
 From 1200px Home's loop runs down a wheel, as the user drew it (2026-11-10): the middle card,
 40% of the window's height (480 x 360 on a 1440 x 900 window, the size of
-theoportfolio.framer.photos's; 36% until 2026-11-11), centered in the window, under the header's links (since 2026-11-11;
-until then 82px right of centered, so nothing lined up with it), each card turning on its left
-edge so the middle one reaches out right of its neighbors; the sentence at the page's left edge and the
-middle card's name, alone, 32px to the card's right, both across from the card's center, and a
-4px dot 8px before the name that stays still as the names change (since 2026-11-11; until then
-the dot after the name, at the page's right edge, far from the card). The cards run on a circle whose middle is off to the left (`--track-arc: 2`, in
+theoportfolio.framer.photos's; 36% until 2026-11-11), its right edge on the window's middle,
+under the middle of the header's links, so the cards keep the window's left half (since
+2026-11-11, the user's ask, for room beside the sentence; earlier that day centered there, and
+until then 82px right of centered), each card turning on its left edge so the middle one
+reaches out right of its neighbors; the middle card's name, alone, at the page's left edge, in
+line with the header's name and the sound switch, as theoportfolio.framer.photos's is, with a
+4px dot 8px before it, in the page's margin, that stays still as the names change; and the
+sentence in the window's right half, 128px past the card (`--space-3`), up to 15em and never
+past the page's right edge. All three sit across from the card's center. The name keeps 128px
+and 32px to the card (`--home-name-room`): on a window too narrow for that with the card's
+right edge on the middle (under about 1340px, 900px tall), the card starts after that room
+instead, at its full size, and the sentence 128px after it. (Until 2026-11-11 the sentence was
+at the page's left edge and the name 32px right of a centered card; before that, the name at
+the page's right edge.) The cards run on a circle whose middle is off to the left (`--track-arc: 2`, in
 middle-card heights), so the cards over and under the middle one swing left as they go. The cards over and under it are 0.75 of its size there (`--scale-1`/`--scale-2`
 in the `.page-home` rules; 0.62 until 2026-11-11, with the next cards out showing at the
 window's edges), which puts the next cards out just past the window's top and bottom, so three

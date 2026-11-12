@@ -77,12 +77,13 @@ CATEGORIES = ("digital", "brand", "physical")  # Work's filters, in toggle order
 # Physical read as three careers, not one product designer's work. True brings them back as they
 # were ("category" still sorts every item, so nothing else needs to change).
 WORK_FILTERS = False
-# What the site opens on. True (again since 2026-11-10, laid out from the user's own sketch):
-# Home, at /: the intro sentence at the left, the featured projects on a wheel in the middle
-# (track.js), and the middle one's name at the right; the grid is at /work/. False (earlier on
-# 2026-11-10): Work's grid at /, with the opening over it (intro.js), and /work/ sends visitors
-# on to /.
-HOME_TRACK = True
+# What the site opens on. False (since 2026-11-12, the user's ask: the projects first, plainly,
+# with Home's wheel hard to bring to a finish): Work's grid at /, with the opening over it
+# (intro.js), and /work/ sends visitors on to /. True (2026-11-10 to 11-12, laid out from the
+# user's own sketch): Home, at /: the intro sentence, the featured projects on a wheel
+# (track.js), and the middle one's name; the grid at /work/. Home's code and styles stay, so
+# True brings it back as it was.
+HOME_TRACK = False
 # Whether Work offers a second view of the same items (since 2026-11-10): two icons, grid and
 # slider, at the right of the line over the grid, where the filters were (work_views). The
 # slider is Home's track (track.js) with every item on Work, one at a time. The grid shows

@@ -37,7 +37,7 @@
     </div>
 
     <!-- GlowPanel: the light now, or at the time picked on the ruler. The lamp's two lights
-         fill it: its white sunlight from above, and its color from wherever you turn it. -->
+         fill it as the lamp sits: its white sunlight from above, its color from below. -->
     <section class="ll-panel" id="panel" aria-labelledby="part">
       <span class="light" id="light-sun" aria-hidden="true"></span>
       <span class="light" id="light-color" aria-hidden="true"></span>
@@ -52,40 +52,30 @@
       </div>
       <div class="panel-foot">
         <p class="about" id="about">Bright, cool light to help you wake up.</p>
-        <div class="foot-row">
-          <ul class="readout ll-data">
-            <li><span class="swatch is-sun" id="swatch-sun" aria-hidden="true"></span><span id="sun-value">Sunlight 66%</span></li>
-            <li><span class="swatch is-color" id="swatch-color" aria-hidden="true"></span><span id="color-value">Sand</span></li>
-          </ul>
-          <!-- The lamp, small: turn its color part around the white light to aim the color -->
-          <div class="dial" id="dial" role="slider" tabindex="0" aria-label="Turn the color" aria-valuemin="0" aria-valuemax="355">
-            <svg viewBox="0 0 64 64" aria-hidden="true">
-              <g class="dial-dots" id="dial-dots"></g>
-              <circle class="dial-sun" id="dial-sun" cx="32" cy="32" r="11"/>
-              <g id="dial-arm"><rect class="dial-pill" id="dial-pill" x="20" y="10.5" width="24" height="9" rx="4.5"/></g>
-            </svg>
-          </div>
-        </div>
+        <!-- The lamp's two lights, side by side, each with its own job: the white light above
+             shines on you; the color below colors your space (turned by hand, on the lamp) -->
+        <ul class="readout">
+          <li id="sun-row"><span class="swatch is-sun" id="swatch-sun" aria-hidden="true"></span><span class="readout-text"><span class="ll-data" id="sun-value">Sunlight 66%</span><span class="job"><span class="visually-hidden">, </span>Shines on you</span></span></li>
+          <li id="color-row"><span class="swatch is-color" id="swatch-color" aria-hidden="true"></span><span class="readout-text"><span class="ll-data" id="color-value">Sand 40%</span><span class="job"><span class="visually-hidden">, </span>Colors your space</span></span></li>
+        </ul>
       </div>
     </section>
 
-    <!-- LightRuler: the whole day; drag it, or press play -->
+    <!-- SceneChips: the scenes for the part showing, right under the light they change -->
+    <div class="ll-chips" id="chips" role="radiogroup" aria-label="Scene"></div>
+
+    <!-- LightRuler: the whole day; drag it, or play it -->
     <div class="ruler-block">
-      <p class="ruler-head"><span class="ll-label">Your day</span><span class="ll-label hint" id="hint">Drag, or press play</span></p>
+      <div class="ruler-head">
+        <h2 class="ll-label">Your day</h2>
+        <button class="ll-pill is-small play" type="button" id="play"><svg class="play-icon" aria-hidden="true"><use href="#i-play"/></svg><span id="play-label">Play a day</span></button>
+      </div>
       <div class="ll-ruler" id="ruler" role="slider" tabindex="0" aria-label="Time of day" aria-valuemin="0" aria-valuemax="1439">
         <span class="ruler-sun" id="sun-band" aria-hidden="true"><svg class="ruler-sun-icon"><use href="#i-sun"/></svg></span>
         <span class="ll-ruler-ticks" id="ticks"></span>
         <span class="ll-ruler-now" id="now-line"></span>
       </div>
       <div class="ll-axis" aria-hidden="true"><span style="left:0%">12 AM</span><span style="left:25%">6 AM</span><span style="left:50%">12 PM</span><span style="left:75%">6 PM</span><span style="left:100%">12 AM</span></div>
-      <div class="sun-times" aria-hidden="true"><span id="sun-rise" hidden></span><span id="sun-set" hidden></span></div>
-    </div>
-
-    <!-- SceneChips for the part showing -->
-    <div class="ll-chips" id="chips" role="radiogroup" aria-label="Scene"></div>
-
-    <div class="actions">
-      <button class="ll-pill" type="button" id="play"><span id="play-label">Play a day</span><span class="ll-pill-icon" aria-hidden="true"><svg><use href="#i-play"/></svg></span></button>
     </div>
 
     <footer class="times">

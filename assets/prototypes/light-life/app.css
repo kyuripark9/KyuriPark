@@ -36,8 +36,8 @@
   --glow-golden: #f4b85e;
   --glow-winddown: #e8734d;
   --glow-night: #5a4fa8;
-  /* The lamp's two lights. Above, white light like the sun's, shining on you; below, a
-     color you can turn to paint the room (not in the design system yet). */
+  /* The lamp's two lights, apart. Above, white light like the sun's, shining on you; below,
+     a color that colors your space, turned by hand on the lamp (not in the design system yet). */
   --lamp-sun: #ffffff;
   --lamp-rose: #f2917a;
   --lamp-amber: #f4b85e;
@@ -253,7 +253,7 @@ html.is-fill .app {
 .ll-tag[hidden] { display: none; }
 
 /* GlowPanel: the lamp's two lights, as two layers added onto the dark (app.js draws them):
-   the white sunlight from the top, and the color from the side it's turned to. With both
+   the white sunlight from the top, and the color from the bottom, as the lamp sits. With both
    off, a little night is left, so the dark still reads as night, not as an empty box.
    Each band of text takes dark ink where the light behind it is bright (app.js). */
 .ll-panel { position: relative; isolation: isolate; overflow: hidden; overflow: clip; display: flex; flex: 1 1 auto; flex-direction: column; min-height: 300px; padding: var(--space-5); border-radius: var(--radius-lg); background: var(--surface); color: var(--ink); }
@@ -271,19 +271,18 @@ html.is-fill .app {
 .panel-foot { display: flex; flex-direction: column; gap: var(--space-2); }
 .about { max-width: 300px; font-size: 17px; line-height: 23px; letter-spacing: -0.01em; text-wrap: balance; }
 
-/* What the lamp is doing, part by part, and the lamp itself to turn the color. */
-.foot-row { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-3); }
-.readout { display: flex; flex-direction: column; gap: 6px; list-style: none; }
-.readout li { display: flex; align-items: center; gap: var(--space-2); }
+/* The lamp's two lights, side by side under a hairline: how strong each is, and its job.
+   A light that's off dims. */
+.readout { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-top: var(--space-2); padding-top: var(--space-3); border-top: 1px solid color-mix(in srgb, currentColor 18%, transparent); list-style: none; }
+.readout li { display: flex; align-items: flex-start; gap: var(--space-2); min-width: 0; transition: opacity 0.3s; }
+.readout li.is-off { opacity: 0.5; }
+.readout .swatch { margin-top: 3px; }
+.readout .swatch.is-color { margin-top: 5px; }
+.readout-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.job { font-size: 13px; line-height: 18px; opacity: 0.7; }
 .swatch { flex: none; box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 35%, transparent); }
 .swatch.is-sun { width: 10px; height: 10px; margin: 0 1px; border-radius: 50%; }
 .swatch.is-color { width: 12px; height: 6px; border-radius: 3px; }
-.dial { position: relative; flex: none; width: 64px; height: 64px; margin: 0 -8px -8px 0; border-radius: 50%; cursor: grab; touch-action: none; }
-.dial:active { cursor: grabbing; }
-.dial svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.dial-dots circle { fill: currentColor; opacity: 0.3; }
-.dial-sun,
-.dial-pill { stroke: currentColor; stroke-opacity: 0.35; stroke-width: 1; }
 
 /* DotDigits */
 .ll-digits { --dot: 6px; display: inline-flex; align-items: flex-end; gap: calc(var(--dot) * 1.5); color: inherit; }
@@ -293,9 +292,11 @@ html.is-fill .app {
 
 /* LightRuler */
 .ruler-block { margin-top: var(--space-5); }
-.ruler-head { display: flex; justify-content: space-between; margin-bottom: var(--space-1); color: var(--ink-muted); }
-.hint[hidden] { display: none; }
-.ll-ruler { position: relative; height: 72px; cursor: ew-resize; touch-action: pan-y; border-radius: var(--radius-sm); }
+.ruler-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-2); }
+.ruler-head .ll-label { color: var(--ink-muted); font-weight: 400; }
+.ll-pill.is-small.play { gap: 6px; padding: 0 14px 0 12px; }
+.play-icon { width: 12px; height: 12px; }
+.ll-ruler { position: relative; height: 60px; cursor: ew-resize; touch-action: pan-y; border-radius: var(--radius-sm); }
 .ll-ruler::after { content: ""; position: absolute; inset: -8px 0 -26px; }   /* the axis is part of the drag area */
 .ll-ruler-ticks { position: absolute; inset: 12px 0 0; display: flex; align-items: flex-end; justify-content: space-between; }
 .ll-ruler-ticks i { width: 2px; min-height: 6px; border-radius: 1px; background: var(--line); }
@@ -304,9 +305,6 @@ html.is-fill .app {
 .ruler-sun { position: absolute; top: 0; bottom: 0; border-radius: 8px; background: #ffffff0f; pointer-events: none; }
 .ruler-sun[hidden] { display: none; }
 .ruler-sun-icon { position: absolute; top: 3px; left: 5px; width: 9px; height: 9px; color: var(--ink-muted); }
-/* Sunrise and sunset times, on the axis under the band's two edges. */
-.sun-times { position: relative; height: 0; }
-.sun-times span { position: absolute; bottom: 0; transform: translateX(-50%); color: var(--ink); font-family: var(--font-mono); font-size: 10px; line-height: 14px; letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap; }
 .ll-ruler-now { position: absolute; top: 0; bottom: -4px; width: 2px; margin-left: -1px; border-radius: 1px; background: var(--signal); pointer-events: none; z-index: 1; }
 .ll-ruler-now::before { content: ""; position: absolute; top: -2px; left: -4px; width: 10px; height: 10px; border-radius: 50%; background: var(--signal); box-shadow: var(--shadow-knob); }
 .ll-axis { position: relative; height: 14px; margin-top: var(--space-2); color: var(--ink-muted); font-family: var(--font-mono); font-size: 10px; line-height: 14px; letter-spacing: 0.02em; text-transform: uppercase; }
@@ -314,17 +312,17 @@ html.is-fill .app {
 .ll-axis span:first-child { transform: none; }
 .ll-axis span:last-child { transform: translateX(-100%); }
 
-/* SceneChips */
-.ll-chips { display: flex; gap: var(--space-2); margin: var(--space-5) calc(var(--space-4) * -1) 0; padding: 2px var(--space-4) 4px; overflow-x: auto; scrollbar-width: none; scroll-padding: 0 var(--space-4); }
+/* SceneChips, right under the panel: names in plain type, so the screen's mono capitals stay
+   for small labels and numbers. */
+.ll-chips { display: flex; gap: var(--space-2); margin: var(--space-3) calc(var(--space-4) * -1) 0; padding: 2px var(--space-4) 4px; overflow-x: auto; scrollbar-width: none; scroll-padding: 0 var(--space-4); }
 .ll-chips::-webkit-scrollbar { display: none; }
-.ll-chip { flex: none; height: 40px; padding: 0 var(--space-4); border: 1.5px solid transparent; border-radius: var(--radius-pill); background: linear-gradient(var(--bg), var(--bg)) padding-box, linear-gradient(90deg, var(--a), var(--b)) border-box; color: var(--ink); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
+.ll-chip { flex: none; height: 40px; padding: 0 var(--space-4); border: 1.5px solid transparent; border-radius: var(--radius-pill); background: linear-gradient(var(--bg), var(--bg)) padding-box, linear-gradient(90deg, var(--a), var(--b)) border-box; color: var(--ink); font-size: 14px; font-weight: 500; letter-spacing: -0.005em; white-space: nowrap; }
 .ll-chip[aria-checked="true"] { background: linear-gradient(90deg, var(--a), var(--b)) border-box; color: var(--ink-on-light); }
 .ll-chip.is-dark[aria-checked="true"] { color: var(--ink); }
 /* The scene Light Life recommends for where you live wears a small spark. */
 .chip-mark { width: 10px; height: 10px; margin: 0 6px 0 -2px; vertical-align: -1px; }
 
 /* PillButton */
-.actions { display: flex; margin-top: var(--space-4); }
 .ll-pill { display: inline-flex; align-items: center; gap: var(--space-3); height: 52px; padding: 0 6px 0 22px; border-radius: var(--radius-pill); background: var(--surface-raised); color: var(--ink); font-size: 15px; font-weight: 500; line-height: 20px; }
 .ll-pill.is-glass { background: var(--glass); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
 .ll-pill.is-small { height: 32px; padding: 0 14px; font-size: 13px; }

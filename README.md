@@ -21,15 +21,15 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 
 | Address | What it is |
 | --- | --- |
-| `/` | Work, the site's first page since 2026-11-12 (the user's ask: the projects first, plainly): everything, the projects first, in one grid of tiles, so a visitor sees every project at once. The first time it opens in a tab, the opening plays over it (see Motion, "Home intro"). Its filters ("All 08   Digital 06   Brand 04   Physical 02", `/#digital` and so on) are off since 2026-11-09: `WORK_FILTERS` in `build.py` brings them back. `HOME_TRACK = True` in `build.py` brings Home back here, as it was from 2026-11-10 to 11-12 (laid out from the user's own sketch: the sentence that says who this is, `"home"` → `"lead"` in `content/site.json`, the featured projects on a wheel, the middle one's name, the sound switch and the 01 / 05 count; see Motion, "Home loop") and moves the grid to `/work/`. **RING / GRID** (since 2026-11-12, `WORK_RING` in `build.py`): at the right of the line over the grid, from 768px, RING shows the same items as objects on a slowly turning oval ring (`assets/js/ring.js`, after sarahsarazen.com/#projects), each one's own `object` image or, until it has one, a gray stand-in shape (`templates/ring.html`); the name and type · year of the object in front (or under the mouse) sit in the ring's middle. The ring shows first (since the same evening, the user's ask; `RING_FIRST = False` in `build.py` shows the grid first); the browser remembers a visitor's pick. Phones get the grid only. `WORK_RING = False` takes the switch away |
+| `/` | Work, the site's first page since 2026-11-12 (the user's ask: the projects first, plainly): everything, the projects first, in one grid of tiles, so a visitor sees every project at once. Laid out after gougoucore.com's Work since 2026-11-13 (the user's ask): a sentence across the page right under the header (`"work"` → `"statement"` in `content/site.json`, in the display style, justified from 768px; leave it out for no sentence), then the tiles from the window's left edge to its right, 3 across from 768px and 2 on phones, with no gaps, only 1px lines in the text color between them; each image tall (18:25, `--tile-ratio`), with a bar under it, the item's number ("001") at the left and its title at the right. The first time it opens in a tab, the opening plays over it (see Motion, "Home intro"). Its filters ("All 08   Digital 06   Brand 04   Physical 02", `/#digital` and so on) are off since 2026-11-09: `WORK_FILTERS` in `build.py` brings them back. `HOME_TRACK = True` in `build.py` brings Home back here, as it was from 2026-11-10 to 11-12 (laid out from the user's own sketch: the sentence that says who this is, `"home"` → `"lead"` in `content/site.json`, the featured projects on a wheel, the middle one's name, the sound switch and the 01 / 05 count; see Motion, "Home loop") and moves the grid to `/work/`. **RING / GRID** (since 2026-11-12, `WORK_RING` in `build.py`): at the right of the line over the grid, from 768px, RING shows the same items as objects on a slowly turning oval ring (`assets/js/ring.js`, after sarahsarazen.com/#projects), each one's own `object` image or, until it has one, a gray stand-in shape (`templates/ring.html`); the name and type · year of the object in front (or under the mouse) sit in the ring's middle. The ring showed first (the same evening, the user's ask; `RING_FIRST`); the browser remembers a visitor's pick. Phones get the grid only. Off since 2026-11-13, with gougoucore's layout (`WORK_RING = False`); `True` brings the ring and its switch back, the switch on its line under the sentence |
 | `/work/` | Not a page while Work is at `/` (`HOME_TRACK` off): it sends visitors straight on to `/` (old links keep working). With `HOME_TRACK` on, Work's grid is here; `WORK_VIEWS = True` in `build.py` then adds two icons over it (grid, slider; `VIEW_ICONS`) that switch it to the same items on the loop |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html` |
-| `/archive/` | Archive: personal work and hobbies, a gallery of images with nothing under them. A separate page with its own data |
-| `/about/` | Laid out as Work is: rows on Work's columns split in half, in the type of Work's tiles. Two rows alike, a label in the first column and what it says beside it: About, with the first sentence over the About text, then Experience, each job its role over its company and dates; the footer is its contact list (`/about/#contact`) |
+| `/archive/` | Archive: personal work and hobbies, a gallery of images with nothing under them. A separate page with its own data. Laid out after gougoucore.com's Lab since 2026-11-13: Work's tiles and lines without the bars, starting right under the header, each image cropped to the tall tile (the lightbox shows it whole) |
+| `/about/` | Rows on the columns Work had until 2026-11-13, split in half, in the type of Work's tiles. Two rows alike, a label in the first column and what it says beside it: About, with the first sentence over the About text, then Experience, each job its role over its company and dates; the footer is its contact list (`/about/#contact`) |
 | `/contact/` | Not a page: it sends visitors straight on to `/about/#contact` (old links keep working) |
 
-Contact is not a menu item: LinkedIn, GitHub, and email are icons at the header's right from
-768px (see Header), and the links (email, LinkedIn, GitHub, Resume) are in the footer, one
+Contact is the header's last link since 2026-11-13 (see Header): it goes to the footer
+(`#contact`), where the links (email, LinkedIn, GitHub, Resume) are, one
 line under a rule, with the copyright at the right, the same on every page (Home's project
 loop, with `HOME_TRACK` on, has no footer) (`templates/footer.html`, `.site-footer` in `assets/css/style.css`). On a phone the
 links wrap onto a second line where they must, with no dots between them, and the copyright
@@ -46,8 +46,9 @@ content/projects.json   everything on Work: projects (order, category, featured,
                         role, team, timeline, page blocks) and items with no page (see "Items
                         with no page" below)
 content/archive.json    the images on Archive (see "Archive" below)
-content/site.json       name, email, LinkedIn, GitHub, resume, About's first sentence ("headline"),
-                        About text, experience, SEO text
+content/site.json       name, email, LinkedIn, GitHub, resume, Work's sentence ("work" →
+                        "statement"), About's first sentence ("headline"), About text,
+                        experience, SEO text
 assets/images/<slug>/   images and videos for each project
 assets/images/pieces/   images of the items with no page
 assets/images/archive/  images on Archive
@@ -59,6 +60,8 @@ assets/icons/           the browser tab and home-screen icons: favicon.svg, favi
                         pass goes (12 dots across for the tab, 24 for the home screen); to
                         change it, replace the three files, keeping their names
 assets/fonts/           Inter (with Inter Display) and Martian Mono, with their licenses
+assets/logo/            the logo: logo.svg / .png (36 rays) and logo-small.svg / .png (24 rays);
+                        the header shows logo-small.svg (see Header)
 assets/Kyuri-Park-Resume.pdf
 assets/css/style.css    all styling; colors, type sizes, and spacing are at the top
 assets/js/main.js       Work's filter, lightbox, fade-ups, count-up
@@ -153,9 +156,14 @@ Blocks appear in the order you list them. The template uses Context → Explore 
   the light around where the visitor lives: sunrise and sunset worked out in the browser, the
   weather and the city search from Open-Meteo (free, no key; credited in the app), the first
   city guessed from the computer's time zone, and a recommended scene per part of the day,
-  with its one-sentence reason (`recommend()`, the rules and the words). It is built on
+  with its one-sentence reason (`recommend()`, the rules and the words). Like the lamp, each
+  scene has two lights: white sunlight from above (how strong) and a color from below (which
+  color, how strong; the `--lamp-` colors in `app.css`). The panel shows the sunlight from
+  its top and the color from the side it's turned to; the small lamp in the panel's corner
+  is what you turn (it sways once on first view to show it turns). It is built on
   the Light Life design system (https://claude.ai/artifact/EM7wMb1WZ6GntbUNgzRzLW, private):
   `app.css` copies its Night tokens and `ll-` components, so change a value there first.
+  The two-light panel, the turning lamp and the `--lamp-` colors aren't in the system yet.
 
 ## Items with no page
 
@@ -201,15 +209,16 @@ image; the page shows them in the file's order, with nothing under them:
 | `date` | Optional. Shown as you write it |
 | `alt` | What the image shows, for screen readers. The build reminds you if a real image has none |
 
-- **Add an image:** save it in `assets/images/archive/` and add an entry. Any shape works: images
-  are never cropped, and their size is read from the file.
+- **Add an image:** save it in `assets/images/archive/` and add an entry. Any shape works: on the
+  page every image is cropped to fill the same tall tile (18:25, since 2026-11-13), so keep the
+  subject near the middle; the lightbox shows it whole. Its size is read from the file.
 - **Swap a gray box:** save your image under the name in its `src` (`001.jpg`, and so on). To use
   another format, like `.webp`, change `src` too. Until the file exists, an entry shows as a gray
   box, in eight shapes in turn (`ARCHIVE_BOXES` in `build.py`).
-- **Reorder:** move the entries in the file. Columns fill from top to bottom, so 001, 002, and so
-  on run down the first column, then the second.
+- **Reorder:** move the entries in the file. Rows fill from left to right, so 001, 002, and 003
+  are the first row (since 2026-11-13; columns filled from top to bottom before).
 - **Remove:** delete the entry.
-- **Faster grid (optional):** the grid shows each image at a quarter to half of the page's
+- **Faster grid (optional):** the grid shows each image at a third to half of the window's
   width, so a smaller copy saves a lot of loading, most of all on phones. Run
   `python3 build.py images` (see "Smaller copies for phones" below), or save one by hand at
   about 800 px on the long side next to the full one, with `-small` before the ending
@@ -217,7 +226,8 @@ image; the page shows them in the file's order, with nothing under them:
   always shows the full image. Leave `src` as it is.
 
 Clicking an image opens it large: Esc, Close, or a click outside the image closes it, and ← and →
-step through the images. The gallery is 2 columns on phones, 3 from 768px, 4 from 1200px. Without
+step through the images. The gallery is 2 columns on phones, 3 from 768px, edge to edge (4 from
+1200px, in the page's width, until 2026-11-13). Without
 JavaScript, an image opens on its own instead, and the caption and date show under it.
 
 ## Swap in real images and videos
@@ -230,11 +240,11 @@ Recommended exports (WebP, or AVIF; JPG and PNG work too):
 
 | Slot | Size | Notes |
 | --- | --- | --- |
-| Cover (Home cards and Work tiles) | 1600 × 1200 | 4:3 on Home and Work, one file for both (`--thumb-ratio` in `assets/css/style.css`; 4:5 from 2026-11-07 to 2026-11-10, 1:1 on 2026-11-06, 3:4 on Home before that). Another shape is cropped to fill the 4:3 frame, so keep the subject near the middle; a tall piece (a product, a package) needs its own wide crop |
+| Cover (Work tiles, and Home cards) | 1440 × 2000 | Tall, 18:25, on Work since 2026-11-13 (`--tile-ratio` in `assets/css/style.css`; 4:3 before, `--thumb-ratio`, which Home's cards keep, so with `HOME_TRACK` on the same file is cropped to 4:3 there). Another shape is cropped to fill the frame, so keep the subject near the middle |
 | Hero and full-width | 2400 px wide | Any height; the hero runs edge to edge |
 | Two-image row | 1200 px wide each | Same ratio for both looks best |
-| Image of an item with no page | 1600 × 1200 | The same 4:3 as a cover, so the Work tile shows all of it; another shape is cropped to fill the tile. The lightbox shows the whole image |
-| Archive image | 1500 px on the long side | Any shape; never cropped |
+| Image of an item with no page | 1440 × 2000 | The same 18:25 as a cover, so the Work tile shows all of it; another shape is cropped to fill the tile. The lightbox shows the whole image |
+| Archive image | 1500 px on the long side | Any shape; cropped to the tall tile on the page, whole in the lightbox |
 
 Aim for under ~500 KB per image. [Squoosh](https://squoosh.app) or Figma's export both make WebP.
 Width and height are read from the file automatically, so the page doesn't jump while loading,
@@ -274,7 +284,8 @@ project's title start (`--grid-top`, the height of Work's filter line and the sp
 so switching among them moves nothing. Delete `"headline"` and the text starts with its first
 paragraph.
 
-**About's layout:** since 2026-11-12, About is laid out on Work's columns split in half: two
+**About's layout:** since 2026-11-12, About is laid out on Work's columns split in half (the
+columns Work had until 2026-11-13, when Work's grid went edge to edge; About kept them): two
 where Work has one (phones), four where it has two (from 768px), six where it has three (from
 1440px), 12px apart as Work's are, so every other line of About's is one of Work's and going
 from Work to About keeps them. Half, because About holds short lines of text, not images (on
@@ -315,39 +326,48 @@ before (snapping and whole-screen steps were tried on 2026-11-05 and taken out t
 
 ## Header
 
-The name ("Kyuri Park", from `content/site.json`, shown in capitals) is at the left, in the name
-style like the links (Inter, 14px) and a weight heavier (`.identity` in `assets/css/style.css`), on its
-own (the role, PRODUCT DESIGNER, was a gray label beside it, or under it on phones, from
-2026-11-09 to 2026-11-10, and until 2026-10-30). Work, Archive, and About in the window's middle
-from 768px (at the right until 2026-11-10, and still on phones), on one line at every width
-(down to 320px), from `templates/base.html` on every page. At the right, from 768px, LinkedIn,
-GitHub, and email as 14px line icons, 16px apart, in the links' gray (`social_links` and
-`SOCIAL_ICONS` in `build.py`, `.site-social` in `assets/css/style.css`; from the user's sketch,
-2026-11-10; solid shapes at 16px for an hour first). On phones there's no room for them beside the name and links, so they're left out;
-About's footer has the same links. The current page's link is in the text color and the others are gray
-(`--color-subtle`, the lightest gray that passes WCAG AA; a lighter `--color-faint` at 3:1, which
-didn't, from 2026-11-05 to 2026-11-09) until hovered (`.site-menu a` in `assets/css/style.css`; see Type and color). On phones the links close up. If a visitor has set
-larger text in their browser or phone and it still doesn't fit, the links move to a second line, at
-the right.
+Laid out after gougoucore.com's header since 2026-11-13 (the user's ask), from
+`templates/base.html` on every page (`.site-header` in `assets/css/style.css`):
 
-Since 2026-11-10 the header's type is smaller: the name 14px (`--size-identity`, 16px before)
-and the links 12px (`--size-menu`; 14px before), both at the name style's +0.02em.
+- A 1px line over the header and one under it, from the window's left edge to its right, as
+  Work's grid runs. The header is 58px tall from 768px, 46px on phones (`--header-h`).
+- At the left, WORK and ARCHIVE, each with its count after it, small and low: "(8)", the
+  number of items on Work and of images on Archive, worked out by the build (Martian Mono at
+  10px; from 768px only, or on a 320px phone the links would run into the logo).
+- In the window's middle, the logo, linking home: `assets/logo/logo-small.svg` (made in another
+  session on 2026-11-13), set inline by `header_logo` in `build.py` so it takes the header's
+  color, its lines drawn 1px wide at any size. 40px tall from 768px, 30px on phones
+  (`--logo-h`). Screen readers hear "Kyuri Park". If the file is missing, the name shows in
+  its place and the build says so. Swap the file (same name, an SVG of `<path>` lines) to
+  change the logo.
+- At the right, ABOUT and CONTACT (CONTACT where gougoucore has RESUME). CONTACT goes to the
+  footer on the same page (`#contact`), which has the email, LinkedIn, GitHub, and the résumé;
+  on Home (with `HOME_TRACK` on), which has no footer, to About's.
+- From 768px the window is cut in eighths, as gougoucore's is: WORK starts `--gutter` into the
+  first, ARCHIVE `--gutter` into the second, ABOUT ends `--gutter` before the seventh's end, and
+  CONTACT `--gutter` before the window's edge. On phones the two links at each side sit 16px
+  apart at the page's edges. The links are 14px from 768px, 12px on phones (`--size-menu`).
 
-The header is sticky: it stays at the top of the window while the page scrolls, with no
-background, so the page scrolls under the name and links (`.site-header` in
-`assets/css/style.css`). Its name, links, and icons take the opposite of whatever is under them
-(since 2026-11-10, after theoportfolio.framer.photos): dark on the page, light where an image
-under them is dark. They're drawn in `--header-ink` (the page's color less the text's) and set
-over the page by their difference (`mix-blend-mode: difference`), so on the page they come out the
-text color exactly, and the gray links are the same ink at `--header-dim` (0.6), which comes out
-`--color-subtle`. So it can be set over the page, the header now fades with it between pages
-rather than keeping its place apart from it (`view-transition-name: site-header` until then); it's
-the same on every page, so it still looks still. `/about/#contact` scrolls to the footer, as far as the page goes.
+The current page's link is in the text color and the others are gray (`--color-subtle`, the
+lightest gray that passes WCAG AA) until hovered (`.site-menu a`; see Type and color).
+Until 2026-11-13 the name ("KYURI PARK", 14px, at 600) was at the left, Work, Archive, and
+About in the window's middle, and LinkedIn, GitHub, and email as 14px line icons at the right
+(from the user's sketch, 2026-11-10), with no lines; before 2026-11-10 the name at the left and
+the links at the right.
+
+The header is sticky: it stays at the top of the window while the page scrolls, on a white,
+opaque background (`--color-header`, `#ffffff`, a step lighter than the page's `#f5f4f0`;
+since 2026-11-13, the user's ask), so the page scrolls under it and out of sight. Its links,
+logo, and lines are in the text color, the gray links in `--color-subtle` (5:1 on the white).
+From 2026-11-10 to 2026-11-13 it had no background and its type took the opposite of whatever
+was under it (`mix-blend-mode: difference`, after theoportfolio.framer.photos): dark on the
+page, light over a dark image. It fades with the page between pages. `/about/#contact`
+scrolls to the footer, as far as the page goes.
 
 Every page keeps room for a scrollbar at the right, Home too, though it doesn't scroll
 (`scrollbar-gutter: stable` on `html`, since 2026-11-10). Where scrollbars take room (a mouse
 plugged in, or "Show scroll bars: Always" on a Mac), Home had none and the other pages did, so
-Home's links sat 7.5px further right and its icons 15px. Scrollbars that float over the page (a
+Home's links sat 7.5px further right and its icons (in the header until 2026-11-13) 15px. Scrollbars that float over the page (a
 Mac trackpad's) take no room, so there nothing changes. During Home's opening that room is black
 with the cover and fades with it (`html.intro-on`, and `assets/js/intro.js`).
 
@@ -370,7 +390,7 @@ size, a line height, a tracking, and a case, with tokens named after it (`--size
 | title | Inter Display 500, capitals | 18px, 23px from 768px, 29px from 1200px, 36px from 1440px | 0.9, -0.01em | impact numbers, Previous / Next titles |
 | lead | Inter Display 500, as typed | 20px, growing with the window to 28px (from 800 to 1120px wide); lines up to 30em (`--measure-lead`) | 1.35, 0 | Home's sentence, a project's statement |
 | body | Inter 500, as typed; links 600 | 16px | 1.5, 0 | text, a project's "Visit" link, the 404's link |
-| name | Inter 500 (the header's name and the opening 600), capitals | 14px; the header's links 12px (`--size-menu`), the opening 16px (`--size-opening`) | 1.3, +0.02em | the header, Home's opening, project names (Home's cards, Work's tiles, Archive, the lightbox), the lightbox's Close, all of About (since 2026-11-12; at 1.5, the paragraphs as typed at 0 tracking) |
+| name | Inter 500 (the opening 600), capitals | 14px; the header's links 12px on phones (`--size-menu`), the opening 16px (`--size-opening`) | 1.3, +0.02em | the header, Home's opening, project names (Home's cards, Work's tiles, Archive, the lightbox), the lightbox's Close, all of About (since 2026-11-12; at 1.5, the paragraphs as typed at 0 tracking) |
 | label | Martian Mono 400, capitals | 12px; Work's counts 10px (`--size-count`) | 16px, -0.05em | captions, Home's type and year and SOUND ON / OFF, a project's facts and section headings, the prototype's "Open in a new tab", the footer, the lightbox's type and year, Work's filters and counts; a label that names a column or a section (a project's fact labels, its section and note headings) in `--color-subtle` |
 
 The rules behind the table (since 2026-11-11):
@@ -418,8 +438,9 @@ templates; CSS sets the capitals. Body text and the lead stay as typed, and so d
 address, even in the footer (in capitals it reads as a shout).
 
 **Breakpoints** are 768px and 1200px, the same two on every page: under 768px is a phone. 1440px
-steps up the display and title sizes only, as titarvl's do. Work's grid alone goes by 640px and
-1440px: 1 column under 640px, 2 from 640px, 3 from 1440px (since 2026-11-06).
+steps up the display and title sizes only, as titarvl's do. Work's and Archive's grids are 2
+columns on phones and 3 from 768px, edge to edge (since 2026-11-13; Work's went by 640px and
+1440px before).
 
 ## Spacing
 
@@ -427,20 +448,22 @@ Three values at the top of `assets/css/style.css` set the spacing around the wor
 `--space-1` (16px, image to caption, for every caption on the site), `--space-2` (32px, filter or title to the grid), and
 `--space-3` (the header's text to the page's first thing: 96px on phones, 128px from 768px).
 `--page-top` turns that into
-where every page starts: `main` has it as `padding-top`, so Home's middle card, Work's filter,
-and the 404 all start on the same line (104px under the header's box from 768px, 80px on
+where every page starts: `main` has it as `padding-top`, so Home's middle card and the 404
+start on the same line (Work and Archive start right under the header since 2026-11-13, as
+gougoucore.com's do) (104px under the header's box from 768px, 80px on
 phones). `--grid-top` (Work's filter line and `--space-2` under it, 48px) sets where Work's
 images start under that line, and Archive's images, a project's title, and About's first
 sentence start there too (since 2026-11-06), so going from Work to any of them, or among them,
 moves nothing. For the titles and About's first row it's their capitals' top that sits on that line, not the top
 of their line, which is higher by the room over the capitals (`--cap-display`, 0.13em: 8px at
 64px, 5px on phones), so a title doesn't look lower than an image beside it in the menu. Over the
-header's text is `--header-top` (16px from 768px, 12px on phones). To move
+header's text was `--header-top` (16px from 768px, 12px on phones) until 2026-11-13; the
+header is now its lines and the logo with `--header-y` over and under it. To move
 that line, change `--page-top` (or `--space-3`) at the top of `assets/css/style.css`; nothing on
 a page adds its own space over its first thing. `--gutter` is the side margin the
 header and the page share, so their edges line up: 16px on phones, 24px from 768px, 32px from
-1200px. `--page-max` (1600px) is the widest the page and the header run; past it, both stay
-centered with the same edges. `--media-gap` (12px) is the space between images on every page
+1200px. `--page-max` (1600px) is the widest the page runs; past it, it stays centered (the
+header ran no wider until 2026-11-13; now it runs the window's width, as Work's grid does). `--media-gap` (12px) is the space between images on every page
 and screen: Work's columns, Archive's images across and down, Home's cards, images side by side or
 one under another on project pages, and in the lightbox. `--step-1` and up are 8px steps, for the
 spacing inside things (`--step-3` is 24px).

@@ -49,6 +49,11 @@
                                   copyright (the filters and section labels since 2026-11-06, the
                                   rest in --color-muted before) */
   --color-line: #dcdbd5;
+  --color-rule: var(--color-text);  /* the 1px lines between Work's and Archive's tiles, in the
+                                       text color, as gougoucore.com's are (since 2026-11-13) */
+  --color-header: #ffffff;     /* the header's background, white, a step lighter than the page
+                                  (since 2026-11-13, the user's ask; see Header). The gray
+                                  links on it are at 5:1 */
   --color-fill: #e9e8e3;       /* behind media while it loads */
   --color-mark: #e8e7e1;       /* [PLACEHOLDER] highlight; gray text on it is at 4.1:1, under
                                   AA, but a placeholder never ships */
@@ -76,7 +81,7 @@
        title    impact numbers, Previous / Next titles
        lead     Home's sentence, a project's statement
        body     text, a project's Visit link, the 404's link
-       name     the header (the name at 600, the links at --size-menu), Home's opening (600,
+       name     the header's links (at --size-menu), Home's opening (600,
                 at --size-opening), project names (Home, Work, Archive, the lightbox), the
                 lightbox's Close, all of About (the sentence and text at 1.5, the text as typed at 0)
        label    captions, Home's type · year and SOUND ON / OFF, a project's facts and section
@@ -103,8 +108,9 @@
   --size-name: 0.875rem;       /* 14px */
   --size-label: 0.75rem;       /* 12px */
   --size-count: 0.625rem;      /* 10px, Work's counts */
-  --size-identity: var(--size-name);  /* 14px, the name in the header */
-  --size-menu: var(--size-label);     /* 12px, the header's links */
+  --size-identity: var(--size-name);  /* 14px, the name in the header (since 2026-11-13 only in
+                                         the logo's place, while its file is missing) */
+  --size-menu: var(--size-label);     /* 12px, the header's links; 14px from 768px */
   --size-opening: var(--size-body);   /* 16px, the name and role in Home's opening */
 
   --leading-display: 1;
@@ -157,17 +163,21 @@
   --space-3: var(--step-12);      /* 96px, 128px from 768px (until 2026-11-05: 64px everywhere,
                                      then 80 and 96px the same day) */
 
-  --page-max: 1600px;             /* widest the page runs, the header included */
+  --page-max: 1600px;             /* widest the page runs (the header ran no wider until
+                                     2026-11-13; now it runs the window's width, as Work's grid) */
   --gutter: var(--step-2);        /* page side padding, the header's too: 16, 24, 32px */
-  --header-top: 12px;             /* over the header's text: 12px, 16px from 768px (until
-                                     2026-11-05: 24/32px, then 16/24px over and under) */
-  --header-pad: var(--step-2);    /* under the header's text: 16px, 24px from 768px */
-  /* The header's box on one line (the name's line, the taller one, between the two above):
-     what the sticky header takes up at the window's top, and what About's first screen leaves
-     for it. If larger browser text pushes the links to a second line, the box is a line taller.
-     (2026-11-09 to 2026-11-10 it added a line under the name on phones for the role, PRODUCT
-     DESIGNER.) */
-  --header-h: calc(var(--header-top) + var(--leading-name) * var(--size-identity) + var(--header-pad));
+  --header-top: 12px;             /* over the header's text until 2026-11-13 (12px, 16px from
+                                     768px), and Home's corner labels' distance from the bottom */
+  --header-pad: var(--step-2);    /* under the header's text until 2026-11-13: 16px, 24px from
+                                     768px. --page-top still counts from it, so pages start
+                                     where they did */
+  --logo-h: 30px;                 /* the header's logo: 30px tall, 40px from 768px */
+  --header-y: 7px;                /* over and under the logo, inside the header's lines: 7px,
+                                     8px from 768px */
+  /* The header's box (since 2026-11-13, after gougoucore.com's): a line over and under it, and
+     the logo, the tallest thing in it, between them: 46px, 58px from 768px, as it was. What the
+     sticky header takes up at the window's top. */
+  --header-h: calc(2px + 2 * var(--header-y) + var(--logo-h));
   /* Where every page starts: the header's box to the page's first thing (Home's middle card,
      Work's filter, the 404; Archive's images, a project's title, and About's first sentence
      start lower, where Work's images do: --grid-top), the same on every page so nothing jumps
@@ -195,7 +205,12 @@
                                      for, so Work's slider running down has room for the next
                                      card (4 / 5 from 2026-11-07; 1 / 1 from 2026-11-06; before
                                      that 3 / 4 on Home, and a 400px-tall frame as wide as the
-                                     column on Work) */
+                                     column on Work). Work's tiles take --tile-ratio since
+                                     2026-11-13 */
+  --tile-ratio: 18 / 25;          /* Work's and Archive's tiles, width / height (since
+                                     2026-11-13): tall, as gougoucore.com's are, 480 x 667 on
+                                     a 1440px window; the image is cropped to fill it */
+  --rule: 1px solid var(--color-rule);
 
   --fade: 200ms ease;           /* colors, the lightbox, the brackets on Work's filters */
   --grow: 250ms ease;           /* Work's and Archive's images growing on hover, Work's videos
@@ -214,6 +229,9 @@
     --space-3: var(--step-16);
     --header-top: var(--step-2);
     --header-pad: var(--step-3);
+    --logo-h: 40px;
+    --header-y: var(--step-1);
+    --size-menu: var(--size-name);  /* 14px: the header's links, as the name was */
     --col-gap: var(--step-4);
     --section-gap: var(--step-12);
     --block-gap: var(--step-8);
@@ -380,10 +398,12 @@ button {
    everything in sentence case; only these set the capitals. Body text, the lead, and email
    addresses stay as written (an email address in capitals reads badly). */
 
-/* Display: project titles, the 404 (About's first sentence too, 2026-11-06 to 2026-11-12).
-   Inter Display (opsz 32); lines that wrap come out even. */
+/* Display: project titles, the 404, and the sentence over Work's grid (since 2026-11-13; About's
+   first sentence too, 2026-11-06 to 2026-11-12). Inter Display (opsz 32); lines that wrap come
+   out even (Work's sentence, set justified, fills each line instead: see Work). */
 .project-title,
-.not-found-title {
+.not-found-title,
+.work-statement {
   font-size: var(--size-display);
   font-weight: 500;
   font-variation-settings: "opsz" 32;
@@ -449,7 +469,7 @@ button {
    screen, at 600 and --size-opening), and all of About (since 2026-11-12: its first sentence,
    the text, and Experience and its jobs, so About reads in the type of Work's tiles). Set by
    name, so it wins over the label its caption is in. The header's links are at --size-menu
-   (12px), the name at 600 (below). */
+   (12px, 14px from 768px); the name, in the header until 2026-11-13, at 600 (below). */
 .site-header,
 .intro-line,
 .lightbox-close,
@@ -491,8 +511,9 @@ button {
   text-transform: none;
 }
 
-/* At 600: the name in the header (a weight up from the links). */
-.identity {
+/* At 600: the name in the header (a weight up from the links), now only in the logo's place
+   while its file is missing (Header). */
+.identity-name {
   font-weight: 600;
 }
 
@@ -625,138 +646,157 @@ mark.placeholder {
 
 /* Header ---------------------------------------------------------------- */
 
-/* The name at the left, the three links (WORK, ARCHIVE, ABOUT) at the right, on one line at
-   every width, down to 320px. On a phone the links close up. If they still don't fit (larger
-   text set in the browser or the phone), the links move to a second line, at the right,
-   instead of running into the name.
-   It stays at the window's top while the page scrolls (since 2026-11-05), with no background
-   of its own: the page scrolls under the name and links, which stay on top. Home doesn't
-   scroll, so there it just sits where it is. */
+/* After gougoucore.com's header (since 2026-11-13, the user's ask): a 1px line over it and one
+   under it, from the window's left edge to its right, as Work's grid runs; WORK and ARCHIVE, each
+   with its count, "(8)", small and low after it, at the left; the logo in the window's middle,
+   linking home; ABOUT and CONTACT at the right (CONTACT where gougoucore has RESUME: the footer,
+   #contact, has the résumé). From 768px the window is cut in eighths, as gougoucore's is: WORK
+   starts --gutter into the first, ARCHIVE --gutter into the second, ABOUT ends --gutter before
+   the seventh's end, CONTACT --gutter before the window's edge. On a phone the two at each side
+   sit --step-2 apart, at the page's edges, and the counts are left out (with them the links
+   would run into the logo on a 320px phone).
+   It stays at the window's top while the page scrolls (since 2026-11-05), on a white,
+   opaque background (--color-header, since 2026-11-13, the user's ask), so the page scrolls
+   under it and out of sight. Home doesn't scroll, so there it just sits where it is.
+   (2026-11-10 to 2026-11-12: the name at the left, the links in the middle, LinkedIn, GitHub,
+   and email icons at the right, with no lines; before that the name at the left and the links
+   at the right, in the page's width.) */
 .site-header {
   position: sticky;
   top: 0;
   z-index: 20;
+  border-block: var(--rule);
+  background: var(--color-header);
+  color: var(--color-text);
+  /* (From 2026-11-10 to 2026-11-13, with no background, its links, logo, and lines took the
+     opposite of whatever was under them, after theoportfolio.framer.photos: drawn in the page's
+     color less the text's and set over the page by their difference, mix-blend-mode:
+     difference, dark on the page and light over a dark image. It fades with the page between
+     pages; until 2026-11-10 it kept its place apart from it, view-transition-name:
+     site-header.) */
+}
+
+/* Three parts across: the links at the left, the logo, the links at the right. The logo's part
+   is as wide as it needs on a phone, with the two sides sharing the rest equally; from 768px the
+   three are 3, 2, and 3 eighths, so the window's eighths line up with the links (below). Either
+   way the logo is in the window's middle. */
+.site-nav {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  padding-block: var(--header-y);
+}
+
+.site-menu {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0 var(--step-1);
-  padding-top: var(--header-top);
-  padding-bottom: var(--header-pad);
-  /* Its name, links, and icons take the opposite of whatever is under them (since 2026-11-10,
-     after theoportfolio.framer.photos): dark on the page, light over a dark image. Drawn in
-     --header-ink, the page's color less the text's, and set over what's under it by its
-     difference, so on the page it comes out the text color exactly. The grays are the same ink
-     at --header-dim, which comes out --color-subtle on the page.
-     (Until then it kept its place through the 300 ms fade between pages, apart from the page,
-     view-transition-name: site-header. Taken apart like that it can't be set over the page,
-     so now it fades with it; it's the same on every page, so it looks still all the same.) */
-  --header-ink: #dfdeda;
-  --header-dim: 0.6;
-  color: var(--header-ink);
-  mix-blend-mode: difference;
-}
-
-@media (forced-colors: active) {
-  .site-header {
-    mix-blend-mode: normal;
-  }
-}
-
-.site-header .identity,
-.site-header .site-menu a,
-.site-header .social-link {
-  color: inherit;
-  transition: opacity var(--fade);
-}
-
-.site-header .site-menu a,
-.site-header .social-link,
-.site-header .identity:hover {
-  opacity: var(--header-dim);
-}
-
-.site-header .site-menu a:hover,
-.site-header .site-menu a:focus-visible,
-.site-header .site-menu [aria-current],
-.site-header .social-link:hover,
-.site-header .social-link:focus-visible {
-  opacity: 1;
-}
-
-/* "KYURI PARK" (the name in content/site.json, in capitals here only), in the name style as
-   the links are, at 600 (see Shared text styles) and --size-identity, a step bigger than the
-   links. On hover it steps back to the muted gray. The name stands alone: the role (PRODUCT
-   DESIGNER) was a gray label beside it, or under it on phones, from 2026-11-09 to 2026-11-10
-   (and until 2026-10-30). */
-.identity {
-  flex: none;
-  font-size: var(--size-identity);
+  gap: var(--step-2);
+  font-size: var(--size-menu);
   letter-spacing: var(--tracking-name);  /* set again at its own size: em tracking is worked
                                             out where it's set, and inherited as pixels */
   white-space: nowrap;
 }
 
-.site-nav {
-  margin-left: auto;
+.menu-start {
+  padding-left: var(--gutter);
 }
 
-/* WORK, ARCHIVE, ABOUT, in capitals as the name is (templates spell them Work, Archive,
-   About). The current page is in the text color, the others muted (a choice, in Shared text
-   styles). */
-.site-menu {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 min(3vw, var(--step-3));
-  font-size: var(--size-menu);
-  letter-spacing: var(--tracking-name);  /* at 12px, not the header's 14px (see .identity) */
+.menu-end {
+  justify-content: flex-end;
+  padding-right: var(--gutter);
+}
+
+/* The logo: its own lines, 1px wide whatever its size (build.py's header_logo), in the
+   header's color. A little room at its sides, so it's easier to tap. */
+.identity {
+  display: block;
+  justify-self: center;
+  padding-inline: var(--step-1);
+}
+
+.site-logo {
+  display: block;
+  width: auto;
+  height: var(--logo-h);
+  overflow: visible;
+}
+
+.site-logo path {
+  vector-effect: non-scaling-stroke;
+}
+
+/* The name, in its place only while the logo's file is missing (header_logo). */
+.identity-name {
+  display: block;
+  font-size: var(--size-identity);
+  letter-spacing: var(--tracking-name);
+}
+
+/* "(8)": Martian Mono at Work's count size (10px), set low, its top near the capitals' middle,
+   as gougoucore's counts are. */
+.menu-count {
+  display: none;
+  margin-left: 2px;
+  font-family: var(--font-mono);
+  font-size: var(--size-count);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: var(--tracking-label);
+  vertical-align: -0.45em;
 }
 
 @media (min-width: 768px) {
-  .site-header {
-    column-gap: var(--step-6);
+  .site-nav {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr) minmax(0, 3fr);
   }
 
   .site-menu {
-    gap: var(--step-3);
+    gap: 0;
+  }
+
+  /* Each link in an eighth of the window (a third of its side), from --gutter in. */
+  .site-menu > li {
+    flex: 0 0 calc(100% / 3);
+  }
+
+  .menu-start {
+    padding-left: 0;
+  }
+
+  .menu-start > li {
+    padding-left: var(--gutter);
+  }
+
+  .menu-end {
+    padding-right: 0;
+  }
+
+  .menu-end > li {
+    padding-right: var(--gutter);
+    text-align: right;
+  }
+
+  .menu-count {
+    display: inline;
   }
 }
 
-/* LinkedIn, GitHub, and email (build.py's social_links), as 14px line icons at the right
-   (since 2026-11-10, from the user's sketch), 16px apart, in the links' gray and the text color
-   on hover (Header, above). From 768px, where the header has three columns: the name at the left, the links in
-   the window's middle (at the right until then), the icons at the right. A phone's header has
-   room for the name and the links only, so there the icons are left out; About's footer has
-   the same links. */
-.site-social {
-  display: none;
+/* Choices (see Shared text styles): the links in --color-subtle, the current page's and the one
+   hovered in the text color; the logo in the text color, --color-subtle hovered. */
+.site-header .identity,
+.site-header .site-menu a {
+  color: inherit;
+  transition: color var(--fade);
 }
 
-.social-link {
-  display: block;
-  margin: -4px;
-  padding: 4px;
+.site-header .site-menu a,
+.site-header .identity:hover {
+  color: var(--color-subtle);
 }
 
-@media (min-width: 768px) {
-  .site-header {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-  }
-
-  .identity {
-    justify-self: start;
-  }
-
-  .site-nav {
-    margin-left: 0;
-  }
-
-  .site-social {
-    display: flex;
-    justify-self: end;
-    align-self: center;
-    gap: var(--step-2);
-  }
+.site-header .site-menu a:hover,
+.site-header .site-menu a:focus-visible,
+.site-header .site-menu [aria-current] {
+  color: var(--color-text);
 }
 
 /* Home: project track -------------------------------------------------- */
@@ -1342,20 +1382,44 @@ html.intro-on {
 
 /* Work ------------------------------------------------------------------ */
 
-/* Work's layout follows cedarstudio.framer.ai/work?view=Grid (since 2026-11-05): a row of
-   filters at the top, then images with their title under them, each as wide as its column at
-   --thumb-ratio, as Home's cards are (until 2026-11-06: 400px tall on every screen, whatever
-   the column's width). main.js shows one filter at a time on the one grid; without JavaScript
-   there's no filter and the grid shows everything. */
+/* Work's layout follows gougoucore.com's Work (since 2026-11-13, the user's ask): the sentence
+   across the page right under the header, then the tiles from the window's left edge to its
+   right, with no gaps, only 1px lines between them (--rule), each tall (--tile-ratio) with a
+   bar under it, its number at the left and its title at the right (see Work's tiles, below).
+   main starts right under the header here (Archive's too), and has no .wrap: the sentence and
+   the switches keep to the page's width in .work-head, the grid doesn't.
+   (From 2026-11-05: after cedarstudio.framer.ai/work?view=Grid, a row of filters at the top,
+   then images with their title under them, at --thumb-ratio, 12px apart, inside the page's
+   width.) main.js shows one filter at a time on the one grid; without JavaScript there's no
+   filter and the grid shows everything. */
 .page-work,
+.page-archive {
+  padding-top: 0;
+}
+
+/* The sentence, in the display style, a step under the header, the grid a step under its last
+   line. From 768px its lines fill the page's width as gougoucore.com's do (justified, the last
+   line from the left); a phone's lines hold a word or two, too few to spread, so there it's
+   set from the left. */
+.work-statement {
+  padding-block: var(--step-2) var(--step-1);
+  text-wrap: pretty;
+}
+
+@media (min-width: 768px) {
+  .work-statement {
+    text-align: justify;
+    text-align-last: left;
+  }
+}
+
+/* About's columns were Work's split in half until 2026-11-13 (see About); these are About's now. */
 .page-about {
   --tile-col-gap: var(--media-gap); /* between columns: 12px, as between images everywhere */
-  --tile-row-gap: var(--step-4);    /* a title to the next row's image: 32px, 64px from 1200px */
-  --caption-gap: var(--space-1);    /* an image to its title: 16px */
+  --tile-row-gap: var(--step-4);    /* between rows: 32px, 64px from 1200px */
 }
 
 @media (min-width: 1200px) {
-  .page-work,
   .page-about {
     --tile-row-gap: var(--step-8);
   }
@@ -1381,13 +1445,6 @@ html.intro-on {
   align-items: center;
   gap: var(--step-1) var(--step-3);  /* 8px between lines, 24px between filters */
   margin-bottom: var(--space-2);
-}
-
-/* With the filters off (WORK_FILTERS in build.py, since 2026-11-09), the grid starts where it did
-   under them, --grid-top under the starting line, as Archive's images do, so going from Work to
-   Archive, a project, or About still moves nothing. */
-.js h1 + .work-panel {
-  margin-top: var(--grid-top);
 }
 
 /* A label in capitals, and a choice: the type and colors are in Shared text styles. */
@@ -1791,51 +1848,82 @@ html.intro-on {
   color: var(--color-subtle);
 }
 
-/* 1 across under 640px, 2 from 640px, 3 from 1440px (until 2026-11-06: 2 from 768px, 3 from
-   1200px; until 2026-11-05: 3 from 768px, 4 from 1200px). Each tile is its image, then its title
-   under it, "TypeLab", alone. A tile with no page is a button (it opens the lightbox) and looks
-   the same. About splits these columns in half (see About), so its lines are Work's too. */
-.work-grid {
+/* Work's tiles, and Archive's (since 2026-11-13, after gougoucore.com's Work and Lab): 2 across
+   on phones, 3 from 768px, from the window's left edge to its right with no gaps. A 1px line
+   (--rule) runs over the first row (the header's, on Archive), under every row, and between the tiles in a row, but not at
+   the window's edges; a row that isn't full ends with a line after its last tile. A tile with
+   no page is a button (it opens the lightbox) and looks the same. Every image is as tall as a
+   column's full width at --tile-ratio (from the grid's width, a container), so a tile with a
+   line at its right, 1px narrower, isn't 1.4px shorter than one without, and the lines under
+   the images meet across the row.
+   (Until 2026-11-13: Work 1 across under 640px, 2 from 640px, 3 from 1440px, 12px apart inside
+   the page's width, each image at --thumb-ratio with its title alone under it, and About's
+   columns were these split in half; Archive 2, 3, then 4 columns of whole images in their own
+   shapes, filling top to bottom.) */
+.work-grid,
+.archive-grid {
+  --cols: 2;
+  container-type: inline-size;
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--tile-row-gap) var(--tile-col-gap);
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
 }
 
-@media (min-width: 640px) {
-  .work-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+/* The line over the first row is the header's own where the grid starts right under it
+   (Archive; Work with no sentence), so only a grid with something over it draws one. */
+.work-head + .work-panel .work-grid {
+  border-top: var(--rule);
+}
+
+:is(.work-grid, .archive-grid) > li {
+  border-right: var(--rule);
+  border-bottom: var(--rule);
+}
+
+:is(.work-grid, .archive-grid) > li:nth-child(2n) {
+  border-right: 0;
+}
+
+@media (min-width: 768px) {
+  .work-grid,
+  .archive-grid {
+    --cols: 3;
   }
-}
 
-@media (min-width: 1440px) {
-  .work-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  :is(.work-grid, .archive-grid) > li:nth-child(2n) {
+    border-right: var(--rule);
+  }
+
+  :is(.work-grid, .archive-grid) > li:nth-child(3n) {
+    border-right: 0;
   }
 }
 
 .work-card {
   display: flex;
   flex-direction: column;
-  gap: var(--caption-gap);
   width: 100%;
   text-align: left;
 }
 
-/* One line under the image (it comes first in the page, for screen readers): the title alone,
-   in the name style (see Shared text styles), from the tile's left edge. It doesn't wrap and
-   the line's height is fixed, so every tile is the same height; a title too long for its line
-   is cut short with "…" --step-3 (24px) before the column's edge, so it never comes closer
-   than 36px to the next tile's title. A project's one-liner is on Home, an item's type in the
-   lightbox. (Since 2026-11-07. Before, the one-liner, or an item's type, followed the title,
-   for part of that day 16px after it; until then it sat at the column's right edge, as Home's
-   does, and ended 12px from the next tile's title, so across a row "FONT DESIGN PLAYGROUND
-   CLACK" read as one line. The title alone from 2026-11-05 to 2026-11-06 too; the type at the
-   right before.) */
+/* A bar under the image (it comes first in the page, for screen readers), with a line over it:
+   the item's number, "001", in the label style at the left, and its title, in the name style
+   (see Shared text styles), at the right, each --gutter in from the tile's side, as on
+   gougoucore.com's (a 30px bar at 1440px). Neither wraps, so every tile is the same height; a
+   title too long for the bar is cut short with "…". A project's one-liner is on Home, an item's
+   type in the lightbox. (From 2026-11-07 to 2026-11-12: the title alone, from the tile's left
+   edge, 16px under the image, with no line.) */
 .work-caption {
   order: 1;
   display: flex;
-  padding-right: var(--step-3);
-  height: calc(var(--leading-name) * var(--size-name));  /* one line of the name */
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--step-2);
+  padding: 6px var(--gutter);
+  border-top: var(--rule);
+}
+
+.work-number {
+  flex: none;
 }
 
 .work-name {
@@ -1845,28 +1933,28 @@ html.intro-on {
   white-space: nowrap;
 }
 
-/* The image fills a frame as wide as the column at --thumb-ratio (a plain gray block until it
-   exists), the same shape as Home's cards on every screen. */
+/* The image fills a tall frame as wide as the tile, at --tile-ratio (a plain gray block until it
+   exists). */
 .work-media {
   position: relative;
   display: block;
   width: 100%;
-  aspect-ratio: var(--thumb-ratio);
   overflow: hidden;
   background: var(--color-fill);
 }
 
-/* Work's and Archive's images fill their tile's width and grow on hover (below)... */
-:is(.work-media, .archive-media) :is(img, video) {
-  width: 100%;
-  transition: transform var(--grow);
+:is(.work-media, .archive-media) {
+  height: calc(100cqw / var(--cols) / (var(--tile-ratio)));
 }
 
-/* ...and Work's are cropped to fill their frame. */
-.work-media :is(img, video) {
+/* Work's and Archive's images are cropped to fill their frame (Archive's since 2026-11-13; the
+   lightbox shows them whole) and grow on hover (below). */
+:is(.work-media, .archive-media) :is(img, video) {
   display: block;
+  width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform var(--grow);
 }
 
 /* The cover's video (main.js adds it on hover) fades in over the image. */
@@ -1895,43 +1983,14 @@ html.intro-on {
 
 /* Archive --------------------------------------------------------------- */
 
-/* Smaller and closer together than Work: whole images in their own shapes with nothing under
-   them, 12px apart across and down (--media-gap, as on Work and every other page). 2 columns
-   on phones, 3 from 768px, 4 from 1200px (ARCHIVE_COLUMNS in build.py too). Columns fill from
-   top to bottom, so the file's order runs down the first, then the second. The caption and
-   date only show in the lightbox; without JavaScript, they show under the image instead,
-   --space-1 under it as every caption is.
-   No title on the page (screen readers get a hidden "Archive" heading). The images start where
-   Work's do: a filter line (one label line) and --space-2 under the page's starting line, so
-   switching between the two doesn't move them. Without JavaScript Work has no filter, so they
-   start on the starting line itself. (Until 2026-11-05: on the starting line, where Work's
-   filter is.) */
-.archive-grid {
-  columns: 2;
-  column-gap: var(--media-gap);
-}
-
-.js .archive-grid {
-  margin-top: var(--grid-top);
-}
-
-@media (min-width: 768px) {
-  .archive-grid {
-    columns: 3;
-  }
-}
-
-@media (min-width: 1200px) {
-  .archive-grid {
-    columns: 4;
-  }
-}
-
-.archive-item {
-  break-inside: avoid;
-  padding-bottom: var(--media-gap);
-}
-
+/* After gougoucore.com's Lab (since 2026-11-13, the user's ask): the images on Work's tiles'
+   lines (see Work's tiles), with nothing under them, each cropped to fill its tile
+   (--tile-ratio), in the file's order from left to right and down, starting right under the
+   header, as Work's sentence does. The lightbox shows each one whole, with its caption and
+   date; without JavaScript those show under the image instead, in a bar like Work's.
+   No title on the page (screen readers get a hidden "Archive" heading).
+   (Until 2026-11-13: smaller and closer together than Work, whole images in their own shapes,
+   12px apart, in 2, 3, then 4 columns filling top to bottom, starting where Work's images did.) */
 .archive-tile {
   display: block;
   width: 100%;
@@ -1946,10 +2005,11 @@ html.intro-on {
 }
 
 .archive-text {
-  margin-top: var(--space-1);
   display: flex;
   flex-wrap: wrap;
   column-gap: var(--step-1);
+  padding: 6px var(--gutter);
+  border-top: var(--rule);
 }
 
 .js .archive-text {
@@ -2498,6 +2558,7 @@ html.intro-on {
 /* Footer ---------------------------------------------------------------- */
 
 .site-footer {
+  scroll-margin-top: var(--header-h);  /* the header's CONTACT (#contact) lands it under the header */
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;

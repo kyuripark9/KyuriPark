@@ -34,29 +34,33 @@ DIST_DIR = os.path.join(ROOT, "dist")
 
 # Size of the gray placeholder for each kind of slot, used until a real file exists.
 PLACEHOLDER_SIZES = {
-    "cover": (1600, 1200),     # 4:3 (--thumb-ratio in style.css), home cards and Work tiles
+    "cover": (1600, 1200),     # 4:3 (--thumb-ratio in style.css), home cards
     "wide": (2400, 1350),      # 16:9, hero and full-width images and videos
     "pair": (1200, 1500),      # 4:5, each image in a two-image row
     "piece": (1600, 1200),     # 4:3, the images of an item with no page of its own
     "archive": (1200, 1500),   # 4:5, an Archive image whose size can't be read
 }
-# The gray boxes that stand in for Archive images until the files exist, in turn: 4:5, 1:1,
-# 3:2, 3:4, 16:9, 2:3, 5:4, 3:5. Real images keep their own shape.
+# The gray boxes that stand in for Archive images in the lightbox until the files exist, in
+# turn: 4:5, 1:1, 3:2, 3:4, 16:9, 2:3, 5:4, 3:5. Real images keep their own shape there. (On the
+# page every tile is one shape since 2026-11-13, --tile-ratio in style.css.)
 ARCHIVE_BOXES = ((1200, 1500), (1500, 1500), (1500, 1000), (1200, 1600),
                  (1600, 900), (1000, 1500), (1500, 1200), (900, 1500))
 PIECE_FOLDER = "assets/images/pieces"
+HEADER_LOGO = "assets/logo/logo-small.svg"  # the header's logo, inline (header_logo)
 ARCHIVE_FOLDER = "assets/images/archive"
-ARCHIVE_COLUMNS = (2, 3, 4)  # Archive's columns on phones, from 768px, from 1200px (as in style.css)
+ARCHIVE_COLUMNS = (2, 3, 3)  # Archive's columns on phones, from 768px, from 1200px (as in style.css)
 # How wide an Archive image shows in its column, so the browser can take the smaller copy
-# (001-small.jpg next to 001.jpg) when there is one.
-ARCHIVE_SIZES = "(min-width: 1200px) 25vw, (min-width: 768px) 33vw, 50vw"
+# (001-small.jpg next to 001.jpg) when there is one. Edge to edge since 2026-11-13, so a third
+# of the window from 768px, half on phones.
+ARCHIVE_SIZES = "(min-width: 768px) 33vw, 50vw"
 # The same for the other images (since 2026-11-09; only Archive's before), as style.css lays
 # them out: the track's middle card (on Home, and Work's slider: from 768px, 62% of the
 # window's height and up across, half of it down from 1200px, at 4:3, so about 67vh to 85vh
 # wide, the larger taken; the page's width on phones), Work's tiles (1, 2, then 3 columns),
-# images edge to edge or the page's width, and the two in a two-image row.
+# images edge to edge or the page's width, and the two in a two-image row. Work's tiles run edge
+# to edge since 2026-11-13: a third of the window from 768px, half on phones.
 HOME_SIZES = "(min-width: 768px) 85vh, 100vw"
-WORK_SIZES = "(min-width: 1440px) 33vw, (min-width: 640px) 50vw, 100vw"
+WORK_SIZES = "(min-width: 768px) 33vw, 50vw"
 WIDE_SIZES = "100vw"
 PAIR_SIZES = "(min-width: 768px) 50vw, 100vw"
 SMALL_SUFFIX = "-small"
@@ -96,7 +100,10 @@ WORK_VIEWS = False
 # shape (templates/ring.html). From 768px: on a phone the ring would be too small, so phones get
 # the grid. The browser remembers a visitor's pick, as with WORK_VIEWS. False: the grid alone.
 # Not together with WORK_VIEWS (one second view at a time).
-WORK_RING = True
+# Off since 2026-11-13 (the user's ask: Work laid out as gougoucore.com's Work, a sentence over
+# the grid and the grid edge to edge, with no switch). True brings the ring and its switch back,
+# the switch on its line under the sentence.
+WORK_RING = False
 # Which shows to a visitor who hasn't picked: the ring (True, since 2026-11-12, the user's ask, the
 # same evening), or the grid (False). Phones, and browsers without JavaScript, get the grid.
 RING_FIRST = True
@@ -171,10 +178,10 @@ def small_target(rel, size):
 
 
 def archive_first_screen(n):
-    """The Archive images to load right away: the top one in each column. Columns fill from top
-    to bottom, so for 2 columns that's the 1st and the one halfway down the list, and so on, for
-    each column count. By count, so close but not exact (columns balance by height)."""
-    return {c * -(-n // cols) for cols in ARCHIVE_COLUMNS for c in range(cols)} & set(range(n))
+    """The Archive images to load right away: the first row, for the most columns there are
+    (rows fill from left to right since 2026-11-13; until then columns filled from top to
+    bottom, so it was the top one in each column)."""
+    return set(range(min(n, max(ARCHIVE_COLUMNS))))
 
 
 def need(obj, key, where):
@@ -558,6 +565,7 @@ class Builder:
         self.placeholder_counts = {}   # page -> number of [PLACEHOLDER] notes left
         self.needs_small = set()       # large images shown without a smaller copy next to them
         self.warnings = []
+        self.logo = None               # the header's logo, once read (header_logo)
 
     # Output -----------------------------------------------------------------
 
@@ -617,8 +625,12 @@ class Builder:
             head_meta=self.head_meta(path, title, description, image, noindex),
             css_version=file_version("assets/css/style.css"),
             js_version=file_version("assets/js/main.js"),
-            site_name=esc(s["name"]),
-            social=self.social_links(),
+            logo=self.header_logo(),
+            work_count=self.menu_count(len(self.items), "project"),
+            archive_count=self.menu_count(len(self.archive), "image"),
+            # The footer is the contact list (#contact) on every page that has one; Home (with
+            # HOME_TRACK) has none, so there Contact goes to About's.
+            contact_url="#contact" if footer else "/about/#contact",
             work_url="/work/" if HOME_TRACK else "/",
             nav_work={"work": ' aria-current="page"', "project": ' aria-current="true"'}.get(current, ""),
             nav_archive=' aria-current="page"' if current == "archive" else "",
@@ -668,48 +680,42 @@ class Builder:
         og = self.site.get("ogImage") or {}
         return og.get("src"), og.get("alt")
 
-    # The header's links to elsewhere (since 2026-11-10, from the user's sketch: "social media
-    # icons" at the top right), each a 14px icon drawn in a thin line of currentColor, about as
-    # heavy as the header's 12px links (solid shapes, a cut-out "in", GitHub's filled mark and a
-    # filled envelope, for an hour before): LinkedIn's "in" in a square, GitHub's cat (Feather's
-    # "github", on its 24px grid), and an envelope. Each is (viewBox, line width in its units,
-    # corners, shapes); the line comes out the same 1.2px in all three.
-    SOCIAL_ICONS = {
-        "linkedin": ("0 0 16 16", 1.4, "square",
-                     '<path d="M1.7 1.7h12.6v12.6H1.7z'
-                     'M5 4.9v.2M5 7.2v4.4M8.1 11.6V7.2M8.1 9.3c0-1.3.8-2.1 1.9-2.1s1.9.7 1.9 2v2.4"/>'),
-        "github": ("0 0 24 24", 2.1, "round",
-                   '<path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 '
-                   '6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 '
-                   '2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 '
-                   '5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>'),
-        "email": ("0 0 16 16", 1.4, "square",
-                  '<path d="M1.7 3.2h12.6v9.6H1.7z"/><path d="M1.7 3.2 8 8.4l6.3-5.2"/>'),
-    }
+    # The header (since 2026-11-13, after gougoucore.com's): Work and Archive with their counts at
+    # the left, the logo in the middle, linking home, About and Contact at the right. (From
+    # 2026-11-10 to 2026-11-12 the name was at the left and LinkedIn, GitHub, and email icons at
+    # the right, from the user's sketch; the footer has those links.)
 
-    def social_links(self):
-        """The header's icons, at its right: LinkedIn, GitHub, and email, from content/site.json.
-        Each is named for screen readers; the two sites open in a new tab and say so."""
-        s = self.site
-        rel = "noopener noreferrer"
-        links = (("linkedin", s["linkedin"], "LinkedIn"), ("github", s["github"], "GitHub"),
-                 ("email", "mailto:" + s["email"], "Email"))
-        items = []
-        for key, href, name in links:
-            box, line, corners, shapes = self.SOCIAL_ICONS[key]
-            joins = "round" if corners == "round" else "miter"
-            svg = (f'<svg viewBox="{box}" width="14" height="14" fill="none" '
-                   f'stroke="currentColor" stroke-width="{line}" stroke-linecap="{corners}" '
-                   f'stroke-linejoin="{joins}" aria-hidden="true" focusable="false">'
-                   f'{shapes}</svg>')
-            if href.startswith("mailto:"):
-                attrs, label = "", name
-            else:
-                attrs, label = f' target="_blank" rel="{rel}"', f"{name} (opens in a new tab)"
-            items.append(f'        <li><a class="social-link" href="{esc(href)}"{attrs} '
-                         f'aria-label="{label}">{svg}</a></li>')
-        return ('    <ul class="site-social" aria-label="Elsewhere">\n'
-                + "\n".join(items) + "\n    </ul>")
+    def header_logo(self):
+        """The logo (assets/logo/logo-small.svg, made in another session on 2026-11-13: two line
+        sunbursts, one over the other), inline so it takes the header's color and blend. Its
+        lines are drawn 1px wide at any size (non-scaling), as the header's rules are; the
+        file's 4-unit lines would come out under half a pixel at the header's size. Until the
+        file exists, the name stands in its place. Read once per build."""
+        if self.logo is None:
+            self.logo = self.read_logo(HEADER_LOGO)
+        return self.logo
+
+    def read_logo(self, rel):
+        if not exists(rel):
+            self.warnings.append(f"{rel} is missing, so the header shows the name in its place.")
+            return f'<span class="identity-name">{esc(self.site["name"])}</span>'
+        with open(os.path.join(ROOT, rel), encoding="utf-8") as f:
+            svg = f.read()
+        box = re.search(r'viewBox="([^"]+)"', svg)
+        paths = re.findall(r'<path\b[^>]*\bd="([^"]+)"', svg)
+        if not box or not paths:
+            raise BuildError(f"{rel}: expected an <svg viewBox=\"…\"> with <path d=\"…\"> lines.")
+        lines = "".join(f'<path d="{d}"/>' for d in paths)
+        return (f'<svg class="site-logo" viewBox="{box.group(1)}" fill="none" stroke="currentColor" '
+                f'stroke-width="1" aria-hidden="true" focusable="false">{lines}</svg>'
+                f'<span class="visually-hidden">{esc(self.site["name"])}</span>')
+
+    @staticmethod
+    def menu_count(n, noun):
+        """'(8)' after a header link, small and low (aria-hidden), and ', 8 projects' for screen
+        readers."""
+        return (f'<span class="menu-count" aria-hidden="true">({n})</span>'
+                f'<span class="visually-hidden">, {n} {noun}{"" if n == 1 else "s"}</span>')
 
     def contact_links(self, indent):
         """The email, LinkedIn, GitHub, and resume links from content/site.json, for the footer
@@ -1029,10 +1035,12 @@ class Builder:
         return ""
 
     def work_card(self, p, index):
-        """'TypeLab', on one line under the image, for one item: its title alone (since
-        2026-11-07; a project's one-liner, or an item's type, after it before, and at the
-        right until earlier that day). A project's one-liner is on Home; an item's type is in
-        the lightbox. main.js filters the tiles on data-categories. A
+        """'001' at the left and 'TypeLab' at the right, on one line under the image, for one
+        item: its place in the list and its title (since 2026-11-13, after gougoucore.com's
+        Work; its title alone, at the left, from 2026-11-07, and a project's one-liner, or an
+        item's type, after it before). The number is for the eye only: screen readers get the
+        title. A project's one-liner is on Home; an item's type is in the lightbox. main.js
+        filters the tiles on data-categories. A
         project's tile links to its page, and if the cover has a video next to it, main.js
         plays it while the tile is hovered. An item with no page opens the lightbox, which shows
         its 'Type · Year' from a hidden span in the tile."""
@@ -1053,6 +1061,7 @@ class Builder:
         return (f'          <li data-categories="{" ".join(p["category"])}">\n'
                 f'            <{tag} class="work-card" {attrs}>\n'
                 f'              <span class="work-caption">'
+                f'<span class="work-number" aria-hidden="true">{index + 1:03d}</span>'
                 f'<span class="work-name" data-lightbox-name>{inline(p["title"])}</span>'
                 f'{meta}</span>\n'
                 f'              <span class="work-media"{data}>{img}</span>\n'
@@ -1207,12 +1216,22 @@ class Builder:
             for n, rel in enumerate(rels, 1))
         return f"<template>{large}</template>"
 
+    def work_statement(self):
+        """The sentence over Work's grid (since 2026-11-13, after gougoucore.com's Work, whose
+        sentence says who made the work and how): "statement" in content/site.json's "work",
+        in the display style, across the page. None there, no sentence."""
+        text = (self.site.get("work") or {}).get("statement")
+        return f'      <p class="work-statement">{inline(text)}</p>\n' if text else ""
+
     def build_work(self):
-        """One grid of tiles, under the All / Digital / Brand / Physical toggle when WORK_FILTERS
-        is on (main.js shows one filter at a time). Without JavaScript, there's no toggle and it
-        shows them all. With HOME_TRACK off (since 2026-11-10) it's the site's first page, at /,
-        under Home's opening. With WORK_VIEWS on, the same items on the track too, the slider,
-        under the GRID / SLIDER switch (work_views)."""
+        """The sentence (work_statement), then one grid of tiles, edge to edge (since
+        2026-11-13, after gougoucore.com's Work), under the All / Digital / Brand / Physical
+        toggle when WORK_FILTERS is on (main.js shows one filter at a time). Without JavaScript,
+        there's no toggle and it shows them all. With HOME_TRACK off (since 2026-11-10) it's the
+        site's first page, at /, under Home's opening. With WORK_VIEWS on, the same items on the
+        track too, the slider, under the GRID / SLIDER switch (work_views). The sentence and the
+        switches keep to the page's width (.wrap); the grid runs from the window's edge to edge,
+        so main has no .wrap here."""
         s = self.site
         tabs = "\n".join(self.work_tab(name) for name in ("all", *CATEGORIES))
         cards = "\n".join(self.work_card(p, i) for i, p in enumerate(self.items))
@@ -1229,32 +1248,36 @@ class Builder:
             views = self.ring_views()
             ring = (f'{self.ring()}    <script src="/assets/js/ring.js'
                     f'?v={file_version("assets/js/ring.js")}" defer></script>\n')
+        head = (self.work_statement()
+                + (render("work-tabs.html", tabs=tabs) if WORK_FILTERS else "") + views)
+        if head:
+            head = f'    <div class="work-head wrap">\n{head}    </div>\n'
         content = render("work.html", cards=cards, lightbox=lightbox, opening=opening,
-                         views=views, slider=slider, ring=ring,
-                         tabs=render("work-tabs.html", tabs=tabs) if WORK_FILTERS else "")
+                         head=head, slider=slider, ring=ring)
         rel, path, title = (("work/index.html", "/work/", f"Work — {s['name']}") if HOME_TRACK
                             else ("index.html", "/", s["title"]))
-        self.page(rel, "work", path, title, s["description"], content, "wrap page-work",
+        self.page(rel, "work", path, title, s["description"], content, "page-work",
                   current="work", image=self.og_image())
         # The slider repeats the grid's items, so its notes aren't counted twice in the report.
         self.placeholder_counts["work"] -= len(PLACEHOLDER_RE.findall(slider + ring))
 
     def archive_tile(self, item, box, loading):
         """An image on Archive with nothing under it, linking to the image itself; its number
-        names the link for screen readers only. main.js opens the lightbox instead, with a copy
-        of the image and the caption and date from the text under the tile, which it hides;
-        without JavaScript, the link opens the image and the caption and date show under it.
-        Until the file exists, the tile is a plain gray block and a <template> holds the
-        labeled gray image the lightbox shows in its place, both in the shape of box."""
+        names the link for screen readers only. Every tile is one shape (--tile-ratio, since
+        2026-11-13, after gougoucore.com's Lab), the image cropped to fill it; the lightbox
+        shows it whole. main.js opens the lightbox instead, with a copy of the image and the
+        caption and date from the text under the tile, which it hides; without JavaScript, the
+        link opens the image and the caption and date show under it. Until the file exists, the
+        tile is a plain gray block and a <template> holds the labeled gray image the lightbox
+        shows in its place, in the shape of box."""
         number = esc(item["id"])
         rel = media_path(item["src"], ARCHIVE_FOLDER)
         alt, title = item.get("alt") or "", f"Archive {item['id']}"
         thumb = self.tile_image(rel, "archive", title, loading, alt=alt, sizes=ARCHIVE_SIZES)
         if thumb:
-            href, shape, large = url_for(rel), "", ""
+            href, large = url_for(rel), ""
         else:
             href = url_for(placeholder_rel(rel))
-            shape = f' style="aspect-ratio: {box[0]} / {box[1]}"'
             large = (f'          <template>'
                      f'{self.img(rel, alt, "archive", title, "eager", decorative=True, box=box)}'
                      f'</template>\n')
@@ -1265,7 +1288,7 @@ class Builder:
                     f'Image {number}</span>')
         return (f'        <li class="archive-item">\n'
                 f'          <a class="archive-tile" href="{href}" data-item aria-haspopup="dialog">\n'
-                f'            <span class="archive-media"{shape}>{thumb}</span>\n'
+                f'            <span class="archive-media">{thumb}</span>\n'
                 f'            <span class="visually-hidden">Image {number}</span>\n'
                 f'          </a>\n'
                 f'          <p class="archive-text">{name} <span class="archive-date" '
@@ -1274,7 +1297,9 @@ class Builder:
                 f'        </li>')
 
     def build_archive(self):
-        """Every image in content/archive.json, in the file's order. Each opens the lightbox."""
+        """Every image in content/archive.json, in the file's order, left to right and down, edge
+        to edge (since 2026-11-13, after gougoucore.com's Lab), so main has no .wrap here. Each
+        opens the lightbox."""
         s = self.site
         first = archive_first_screen(len(self.archive))
         tiles = "\n".join(self.archive_tile(item, ARCHIVE_BOXES[i % len(ARCHIVE_BOXES)],
@@ -1283,7 +1308,7 @@ class Builder:
         lightbox = render("lightbox.html") if self.archive else ""
         content = render("archive.html", tiles=tiles, lightbox=lightbox)
         self.page("archive/index.html", "archive", "/archive/", f"Archive — {s['name']}",
-                  s["description"], content, "wrap page-archive", current="archive",
+                  s["description"], content, "page-archive", current="archive",
                   image=self.og_image())
 
     def visit_link(self, p):

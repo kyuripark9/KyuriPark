@@ -18,16 +18,18 @@
 <body data-page="{{ page_name }}">
   <a class="skip-link" href="#main">Skip to content</a>
 
-  <header class="site-header wrap">
-    <a class="identity" href="/">{{ site_name }}</a>
+  <header class="site-header">
     <nav class="site-nav" aria-label="Main">
-      <ul class="site-menu">
-        <li><a href="{{ work_url }}"{{ nav_work }}>Work</a></li>
-        <li><a href="/archive/"{{ nav_archive }}>Archive</a></li>
+      <ul class="site-menu menu-start">
+        <li><a href="{{ work_url }}"{{ nav_work }}>Work{{ work_count }}</a></li>
+        <li><a href="/archive/"{{ nav_archive }}>Archive{{ archive_count }}</a></li>
+      </ul>
+      <a class="identity" href="/">{{ logo }}</a>
+      <ul class="site-menu menu-end">
         <li><a href="/about/"{{ nav_about }}>About</a></li>
+        <li><a href="{{ contact_url }}">Contact</a></li>
       </ul>
     </nav>
-{{ social }}
   </header>
 
   <main id="main" class="{{ main_class }}">

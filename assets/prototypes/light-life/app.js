@@ -5,8 +5,10 @@
    (GlowPanel, with the time in DotDigits), the whole day (LightRuler: drag it, or Play a
    day), and the scenes for the part showing (SceneChips). Scene names are the 2023 app's.
 
-   Each scene is a color temperature and a brightness (what the lamp does; its words come
-   from these) and two glows from the design system (how the screen shows it).
+   The lamp has two lights, and each scene sets both: above, white light like the sun's,
+   shining on you (how strong, 0-100%); below, a color that paints the room (which color,
+   how strong). The color part turns, so you choose which way the color falls: the panel
+   shows it coming from that side, and the small lamp under it is what you turn.
 
    It also plans around where you live (sky.js): the city's sunrise and sunset today and its
    forecast pick a recommended scene for each part, marked with a spark, with one sentence
@@ -21,47 +23,53 @@
   const DAY = 1440;
   const W = 390, H = 844;   // the phone's screen, in CSS px
   const mod = (n) => ((n % DAY) + DAY) % DAY;
+  const mod360 = (n) => ((n % 360) + 360) % 360;
   const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
   const ease = (x) => { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); };
   const $ = (id) => document.getElementById(id);
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
-  // The design system's glows (Night theme), as numbers to blend.
+  // The lamp's colors (app.css), as numbers to blend, and their names.
   const css = getComputedStyle(document.documentElement);
   const hex = (h) => { h = h.trim().replace("#", ""); return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)); };
-  const GLOW = {};
-  for (const name of ["sunrise", "morning", "day", "golden", "winddown", "night"]) GLOW[name] = hex(css.getPropertyValue(`--glow-${name}`) || "#888888");
+  const NAMES = { rose: "Rose", amber: "Amber", orange: "Orange", red: "Red", sand: "Sand", yellow: "Yellow", mint: "Mint", sky: "Sky blue", blossom: "Blossom" };
+  const COLOR = {};
+  for (const name of Object.keys(NAMES)) COLOR[name] = hex(css.getPropertyValue(`--lamp-${name}`) || "#888888");
+  const SUN = hex(css.getPropertyValue("--lamp-sun") || "#ffffff");
   const SURFACE = hex(css.getPropertyValue("--surface") || "#141416");
+  const INK = hex(css.getPropertyValue("--ink") || "#f5f3ef");
+  const INK_ON_LIGHT = hex(css.getPropertyValue("--ink-on-light") || "#141210");
 
   // The day's parts and their scenes ---------------------------------------------------------
-  // k: color temperature (kelvin), b: brightness (0-1), glows: [main, second] glow names.
+  // sun: the white light (0-1); color: the color light's color and c its strength (0-1).
+  // Sunlight leads the morning and the day; color takes over toward evening.
   // fade: minutes a part takes to arrive (Sunrise: how long before wake-up it starts; Night:
   // how long before lights out it starts to dim).
-  const scene = (name, k, b, glows) => ({ name, k, b, glows });
+  const scene = (name, sun, color, c) => ({ name, sun, color, c });
   const PARTS = [
     { id: "sunrise", name: "Sunrise", about: "The light rises slowly before you wake, like the sun.", fade: 30, pick: null, rec: null, scenes: [
-      scene("Before sunrise", 2200, 0.32, ["sunrise", "night"]),
-      scene("Daybreak on the prairie", 2700, 0.4, ["sunrise", "golden"]),
-      scene("Among misty mountains", 3200, 0.3, ["sunrise", "day"]) ] },
+      scene("Before sunrise", 0.25, "rose", 0.5),
+      scene("Daybreak on the prairie", 0.35, "amber", 0.55),
+      scene("Among misty mountains", 0.3, "sky", 0.4) ] },
     { id: "morning", name: "Morning", about: "Bright, cool light to help you wake up.", fade: 60, pick: null, rec: null, scenes: [
-      scene("Misty morning sands", 5000, 0.66, ["morning", "golden"]),
-      scene("Morning walk in Sydney", 5400, 0.75, ["morning", "day"]),
-      scene("Cloudy but fresh", 6000, 0.7, ["day", "morning"]) ] },
+      scene("Misty morning sands", 0.66, "sand", 0.4),
+      scene("Morning walk in Sydney", 0.75, "sky", 0.4),
+      scene("Cloudy but fresh", 0.7, "mint", 0.35) ] },
     { id: "day", name: "Daytime", about: "Clear daylight to keep you alert.", fade: 120, pick: null, rec: null, scenes: [
-      scene("High blue sky", 6500, 0.92, ["day", "night"]),
-      scene("Spring daylight in Seoul", 5800, 0.86, ["day", "sunrise"]),
-      scene("Fresh cloud", 6200, 0.82, ["day", "morning"]) ] },
+      scene("High blue sky", 0.92, "sky", 0.45),
+      scene("Spring daylight in Seoul", 0.86, "blossom", 0.35),
+      scene("Fresh cloud", 0.82, "mint", 0.35) ] },
     { id: "golden", name: "Golden hour", about: "Warmer, softer light as evening comes.", fade: 120, pick: null, rec: null, scenes: [
-      scene("Endless gold light", 3000, 0.6, ["golden", "sunrise"]),
-      scene("It's your LA Golden hour", 2800, 0.55, ["golden", "winddown"]),
-      scene("Late time beach", 3300, 0.5, ["golden", "day"]) ] },
+      scene("Endless gold light", 0.45, "amber", 0.7),
+      scene("It's your LA Golden hour", 0.4, "orange", 0.7),
+      scene("Late time beach", 0.4, "yellow", 0.6) ] },
     { id: "wind", name: "Wind down", about: "Dim, warm light to get ready for sleep.", fade: 60, pick: null, rec: null, scenes: [
-      scene("Sunset", 2200, 0.24, ["winddown", "golden"]),
-      scene("Orange beach", 2400, 0.3, ["winddown", "sunrise"]),
-      scene("Red ocean", 1900, 0.14, ["winddown", "night"]) ] },
+      scene("Sunset", 0.06, "rose", 0.45),
+      scene("Orange beach", 0.08, "orange", 0.5),
+      scene("Red ocean", 0, "red", 0.3) ] },
     { id: "night", name: "Night", about: "Dark, so you can sleep.", fade: 30, pick: null, rec: null, scenes: [
-      scene("Lights off", 0, 0, ["night", "night"]),
-      scene("Night light", 1800, 0.05, ["night", "winddown"]) ] },
+      scene("Lights off", 0, null, 0),
+      scene("Night light", 0, "red", 0.1) ] },
   ];
   const part = (id) => PARTS.find((p) => p.id === id);
   // A part plays the scene you picked, or else the one recommended for where you live
@@ -76,6 +84,7 @@
   const state = {
     wake: 420,
     bed: 1380,
+    aim: 180,            // which way the color points: degrees clockwise from up (180: down, as it sits)
     city: Sky.CHICAGO,   // where you live
     sun: null,           // sunrise and sunset there today
     weather: null,       // the forecast there, once it arrives
@@ -103,22 +112,23 @@
     return id;
   }
 
-  // A scene as a light: its kelvin, brightness, and the color the screen shows for it (its
-  // main glow with a fifth of its second glow).
+  // A scene as a light: how strong the sunlight is, and the color light's color and strength.
   const blend = (a, b, x) => a.map((v, i) => v + (b[i] - v) * x);
-  const asLight = (s) => ({ k: s.k, b: s.b, rgb: blend(GLOW[s.glows[0]], GLOW[s.glows[1]], 0.2) });
+  const asLight = (s) => ({ sun: s.sun, c: s.c, color: s.color, rgb: s.color ? COLOR[s.color] : SURFACE });
+  const OFF = 0.004;
 
-  // Blend two lights: brightness and screen color in a straight line, kelvin in mireds
-  // (1,000,000 / kelvin), the scale the eye reads as even steps. A light that is off takes
-  // the other one's kelvin.
+  // Blend two lights in a straight line. A color that is off takes the other one's color, so
+  // a color fades in and out rather than through gray; its name is whichever is stronger.
   function mix(a, b, x) {
     if (x <= 0) return a;
     if (x >= 1) return b;
-    let k;
-    if (!a.b) k = b.k;
-    else if (!b.b) k = a.k;
-    else { const ma = 1e6 / a.k, mb = 1e6 / b.k; k = 1e6 / (ma + (mb - ma) * x); }
-    return { k, b: a.b + (b.b - a.b) * x, rgb: blend(a.rgb, b.rgb, x) };
+    const aOn = a.c > OFF, bOn = b.c > OFF;
+    return {
+      sun: a.sun + (b.sun - a.sun) * x,
+      c: a.c + (b.c - a.c) * x,
+      rgb: !aOn ? b.rgb : !bOn ? a.rgb : blend(a.rgb, b.rgb, x),
+      color: !aOn ? b.color : !bOn ? a.color : x < 0.5 ? a.color : b.color,
+    };
   }
 
   // The light at time t. Each part fades in from the one before over its own fade length;
@@ -148,11 +158,11 @@
     return { hm: `${h % 12 || 12}:${String(m).padStart(2, "0")}`, ampm: h < 12 ? "AM" : "PM" };
   }
   const fmt = (t) => { const c = clock(t); return `${c.hm}\u00a0${c.ampm}`; };   // no break between time and AM
-  function describe(l) {
-    if (l.b <= 0.004) return "Off";
-    const warmth = l.k < 2500 ? "Very warm" : l.k < 3400 ? "Warm" : l.k < 4800 ? "Neutral" : "Cool";
-    return `${warmth} · ${Math.round(l.b * 100)}% bright`;
-  }
+  const saySun = (l) => (l.sun > OFF ? `Sunlight ${Math.round(l.sun * 100)}%` : "Sunlight off");
+  const sayColor = (l) => (l.c > OFF ? NAMES[l.color] : "Color off");
+  const describe = (l) => (l.sun <= OFF && l.c <= OFF ? "Off" : `${saySun(l)}, ${sayColor(l)}`);
+  // Which way the color points, in words, for screen readers.
+  const sayAim = (a) => ["up", "up and right", "right", "down and right", "down", "down and left", "left", "up and left"][Math.round(mod360(a) / 45) % 8];
   const nowMinutes = () => Sky.clock(state.city.tz).minutes;
   const viewTime = () => (state.preview ?? nowMinutes());
 
@@ -199,20 +209,28 @@
   const device = $("device");
   const panel = $("panel");
   const ruler = $("ruler");
+  const dial = $("dial");
   let scale = 1;
   let touched = false;   // the hint goes once someone has pressed play or dragged
 
-  // The ruler: 96 ticks, one per 15 minutes; height = brightness, color = the light's glow.
+  // The ruler: 96 ticks, one per 15 minutes, each built like the lamp: a white part for the
+  // sunlight (its height), standing on a short part in the color (taller when stronger).
   function paintRuler() {
     let html = "";
     for (let i = 0; i < 96; i++) {
       const l = lightAt(i * 15 + 7.5);
-      const h = Math.round(6 + l.b * 54);
-      html += `<i style="height:${h}px${l.b > 0.004 ? `;background:${rgbCss(l.rgb)}` : ""}"></i>`;
+      const hs = l.sun > OFF ? Math.round(4 + l.sun * 42) : 0;
+      const hc = l.c > OFF ? Math.round(3 + l.c * 8) : 0;
+      if (!hs && !hc) { html += '<i style="height:6px"></i>'; continue; }
+      const white = `rgba(245,243,239,${(0.35 + 0.65 * l.sun).toFixed(2)})`;
+      const color = `rgba(${l.rgb.map(Math.round).join(",")},${(0.5 + 0.5 * Math.min(1, l.c * 1.5)).toFixed(2)})`;
+      const bg = !hc ? white : !hs ? color : `linear-gradient(to top,${color} ${hc}px,transparent ${hc}px ${hc + 2}px,${white} ${hc + 2}px)`;
+      html += `<i style="height:${hs + hc + (hs && hc ? 2 : 0)}px;background:${bg}"></i>`;
     }
     $("ticks").innerHTML = html;
     $("wake-text").textContent = fmt(state.wake);
     $("bed-text").textContent = fmt(state.bed);
+    $("edit-times").setAttribute("aria-label", `Wake up ${fmt(state.wake)}, lights out ${fmt(state.bed)}. Edit your times`);
 
     // Behind the ticks, when the sun is up where you live; its times on the axis below.
     const s = state.sun, band = $("sun-band"), rise = $("sun-rise"), set = $("sun-set");
@@ -250,18 +268,11 @@
     });
   }
 
-  // Where you live, at the top: the city, and its weather now.
+  // Where you live, at the top: the city's name. (Its weather still shapes the plan, and the
+  // panel's sentence says so when it does.)
   function paintPlace() {
-    const w = state.weather ? Sky.sayWeather(state.weather.code) : "";
-    const text = $("place-text");
-    text.textContent = state.city.name;
-    if (w) {
-      const s = document.createElement("span");
-      s.className = "place-weather";
-      s.textContent = ` · ${w}`;
-      text.append(s);
-    }
-    $("place").setAttribute("aria-label", `${state.city.name}${w ? `, ${w.toLowerCase()}` : ""}. Change where you live`);
+    $("place-text").textContent = state.city.name;
+    $("place").setAttribute("aria-label", `${state.city.name}. Change where you live`);
   }
 
   let chipsFor = "", chipsPart = "";
@@ -272,10 +283,15 @@
     chipsFor = key;
     $("chips").setAttribute("aria-label", `${x.name} scene`);
     $("chips").innerHTML = x.scenes.map((s, i) => {
-      const dark = s.glows[0] === "night" && s.glows[1] === "night";
+      // Each chip runs from the scene's sunlight to its color, each as strong as it is.
+      const dim = [58, 58, 62];
+      const a = blend(dim, SUN, 0.3 + 0.7 * s.sun), b = s.color ? blend(dim, COLOR[s.color], 0.3 + 0.7 * Math.min(1, s.c * 1.6)) : dim;
+      // Light or dark text, whichever reads better on the chip's weaker end.
+      const worst = (ink) => Math.min(...[a, b].map((x) => { const l = luminance(x), k = luminance(ink); return (Math.max(l, k) + 0.05) / (Math.min(l, k) + 0.05); }));
+      const dark = worst(INK) > worst(INK_ON_LIGHT);
       const mark = i === rec ? '<svg class="chip-mark" aria-hidden="true"><use href="#i-spark"/></svg>' : "";
       const note = i === rec ? '<span class="visually-hidden">, recommended</span>' : "";
-      return `<button class="ll-chip${dark ? " is-dark" : ""}" type="button" role="radio" aria-checked="${i === on}" data-part="${id}" data-i="${i}" tabindex="${i === on ? 0 : -1}" style="--a:var(--glow-${s.glows[0]});--b:var(--glow-${s.glows[1]})">${mark}${s.name}${note}</button>`;
+      return `<button class="ll-chip${dark ? " is-dark" : ""}" type="button" role="radio" aria-checked="${i === on}" data-part="${id}" data-i="${i}" tabindex="${i === on ? 0 : -1}" style="--a:${rgbCss(a)};--b:${rgbCss(b)}">${mark}${s.name}${note}</button>`;
     }).join("");
 
     // Keep the chosen chip in view (the recommended one may be further along the row),
@@ -288,18 +304,84 @@
     else if (left - pad < row.scrollLeft) row.scrollLeft = left - pad;
   }
 
+  // The panel's two lights -------------------------------------------------------------------
+  // Each is a soft ellipse of light added onto the dark (CSS screen blending): the sunlight
+  // from the top middle, the color from the side it's turned to. Positions and sizes are
+  // fractions of the panel. The same numbers tell each band of text how bright it sits on.
+
+  const SUN_SHAPE = { x: 0.5, y: 0.1, rx: 1.25, ry: 0.78 };
+  const colorShape = (aim) => {
+    const r = aim * (Math.PI / 180);
+    return { x: 0.5 + 0.6 * Math.sin(r), y: 0.5 - 0.6 * Math.cos(r), rx: 1, ry: 0.7 };
+  };
+  // The gradient's stops: full in the middle third, then fading out by 86%.
+  const STOPS = [[0, 1], [0.3, 0.9], [0.86, 0]];
+  function falloff(d) {
+    for (let i = 1; i < STOPS.length; i++) {
+      const [d0, a0] = STOPS[i - 1], [d1, a1] = STOPS[i];
+      if (d <= d1) return a0 + (a1 - a0) * ((d - d0) / (d1 - d0));
+    }
+    return 0;
+  }
+  const gradient = (s, rgb) => {
+    const c = rgb.map(Math.round).join(",");
+    return `radial-gradient(${s.rx * 100}% ${s.ry * 100}% at ${(s.x * 100).toFixed(2)}% ${(s.y * 100).toFixed(2)}%, ${STOPS.map(([d, a]) => `rgba(${c},${a}) ${d * 100}%`).join(", ")})`;
+  };
+  // How strongly each light shows: a weak light still shows a little.
+  const strength = (v) => (v > OFF ? 0.15 + 0.85 * Math.pow(v, 0.7) : 0);
+
+  // The panel's color at a point (fractions of the panel), as screen blending makes it.
+  function colorAt(u, v, l, sunA, colA, shape) {
+    const at = (s) => falloff(Math.hypot((u - s.x) / s.rx, (v - s.y) / s.ry));
+    const ks = sunA * at(SUN_SHAPE), kc = colA * at(shape);
+    return SURFACE.map((b, i) => 255 * (1 - (1 - b / 255) * (1 - ks * SUN[i] / 255) * (1 - kc * l.rgb[i] / 255)));
+  }
+
+  const sunLayer = $("light-sun"), colorLayer = $("light-color");
+  const zones = [["ink-head", ".ll-panel-head"], ["ink-center", ".ll-panel-center"], ["ink-foot", ".panel-foot"]]
+    .map(([cls, sel]) => ({ cls, el: panel.querySelector(sel) }));
+
+  function paintPanel(l) {
+    const sunA = strength(l.sun), colA = strength(l.c), shape = colorShape(state.aim);
+    sunLayer.style.background = gradient(SUN_SHAPE, SUN);
+    sunLayer.style.opacity = sunA.toFixed(3);
+    colorLayer.style.background = gradient(shape, l.rgb);
+    colorLayer.style.opacity = colA.toFixed(3);
+    panel.style.setProperty("--night", (0.35 * (1 - Math.min(1, l.sun + l.c * 1.5))).toFixed(3));
+
+    // Dark text on a band once the light behind it averages past 0.18 luminance (where dark
+    // and light text tie in contrast), sampled across the band.
+    const p = panel.getBoundingClientRect();
+    for (const z of zones) {
+      const r = z.el.getBoundingClientRect();
+      let sum = 0, n = 0;
+      for (const fx of [0.1, 0.5, 0.9]) for (const fy of [0.2, 0.8]) {
+        const u = (r.left + r.width * fx - p.left) / p.width, v = (r.top + r.height * fy - p.top) / p.height;
+        sum += luminance(colorAt(u, v, l, sunA, colA, shape));
+        n++;
+      }
+      panel.classList.toggle(z.cls, sum / n > 0.18);
+    }
+
+    // The readout, and the small lamp: its white light as strong as the sunlight, its color
+    // part in the color, turned the way the color points.
+    $("sun-value").textContent = saySun(l);
+    $("color-value").textContent = sayColor(l);
+    const sunFill = `rgba(${SUN.join(",")},${(0.12 + 0.88 * sunA).toFixed(3)})`;
+    const colFill = l.c > OFF ? `rgba(${l.rgb.map(Math.round).join(",")},${(0.25 + 0.75 * colA).toFixed(3)})` : "transparent";
+    $("swatch-sun").style.background = sunFill;
+    $("swatch-color").style.background = colFill;
+    $("dial-sun").style.fill = sunFill;
+    $("dial-pill").style.fill = colFill;
+    // The arm's drawing sits at the top (up); 180 turns it to sit under the light, like the logo.
+    $("dial-arm").setAttribute("transform", `rotate(${state.aim} 32 32)`);
+    dial.setAttribute("aria-valuenow", String(Math.round(state.aim)));
+    dial.setAttribute("aria-valuetext", `Color pointing ${sayAim(state.aim)}`);
+  }
+
   function render() {
     const t = viewTime(), id = partAt(t), l = lightAt(t);
     const live = state.preview === null && !state.playing;
-
-    // The panel's glow: the light's color; its strength follows brightness, with a little
-    // left at night so the dark still reads as night, not as an empty box.
-    const strength = 0.3 + 0.7 * Math.pow(l.b, 0.7);
-    panel.style.setProperty("--glow", rgbCss(l.rgb));
-    panel.style.setProperty("--glow-strength", strength.toFixed(3));
-    // The head and the time sit in the lit top of the panel: dark text there once it passes
-    // 0.19 luminance (where dark and light text tie in contrast).
-    panel.classList.toggle("is-bright", luminance(blend(SURFACE, l.rgb, strength * 0.95)) > 0.19);
 
     const c = clock(t);
     $("part").textContent = part(id).name;
@@ -308,7 +390,6 @@
     // Following the recommendation: say why. Your own pick: say what the part is for.
     const p = part(id);
     $("about").textContent = p.pick === null && p.rec ? p.rec.why : p.about;
-    $("values").textContent = describe(l);
     $("now-tag").hidden = !live;
     $("back-now").hidden = live || state.playing;
 
@@ -318,6 +399,7 @@
     $("hint").hidden = touched;
 
     paintChips(id);
+    paintPanel(l);   // last: it reads where the text landed
     $("status-time").textContent = clock(nowMinutes()).hm;
   }
 
@@ -398,7 +480,7 @@
     const step = (now) => {
       if (t0 === null) t0 = now;
       const k = (now - t0) / ms;
-      if (k >= 1) { glideRaf = 0; state.preview = null; render(); return; }
+      if (k >= 1) { glideRaf = 0; state.preview = null; render(); setTimeout(swing, 300); return; }
       // Now is read each frame: the city (and its clock) may arrive mid-glide.
       state.preview = nowMinutes() * (1 - Math.pow(1 - k, 3));
       render();
@@ -437,11 +519,73 @@
     items[(i + dir + items.length) % items.length].click();
   });
 
+  // Turning the color ------------------------------------------------------------------------
+  // Drag the small lamp's color part around its white light (or use the arrow keys), as you
+  // would turn the lamp's own: the panel's color then comes from that side. Turning it
+  // doesn't stop a day that's playing.
+
+  $("dial-dots").innerHTML = Array.from({ length: 24 }, (_, i) => {
+    const r = (i * 15 * Math.PI) / 180;
+    return `<circle cx="${(32 + 27 * Math.sin(r)).toFixed(2)}" cy="${(32 - 27 * Math.cos(r)).toFixed(2)}" r="1"/>`;
+  }).join("");
+
+  let turning = false, turned = false;   // turned: someone has turned it, so no sway
+  function aimAt(e) {
+    const r = dial.getBoundingClientRect();
+    const x = e.clientX - (r.left + r.width / 2), y = e.clientY - (r.top + r.height / 2);
+    if (Math.hypot(x, y) < 2) return;
+    state.aim = mod360(Math.round((Math.atan2(x, -y) * 180) / Math.PI / 5) * 5);
+    render();
+  }
+  dial.addEventListener("pointerdown", (e) => {
+    stopSwing();
+    turned = turning = true;
+    dial.setPointerCapture(e.pointerId);
+    aimAt(e);
+  });
+  dial.addEventListener("pointermove", (e) => { if (turning) aimAt(e); });
+  for (const type of ["pointerup", "pointercancel"]) dial.addEventListener(type, () => { if (turning) { turning = false; remember(); } });
+  dial.addEventListener("keydown", (e) => {
+    const steps = { ArrowRight: 15, ArrowUp: 15, ArrowLeft: -15, ArrowDown: -15, PageUp: 45, PageDown: -45 };
+    let next;
+    if (e.key in steps) next = mod360(Math.round(state.aim / 15) * 15 + steps[e.key]);
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = 355;
+    else return;
+    e.preventDefault();
+    stopSwing();
+    turned = true;
+    state.aim = next;
+    render();
+    remember();
+  });
+
+  // Once, after the ruler's first glide: the color part sways one way, then the other, and
+  // settles back, so the small lamp reads as something you can turn.
+  let swingRaf = 0, swingFrom = state.aim;
+  function stopSwing() { if (swingRaf) { cancelAnimationFrame(swingRaf); swingRaf = 0; state.aim = swingFrom; render(); } }
+  function swing() {
+    if (reduceMotion.matches || turned || state.sheet) return;
+    swingFrom = state.aim;
+    const ms = 2000;
+    let t0 = null;
+    const step = (now) => {
+      if (t0 === null) t0 = now;
+      const k = (now - t0) / ms;
+      if (k >= 1) { swingRaf = 0; state.aim = swingFrom; render(); return; }
+      state.aim = mod360(swingFrom + 70 * Math.sin(k * 2 * Math.PI) * (1 - k));
+      render();
+      swingRaf = requestAnimationFrame(step);
+    };
+    swingRaf = requestAnimationFrame(step);
+  }
+
   // Sheets ----------------------------------------------------------------------------------
 
   let opener = null;
   function openSheet(id, from) {
     stopGlide();
+    stopSwing();
     stopPlay();
     opener = from;
     state.sheet = id;
@@ -543,7 +687,8 @@
   // Remembered between visits, in this browser only.
   const KEY = "light-life";
   function remember() {
-    try { localStorage.setItem(KEY, JSON.stringify({ city: chosen ? state.city : null, wake: state.wake, bed: state.bed })); } catch { /* private mode */ }
+    const aim = swingRaf ? swingFrom : state.aim;
+    try { localStorage.setItem(KEY, JSON.stringify({ city: chosen ? state.city : null, wake: state.wake, bed: state.bed, aim })); } catch { /* private mode */ }
   }
   function recall() {
     let saved = null;
@@ -553,6 +698,7 @@
       const v = saved[f];
       if (Number.isInteger(v) && v % 15 === 0 && v >= LIMITS[f][0] && v <= LIMITS[f][1]) state[f] = v;
     }
+    if (Number.isInteger(saved.aim) && saved.aim % 5 === 0 && saved.aim >= 0 && saved.aim < 360) state.aim = saved.aim;
     const c = saved.city;
     if (c && typeof c.name === "string" && Number.isFinite(c.lat) && Number.isFinite(c.lon) && typeof c.tz === "string" && Sky.validZone(c.tz)) {
       state.city = { name: c.name, region: String(c.region || ""), country: String(c.country || ""), lat: c.lat, lon: c.lon, tz: c.tz };

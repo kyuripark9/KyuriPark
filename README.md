@@ -25,7 +25,7 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 | `/work/` | Not a page while Work is at `/` (`HOME_TRACK` off): it sends visitors straight on to `/` (old links keep working). With `HOME_TRACK` on, Work's grid is here; `WORK_VIEWS = True` in `build.py` then adds two icons over it (grid, slider; `VIEW_ICONS`) that switch it to the same items on the loop |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html` |
 | `/archive/` | Archive: personal work and hobbies, a gallery of images with nothing under them. A separate page with its own data |
-| `/about/` | Read like a project page: one sentence at the top left, where a project's title is, the About text under it, then the photo edge to edge (gray until it exists), Experience, and a Contact label over the footer (`/about/#contact`) |
+| `/about/` | Laid out as Work is: rows on Work's columns split in half, in the type of Work's tiles. Two rows alike, a label in the first column and what it says beside it: About, with the first sentence over the About text, then Experience, each job its role over its company and dates; the footer is its contact list (`/about/#contact`) |
 | `/contact/` | Not a page: it sends visitors straight on to `/about/#contact` (old links keep working) |
 
 Contact is not a menu item: LinkedIn, GitHub, and email are icons at the header's right from
@@ -33,9 +33,10 @@ Contact is not a menu item: LinkedIn, GitHub, and email are icons at the header'
 line under a rule, with the copyright at the right, the same on every page (Home's project
 loop, with `HOME_TRACK` on, has no footer) (`templates/footer.html`, `.site-footer` in `assets/css/style.css`). On a phone the
 links wrap onto a second line where they must, with no dots between them, and the copyright
-takes the next line. On About a Contact label sits just over the footer, so the footer reads as
-its list, and `/about/#contact` goes there (until 2026-11-06 About had a Contact section listing
-the links one under another, and its footer showed only the copyright). They come from
+takes the next line. The footer is `#contact`, so `/about/#contact` (and `/contact/`) lands on
+it (from 2026-11-06 to 2026-11-12 a Contact label stood over it on About; until 2026-11-06 About
+had a Contact section listing the links one under another, and its footer showed only the
+copyright). They come from
 `"email"`, `"linkedin"`, `"github"`, and `"resume"` in `content/site.json`.
 
 ## Where things live
@@ -48,7 +49,6 @@ content/archive.json    the images on Archive (see "Archive" below)
 content/site.json       name, email, LinkedIn, GitHub, resume, About's first sentence ("headline"),
                         About text, experience, SEO text
 assets/images/<slug>/   images and videos for each project
-assets/images/about/    About photo
 assets/images/pieces/   images of the items with no page
 assets/images/archive/  images on Archive
 assets/images/og.png    link-preview image (1200×630)
@@ -221,7 +221,7 @@ JavaScript, an image opens on its own instead, and the caption and date show und
 ## Swap in real images and videos
 
 Every gray placeholder shows the project name and the filename it's waiting for (for example
-`hero.webp`), except on Home, where a card without its cover is a plain gray block, and About's photo, which is plain gray too. Save your image with that name in that project's folder, refresh, and it replaces the
+`hero.webp`), except on Home, where a card without its cover is a plain gray block. Save your image with that name in that project's folder, refresh, and it replaces the
 placeholder. To use a different name or format, change `src` in `projects.json`.
 
 Recommended exports (WebP, or AVIF; JPG and PNG work too):
@@ -231,7 +231,6 @@ Recommended exports (WebP, or AVIF; JPG and PNG work too):
 | Cover (Home cards and Work tiles) | 1600 × 1200 | 4:3 on Home and Work, one file for both (`--thumb-ratio` in `assets/css/style.css`; 4:5 from 2026-11-07 to 2026-11-10, 1:1 on 2026-11-06, 3:4 on Home before that). Another shape is cropped to fill the 4:3 frame, so keep the subject near the middle; a tall piece (a product, a package) needs its own wide crop |
 | Hero and full-width | 2400 px wide | Any height; the hero runs edge to edge |
 | Two-image row | 1200 px wide each | Same ratio for both looks best |
-| About photo | 2400 × 1600 | Runs edge to edge under the About text at 3:2, as a project's hero does (up to 1920px wide). Until it exists its place is plain gray, with no label |
 | Image of an item with no page | 1600 × 1200 | The same 4:3 as a cover, so the Work tile shows all of it; another shape is cropped to fill the tile. The lightbox shows the whole image |
 | Archive image | 1500 px on the long side | Any shape; never cropped |
 
@@ -261,26 +260,53 @@ Otherwise, and for the other pages, it uses `assets/images/og.png`.
 
 **Resume:** replace `assets/Kyuri-Park-Resume.pdf`, keeping the same name.
 
-**About's first sentence:** `"headline"` under `"about"` in `content/site.json`. Each string in
-the list is one line from 768px up (on phones they run together and wrap evenly); type it in
-capitals or not, it shows in capitals either way. It's the display style (Inter Display 500,
-line-height 1, -0.04em; 41px, 51px from 1200px, 64px from 1440px: `--size-display`, and
-`.about-headline` in `assets/css/style.css`), left-aligned on the header's left edge, and as
-far down the page as Work's and Archive's images and a project's title start (`--grid-top`,
-the height of Work's filter line and the space under it), so switching among them moves nothing. Delete
-`"headline"` and About opens on the text instead.
+**About's first sentence:** `"headline"` under `"about"` in `content/site.json`, one string or a
+list of lines; the lines run on as one sentence over the About text, beside the About label,
+and wrap evenly where they wrap (each was its own line until 2026-11-12, for the display style;
+for an hour that day the sentence had the first column, with the text beside it). Type it in capitals or not, it shows
+in capitals either way. It's in the name style, as a project's name is on Work (Inter 500, 14px,
++0.02em), at the body's line height (21px) as the text under it is
+(`.about-headline` in `assets/css/style.css`; the display style, 64px at 1440px, from
+2026-11-06 to 2026-11-12), and as far down the page as Work's and Archive's images and a
+project's title start (`--grid-top`, the height of Work's filter line and the space under it),
+so switching among them moves nothing. Delete `"headline"` and the text starts with its first
+paragraph.
 
-**About's text and photo:** About is laid out as a project page is (since 2026-11-06). The About
-text (`"paragraphs"`) is in the label style (Martian Mono, 12px, capitals, in the text color;
-since 2026-11-07, the lead style for a day before; the body style for a few hours on 2026-11-09,
-then back to the label at Kyuri's call; at the body's line height, 1.5, since 2026-11-11, the
-label's 1.3 before), left-aligned, 32px under the sentence, as a
-project's statement is under its title, with 24px between paragraphs. Then the photo
-(`"portrait"` in `content/site.json`, `assets/images/about/portrait.webp`) runs edge to edge at
-3:2, as a project's hero does, plain gray (`--color-fill`) until it exists; gray edge to edge
-only ever stands for a picture, never behind text. Then Experience, and the Contact label over
-the footer (`.about-hero`, `.about-text`, `.about-portrait`, `.about-contact` in
-`assets/css/style.css`). The page scrolls as any other does. Until 2026-11-06 the sentence sat
+**About's layout:** since 2026-11-12, About is laid out on Work's columns split in half: two
+where Work has one (phones), four where it has two (from 768px), six where it has three (from
+1440px), 12px apart as Work's are, so every other line of About's is one of Work's and going
+from Work to About keeps them. Half, because About holds short lines of text, not images (on
+Work's own columns, for an hour, a job's role and company sat 410px apart at a 1210px window).
+One kind of row, twice, in the name style of Work's tiles, all of it at the body's line
+height (21px), everything left-aligned on those lines: what a row is about in the first column,
+a label in `--color-subtle`, and what it says from the next column on, starting on the same line
+and the same left edge in both rows, so the two rows look alike (since 2026-11-12, the user's
+asks; for its first hours Experience's label sat over the jobs and the jobs started in the first
+column, then for an hour the first sentence had the first column and About's label was hidden).
+The rows, Work's row gap apart (32px, 64px from 1200px):
+
+- About (the page's h1) in the first column, with the first sentence beside it in the next two,
+  in capitals, and the About text (`"paragraphs"`) under it, in the name style but as typed, all
+  in the text color, up to 420px wide, 16px between the sentence and each paragraph;
+- Experience: its label in the first column, in `--color-subtle`, with the jobs beside it where
+  the text is, each set as a paragraph of two lines, 16px apart as the paragraphs are: the role,
+  in the text color, over "Company · Dates", in `--color-subtle`, with no rules between jobs, as
+  Work has none between its rows. (For an hour on 2026-11-12 the role, company, and dates sat a
+  column each, past the text's right edge; the three short columns, wide apart, looked as if
+  they floated.)
+
+That's from 900px (56.25em, where four columns hold the longest role, "JUNIOR GRAPHIC
+DESIGNER"); from 768 to 899px the labels take the first two columns (Work's first) and the
+sentence, text, and jobs the last two; on phones each takes its own line. The first row's
+capitals, not its lines, start on Work's image line, as a project title's do (`.about-row`,
+`.about-intro`, `.about-text`, `.experience` in `assets/css/style.css`). The footer, the same on
+every page, is About's contact list, so the page ends with Experience; when it's shorter than
+the window the room left is the page's end, as on Work.
+From 2026-11-06 to 2026-11-12 About read as a project page: the sentence in the display style,
+the text under it in the label style, a 3:2 photo edge to edge (`"portrait"` in
+`content/site.json`, taken out on 2026-11-12 at Kyuri's call), Experience as a table of rules,
+and a Contact label over the footer, a section's distance apart. The page scrolls as any other
+does. Until 2026-11-06 the sentence sat
 alone, centered, in a window-tall first screen with "[ Scroll down ]" at its foot; the text sat
 centered on a window-tall gray block; and the scroll was sticky, each block sliding over the one
 before (snapping and whole-screen steps were tried on 2026-11-05 and taken out the same day).
@@ -314,8 +340,7 @@ over the page by their difference (`mix-blend-mode: difference`), so on the page
 text color exactly, and the gray links are the same ink at `--header-dim` (0.6), which comes out
 `--color-subtle`. So it can be set over the page, the header now fades with it between pages
 rather than keeping its place apart from it (`view-transition-name: site-header` until then); it's
-the same on every page, so it still looks still. `/about/#contact` scrolls to About's Contact label, as far as the page
-goes, kept clear of the header.
+the same on every page, so it still looks still. `/about/#contact` scrolls to the footer, as far as the page goes.
 
 Every page keeps room for a scrollbar at the right, Home too, though it doesn't scroll
 (`scrollbar-gutter: stable` on `html`, since 2026-11-10). Where scrollbars take room (a mouse
@@ -339,12 +364,12 @@ size, a line height, a tracking, and a case, with tokens named after it (`--size
 
 | Style | Type | Size | Line height, tracking | Used for |
 | --- | --- | --- | --- | --- |
-| display | Inter Display 500, capitals | 41px, 51px from 1200px, 64px from 1440px | 1, -0.04em | About's first sentence, project titles, the 404 |
+| display | Inter Display 500, capitals | 41px, 51px from 1200px, 64px from 1440px | 1, -0.04em | project titles, the 404 |
 | title | Inter Display 500, capitals | 18px, 23px from 768px, 29px from 1200px, 36px from 1440px | 0.9, -0.01em | impact numbers, Previous / Next titles |
 | lead | Inter Display 500, as typed | 20px, growing with the window to 28px (from 800 to 1120px wide); lines up to 30em (`--measure-lead`) | 1.35, 0 | Home's sentence, a project's statement |
 | body | Inter 500, as typed; links 600 | 16px | 1.5, 0 | text, a project's "Visit" link, the 404's link |
-| name | Inter 500 (the header's name and the opening 600), capitals | 14px; the header's links 12px (`--size-menu`), the opening 16px (`--size-opening`) | 1.3, +0.02em | the header, Home's opening, project names (Home's cards, Work's tiles, Archive, the lightbox), the lightbox's Close |
-| label | Martian Mono 400, capitals | 12px; Work's counts 10px (`--size-count`) | 16px, -0.05em; About's paragraphs 1.5 | captions, Home's type and year and SOUND ON / OFF, a project's facts and section headings, the prototype's "Open in a new tab", About's text, Experience, and Contact, the footer, the lightbox's type and year, Work's filters and counts; a label that names a column or a section (a project's fact labels, its section and note headings, About's Experience and Contact) in `--color-subtle` |
+| name | Inter 500 (the header's name and the opening 600), capitals | 14px; the header's links 12px (`--size-menu`), the opening 16px (`--size-opening`) | 1.3, +0.02em | the header, Home's opening, project names (Home's cards, Work's tiles, Archive, the lightbox), the lightbox's Close, all of About (since 2026-11-12; at 1.5, the paragraphs as typed at 0 tracking) |
+| label | Martian Mono 400, capitals | 12px; Work's counts 10px (`--size-count`) | 16px, -0.05em | captions, Home's type and year and SOUND ON / OFF, a project's facts and section headings, the prototype's "Open in a new tab", the footer, the lightbox's type and year, Work's filters and counts; a label that names a column or a section (a project's fact labels, its section and note headings) in `--color-subtle` |
 
 The rules behind the table (since 2026-11-11):
 
@@ -358,7 +383,7 @@ The rules behind the table (since 2026-11-11):
   (+0.02em, the header's name and links, the opening, and project names alike; project names were
   -0.01em before). Martian Mono's letters are 0.7em wide, open enough to close up at -0.05em.
 - **Lines.** A label's line is 16px, so a label line and `--space-2` under it make Work's 48px
-  (`--grid-top`). About's paragraphs, the one label that runs on for lines, take the body's 1.5.
+  (`--grid-top`). All of About, the one place the name style runs on for lines, takes the body's 1.5.
   Display and title lines that wrap come out even (`text-wrap: balance`).
 - **Phones.** Display and title shrink with the window under 342px and 328px wide
   (`min(2.5625rem, 12vw)`, `min(1.125rem, 5.5vw)`), so the longest word, NBCUNIVERSAL, never
@@ -372,7 +397,7 @@ The rules behind the table (since 2026-11-11):
 Color is the text color (`--color-text`), one gray for all gray text (`--color-subtle`, 4.6:1 on
 the background, the lightest small text stays easy to read at: Home's type and year, Work's filters,
 captions, the lightbox's type and year, the labels that name a column or a section, impact labels,
-Previous / Next, About's Experience companies and dates, the copyright, and since 2026-11-09 the
+Previous / Next, About's labels, companies, and dates, the copyright, and since 2026-11-09 the
 header's links; since 2026-11-07, most of them a step darker in `--color-muted`, 5.6:1, before),
 `--color-muted` now only for a hovered link, and `--color-line` for rules. (From 2026-11-05 to
 2026-11-09 the header's links were lighter still, `--color-faint`, 3:1, under WCAG AA's 4.5:1.)
@@ -405,7 +430,7 @@ and the 404 all start on the same line (104px under the header's box from 768px,
 phones). `--grid-top` (Work's filter line and `--space-2` under it, 48px) sets where Work's
 images start under that line, and Archive's images, a project's title, and About's first
 sentence start there too (since 2026-11-06), so going from Work to any of them, or among them,
-moves nothing. For the two titles it's their capitals' top that sits on that line, not the top
+moves nothing. For the titles and About's first row it's their capitals' top that sits on that line, not the top
 of their line, which is higher by the room over the capitals (`--cap-display`, 0.13em: 8px at
 64px, 5px on phones), so a title doesn't look lower than an image beside it in the menu. Over the
 header's text is `--header-top` (16px from 768px, 12px on phones). To move

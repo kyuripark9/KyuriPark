@@ -45,7 +45,7 @@
                                   current page (since 2026-11-09; --color-faint, 3:1, under AA,
                                   from 2026-11-05), captions, the lightbox's type and year, the
                                   labels that name a column or a section, impact labels, Previous /
-                                  Next, About's Experience companies and dates, the footer's
+                                  Next, About's labels, companies, and dates, the footer's
                                   copyright (the filters and section labels since 2026-11-06, the
                                   rest in --color-muted before) */
   --color-line: #dcdbd5;
@@ -72,16 +72,16 @@
        name     Inter 500, 600        14; 12 (menu), 16 (opening)  1.3     +0.02em   capitals
        label    Martian Mono 400      12; 10 (Work's counts)       16px    -0.05em   capitals
 
-       display  About's first sentence, project titles, the 404
+       display  project titles, the 404
        title    impact numbers, Previous / Next titles
        lead     Home's sentence, a project's statement
        body     text, a project's Visit link, the 404's link
        name     the header (the name at 600, the links at --size-menu), Home's opening (600,
                 at --size-opening), project names (Home, Work, Archive, the lightbox), the
-                lightbox's Close
+                lightbox's Close, all of About (the sentence and text at 1.5, the text as typed at 0)
        label    captions, Home's type · year and SOUND ON / OFF, a project's facts and section
-                headings, the prototype's Open link, About's text, Experience, and Contact, the
-                footer, the lightbox's type and year, Work's filters and counts
+                headings, the prototype's Open link, the footer, the lightbox's type and year,
+                Work's filters and counts
 
      Cuts: Inter's optical size follows the font size (font-optical-sizing: auto), so body,
      names, and the menu (12-16px) get Inter's text cut, drawn for small sizes, and display,
@@ -90,8 +90,8 @@
      a link in a label stays at 400. Tracking: small capitals in Inter (the name style) are a
      little open, all at one value; Martian Mono's letters are 0.7em wide, open enough to close
      up. Lines: a label's is 16px, so a label line and --space-2 under it make Work's 48px
-     (--grid-top); About's paragraphs, the one label that runs on for lines, take the body's
-     1.5. Phones: display and title shrink with the window under 342px and 328px, so the
+     (--grid-top); About's sentence and paragraphs, the names that run on for lines, take the
+     body's 1.5. Phones: display and title shrink with the window under 342px and 328px, so the
      longest word (NBCUNIVERSAL) never breaks, even at a larger text setting. An email address
      stays as typed, even in a label. */
   --size-display: min(2.5625rem, 12vw);  /* 41px; 51px from 1200px, 64px from 1440px (below) */
@@ -380,9 +380,8 @@ button {
    everything in sentence case; only these set the capitals. Body text, the lead, and email
    addresses stay as written (an email address in capitals reads badly). */
 
-/* Display: About's first sentence, project titles, the 404. Inter Display (opsz 32); lines
-   that wrap come out even. */
-.about-headline,
+/* Display: project titles, the 404 (About's first sentence too, 2026-11-06 to 2026-11-12).
+   Inter Display (opsz 32); lines that wrap come out even. */
 .project-title,
 .not-found-title {
   font-size: var(--size-display);
@@ -431,10 +430,6 @@ button {
 .project-nav-label,
 .lightbox-caption,
 .site-footer,
-.split-section > .section-heading,
-.about-contact,
-.experience li,
-.about-text,
 .sound-toggle,
 .track-count,
 .prototype-open {
@@ -449,15 +444,21 @@ button {
 /* Name: Inter at 14px in capitals, a little open, for the menu bar (the name, the links, and
    the lightbox's Close, which stands in for it), project names (Home's cards, Work's tiles,
    Archive and the lightbox), and Home's opening (the name and then the role on a black
-   screen, at 600 and --size-opening). Set by name, so it wins over the label its caption is
-   in. The header's links are at --size-menu (12px), the name at 600 (below). */
+   screen, at 600 and --size-opening), and all of About (since 2026-11-12: its first sentence,
+   the text, and Experience and its jobs, so About reads in the type of Work's tiles). Set by
+   name, so it wins over the label its caption is in. The header's links are at --size-menu
+   (12px), the name at 600 (below). */
 .site-header,
 .intro-line,
 .lightbox-close,
 .card-title,
 .work-name,
 .archive-name,
-.lightbox-name {
+.lightbox-name,
+.about-headline,
+.about-label,
+.about-text,
+.experience li {
   font-family: var(--font);
   font-size: var(--size-name);
   font-weight: 500;
@@ -466,19 +467,40 @@ button {
   text-transform: uppercase;
 }
 
+/* All of About at the body's line height, the one place the name style runs on for lines: its
+   lines share one pitch (21px) in both rows, so what sits side by side in a row (a label and
+   the first line beside it) sits on the same line; the sentence's lines wrap evenly. The paragraphs as typed, since capitals read slowly over lines, so at the
+   body's tracking (the name's opens up capitals). (Since 2026-11-12; the paragraphs in the
+   label style before, and Experience at the name's 1.3 for its first hours.) */
+.about-headline,
+.about-label,
+.about-text,
+.experience li {
+  line-height: var(--leading-body);
+}
+
+.about-headline {
+  text-wrap: balance;
+}
+
+.about-text {
+  letter-spacing: var(--tracking-body);
+  text-transform: none;
+}
+
 /* At 600: the name in the header (a weight up from the links). */
 .identity {
   font-weight: 600;
 }
 
-/* A label that names a column or a section (a project's facts, its text's headings, and
-   About's Experience and Contact) looks as Work's filters do: the label style at 400, in
-   --color-subtle (until 2026-11-06 at 600, in --color-muted, the project text's headings in the
-   text color, and About's in the display style). */
+/* A label that names a column or a section (a project's facts, its text's headings) looks as
+   Work's filters do: the label style at 400, in --color-subtle (until 2026-11-06 at 600, in
+   --color-muted, the project text's headings in the text color). About's Experience is
+   in --color-subtle too, in the name style (since 2026-11-12; the label style from
+   2026-11-06, the display style before). */
 .project-meta dt,
 .text-block > .section-heading,
-.split-section > .section-heading,
-.about-contact,
+.about-label,
 .note-heading {
   color: var(--color-subtle);
 }
@@ -1322,14 +1344,16 @@ html.intro-on {
    --thumb-ratio, as Home's cards are (until 2026-11-06: 400px tall on every screen, whatever
    the column's width). main.js shows one filter at a time on the one grid; without JavaScript
    there's no filter and the grid shows everything. */
-.page-work {
+.page-work,
+.page-about {
   --tile-col-gap: var(--media-gap); /* between columns: 12px, as between images everywhere */
   --tile-row-gap: var(--step-4);    /* a title to the next row's image: 32px, 64px from 1200px */
   --caption-gap: var(--space-1);    /* an image to its title: 16px */
 }
 
 @media (min-width: 1200px) {
-  .page-work {
+  .page-work,
+  .page-about {
     --tile-row-gap: var(--step-8);
   }
 }
@@ -1912,7 +1936,8 @@ html.intro-on {
    sentence and Archive's images do (since 2026-11-06; on the starting line, where Work's filter
    is, before), so opening a project from Work keeps its first thing at the same height.
    The header takes main's --page-top into its own box (the title stays where it is), as About's
-   hero does: room for the title's dots, 2026-11-07 to 2026-11-11, kept so nothing shifts. */
+   hero did until 2026-11-12: room for the title's dots, 2026-11-07 to 2026-11-11, kept so
+   nothing shifts. */
 .project-header {
   position: relative;
   margin-top: calc(-1 * var(--page-top));
@@ -2176,184 +2201,139 @@ html.intro-on {
 
 /* About ----------------------------------------------------------------- */
 
-/* About reads as a project page does (since 2026-11-06): its first sentence in the display
-   style, on the header's left edge (.wrap) and as far down as Work's and Archive's images
-   (below), the About text under it as a project's statement is under its title, then the photo edge to edge as a project's hero is, then Experience, and
-   Contact over the footer. Until 2026-11-06 the sentence sat alone in the middle of a
+/* About is laid out on Work's columns split in half (since 2026-11-12): two columns where Work
+   has one (phones), four where it has two (from 768px), six where it has three (from 1440px),
+   12px apart as Work's are, so every other line of About's is one of Work's and going from
+   Work to About keeps them. (From 640 to 767px About's two columns are Work's own.) Half,
+   because About holds short lines of text, not images: on Work's own columns (an hour on
+   2026-11-12) a job's role and company sat 410px apart at a 1210px window and read as two
+   lists.
+   One kind of row, twice, in the name style of Work's tiles, everything left-aligned on those
+   lines: what a row is about in the first column, a label in --color-subtle (About, the page's
+   h1; Experience), and what it says in the next two, starting on the same line and the same
+   left edge in both rows (the sentence and the text; the jobs), so the two rows look
+   alike (since 2026-11-12, at Kyuri's asks: for its first hours Experience's label sat over
+   the jobs, across the row, the jobs starting in the first column, and then for an hour the
+   sentence had the first column, About's label hidden, and the jobs a line each across three
+   columns). One gap inside a row, --step-2 (16px: the sentence to the text, paragraph to
+   paragraph, job to job, and on phones a label to what it says), and Work's row gap
+   (--tile-row-gap: 32px, 64px from 1200px) between rows. The footer, the same on every page, is About's contact list (#contact), so the page ends with
+   Experience; when it's shorter than the window, the room left is the page's end, as on Work.
+   From 2026-11-06 to 2026-11-12 About read as a project page: the sentence in the display
+   style, the text under it in the label style, a photo edge to edge (taken out on 2026-11-12
+   at Kyuri's call), Experience as a table of rules, and a Contact label over the footer, a
+   section's distance apart. Before 2026-11-06 the sentence sat alone in the middle of a
    window-tall first screen with "[ Scroll down ]" at its foot, the text sat centered on a
    window-tall gray block (the photo's place), and the page scrolled in a sticky stack, each
-   block sliding over the one before.
-   The hero takes main's --page-top into its own box (the sentence stays where it is): room for
-   the sentence's dots, 2026-11-07 to 2026-11-11, kept so nothing shifts. */
-.about-hero {
-  position: relative;
-  margin-top: calc(-1 * var(--page-top));
-  padding-top: var(--page-top);
-}
-
-/* The sentence starts where Work's and Archive's images and a project's title do, --grid-top
-   under the starting line (since 2026-11-06; on the starting line itself, where Work's filter
-   is, for a few hours the same day), so About doesn't sit higher than the pages beside it in
-   the menu. */
-.js .about-hero {
-  padding-top: calc(var(--page-top) + var(--grid-top));
-}
-
-/* The display style (see Shared text styles), left-aligned as a project's title is (centered
-   until 2026-11-06). On that line go the capitals' tops, as a project's title's do
-   (--cap-display over them inside the line, 8px at 64px; since 2026-11-06): the text and the
-   rest move up with it. From 768px each line of "headline" in content/site.json is its own
-   line; on phones the sentence runs on and wraps evenly (text-wrap: balance, as all display
-   type does). */
-.about-headline {
-  margin-top: calc(-1 * var(--cap-display));
+   block sliding over the one before. */
+.about-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--step-2) var(--tile-col-gap);
+  align-items: start;
 }
 
 @media (min-width: 768px) {
-  .about-headline-line {
-    display: block;
+  .about-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
-/* The label style (see Shared text styles; since 2026-11-07, in the text color, the lead style
-   for a day before; the body style for a few hours on 2026-11-09, and back at Kyuri's call):
-   left-aligned, lines up to 30em of its own size (--measure-lead, 360px, four lines at
-   1440px), --step-4 (32px) under the sentence as a statement is under its title,
-   and --step-3 (24px) between paragraphs, as between a statement and its Visit link. Until
-   2026-11-06 centered on the gray block, with balanced lines. A paragraph's last line keeps
-   more than one word (text-wrap: pretty, since 2026-11-07). The one label that runs on for
-   lines, so it takes the body's line height (18px at 12px; since 2026-11-11, the label's
-   before). */
+@media (min-width: 1440px) {
+  .about-row {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+.about-row + .about-row {
+  margin-top: var(--tile-row-gap);
+}
+
+/* The first row starts where Work's images do, --grid-top under the starting line, as
+   Archive's images and a project's title do, so going from Work to About moves nothing
+   (without JavaScript Work has no filter, so on the line itself). On that line go its
+   capitals' tops, not its lines' (as a project's title's do), so the text doesn't look lower
+   than Work's images: the row is pulled up by the room over the capitals inside a 21px line,
+   in Inter (L / 2 - 0.364) of the size for a line height of L (half the leading, plus the
+   ascent less the cap height: (L - 1.211) / 2 + 0.969 - 0.7275), 5px at 14px. */
+.about-intro {
+  --cap-pull: calc((0.364 - var(--leading-body) / 2) * var(--size-name));
+  margin-top: var(--cap-pull);
+}
+
+.js .about-intro {
+  margin-top: calc(var(--grid-top) + var(--cap-pull));
+}
+
+/* Where things go, the same in both rows. Phones, and to 767px: each on its own line across
+   the row, a job's role over its company (first column) and dates (second). From 768px, beside
+   each other: where About's four columns are wide enough for the longest role, 56.25em (900px;
+   "JUNIOR GRAPHIC DESIGNER" is 199px, so the columns from about 880px), the labels take the
+   first column, and the sentence and text, and the jobs, the next two. Narrower, from 768px,
+   the labels take the first two (Work's first column), the rest the last two. In em, so the
+   switch moves with a larger text setting; a longer role than today's wraps onto a second
+   line. */
+.about-text,
+.about-label,
+.experience {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 768px) {
+  .about-label {
+    grid-column: 1 / span 2;
+  }
+
+  .about-text,
+  .experience {
+    grid-column: 3 / -1;
+  }
+}
+
+@media (min-width: 56.25em) {
+  .about-label {
+    grid-column: 1;
+  }
+
+  .about-text,
+  .experience {
+    grid-column: 2 / span 2;
+  }
+}
+
+/* The About text, the first sentence (in capitals) over the paragraphs (as typed), in the name
+   style and the body's line height (see Shared text styles), lines up to 30em (--measure-lead,
+   420px), --step-2 (16px) between the sentence and each paragraph, all in
+   the text color, as it's the page's one thing to read (in --color-subtle for its first hour,
+   2026-11-12, and Kyuri asked for it darker). A paragraph's last line keeps more than one word
+   (text-wrap: pretty). */
 .about-text {
   max-width: var(--measure-lead);
-  line-height: var(--leading-body);
   text-wrap: pretty;
 }
 
-.about-headline + .about-text {
-  margin-top: var(--step-4);
-}
-
 .about-text > * + * {
-  margin-top: var(--step-3);
+  margin-top: var(--step-2);
 }
 
-/* The photo, edge to edge under the text, as a project's hero is under its facts: up to 1920px
-   wide, --step-8 (64px) down, in the photo's 3:2 (2400 x 1600), cropped to fill it. Plain gray
-   (--color-fill) until it exists: on every page, gray edge to edge is only ever a picture's
-   place, never a background for text. */
-.about-portrait {
-  aspect-ratio: 3 / 2;
-  max-width: 1920px;
-  margin: var(--step-8) auto 0;
-  background: var(--color-fill);
+/* Experience: its label in the first column, then the jobs where the text is, each set as a
+   paragraph of two lines, 16px from the next as the paragraphs are: the role, in the text
+   color as a tile's name is, over 'Company · Dates', in --color-subtle (since 2026-11-12, at
+   Kyuri's ask: for an hour that day the role, company, and dates sat a column each, from the
+   text's left edge to past its right, and the three short columns, wide apart, looked as if
+   they floated). No rules between the jobs (since 2026-11-12; a table of rules before), as
+   Work has none between its rows. */
+.experience > * + * {
+  margin-top: var(--step-2);
 }
 
-.about-portrait img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.experience-role,
+.experience-detail {
+  display: block;
 }
 
-/* Experience, named by a label at the left (since 2026-11-06; in the display style before), as
-   a project's text is. (Contact was a section like it until 2026-11-06, its links in the right
-   half from 768px, where a project's text sits.) */
-.split-section {
-  display: grid;
-  gap: var(--step-2);
-  margin-top: var(--section-gap);
-}
-
-@media (min-width: 768px) {
-  .split-section {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    align-items: start;
-  }
-
-  .split-section > :not(h2) {
-    grid-column: 2;
-  }
-}
-
-/* Experience runs the full width under its heading, one line per job, like a table (since
-   2026-11-05; before, it sat in the right column beside its heading, where a job took two
-   lines below a 1290px window). */
-.split-section > .experience {
-  grid-column: 1 / -1;
-}
-
-/* The list is a grid of three columns (role, company, dates) that its rows only take up when
-   it's wide enough (below); until then each row spans all three and sets its own two. The
-   first column ends where the section's halves meet, so companies start where a project's text
-   does, and the dates sit at the right edge. The role leads, in the text color; the company and
-   dates are muted (until 2026-11-05 the company came first and the role was muted). */
-.experience {
-  container: experience / inline-size;
-  display: grid;
-  grid-template-columns: calc(50% - var(--col-gap) / 2) minmax(0, 1fr) max-content;
-  column-gap: var(--col-gap);
-  border-top: 1px solid var(--color-line);
-}
-
-.experience li {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  column-gap: var(--step-2);
-  padding-block: var(--step-2);
-  border-bottom: 1px solid var(--color-line);
-}
-
-.experience-company,
-.experience-dates {
+.experience-detail {
   color: var(--color-subtle);
-}
-
-.experience-dates {
-  grid-column: 2;
-  grid-row: 1;
-  text-align: right;
-}
-
-/* One line per job once the list itself is wide enough for one: 36.75rem (588px), where the
-   right half still holds today's longest company (148px in Martian Mono) and longest dates
-   (109px) with the 24px gap between them, and the left half the longest role (179px). The
-   list's width decides, not the window's, so nothing wraps for want of room (from a window
-   about 620px wide, so every width from 768px up). Rows share the list's columns (subgrid)
-   so role, company, and dates line up from row to row. Until 2026-11-05: 37.5rem, from a
-   window about 1290px wide, while the list sat in the right column; then, the same day,
-   44.5rem and 40.5rem while the rows were 16px Inter, and 35.25rem at 12px Inter. */
-@container experience (min-width: 36.75rem) {
-  .experience li {
-    grid-template-columns: subgrid;
-    column-gap: var(--col-gap);
-  }
-
-  .experience-company {
-    grid-column: 2;
-    grid-row: 1;
-  }
-
-  .experience-dates {
-    grid-column: 3;
-  }
-}
-
-/* Contact: a label alone at the page's end, a section's distance under Experience, with the
-   footer's rule and links --step-2 (16px) under it, as Experience's rule and jobs are under its
-   label (Footer, below): the footer, the same on every page, is About's contact list (since
-   2026-11-06; until then About had a Contact section listing the same four links one under
-   another, and showed only the copyright in its footer).
-   /about/#contact (and /contact/, which sends visitors there) scrolls to it, as far as the page
-   goes, kept clear of the sticky header (--page-top under the header's box) where a page's
-   title starts. */
-.about-contact {
-  margin-top: var(--section-gap);
-}
-
-#contact {
-  scroll-margin-top: calc(var(--header-h) + var(--page-top));
 }
 
 /* 404 ------------------------------------------------------------------- */
@@ -2399,15 +2379,9 @@ html.intro-on {
 }
 
 /* The footer is the same on every page, About's included (since 2026-11-06; About showed only
-   the copyright before). On About it hangs --step-2 under the Contact label, which names it, so
-   its own hidden "Contact" heading would say it twice. */
-[data-page="about"] .site-footer {
-  margin-top: var(--step-2);
-}
-
-[data-page="about"] .site-footer > h2 {
-  display: none;
-}
+   the copyright before), and is the contact list, #contact (/about/#contact, and /contact/,
+   which sends visitors there, land on it). From 2026-11-06 to 2026-11-12 a Contact label stood
+   over it on About, --step-2 above it, and was #contact. */
 
 /* On a phone the links run on and wrap where they must, and the copyright takes the next line
    at the left (until 2026-11-06 the links stood one under another). No dots between them there:

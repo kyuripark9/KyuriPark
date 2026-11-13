@@ -37,7 +37,6 @@ PLACEHOLDER_SIZES = {
     "cover": (1600, 1200),     # 4:3 (--thumb-ratio in style.css), home cards and Work tiles
     "wide": (2400, 1350),      # 16:9, hero and full-width images and videos
     "pair": (1200, 1500),      # 4:5, each image in a two-image row
-    "portrait": (2400, 1600),  # 3:2, the About photo (no placeholder: a plain gray block)
     "piece": (1600, 1200),     # 4:3, the images of an item with no page of its own
     "archive": (1200, 1500),   # 4:5, an Archive image whose size can't be read
 }
@@ -1229,11 +1228,13 @@ class Builder:
                   content, "page-project", current="project", image=self.og_image(p))
 
     def about_headline(self, about):
-        """About's first sentence, at the page's top left where a project's title is, with the
-        About text under it (since 2026-11-06; until then alone in the middle of the window,
-        with a '[ Scroll down ]' link at its foot). Each string in "headline" is one line from
-        768px (on phones they run on as one sentence); a plain string is one line that wraps.
-        No headline, and the page starts with the text."""
+        """About's first sentence, over the About text, beside the About label (since
+        2026-11-12; earlier that day in the first column with the text beside it; from 2026-11-06
+        in the display style with the text under it, as a project's title and statement are;
+        before that alone in the middle of the window, with a '[ Scroll down ]' link at its
+        foot). "headline" may be one string or a list of lines; the lines run on as one sentence
+        and wrap evenly (each was its own line from 768px until 2026-11-12, for the display
+        style). No headline, and the text starts with its first paragraph."""
         lines = about.get("headline") or []
         if isinstance(lines, str):
             lines = [lines]
@@ -1243,34 +1244,27 @@ class Builder:
         lines = [t.strip() for t in lines if t.strip()]
         if not lines:
             return ""
-        spans = " ".join(f'<span class="about-headline-line">{inline(t)}</span>' for t in lines)
-        return f'      <p class="about-headline">{spans}</p>\n'
+        text = " ".join(inline(t) for t in lines)
+        return f'          <p class="about-headline">{text}</p>\n'
 
     def build_about(self):
         s = self.site
         about = s["about"]
-        portrait = need(about, "portrait", "content/site.json (about)")
-        rel = media_path(need(portrait, "src", "content/site.json (about.portrait)"),
-                         "assets/images/about")
-        if exists(rel):
-            img = "        " + self.img(rel, portrait.get("alt"), "portrait", s["name"], "high",
-                                         sizes="100vw")
-        else:
-            self.missing_media.add(rel)
-            img = ""  # a plain gray block, no label, until the photo exists
         paragraphs = []
         for text in about.get("paragraphs") or []:
-            paragraphs.append(f"        <p>{inline(text)}</p>")
+            paragraphs.append(f"          <p>{inline(text)}</p>")
+        # A job: its role, then 'Company · Dates' under it (since 2026-11-12; role, company,
+        # and dates a column each before), leaving out what's empty. The dot keeps to the
+        # company's last word, so a wrapped line never starts with it.
         experience = []
         for row in about.get("experience") or []:
+            detail = "&nbsp;· ".join(inline(row[k]) for k in ("company", "dates") if row.get(k))
             experience.append(
-                '        <li>'
-                f'<span class="experience-role">{inline(row.get("role", ""))}</span>'
-                f'<span class="experience-company">{inline(row.get("company", ""))}</span>'
-                f'<span class="experience-dates">{inline(row.get("dates", ""))}</span>'
+                '          <li>'
+                f'<span class="experience-role">{inline(row.get("role", ""))}</span> '
+                f'<span class="experience-detail">{detail}</span>'
                 '</li>')
         content = render("about.html", headline=self.about_headline(about),
-                         portrait=img,
                          paragraphs="\n".join(paragraphs), experience="\n".join(experience))
         self.page("about/index.html", "about", "/about/", f"About — {s['name']}",
                   s["description"], content, "page-about", current="about",

@@ -975,19 +975,22 @@ class Builder:
                       count=count)
 
     def home_intro(self):
-        """Home's opening (assets/js/intro.js): a black screen with the name, then the role, in
-        its middle, fading off the page (since 2026-11-10; About's first
-        sentence, made of dots, from 2026-11-09). Each word is a span of its own, so it can
-        rise in on its own."""
+        """Home's opening (assets/js/intro.js): a black screen with the name, then the line
+        that finishes it, in its middle, fading off the page (since 2026-11-10; About's first
+        sentence, made of dots, from 2026-11-09). The line is "opening" in content/site.json
+        (since 2026-11-12, the user's ask: "Designs where digital meets everyday life", the
+        name being its subject; the role, "Product Designer", before), or the role without it.
+        Each word is a span of its own, so it can rise in on its own."""
         s = self.site
 
         def words(text):
             return " ".join(f"<span>{esc(w)}</span>" for w in text.split())
 
+        line = s.get("opening") or s["role"]
         return ('    <div class="intro" aria-hidden="true">\n'
                 '      <div class="intro-lines">\n'
                 f'        <p class="intro-line intro-name">{words(s["name"])}</p>\n'
-                f'        <p class="intro-line intro-role">{words(s["role"])}</p>\n'
+                f'        <p class="intro-line intro-role">{words(line)}</p>\n'
                 '      </div>\n'
                 '    </div>\n')
 

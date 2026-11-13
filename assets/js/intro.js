@@ -19,10 +19,11 @@
   const HOLD = 500;       // ms the name stays, whole, before the role takes its place
   const SWAP = 400;       // ms: the name rises away and fades
   const ROLE_AT = 120;    // ms into that the role's first word starts in
-  const READ = 700;       // ms the role stays, whole, before the page opens
-  const OPEN = 950;       // ms: the black fades away, showing the page (about 3.9 s in all,
-                          // made faster twice from the 4.9 s it took first on 2026-11-10;
-                          // mastak's takes about 4)
+  const READ = 1000;      // ms the role stays, whole, before the page opens (700 while it was
+                          // two words, "Product Designer"; a six-word sentence since 2026-11-12)
+  const OPEN = 950;       // ms: the black fades away, showing the page (about 4.6 s in all
+                          // with the sentence; 3.9 s with the role, made faster twice from the
+                          // 4.9 s it took first on 2026-11-10; mastak's takes about 4)
   const CUT = 300;        // ms it takes when the opening is cut short
   const FONT_WAIT = 2000; // ms at most to wait for the font
   const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";      // words: quick, then settling

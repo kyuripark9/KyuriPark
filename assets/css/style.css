@@ -1289,12 +1289,15 @@ html.intro-on {
 
 /* The name and the role, one in the other's place in the window's middle, in the name style
    (see Shared text styles) at the header name's 600 and --size-opening (16px), in the page's
-   color. Each word is hidden until intro.js brings it in. */
+   color. Each word is hidden until intro.js brings it in. Since the role became a sentence
+   (2026-11-12, "opening" in content/site.json) it can wrap: on phones it's wider than the
+   window, so it breaks in two even lines, centered, inside the page's side margins. */
 .intro-lines {
   position: relative;
   display: grid;
   place-items: center;
   height: 100%;
+  padding-inline: var(--gutter);
   color: var(--color-bg);
 }
 
@@ -1303,7 +1306,8 @@ html.intro-on {
   margin: 0;
   font-size: var(--size-opening);
   font-weight: 600;
-  white-space: nowrap;
+  text-align: center;
+  text-wrap: balance;
 }
 
 .intro-line > span {

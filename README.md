@@ -563,10 +563,12 @@ work shows (since 2026-11-09; over Work's grid since 2026-11-10, over the home l
 2026-11-10, after mastak.framer.website: a black screen (the text color) over the work and the
 header, with the name ("KYURI PARK", `"name"` in `content/site.json`) in its middle, in the
 header name's style and in the page's color, each word rising 0.8em into place as it fades in
-(0.6 s, 0.1 s apart); 0.5 s later the name rises away and fades (0.4 s) as the role ("PRODUCT
-DESIGNER", `"role"`) comes in the same way, and 0.7 s after that the black fades away (0.95 s),
-the role with it, showing the page; about 3.9 s in all (4.9 s at first, made faster twice the
-same day). (Earlier on 2026-11-10 the page opened
+(0.6 s, 0.1 s apart); 0.5 s later the name rises away and fades (0.4 s) as the sentence that
+finishes it ("DESIGNS WHERE DIGITAL MEETS EVERYDAY LIFE", `"opening"`, since 2026-11-12; the
+role, "PRODUCT DESIGNER", before, and still when `"opening"` is left out) comes in the same way,
+and 1 s after that the black fades away (0.95 s), the sentence with it, showing the page; about
+4.6 s in all (3.9 s with the role, 0.7 s after it; 4.9 s at first, made faster twice the same
+day). On phones the sentence breaks in two even lines. (Earlier on 2026-11-10 the page opened
 from the middle in a growing circle, as mastak's does, then the black lifted away with a soft
 gradient edge; both were dropped for the plain fade.) A click or tap on it, a key, or the wheel
 cuts it short (the black then fades in 0.3 s; a key only does that: the page doesn't move). Later arrivals

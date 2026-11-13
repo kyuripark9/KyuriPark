@@ -432,7 +432,9 @@ button {
 .site-footer,
 .sound-toggle,
 .track-count,
-.prototype-open {
+.prototype-open,
+.work-views.is-words .work-view,
+.ring-meta {
   font-family: var(--font-mono);
   font-size: var(--size-label);
   font-weight: 400;
@@ -453,6 +455,7 @@ button {
 .lightbox-close,
 .card-title,
 .work-name,
+.ring-title,
 .archive-name,
 .lightbox-name,
 .about-headline,
@@ -1638,10 +1641,160 @@ html.intro-on {
   }
 }
 
+/* RING and GRID (WORK_RING in build.py, since 2026-11-12), as words, in the filters' style: the
+   one showing bracketed and in the text color ("[ RING ]  GRID"), the brackets opening and
+   closing as the filters' did, at the right of the line over the grid, the last bracket on the
+   page's right edge. 24px tall to tap or click, while the line stays a label's line. On phones
+   there's no ring, so no switch: its line stays, empty, so the grid starts where it always
+   does. */
+.js .work-views.is-words {
+  gap: var(--step-3);
+  margin-inline: 0;
+}
+
+.work-views.is-words .work-view {
+  --tab-pad: calc((24px - var(--leading-label) * var(--size-label)) / 2);
+  padding: var(--tab-pad) 0;
+  margin-block: calc(-1 * var(--tab-pad));
+}
+
+.work-view[aria-pressed="true"] .work-bracket {
+  width: 1.3em;
+  opacity: 1;
+}
+
+@media (max-width: 767px) {
+  .js .work-views.is-words {
+    visibility: hidden;
+  }
+}
+
+/* RING: every item as an object on an oval ring, turning slowly (ring.js, after
+   sarahsarazen.com/#projects), in place of the grid, from 768px. As with the slider, the page
+   fills the window and doesn't scroll, and there's no footer. The ring fills the window behind
+   the header and the switch, and sits in the space under the switch; ring.js places each object
+   and sets its size (--ring-size) and the ring's middle (--ring-cy). An object is its own image,
+   a cutout on the page's color with no frame, or a stand-in shape (templates/ring.html); it grows
+   a little under the mouse, as Work's images do. In the ring's middle, the name of the object in
+   front, or under the mouse, with its type and year under it. Before ring.js runs, nothing
+   shows. */
+.ring {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .js.view-ring body {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .js.view-ring .work-panel,
+  .js.view-ring .site-footer {
+    display: none;
+  }
+
+  .js.view-ring .page-work .ring {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+  }
+
+  /* Over the ring, which comes later in the page. */
+  .js.view-ring .work-views {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.ring-shapes {
+  position: absolute;
+}
+
+.ring-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: pinch-zoom;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ring:not(.is-ready) .ring-stage {
+  visibility: hidden;
+}
+
+.ring-row {
+  list-style: none;
+  padding: 0;
+}
+
+.ring-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--ring-size, 200px);
+  height: var(--ring-size, 200px);
+  will-change: transform;
+}
+
+.ring-object {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ring-media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: transform var(--grow);
+}
+
+.ring-media > svg,
+.ring-media > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ring-object:hover .ring-media {
+    transform: scale(1.08);
+  }
+}
+
+.ring-caption {
+  position: absolute;
+  top: var(--ring-cy, 50%);
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  max-width: 40vw;
+  text-align: center;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.ring-meta {
+  color: var(--color-subtle);
+}
+
 /* 1 across under 640px, 2 from 640px, 3 from 1440px (until 2026-11-06: 2 from 768px, 3 from
    1200px; until 2026-11-05: 3 from 768px, 4 from 1200px). Each tile is its image, then its title
    under it, "TypeLab", alone. A tile with no page is a button (it opens the lightbox) and looks
-   the same. */
+   the same. About splits these columns in half (see About), so its lines are Work's too. */
 .work-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

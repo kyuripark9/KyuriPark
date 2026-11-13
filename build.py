@@ -89,6 +89,21 @@ HOME_TRACK = False
 # first; the browser remembers a visitor's pick (localStorage, main.js). False: the grid alone.
 # Off since Home came back (HOME_TRACK), later the same day: Home's wheel is that slider now.
 WORK_VIEWS = False
+# Whether Work offers a ring (since 2026-11-12, the user's ask, after sarahsarazen.com/#projects):
+# RING and GRID, as words at the right of the line over the grid (ring_views), and with RING the
+# same items as objects on an oval ring that turns slowly (ring.js): each item's own object image
+# ("object" in content/projects.json, a cutout on a clear background) or, until it has one, a
+# shape (templates/ring.html). From 768px: on a phone the ring would be too small, so phones get
+# the grid. The browser remembers a visitor's pick, as with WORK_VIEWS. False: the grid alone.
+# Not together with WORK_VIEWS (one second view at a time).
+WORK_RING = True
+# Which shows to a visitor who hasn't picked: the ring (True, since 2026-11-12, the user's ask, the
+# same evening), or the grid (False). Phones, and browsers without JavaScript, get the grid.
+RING_FIRST = True
+# The ring's places at the least: with fewer items they go around more than once (8 items: twice),
+# each coming again on the far side, as on sarahsarazen.com's.
+RING_MIN_SLOTS = 16
+RING_SHAPES = 8  # the stand-in shapes in templates/ring.html, #ring-shape-1 to -8
 LOADING_ATTRS = {"lazy": 'loading="lazy"', "eager": "", "high": 'fetchpriority="high"'}
 # Old addresses that now live elsewhere: /contact/ was a menu item and is now About's Contact
 # label, with the footer's links under it.
@@ -1103,6 +1118,80 @@ class Builder:
                 'b.setAttribute("aria-pressed",String(b.dataset.view==="slider")))}}'
                 'catch(e){}</script>\n')
 
+    def ring_views(self):
+        """RING and GRID (WORK_RING), as words in the filters' label style, the one showing
+        bracketed and in the text color ("[ RING ]  GRID"), at the right of the line over the
+        grid. main.js switches between them and remembers the pick; the script after them
+        shows the ring before the page does, unless the visitor picked the grid (or with
+        RING_FIRST off, only if they picked the ring), so the other doesn't flash first.
+        Without JavaScript, or on a phone, there's no switch, and the grid shows."""
+        first = "ring" if RING_FIRST else "grid"
+
+        def button(view, label):
+            return (f'      <button class="work-view" type="button" data-view="{view}" '
+                    f'aria-pressed="{str(view == first).lower()}">'
+                    f'<span class="work-bracket" aria-hidden="true">[ </span>{label}'
+                    f'<span class="work-bracket" aria-hidden="true"> ]</span></button>')
+
+        return ('    <div class="work-views is-words" role="group" aria-label="View">\n'
+                f'{button("ring", "Ring")}\n{button("grid", "Grid")}\n'
+                '    </div>\n'
+                '    <script>(()=>{let v="";try{v=localStorage.getItem("work-view")}catch(e){}'
+                f'if(v!=="ring"&&v!=="grid")v="{first}";'
+                'document.documentElement.classList.toggle("view-ring",v==="ring");'
+                'document.querySelectorAll(".work-views [data-view]").forEach((b)=>'
+                'b.setAttribute("aria-pressed",String(b.dataset.view===v)))})()</script>\n')
+
+    def ring_item(self, p, slot):
+        """One place on the ring (WORK_RING): the item's object, a link to its page or, for an
+        item with no page, a button that opens the lightbox with its images, as its grid tile
+        does. The object is the item's own image ("object": a cutout, PNG or WebP with a clear
+        background, in the project's image folder, or for an item with no page in pieces/) or,
+        until that exists, one of templates/ring.html's shapes, picked by the item's place in
+        "order". Its name and 'Type · Year' are hidden: screen readers read them as the object's
+        name, the lightbox copies them, and ring.js shows them in the ring's middle. A place
+        past the first time around (RING_MIN_SLOTS) is a copy for the eye only: hidden from
+        screen readers and the keyboard, and on an item with no page, its click goes to the
+        first one's (ring.js)."""
+        n = len(self.items)
+        i, copy = slot % n, slot >= n
+        folder = f"assets/images/{p['slug']}" if "slug" in p else PIECE_FOLDER
+        rel = media_path(p["object"], folder) if p.get("object") else None
+        if rel and exists(rel):
+            media = f'<img src="{url_for(rel)}" alt="" loading="lazy" draggable="false">'
+        else:
+            if rel:
+                self.missing_media.add(rel)
+            media = (f'<svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">'
+                     f'<use href="#ring-shape-{i % RING_SHAPES + 1}"/></svg>')
+        tag = self.card_tag(p) if "slug" in p else self.piece_meta(p)
+        name = (f'<span class="visually-hidden"><span data-lightbox-name>{inline(p["title"])}'
+                f'</span> <span data-lightbox-meta>{tag}</span></span>')
+        hidden = ' tabindex="-1"' if copy else ""
+        item_attrs = ' aria-hidden="true"' if copy else ""
+        if "slug" in p:
+            el, attrs, extra = "a", f'href="/work/{p["slug"]}/" draggable="false"{hidden}', ""
+        else:
+            el = "button"
+            attrs = 'type="button"' + (hidden if copy else ' data-item aria-haspopup="dialog"')
+            extra = "" if copy else f'            {self.piece_images(p)}\n'
+        return (f'          <li class="ring-item" data-index="{i}"{item_attrs}>\n'
+                f'            <{el} class="ring-object" {attrs}>'
+                f'<span class="ring-media">{media}</span>{name}</{el}>\n'
+                f'{extra}'
+                f'          </li>')
+
+    def ring(self):
+        """The ring's markup (templates/ring.html): the items in "order", around as many times
+        as RING_MIN_SLOTS asks, and in its middle the name and 'Type · Year' of the object in
+        front (ring.js changes them as the ring turns, or to the object under the mouse)."""
+        n = len(self.items)
+        slots = n * max(1, -(-RING_MIN_SLOTS // n))
+        objects = "\n".join(self.ring_item(self.items[s % n], s) for s in range(slots))
+        first = self.items[0]
+        tag = self.card_tag(first) if "slug" in first else self.piece_meta(first)
+        return render("ring.html", objects=objects, title=inline(first["title"]), meta=tag)
+
     def piece_meta(self, item):
         """'Type · Year', leaving out what's empty."""
         return " · ".join(inline(item[k]) for k in ("type", "year") if item.get(k))
@@ -1131,20 +1220,24 @@ class Builder:
         opening = "" if HOME_TRACK else (
             f'{self.home_intro()}    <script src="/assets/js/intro.js'
             f'?v={file_version("assets/js/intro.js")}"></script>\n')
-        views = slider = ""
+        views = slider = ring = ""
         if WORK_VIEWS:
             views = self.work_views()
             slider = (f'{self.track(self.items, "lazy")}    <script src="/assets/js/track.js'
                       f'?v={file_version("assets/js/track.js")}" defer></script>\n')
+        elif WORK_RING:
+            views = self.ring_views()
+            ring = (f'{self.ring()}    <script src="/assets/js/ring.js'
+                    f'?v={file_version("assets/js/ring.js")}" defer></script>\n')
         content = render("work.html", cards=cards, lightbox=lightbox, opening=opening,
-                         views=views, slider=slider,
+                         views=views, slider=slider, ring=ring,
                          tabs=render("work-tabs.html", tabs=tabs) if WORK_FILTERS else "")
         rel, path, title = (("work/index.html", "/work/", f"Work — {s['name']}") if HOME_TRACK
                             else ("index.html", "/", s["title"]))
         self.page(rel, "work", path, title, s["description"], content, "wrap page-work",
                   current="work", image=self.og_image())
         # The slider repeats the grid's items, so its notes aren't counted twice in the report.
-        self.placeholder_counts["work"] -= len(PLACEHOLDER_RE.findall(slider))
+        self.placeholder_counts["work"] -= len(PLACEHOLDER_RE.findall(slider + ring))
 
     def archive_tile(self, item, box, loading):
         """An image on Archive with nothing under it, linking to the image itself; its number

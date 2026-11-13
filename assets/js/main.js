@@ -7,10 +7,11 @@
   const fineHover = window.matchMedia("(hover: hover) and (pointer: fine)");
 
   // Work: two views of the same items, GRID and SLIDER (WORK_VIEWS in build.py, since
-  // 2026-11-10), one at a time: the one showing fades out, and the other fades in. The pick is
-  // remembered in this browser, so Back from a project page, or a later visit, opens the same
-  // view (work.html's script applies it before the page shows). The slider is the track;
-  // track.js sizes it once it shows.
+  // 2026-11-10), or RING and GRID (WORK_RING, since 2026-11-12), one at a time: the one showing
+  // fades out, and the other fades in. The pick is remembered in this browser, so Back from a
+  // project page, or a later visit, opens the same view (work.html's script applies it before
+  // the page shows). The slider is the track, which track.js sizes once it shows; the ring,
+  // ring.js's.
   const viewButtons = [...document.querySelectorAll(".work-views [data-view]")];
   if (viewButtons.length) {
     const FADE_OUT = 150;  // ms, as the filters'
@@ -18,8 +19,10 @@
     const KEY = "work-view";  // localStorage
     const html = document.documentElement;
     const panes = { grid: document.getElementById("work-panel"),
-                    slider: document.querySelector(".page-work .track") };
-    let shown = html.classList.contains("view-slider") ? "slider" : "grid";
+                    slider: document.querySelector(".page-work .track"),
+                    ring: document.querySelector(".page-work .ring") };
+    const others = ["slider", "ring"];  // a class on <html> for each: view-slider, view-ring
+    let shown = others.find((name) => html.classList.contains(`view-${name}`)) || "grid";
     let wanted = shown;
     let fade = null;
 
@@ -28,7 +31,7 @@
     });
     const show = (name) => {
       shown = name;
-      html.classList.toggle("view-slider", name === "slider");
+      others.forEach((other) => html.classList.toggle(`view-${other}`, name === other));
       window.scrollTo({ top: 0, behavior: "instant" });
     };
     // Picking again while one fades out changes what comes on; picking the one showing then

@@ -1,0 +1,67 @@
+    <section class="ring" aria-label="Work, on a ring">
+      <!-- Stand-in shapes, one per item until it has its own object image (build.py's
+           ring_item): plaster-gray solids and two black ones, lit from the upper left. -->
+      <svg class="ring-shapes" width="0" height="0" aria-hidden="true" focusable="false">
+        <defs>
+          <radialGradient id="ring-g-round" cx="0.36" cy="0.3" r="0.78">
+            <stop offset="0" stop-color="#ffffff"/>
+            <stop offset="0.45" stop-color="#d9d7d0"/>
+            <stop offset="1" stop-color="#7f7d77"/>
+          </radialGradient>
+          <linearGradient id="ring-g-side" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#a3a19a"/>
+            <stop offset="0.3" stop-color="#f4f3ee"/>
+            <stop offset="0.68" stop-color="#c6c4bd"/>
+            <stop offset="1" stop-color="#83817b"/>
+          </linearGradient>
+          <linearGradient id="ring-g-dark" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#262523"/>
+            <stop offset="0.3" stop-color="#5b5a56"/>
+            <stop offset="0.7" stop-color="#22211f"/>
+            <stop offset="1" stop-color="#0e0e0e"/>
+          </linearGradient>
+          <linearGradient id="ring-g-down" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#f6f5f1"/>
+            <stop offset="0.55" stop-color="#c3c1ba"/>
+            <stop offset="1" stop-color="#7c7a74"/>
+          </linearGradient>
+          <symbol id="ring-shape-1" viewBox="0 0 100 100">
+            <circle cx="50" cy="52" r="38" fill="url(#ring-g-round)"/>
+          </symbol>
+          <symbol id="ring-shape-2" viewBox="0 0 100 100">
+            <path d="M50 12 86 31 50 50 14 31Z" fill="#f0efea"/>
+            <path d="M14 31 50 50V90L14 71Z" fill="#c5c3bc"/>
+            <path d="M50 50 86 31V71L50 90Z" fill="#8f8d87"/>
+          </symbol>
+          <symbol id="ring-shape-3" viewBox="0 0 100 100">
+            <path d="M29 22V80A21 7 0 0 0 71 80V22Z" fill="url(#ring-g-dark)"/>
+            <ellipse cx="50" cy="22" rx="21" ry="7" fill="#5e5d59"/>
+          </symbol>
+          <symbol id="ring-shape-4" viewBox="0 0 100 100">
+            <path d="M50 8 80 80A30 9 0 0 1 20 80Z" fill="url(#ring-g-side)"/>
+          </symbol>
+          <symbol id="ring-shape-5" viewBox="0 0 100 100">
+            <path d="M8 52a42 26 0 1 0 84 0a42 26 0 1 0-84 0ZM34 48a16 8 0 1 0 32 0a16 8 0 1 0-32 0Z"
+                  fill="url(#ring-g-down)" fill-rule="evenodd"/>
+          </symbol>
+          <symbol id="ring-shape-6" viewBox="0 0 100 100">
+            <path d="M50 10 12 80 50 90Z" fill="#dcdad3"/>
+            <path d="M50 10 50 90 88 78Z" fill="#8a8882"/>
+          </symbol>
+          <symbol id="ring-shape-7" viewBox="0 0 100 100">
+            <rect x="35" y="8" width="30" height="84" rx="15" fill="url(#ring-g-side)"
+                  transform="rotate(-35 50 50)"/>
+          </symbol>
+          <symbol id="ring-shape-8" viewBox="0 0 100 100">
+            <path d="M50 4 58 30.6 82.5 17.5 69.4 42 96 50 69.4 58 82.5 82.5 58 69.4 50 96 42 69.4 17.5 82.5 30.6 58 4 50 30.6 42 17.5 17.5 42 30.6Z"
+                  fill="#161616"/>
+          </symbol>
+        </defs>
+      </svg>
+      <div class="ring-stage">
+        <ul class="ring-row" role="list">
+{{ objects }}
+        </ul>
+        <p class="ring-caption" aria-hidden="true"><span class="ring-title">{{ title }}</span> <span class="ring-meta">{{ meta }}</span></p>
+      </div>
+    </section>

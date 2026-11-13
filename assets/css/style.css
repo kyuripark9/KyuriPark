@@ -81,12 +81,12 @@
        title    impact numbers, Previous / Next titles
        lead     Home's sentence, a project's statement
        body     text, a project's Visit link, the 404's link
-       name     the header's links (at --size-menu), Home's opening (600,
+       name     the header's links and the footer (at --size-menu), Home's opening (600,
                 at --size-opening), project names (Home, Work, Archive, the lightbox), the
                 lightbox's Close, all of About (the sentence and text at 1.5, the text as typed at 0)
        label    captions, Home's type · year and SOUND ON / OFF, a project's facts and section
-                headings, the prototype's Open link, the footer, the lightbox's type and year,
-                Work's filters and counts
+                headings, the prototype's Open link, the lightbox's type and year,
+                Work's filters and counts (the footer too until 2026-11-13)
 
      Cuts: Inter's optical size follows the font size (font-optical-sizing: auto), so body,
      names, and the menu (12-16px) get Inter's text cut, drawn for small sizes, and display,
@@ -449,7 +449,6 @@ button {
 .impact-label,
 .project-nav-label,
 .lightbox-caption,
-.site-footer,
 .sound-toggle,
 .track-count,
 .prototype-open,
@@ -464,13 +463,15 @@ button {
 }
 
 /* Name: Inter at 14px in capitals, a little open, for the menu bar (the name, the links, and
-   the lightbox's Close, which stands in for it), project names (Home's cards, Work's tiles,
+   the lightbox's Close, which stands in for it), the footer (since 2026-11-13, in the label
+   style before), project names (Home's cards, Work's tiles,
    Archive and the lightbox), and Home's opening (the name and then the role on a black
    screen, at 600 and --size-opening), and all of About (since 2026-11-12: its first sentence,
    the text, and Experience and its jobs, so About reads in the type of Work's tiles). Set by
    name, so it wins over the label its caption is in. The header's links are at --size-menu
    (12px, 14px from 768px); the name, in the header until 2026-11-13, at 600 (below). */
 .site-header,
+.site-footer,
 .intro-line,
 .lightbox-close,
 .card-title,
@@ -529,9 +530,9 @@ button {
   color: var(--color-subtle);
 }
 
-/* An email address stays as typed, even in a label (in capitals it reads as a shout). The
-   footer's other links are in capitals like every label (until 2026-11-05 they stayed as typed,
-   beside a copyright in capitals). */
+/* An email address stays as typed, even in capitals (in capitals it reads as a shout). The
+   footer's other links are in capitals like the header's (until 2026-11-05 they stayed as
+   typed, beside a copyright in capitals). */
 .site-footer a[href^="mailto:"] {
   text-transform: none;
 }
@@ -558,6 +559,7 @@ button {
 
 /* Links and choices (see the tokens): only the color changes, never an underline. */
 .identity,
+.footer-menu a,
 .footer-links a,
 .text-body a,
 .text-link,
@@ -573,6 +575,7 @@ button {
 
 /* Links: muted on hover. */
 .identity:hover,
+.footer-menu a:hover,
 .footer-links a:hover,
 .text-body a:hover,
 .text-link:hover,
@@ -2557,58 +2560,99 @@ html.intro-on {
 
 /* Footer ---------------------------------------------------------------- */
 
+/* After gougoucore.com's footer (since 2026-11-13, the user's ask): a 1px line over it, from the
+   window's left edge to its right, as the header's lines and Work's grid run, and under it three
+   parts across, in the type of the header's links (the name style at --size-menu):
+     - the header's links one under another, WORK (8), ARCHIVE (8), ABOUT, and the résumé where
+       the header has CONTACT (the footer is Contact), as gougoucore's repeats its header's links;
+     - beside them the email, LinkedIn, and GitHub, and the copyright in gray, one under another;
+     - the logo, large, at the right, --gutter in from the window's edge, the cut with more
+       lines (assets/logo/logo.svg, build.py's footer_logo), its lines 1px wide as the header's.
+   The logo is the footer's tallest thing and sets its height: the header's --header-y over
+   and under it, as over and under the header's logo; the two columns of links sit in the
+   middle. From 768px the columns start where the header's links do: the first --gutter into
+   the window's first eighth (under WORK), the second --gutter into the second (under ARCHIVE).
+   On a phone they sit at the page's edge, --step-3 apart. Links in the text color, muted on
+   hover, as gougoucore's are (see Shared text styles). Under Work's and Archive's grids it
+   starts right away, its line on the grid's last one (below); under anything else, --section-gap
+   down. (Until 2026-11-13: the email, LinkedIn, GitHub, and Resume in a line in the label
+   style, dots between them, under a rule in the page's width, with the copyright at the
+   right.) */
 .site-footer {
+  --footer-logo-h: 80px;  /* the logo's height: 80px, 144px from 768px, 192px from 1200px; on a
+                            320px phone it keeps 14px clear of the email */
   scroll-margin-top: var(--header-h);  /* the header's CONTACT (#contact) lands it under the header */
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: var(--step-2) var(--step-3);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
   margin-top: var(--section-gap);
-  padding-bottom: var(--step-4);
+  padding-block: var(--header-y);
+  border-top: var(--rule);
+  font-size: var(--size-menu);
+  letter-spacing: var(--tracking-name);  /* set again at its own size, as the header's links */
+  white-space: nowrap;
 }
 
-/* The rule sits inside the padding so it lines up with the content edge. */
-.site-footer::before {
-  content: "";
-  width: 100%;
-  margin-bottom: var(--step-1);
-  border-top: 1px solid var(--color-line);
+/* Work's and Archive's grids run to the window's edges and end with a line under their last
+   row: the footer's line lies on it (one line, not two) and runs on under a row that isn't
+   full. */
+:is(.page-work, .page-archive) + .site-footer {
+  margin-top: -1px;
 }
 
-.footer-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--step-1) var(--step-2);
+.footer-menu {
+  padding-left: var(--gutter);
 }
 
-.footer-links li + li::before {
-  content: "·";
-  margin-right: var(--step-2);
-  color: var(--color-subtle);
+/* WORK's and ARCHIVE's counts, set low, would make their lines taller than the others, and the
+   two columns' lines would no longer face each other. */
+.footer-menu .menu-count {
+  line-height: 0;
+}
+
+.footer-contact {
+  padding-left: var(--step-3);
 }
 
 .copyright {
   color: var(--color-subtle);
 }
 
+/* No max-width (every svg has max-width: 100%, see Base): with it the browser may squeeze the
+   logo's column to nothing on a phone, a percentage-wide image counting as 0px wide there. */
+.footer-logo {
+  width: auto;
+  max-width: none;
+  height: var(--footer-logo-h);
+  margin-right: var(--gutter);
+  overflow: visible;
+}
+
+.footer-logo path {
+  vector-effect: non-scaling-stroke;
+}
+
+@media (min-width: 768px) {
+  .site-footer {
+    --footer-logo-h: 144px;
+    grid-template-columns: 12.5% minmax(0, 1fr) auto;
+  }
+
+  .footer-contact {
+    padding-left: var(--gutter);
+  }
+}
+
+@media (min-width: 1200px) {
+  .site-footer {
+    --footer-logo-h: 192px;
+  }
+}
+
 /* The footer is the same on every page, About's included (since 2026-11-06; About showed only
    the copyright before), and is the contact list, #contact (/about/#contact, and /contact/,
    which sends visitors there, land on it). From 2026-11-06 to 2026-11-12 a Contact label stood
    over it on About, --step-2 above it, and was #contact. */
-
-/* On a phone the links run on and wrap where they must, and the copyright takes the next line
-   at the left (until 2026-11-06 the links stood one under another). No dots between them there:
-   a wrapped line would start with one; --step-3 apart instead. */
-@media (max-width: 767px) {
-  .footer-links {
-    column-gap: var(--step-3);
-  }
-
-  .footer-links li + li::before {
-    content: none;
-  }
-}
 
 /* Motion ---------------------------------------------------------------- */
 

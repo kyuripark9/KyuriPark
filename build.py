@@ -47,6 +47,7 @@ ARCHIVE_BOXES = ((1200, 1500), (1500, 1500), (1500, 1000), (1200, 1600),
                  (1600, 900), (1000, 1500), (1500, 1200), (900, 1500))
 PIECE_FOLDER = "assets/images/pieces"
 HEADER_LOGO = "assets/logo/logo-small.svg"  # the header's logo, inline (header_logo)
+FOOTER_LOGO = "assets/logo/logo.svg"  # the footer's, large, with more lines (footer_logo)
 ARCHIVE_FOLDER = "assets/images/archive"
 ARCHIVE_COLUMNS = (2, 3, 3)  # Archive's columns on phones, from 768px, from 1200px (as in style.css)
 # How wide an Archive image shows in its column, so the browser can take the smaller copy
@@ -566,6 +567,7 @@ class Builder:
         self.needs_small = set()       # large images shown without a smaller copy next to them
         self.warnings = []
         self.logo = None               # the header's logo, once read (header_logo)
+        self.big_logo = None           # the footer's, once read (footer_logo)
 
     # Output -----------------------------------------------------------------
 
@@ -637,8 +639,7 @@ class Builder:
             nav_about=' aria-current="page"' if current == "about" else "",
             main_class=main_class,
             content=content,
-            footer=render("footer.html", contact_links=self.contact_links("      "),
-                          copyright=esc(s["copyright"])) if footer else "",
+            footer=self.footer() if footer else "",
         )
         self.write(rel, out)
         self.placeholder_counts[label] = len(PLACEHOLDER_RE.findall(content))
@@ -692,13 +693,32 @@ class Builder:
         file's 4-unit lines would come out under half a pixel at the header's size. Until the
         file exists, the name stands in its place. Read once per build."""
         if self.logo is None:
-            self.logo = self.read_logo(HEADER_LOGO)
+            svg = self.read_logo(HEADER_LOGO, "site-logo")
+            if svg is None:
+                self.warnings.append(f"{HEADER_LOGO} is missing, so the header shows the name "
+                                     "in its place.")
+                self.logo = f'<span class="identity-name">{esc(self.site["name"])}</span>'
+            else:
+                self.logo = f'{svg}<span class="visually-hidden">{esc(self.site["name"])}</span>'
         return self.logo
 
-    def read_logo(self, rel):
+    def footer_logo(self):
+        """The logo, large, at the footer's right (since 2026-11-13, after gougoucore.com's
+        footer, whose right end is its header's logo, large): assets/logo/logo.svg, the cut with
+        more lines, made for large sizes, inline as the header's is, its lines 1px wide too.
+        It repeats the header's, so screen readers skip it. Left out while the file is missing.
+        Read once per build."""
+        if self.big_logo is None:
+            svg = self.read_logo(FOOTER_LOGO, "footer-logo")
+            if svg is None:
+                self.warnings.append(f"{FOOTER_LOGO} is missing, so the footer has no logo.")
+            self.big_logo = svg or ""
+        return self.big_logo
+
+    def read_logo(self, rel, cls):
+        """A logo file's lines as an inline <svg class="cls">, or None if the file is missing."""
         if not exists(rel):
-            self.warnings.append(f"{rel} is missing, so the header shows the name in its place.")
-            return f'<span class="identity-name">{esc(self.site["name"])}</span>'
+            return None
         with open(os.path.join(ROOT, rel), encoding="utf-8") as f:
             svg = f.read()
         box = re.search(r'viewBox="([^"]+)"', svg)
@@ -706,9 +726,8 @@ class Builder:
         if not box or not paths:
             raise BuildError(f"{rel}: expected an <svg viewBox=\"…\"> with <path d=\"…\"> lines.")
         lines = "".join(f'<path d="{d}"/>' for d in paths)
-        return (f'<svg class="site-logo" viewBox="{box.group(1)}" fill="none" stroke="currentColor" '
-                f'stroke-width="1" aria-hidden="true" focusable="false">{lines}</svg>'
-                f'<span class="visually-hidden">{esc(self.site["name"])}</span>')
+        return (f'<svg class="{cls}" viewBox="{box.group(1)}" fill="none" stroke="currentColor" '
+                f'stroke-width="1" aria-hidden="true" focusable="false">{lines}</svg>')
 
     @staticmethod
     def menu_count(n, noun):
@@ -717,16 +736,46 @@ class Builder:
         return (f'<span class="menu-count" aria-hidden="true">({n})</span>'
                 f'<span class="visually-hidden">, {n} {noun}{"" if n == 1 else "s"}</span>')
 
+    # The footer (since 2026-11-13, after gougoucore.com's): a line over it, from the window's
+    # left edge to its right; the header's links and the résumé one under another at the left,
+    # the email, LinkedIn, and GitHub, and the copyright, in a column beside them, and the logo,
+    # large, at the right. (Until 2026-11-13 the email, LinkedIn, GitHub, and Resume in a line
+    # under a rule, the copyright at the right.)
+
+    def footer(self):
+        s = self.site
+        copyright = s["copyright"].strip()
+        return render(
+            "footer.html",
+            menu_links=self.menu_links("      "),
+            contact_links=self.contact_links("        "),
+            copyright=f'      <p class="copyright">{esc(copyright)}</p>' if copyright else "",
+            logo=("    " + self.footer_logo()) if self.footer_logo() else "",
+        )
+
+    def menu_links(self, indent):
+        """The footer's first column: the header's Work, Archive, and About, with their counts,
+        and the résumé where the header has Contact (the footer is Contact), as gougoucore's
+        footer repeats its header's links, its résumé among them."""
+        items = [
+            f'<a href="{"/work/" if HOME_TRACK else "/"}">Work'
+            f'{self.menu_count(len(self.items), "project")}</a>',
+            f'<a href="/archive/">Archive{self.menu_count(len(self.archive), "image")}</a>',
+            '<a href="/about/">About</a>',
+            link(url_for(self.site["resume"]), "Resume", rel="noopener noreferrer"),
+        ]
+        return "\n".join(f"{indent}<li>{item}</li>" for item in items)
+
     def contact_links(self, indent):
-        """The email, LinkedIn, GitHub, and resume links from content/site.json, for the footer
-        (until 2026-11-06 About's Contact section listed them too, one under another)."""
+        """The email, LinkedIn, and GitHub links from content/site.json, for the footer's second
+        column (the résumé in the first since 2026-11-13; until 2026-11-06 About's Contact
+        section listed them too, one under another)."""
         s = self.site
         rel = "noopener noreferrer"
         items = [
             link(esc("mailto:" + s["email"]), esc(s["email"])),
             link(esc(s["linkedin"]), "LinkedIn", rel=rel),
             link(esc(s["github"]), "GitHub", rel=rel),
-            link(url_for(s["resume"]), "Resume", rel=rel),
         ]
         return "\n".join(f"{indent}<li>{item}</li>" for item in items)
 

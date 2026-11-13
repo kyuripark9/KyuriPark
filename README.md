@@ -29,15 +29,34 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 | `/contact/` | Not a page: it sends visitors straight on to `/about/#contact` (old links keep working) |
 
 Contact is the header's last link since 2026-11-13 (see Header): it goes to the footer
-(`#contact`), where the links (email, LinkedIn, GitHub, Resume) are, one
-line under a rule, with the copyright at the right, the same on every page (Home's project
-loop, with `HOME_TRACK` on, has no footer) (`templates/footer.html`, `.site-footer` in `assets/css/style.css`). On a phone the
-links wrap onto a second line where they must, with no dots between them, and the copyright
-takes the next line. The footer is `#contact`, so `/about/#contact` (and `/contact/`) lands on
-it (from 2026-11-06 to 2026-11-12 a Contact label stood over it on About; until 2026-11-06 About
-had a Contact section listing the links one under another, and its footer showed only the
-copyright). They come from
-`"email"`, `"linkedin"`, `"github"`, and `"resume"` in `content/site.json`.
+(`#contact`), the same on every page (Home's project loop, with `HOME_TRACK` on, has no
+footer) (`templates/footer.html`, `footer()` in `build.py`, `.site-footer` in
+`assets/css/style.css`). Laid out after gougoucore.com's footer since 2026-11-13 (the user's
+ask): a 1px line over it from the window's left edge to its right, and under it, in the type
+of the header's links:
+
+- at the left, the header's links one under another, WORK (8), ARCHIVE (8), ABOUT, and RESUME
+  where the header has CONTACT, as gougoucore's footer repeats its header's links, its
+  résumé among them;
+- beside them the email, LinkedIn, GitHub, and the copyright (in gray), one under another;
+- at the right, the logo, large: `assets/logo/logo.svg`, the cut with more lines, inline with
+  1px lines as the header's (`footer_logo` in `build.py`; left out, with a build note, if the
+  file is missing). 80px tall on phones, 144px from 768px, 192px from 1200px
+  (`--footer-logo-h`); it sets the footer's height, with the header's 8px over and under it
+  (7px on phones), and the two columns sit in its middle.
+
+From 768px the columns start where the header's WORK and ARCHIVE do (`--gutter` into the
+window's first and second eighths); on phones at the page's edge, 24px apart, with no counts.
+Under Work's and Archive's grids the footer starts right away, its line on the grid's last
+one, running on under a row that isn't full; under anything else, a section's gap down. Links
+are in the text color, muted on hover. The footer is `#contact`, so `/about/#contact` (and
+`/contact/`) lands on it. The links come from `"email"`, `"linkedin"`, `"github"`, and
+`"resume"` in `content/site.json`, the copyright from `"copyright"` (empty: none). (Until
+2026-11-13 the email, LinkedIn, GitHub, and Resume in one line in the label style, dots
+between them, under a rule in the page's width, with the copyright at the right; from
+2026-11-06 to 2026-11-12 a Contact label stood over it on About; until 2026-11-06 About had a
+Contact section listing the links one under another, and its footer showed only the
+copyright.)
 
 ## Where things live
 
@@ -341,7 +360,8 @@ Laid out after gougoucore.com's header since 2026-11-13 (the user's ask), from
   its place and the build says so. Swap the file (same name, an SVG of `<path>` lines) to
   change the logo.
 - At the right, ABOUT and CONTACT (CONTACT where gougoucore has RESUME). CONTACT goes to the
-  footer on the same page (`#contact`), which has the email, LinkedIn, GitHub, and the résumé;
+  footer on the same page (`#contact`), which has the email, LinkedIn, GitHub, and the résumé
+  (under the header's links again, as gougoucore's footer has them);
   on Home (with `HOME_TRACK` on), which has no footer, to About's.
 - From 768px the window is cut in eighths, as gougoucore's is: WORK starts `--gutter` into the
   first, ARCHIVE `--gutter` into the second, ABOUT ends `--gutter` before the seventh's end, and
@@ -390,8 +410,8 @@ size, a line height, a tracking, and a case, with tokens named after it (`--size
 | title | Inter Display 500, capitals | 18px, 23px from 768px, 29px from 1200px, 36px from 1440px | 0.9, -0.01em | impact numbers, Previous / Next titles |
 | lead | Inter Display 500, as typed | 20px, growing with the window to 28px (from 800 to 1120px wide); lines up to 30em (`--measure-lead`) | 1.35, 0 | Home's sentence, a project's statement |
 | body | Inter 500, as typed; links 600 | 16px | 1.5, 0 | text, a project's "Visit" link, the 404's link |
-| name | Inter 500 (the opening 600), capitals | 14px; the header's links 12px on phones (`--size-menu`), the opening 16px (`--size-opening`) | 1.3, +0.02em | the header, Home's opening, project names (Home's cards, Work's tiles, Archive, the lightbox), the lightbox's Close, all of About (since 2026-11-12; at 1.5, the paragraphs as typed at 0 tracking) |
-| label | Martian Mono 400, capitals | 12px; Work's counts 10px (`--size-count`) | 16px, -0.05em | captions, Home's type and year and SOUND ON / OFF, a project's facts and section headings, the prototype's "Open in a new tab", the footer, the lightbox's type and year, Work's filters and counts; a label that names a column or a section (a project's fact labels, its section and note headings) in `--color-subtle` |
+| name | Inter 500 (the opening 600), capitals | 14px; the header's links 12px on phones (`--size-menu`), the opening 16px (`--size-opening`) | 1.3, +0.02em | the header and the footer (since 2026-11-13, at `--size-menu`), Home's opening, project names (Home's cards, Work's tiles, Archive, the lightbox), the lightbox's Close, all of About (since 2026-11-12; at 1.5, the paragraphs as typed at 0 tracking) |
+| label | Martian Mono 400, capitals | 12px; Work's counts 10px (`--size-count`) | 16px, -0.05em | captions, Home's type and year and SOUND ON / OFF, a project's facts and section headings, the prototype's "Open in a new tab", the lightbox's type and year, Work's filters and counts (the footer too until 2026-11-13); a label that names a column or a section (a project's fact labels, its section and note headings) in `--color-subtle` |
 
 The rules behind the table (since 2026-11-11):
 

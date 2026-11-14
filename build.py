@@ -698,11 +698,10 @@ class Builder:
     # the right, from the user's sketch; the footer has those links.)
 
     def header_logo(self):
-        """The logo (assets/logo/logo-small.svg, made in another session on 2026-11-13: two line
-        sunbursts, side by side since the same day), inline so it takes the header's color and
-        blend. Its lines are drawn 1px wide at any size (non-scaling), as the header's rules
-        are; the file's 4-unit lines would come out under half a pixel at the header's size. Until the
-        file exists, the name stands in its place. Read once per build."""
+        """The logo (assets/logo/logo-small.svg, made in another session on 2026-11-13: two
+        sunbursts, side by side since the same day, their rays wedges since 2026-11-14), inline
+        so it takes the header's color (read_logo). Until the file exists, the name stands in its
+        place. Read once per build."""
         if self.logo is None:
             svg = self.read_logo(HEADER_LOGO, "site-logo")
             if svg is None:
@@ -716,7 +715,7 @@ class Builder:
     def footer_logo(self):
         """The logo, large, at the footer's right (since 2026-11-13, after gougoucore.com's
         footer, whose right end is its header's logo, large): assets/logo/logo.svg, the cut with
-        more lines, made for large sizes, inline as the header's is, its lines 1px wide too.
+        more rays, made for large sizes, inline as the header's is (read_logo).
         It repeats the header's, so screen readers skip it. Left out while the file is missing.
         Read once per build."""
         if self.big_logo is None:
@@ -727,18 +726,25 @@ class Builder:
         return self.big_logo
 
     def read_logo(self, rel, cls):
-        """A logo file's lines as an inline <svg class="cls">, or None if the file is missing."""
+        """A logo file's shapes as an inline <svg class="cls">, in the text color, or None if the
+        file is missing. Since 2026-11-14 the logo's rays are filled wedges (thick at the sun,
+        out to a hairline, as Kalnia's strokes run out), drawn as they are, so they grow with the
+        logo; a file drawn in lines (stroke) instead, as the logo was until then, gets lines
+        1px wide at any size."""
         if not exists(rel):
             return None
         with open(os.path.join(ROOT, rel), encoding="utf-8") as f:
             svg = f.read()
         box = re.search(r'viewBox="([^"]+)"', svg)
-        paths = re.findall(r'<path\b[^>]*\bd="([^"]+)"', svg)
-        if not box or not paths:
-            raise BuildError(f"{rel}: expected an <svg viewBox=\"…\"> with <path d=\"…\"> lines.")
-        lines = "".join(f'<path d="{d}"/>' for d in paths)
-        return (f'<svg class="{cls}" viewBox="{box.group(1)}" fill="none" stroke="currentColor" '
-                f'stroke-width="1" aria-hidden="true" focusable="false">{lines}</svg>')
+        tags = re.findall(r'<path\b[^>]*>', svg)
+        ds = [re.search(r'\bd="([^"]+)"', t) for t in tags]
+        if not box or not tags or not all(ds):
+            raise BuildError(f"{rel}: expected an <svg viewBox=\"…\"> with <path d=\"…\"> shapes.")
+        shapes = "".join(f'<path d="{d.group(1)}"/>' for d in ds)
+        paint = ('fill="none" stroke="currentColor" stroke-width="1"' if any("stroke=" in t for t in tags)
+                 else 'fill="currentColor"')
+        return (f'<svg class="{cls}" viewBox="{box.group(1)}" {paint} aria-hidden="true" '
+                f'focusable="false">{shapes}</svg>')
 
     @staticmethod
     def menu_count(n, noun):

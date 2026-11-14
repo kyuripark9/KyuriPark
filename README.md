@@ -41,8 +41,8 @@ of the header's links:
   with the first column's (the résumé here since late 2026-11-13, the user's ask; under
   ABOUT for a few hours before. No copyright since then either; `"copyright"` set again puts
   it under them, in gray);
-- at the right, the logo, large: `assets/logo/logo.svg`, the cut with more lines, inline with
-  1px lines as the header's (`footer_logo` in `build.py`; left out, with a build note, if the
+- at the right, the logo, large: `assets/logo/logo.svg`, the cut with more rays, inline as the
+  header's (`footer_logo` in `build.py`; left out, with a build note, if the
   file is missing). 144px tall from 768px, 192px from 1200px (`--footer-logo-h`); it sets the
   footer's height, with the header's 8px over and under it, and the two columns sit in its
   middle. On phones it's 80px tall in a row of its own under the links, at the right (its
@@ -85,9 +85,12 @@ assets/icons/           the browser tab and home-screen icons: favicon.svg, favi
 assets/fonts/           Inter (with Inter Display), Martian Mono, and Kalnia (the
                         accent face: Work's sentence's key words, About's first sentence), with
                         their licenses
-assets/logo/            the logo, two line suns side by side (since 2026-11-13; one over the
-                        other before): logo.svg / .png (36 rays) and logo-small.svg / .png
-                        (24 rays); the header shows logo-small.svg (see Header)
+assets/logo/            the logo, two suns side by side (since 2026-11-13; one over the
+                        other before), their rays wedges, thick at the sun and out to a
+                        hairline, as Kalnia's strokes run out (since 2026-11-14; even 1px
+                        lines before): logo.svg / .png (36 rays) and logo-small.svg / .png
+                        (24 rays, wider wedges for small sizes); the header shows
+                        logo-small.svg (see Header)
 assets/Kyuri-Park-Resume.pdf
 assets/css/style.css    all styling; colors, type sizes, and spacing are at the top
 assets/js/main.js       Work's filter, lightbox, fade-ups, count-up
@@ -386,12 +389,12 @@ Laid out after gougoucore.com's header since 2026-11-13 (the user's ask), from
   10px; from 768px only, or on a 320px phone the links would run into the logo).
 - In the window's middle, the logo, linking home: `assets/logo/logo-small.svg` (made in another
   session on 2026-11-13, its suns turned side by side the same day), set inline by
-  `header_logo` in `build.py` so it takes the header's color, its lines drawn 1px wide at any
-  size. 40px tall from 768px, 30px on phones, 20px under 360px, where any taller runs into
+  `header_logo` in `build.py` so it takes the header's color, its wedge rays drawn as they are
+  (since 2026-11-14). 40px tall from 768px, 30px on phones, 20px under 360px, where any taller runs into
   ABOUT (`--logo-h`; the header keeps its height, with more room over and under it). Screen
   readers hear "Kyuri Park". If the file is missing, the name shows in
-  its place and the build says so. Swap the file (same name, an SVG of `<path>` lines) to
-  change the logo.
+  its place and the build says so. Swap the file (same name, an SVG of filled `<path>` shapes,
+  or of `<path>` lines with a `stroke`, which are drawn 1px wide) to change the logo.
 - At the right, ABOUT and RESUME, as gougoucore's are (since late 2026-11-13, the user's ask):
   RESUME opens the PDF (`"resume"` in `content/site.json`) in a new tab, with the same ↗ as in
   the footer. (CONTACT stood in its place before, going to the footer, `#contact`, which still

@@ -732,8 +732,8 @@ mark.placeholder {
   }
 }
 
-/* The logo: its own lines, 1px wide whatever its size (build.py's header_logo), in the
-   header's color. A little room at its sides, so it's easier to tap. */
+/* The logo: its wedge rays as drawn, growing with it (since 2026-11-14; build.py's
+   read_logo), in the header's color. A little room at its sides, so it's easier to tap. */
 .identity {
   display: block;
   justify-self: center;
@@ -2620,7 +2620,7 @@ html.intro-on {
      - beside them the email, LinkedIn, GitHub, and RESUME, one under another (the résumé here
        since late 2026-11-13, the user's ask; the copyright under them, in gray, until then);
      - the logo, large, at the right, --gutter in from the window's edge, the cut with more
-       lines (assets/logo/logo.svg, build.py's footer_logo), its lines 1px wide as the header's.
+       rays (assets/logo/logo.svg, build.py's footer_logo), its wedges as drawn, as the header's.
    From 768px the logo is the footer's tallest thing and sets its height: the header's
    --header-y over and under it, as over and under the header's logo; the two columns of links
    sit in the middle, their tops level (.footer-lists). The columns start where the header's links do: the first --gutter into

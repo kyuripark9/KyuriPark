@@ -122,6 +122,7 @@ if not HOME_TRACK:
 
 PLACEHOLDER_RE = re.compile(r"\[PLACEHOLDER[^\]]*\]")
 LINK_RE = re.compile(r"\[([^\]]+)\]\(((?:https?://|mailto:|/)[^)\s]*)\)")
+EMPHASIS_RE = re.compile(r"\*([^*]+)\*")  # *words* in Work's sentence, in the accent face
 SLUG_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 NUMBER_RE = re.compile(r"^-?\d+(?:\.\d+)?$")
 YEAR_RE = re.compile(r"\b(?:19|20)\d\d\b")
@@ -627,12 +628,21 @@ class Builder:
             head_meta=self.head_meta(path, title, description, image, noindex),
             css_version=file_version("assets/css/style.css"),
             js_version=file_version("assets/js/main.js"),
+            # The accent face (Kalnia) only where Work's sentence leans on words (*...*), the
+            # first screen of /, so it doesn't swap in late once the opening is skipped; and on
+            # About, whose first sentence is set in it, at the top of the page.
+            accent_preload=('  <link rel="preload" href="/assets/fonts/kalnia-latin.woff2"'
+                           ' as="font" type="font/woff2" crossorigin>\n'
+                           if ('<p class="work-statement">' in content
+                               or '<p class="about-statement">' in content)
+                           and "<em>" in content else ""),
             logo=self.header_logo(),
             work_count=self.menu_count(len(self.items), "project"),
             archive_count=self.menu_count(len(self.archive), "image"),
-            # The footer is the contact list (#contact) on every page that has one; Home (with
-            # HOME_TRACK) has none, so there Contact goes to About's.
-            contact_url="#contact" if footer else "/about/#contact",
+            # The résumé at the header's right end, where Contact was until 2026-11-13 (the
+            # user's ask, as gougoucore's header has it): the PDF in a new tab, with its arrow,
+            # as in the footer. Contact is the footer (#contact) on every page.
+            resume_link=link(url_for(s["resume"]), "Resume", rel="noopener noreferrer"),
             work_url="/work/" if HOME_TRACK else "/",
             nav_work={"work": ' aria-current="page"', "project": ' aria-current="true"'}.get(current, ""),
             nav_archive=' aria-current="page"' if current == "archive" else "",
@@ -682,7 +692,8 @@ class Builder:
         return og.get("src"), og.get("alt")
 
     # The header (since 2026-11-13, after gougoucore.com's): Work and Archive with their counts at
-    # the left, the logo in the middle, linking home, About and Contact at the right. (From
+    # the left, the logo in the middle, linking home, About and the résumé at the right (Contact
+    # in the résumé's place until late on 2026-11-13). (From
     # 2026-11-10 to 2026-11-12 the name was at the left and LinkedIn, GitHub, and email icons at
     # the right, from the user's sketch; the footer has those links.)
 
@@ -1270,9 +1281,13 @@ class Builder:
     def work_statement(self):
         """The sentence over Work's grid (since 2026-11-13, after gougoucore.com's Work, whose
         sentence says who made the work and how): "statement" in content/site.json's "work",
-        in the display style, across the page. None there, no sentence."""
+        in the display style, across the page. None there, no sentence. Words in *asterisks* are
+        set in the accent face, Kalnia (since 2026-11-14: "I'm Kyuri, a designer")."""
         text = (self.site.get("work") or {}).get("statement")
-        return f'      <p class="work-statement">{inline(text)}</p>\n' if text else ""
+        if not text:
+            return ""
+        text = EMPHASIS_RE.sub(r"<em>\1</em>", inline(text))
+        return f'      <p class="work-statement">{text}</p>\n'
 
     def build_work(self):
         """The sentence (work_statement), then one grid of tiles, edge to edge (since
@@ -1396,45 +1411,92 @@ class Builder:
                   f"{p['oneLiner']}. A project by {s['name']}, {s['role']}.",
                   content, "page-project", current="project", image=self.og_image(p))
 
-    def about_headline(self, about):
-        """About's first sentence, over the About text, beside the About label (since
-        2026-11-12; earlier that day in the first column with the text beside it; from 2026-11-06
-        in the display style with the text under it, as a project's title and statement are;
-        before that alone in the middle of the window, with a '[ Scroll down ]' link at its
-        foot). "headline" may be one string or a list of lines; the lines run on as one sentence
-        and wrap evenly (each was its own line from 768px until 2026-11-12, for the display
-        style). No headline, and the text starts with its first paragraph."""
+    def about_statement(self, about):
+        """About's text as one paragraph across the page, in the display style, as Work's
+        sentence is (since 2026-11-13, after gougoucore.com/3/, whose About is one paragraph in
+        capitals that opens with who she is in its display face): the first sentence
+        ("headline") in the accent face, Kalnia, then the paragraphs running on after it in Inter
+        Display. "headline" may be one string or a list of lines; the lines run on as one
+        sentence, and it gets a full stop if it has none. Words in *asterisks* in the paragraphs
+        are set in it too, as on Work. No headline, and it starts with the paragraphs.
+        (From 2026-11-12 the sentence and paragraphs sat apart, in the name style, beside an
+        About label; from 2026-11-06 the sentence in the display style over the text; before
+        that the sentence alone in the middle of the window.)"""
         lines = about.get("headline") or []
         if isinstance(lines, str):
             lines = [lines]
         if not isinstance(lines, list) or not all(isinstance(t, str) for t in lines):
             raise BuildError('content/site.json (about): "headline" should be a sentence, or a '
                              'list of its lines, like ["FIRST LINE", "SECOND LINE"].')
-        lines = [t.strip() for t in lines if t.strip()]
-        if not lines:
+        headline = " ".join(t.strip() for t in lines if t.strip())
+        if headline and headline[-1] not in ".!?":
+            headline += "."
+        parts = [f"<em>{inline(headline)}</em>"] if headline else []
+        parts += [EMPHASIS_RE.sub(r"<em>\1</em>", inline(t.strip()))
+                  for t in about.get("paragraphs") or [] if t.strip()]
+        if not parts:
             return ""
-        text = " ".join(inline(t) for t in lines)
-        return f'          <p class="about-headline">{text}</p>\n'
+        return f'      <p class="about-statement">{" ".join(parts)}</p>'
+
+    def about_qa(self, about):
+        """About's Q&A, under the paragraph, in the row Experience had (since 2026-11-14, the
+        user's ask: a few questions that make a visitor curious, the answers from the user's
+        own account of themselves): "qa" in content/site.json's "about", a list of
+        {"q": "A question?", "a": "Its answer."}, where "a" may be a list of lines (each its own
+        paragraph). Each question opens its answer when clicked (<details>, so it works without
+        JavaScript and from the keyboard), and closes the one that was open (since 2026-11-14,
+        the user's ask: one answer at a time; the details share a name, so the browser does
+        it). [label](/work/slug/) in an answer links a project.
+        No "qa", no row."""
+        items = about.get("qa") or []
+        if not isinstance(items, list) or not all(
+                isinstance(i, dict) and isinstance(i.get("q"), str)
+                and isinstance(i.get("a"), (str, list)) for i in items):
+            raise BuildError('content/site.json (about): "qa" should be a list like '
+                             '[{"q": "A question?", "a": "Its answer."}]; "a" may be a list of '
+                             'lines.')
+        rows = []
+        for item in items:
+            lines = item["a"] if isinstance(item["a"], list) else [item["a"]]
+            answer = "".join(f"<p>{inline(t.strip())}</p>" for t in lines if t.strip())
+            rows.append(
+                '        <details class="qa-item" name="qa">\n'
+                f'          <summary class="qa-q">{inline(item["q"].strip())}</summary>\n'
+                f'          <div class="qa-a">{answer}</div>\n'
+                '        </details>')
+        if not rows:
+            return ""
+        return ('\n    <section class="about-list" aria-labelledby="qa-heading">\n'
+                '      <h2 id="qa-heading" class="about-label">Q&amp;A</h2>\n'
+                '      <div class="qa">\n' + "\n".join(rows) + '\n      </div>\n'
+                '    </section>\n')
 
     def build_about(self):
         s = self.site
         about = s["about"]
-        paragraphs = []
-        for text in about.get("paragraphs") or []:
-            paragraphs.append(f"          <p>{inline(text)}</p>")
-        # A job: its role, then 'Company · Dates' under it (since 2026-11-12; role, company,
-        # and dates a column each before), leaving out what's empty. The dot keeps to the
-        # company's last word, so a wrapped line never starts with it.
-        experience = []
+        # Experience, under the paragraph, only while "experience" in content/site.json lists
+        # jobs: taken out late on 2026-11-13 (the user's ask: the header's RESUME has them, and
+        # About tells more of the story instead); put the list back to show it again. A job:
+        # its role, then 'Company · Dates' under it (since 2026-11-12; role, company, and dates
+        # a column each before), leaving out what's empty. The dot keeps to the company's last
+        # word, so a wrapped line never starts with it.
+        jobs = []
         for row in about.get("experience") or []:
             detail = "&nbsp;· ".join(inline(row[k]) for k in ("company", "dates") if row.get(k))
-            experience.append(
-                '          <li>'
+            jobs.append(
+                '        <li>'
                 f'<span class="experience-role">{inline(row.get("role", ""))}</span> '
                 f'<span class="experience-detail">{detail}</span>'
                 '</li>')
-        content = render("about.html", headline=self.about_headline(about),
-                         paragraphs="\n".join(paragraphs), experience="\n".join(experience))
+        experience = ""
+        if jobs:
+            experience = (
+                '\n    <section class="about-list" aria-labelledby="experience-heading">\n'
+                '      <h2 id="experience-heading" class="about-label">Experience</h2>\n'
+                '      <ul class="experience">\n' + "\n".join(jobs) + '\n      </ul>\n'
+                '    </section>\n')
+        content = render("about.html", statement=self.about_statement(about),
+                         experience=experience, qa=self.about_qa(about))
         self.page("about/index.html", "about", "/about/", f"About — {s['name']}",
                   s["description"], content, "page-about", current="about",
                   image=self.og_image())

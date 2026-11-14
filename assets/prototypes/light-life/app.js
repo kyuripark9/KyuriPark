@@ -305,10 +305,10 @@
   const head = $("head"), base = $("base");
   // How strongly each light shows: a weak light still shows a little.
   const strength = (v) => (v > OFF ? 0.15 + 0.85 * Math.pow(v, 0.7) : 0);
-  // Dark ink (for light behind) where it reads better than light ink. The glow is bright in
-  // the middle, where the digits sit, and dim and pale at the edge, where the head's label and
-  // ruler sit (app.css: the color 60% with white, at 26%); the base is short, so its label
-  // and ruler sit between the two.
+  // Dark ink (for light behind) where it reads better than light ink. The base's glow is
+  // bright in the middle, where its color's name sits, and its ruler sits between the middle
+  // and the edge. The head needs none: it lights at its rim and stays dark in the middle,
+  // where its label, digits and ruler sit (app.css), so they read in light ink at any strength.
   const WHITE = [255, 255, 255];
   const contrast = (x, ink) => { const l = luminance(x), k = luminance(ink); return (Math.max(l, k) + 0.05) / (Math.min(l, k) + 0.05); };
   const darkInk = (...spots) => {
@@ -316,15 +316,12 @@
     return worst(INK_ON_LIGHT) > worst(INK);
   };
   const middle = (rgb, a) => blend(SURFACE, rgb, a);
-  const edge = (rgb, a) => blend(SURFACE, blend(rgb, WHITE, 0.4), a * 0.26);
   const between = (rgb, a) => blend(SURFACE, rgb, a * 0.55);
 
   function paintLamp(l) {
     const sunA = strength(l.sun), colA = strength(l.c);
     $("sun-fill").style.opacity = sunA.toFixed(3);
     head.classList.toggle("is-lit", sunA > 0);
-    head.classList.toggle("ink-light", darkInk(middle(SUN, sunA)));
-    head.classList.toggle("edge-light", darkInk(edge(SUN, sunA)));
     dotDigits($("sun-digits"), String(pct(l.sun)));
     paintTape(sunTape, l.sun, saySun(l));
 

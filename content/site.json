@@ -21,7 +21,7 @@
   },
 
   "work": {
-    "statement": "I'm Kyuri, a designer working where digital meets everyday life."
+    "statement": "*I'm Kyuri, a designer* working where digital meets everyday life."
   },
 
   "about": {
@@ -32,12 +32,39 @@
     ],
     "paragraphs": [
       "With a background in Industrial, Graphic, and UX Design, I create brand and digital experiences.",
-      "I play with AI as a powerful tool to make something new, anywhere."
+      "I play with AI to make something new, anywhere."
     ],
-    "experience": [
-      { "company": "Clayco", "role": "Junior Graphic Designer", "dates": "Jun – Sep 2026" },
-      { "company": "NBCUniversal", "role": "Product Design Intern", "dates": "May – Aug 2025" },
-      { "company": "Philly Fashion Week", "role": "Digital Design Intern", "dates": "Jul – Sep 2023" }
+    "qa": [
+      {
+        "q": "What did you want to be as a kid?",
+        "a": "An architect. I grew up poring over buildings in magazines, and at Temple University I took architecture classes and interned in spatial UX at Philly Fashion Week. I never became one. Instead, I ended up working on the rebrand of Clayco, an architecture and construction company."
+      },
+      {
+        "q": "What brought you to Chicago?",
+        "a": "A fresh start, and the buildings. I came for an M.S. in HCI at DePaul and fell in love with the city. My favorites: the tulips in front of the Wrigley Building every May, and Jeanne Gang's Aqua tower."
+      },
+      {
+        "q": "Industrial, graphic, UX: isn't that a lot?",
+        "a": "In Korea I studied industrial and graphic design: 3D products, mobility, and home goods, then apps, posters, and books. Grad school added research and storytelling. Different scales, same subject: how people actually live."
+      },
+      {
+        "q": "How do you actually use AI?",
+        "a": "To rework the design process itself. At Clayco, we used AI and new tools to make the early stages of a rebrand faster and cleverer. I've kept testing that in my own projects, like [TypeLab](/work/typelab/) and [Clack](/work/clack/)."
+      },
+      {
+        "q": "What's the oldest project you're still working on?",
+        "a": [
+          "[Light Life](/work/light-life/), a lamp for the winter blues.",
+          "2023: My team won a business competition with it at Temple University.",
+          "2024: I redesigned the lamp and its website for my graduation show at Sejong University.",
+          "2026: I rebuilt its app: tell it your day and your city, and it suggests the light you need.",
+          "From an object to a screen, it has grown the way I have."
+        ]
+      },
+      {
+        "q": "What are you looking for next?",
+        "a": "Work where digital meets real lives and real spaces, using everything I've picked up along the way: industrial design, graphic design, and a love of architecture. As for where: anywhere. I love exploring."
+      }
     ]
   }
 }

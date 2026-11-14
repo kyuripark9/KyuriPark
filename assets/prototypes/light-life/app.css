@@ -305,8 +305,8 @@ html.is-fill .app {
 .now-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); min-height: 32px; margin: var(--space-4) 0 var(--space-3); padding: 0 var(--space-1); }
 .now-title { min-width: 0; font-size: 24px; font-weight: 500; line-height: 28px; letter-spacing: -0.02em; white-space: nowrap; }
 
-/* The lamp, built like the real one (the 2023 renders): a head, a rounded square that lights
-   white, over a base, a pill that lights in color. Two parts, a small gap
+/* The lamp, built like the real one (the 2023 renders): a head, a rounded square that glows
+   white at its edge, over a base, a pill that lights in color. Two parts, a small gap
    apart, the base a little narrower. Each is dark when its light is off; app.js sets how
    strong each light shows and the base's color. */
 .lamp { display: flex; flex: 1 0 auto; flex-direction: column; gap: 6px; }
@@ -328,6 +328,12 @@ html.is-fill .app {
 .lamp-fill::before { content: ""; position: absolute; inset: 20% 16%; border-radius: 50%; background-color: var(--fill); filter: blur(44px); }
 .lamp-base .lamp-fill::before { inset: 16% 20%; filter: blur(26px); }
 .sun-fill { --fill: var(--lamp-sun); }
+/* The head lights from its rim instead (the user's ask, 2026-11-14, after a dark card whose
+   edge glows): the sunlight brightest along the edge, brighter still in the corners where two
+   edges meet, and fading inward, the middle left dark, so the digits there read in light ink
+   at any strength. As strong as the light is (opacity, app.js). */
+.lamp-head .lamp-fill { background: none; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fill) 50%, transparent), inset 0 0 30px 3px color-mix(in srgb, var(--fill) 55%, transparent), inset 0 0 96px color-mix(in srgb, var(--fill) 28%, transparent); }
+.lamp-head .lamp-fill::before { content: none; }
 .disc-value { position: relative; display: flex; flex: none; flex-direction: column; align-items: center; gap: 10px; margin: auto 0; }
 .base-label { gap: 8px; color: var(--ink); }   /* the color's name: something to read */
 .base-value { min-width: 4ch; color: var(--ink); text-align: right; transition: color 0.4s; }

@@ -25,11 +25,11 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 | `/work/` | Not a page while Work is at `/` (`HOME_TRACK` off): it sends visitors straight on to `/` (old links keep working). With `HOME_TRACK` on, Work's grid is here; `WORK_VIEWS = True` in `build.py` then adds two icons over it (grid, slider; `VIEW_ICONS`) that switch it to the same items on the loop |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html` |
 | `/archive/` | Archive: personal work and hobbies, a gallery of images with nothing under them. A separate page with its own data. Laid out after gougoucore.com's Lab since 2026-11-13: Work's tiles and lines without the bars, starting right under the header, each image cropped to the tall tile (the lightbox shows it whole) |
-| `/about/` | Rows on the columns Work had until 2026-11-13, split in half, in the type of Work's tiles. Two rows alike, a label in the first column and what it says beside it: About, with the first sentence over the About text, then Experience, each job its role over its company and dates; the footer is its contact list (`/about/#contact`) |
+| `/about/` | Laid out after gougoucore.com/3/ since 2026-11-13 (the user's ask): the About text as one paragraph across the page right under the header, in the display style (the first sentence in the accent face, then the paragraphs), then a Q&A in a small row (since 2026-11-14): the label under the header's WORK, the questions under ARCHIVE, each opening its answer when clicked; the footer is its contact list (`/about/#contact`). Experience (the same kind of row) is off since late 2026-11-13: the header's RESUME has the jobs |
 | `/contact/` | Not a page: it sends visitors straight on to `/about/#contact` (old links keep working) |
 
-Contact is the header's last link since 2026-11-13 (see Header): it goes to the footer
-(`#contact`), the same on every page (Home's project loop, with `HOME_TRACK` on, has no
+Contact is the footer (`#contact`), the same on every page (the header's last link went to it
+from 2026-11-13 until late that day, when RESUME took its place; see Header) (Home's project loop, with `HOME_TRACK` on, has no
 footer) (`templates/footer.html`, `footer()` in `build.py`, `.site-footer` in
 `assets/css/style.css`). Laid out after gougoucore.com's footer since 2026-11-13 (the user's
 ask): a 1px line over it from the window's left edge to its right, and under it, in the type
@@ -71,7 +71,7 @@ content/projects.json   everything on Work: projects (order, category, featured,
 content/archive.json    the images on Archive (see "Archive" below)
 content/site.json       name, email, LinkedIn, GitHub, resume, Work's sentence ("work" →
                         "statement"), About's first sentence ("headline"), About text,
-                        experience, SEO text
+                        experience (left out since 2026-11-13: no Experience row), Q&A ("qa"), SEO text
 assets/images/<slug>/   images and videos for each project
 assets/images/pieces/   images of the items with no page
 assets/images/archive/  images on Archive
@@ -82,7 +82,9 @@ assets/icons/           the browser tab and home-screen icons: favicon.svg, favi
                         letter's tone and getting smaller toward the top right, the way the
                         pass goes (12 dots across for the tab, 24 for the home screen); to
                         change it, replace the three files, keeping their names
-assets/fonts/           Inter (with Inter Display) and Martian Mono, with their licenses
+assets/fonts/           Inter (with Inter Display), Martian Mono, and Kalnia (the
+                        accent face: Work's sentence's key words, About's first sentence), with
+                        their licenses
 assets/logo/            the logo, two line suns side by side (since 2026-11-13; one over the
                         other before): logo.svg / .png (36 rays) and logo-small.svg / .png
                         (24 rays); the header shows logo-small.svg (see Header)
@@ -186,9 +188,11 @@ Blocks appear in the order you list them. The template uses Context → Explore 
   two lights, apart, each with its own job: white sunlight that shines on you (how strong)
   and a color that colors your space (which color, how strong; the `--lamp-` colors in
   `app.css`). The screen draws the lamp as it's built (the 2023 renders): the head, a rounded
-  square that lights white, with the sunlight's percent on it in dot digits; and under it the
-  base, a pill a little narrower, that lights in the color. Each light spreads softly through
-  its whole part, deepest in the middle and fading out, paler, toward the edges. Each part
+  square that glows white at its edge, brightest along the rim and in the corners and fading
+  inward, so its middle stays dark and the sunlight's percent there, in dot digits, reads in
+  light ink at any strength; and under it the base, a pill a little narrower, that lights in
+  the color, spreading softly through the whole pill, deepest in the middle and fading out,
+  paler, toward the edges. Each part
   has its own tape, a ruler that slides under a fixed yellow mark: drag the part (or its
   ruler) sideways, tap the ruler, or use the arrow keys to set how strong that light is for
   the part of the day showing; picking a scene again goes back to the scene's own strengths.
@@ -312,49 +316,51 @@ Otherwise, and for the other pages, it uses `assets/images/og.png`.
 
 **Resume:** replace `assets/Kyuri-Park-Resume.pdf`, keeping the same name.
 
-**About's first sentence:** `"headline"` under `"about"` in `content/site.json`, one string or a
-list of lines; the lines run on as one sentence over the About text, beside the About label,
-and wrap evenly where they wrap (each was its own line until 2026-11-12, for the display style;
-for an hour that day the sentence had the first column, with the text beside it). Type it in capitals or not, it shows
-in capitals either way. It's in the name style, as a project's name is on Work (Inter 500, 14px,
-+0.02em), at the body's line height (21px) as the text under it is
-(`.about-headline` in `assets/css/style.css`; the display style, 64px at 1440px, from
-2026-11-06 to 2026-11-12), and as far down the page as Work's and Archive's images and a
-project's title start (`--grid-top`, the height of Work's filter line and the space under it),
-so switching among them moves nothing. Delete `"headline"` and the text starts with its first
-paragraph.
+**About's text:** `"headline"` and `"paragraphs"` under `"about"` in `content/site.json`, run on
+as one paragraph across the page (`.about-statement` in `assets/css/style.css`): the first
+sentence (`"headline"`, one string or a list of lines that run on as one sentence; it gets a full
+stop if it has none) in Kalnia, the accent face, then the paragraphs after it in the display
+style, as Work's sentence is (Inter Display 500, 64px at 1440px, 51px from 1200px, 41px from about
+480px, and 8.5vw on phones, 33px at 390px, so a phone's line holds two or three words). Type it in
+capitals or not, it shows in capitals either way. Words in `*asterisks*` in the paragraphs are set
+in Kalnia too, as on Work. Lines from the left, not justified (Work's sentence is). Delete
+`"headline"` and it starts with the paragraphs.
 
-**About's layout:** since 2026-11-12, About is laid out on Work's columns split in half (the
-columns Work had until 2026-11-13, when Work's grid went edge to edge; About kept them): two
-where Work has one (phones), four where it has two (from 768px), six where it has three (from
-1440px), 12px apart as Work's are, so every other line of About's is one of Work's and going
-from Work to About keeps them. Half, because About holds short lines of text, not images (on
-Work's own columns, for an hour, a job's role and company sat 410px apart at a 1210px window).
-One kind of row, twice, in the name style of Work's tiles, all of it at the body's line
-height (21px), everything left-aligned on those lines: what a row is about in the first column,
-a label in `--color-subtle`, and what it says from the next column on, starting on the same line
-and the same left edge in both rows, so the two rows look alike (since 2026-11-12, the user's
-asks; for its first hours Experience's label sat over the jobs and the jobs started in the first
-column, then for an hour the first sentence had the first column and About's label was hidden).
-The rows, Work's row gap apart (32px, 64px from 1200px):
+**About's layout:** after gougoucore.com/3/ since 2026-11-13 (the user's ask), whose About is
+one big paragraph in capitals, opening with who she is in its display face, and under it a small
+"ALSO" label with a list beside it:
 
-- About (the page's h1) in the first column, with the first sentence beside it in the next two,
-  in capitals, and the About text (`"paragraphs"`) under it, in the name style but as typed, all
-  in the text color, up to 420px wide, 16px between the sentence and each paragraph;
-- Experience: its label in the first column, in `--color-subtle`, with the jobs beside it where
-  the text is, each set as a paragraph of two lines, 16px apart as the paragraphs are: the role,
-  in the text color, over "Company · Dates", in `--color-subtle`, with no rules between jobs, as
-  Work has none between its rows. (For an hour on 2026-11-12 the role, company, and dates sat a
-  column each, past the text's right edge; the three short columns, wide apart, looked as if
-  they floated.)
+- the paragraph (above), 16px under the header, as Work's sentence is; the page's h1 (About) is
+  for screen readers only, as Work's and Archive's are;
+- Experience, only while `"experience"` under `"about"` in `content/site.json` lists jobs (off
+  since late 2026-11-13, the user's ask: the header's RESUME has them, and About is to tell more
+  of the story; the list was Clayco, NBCUniversal, and Philly Fashion Week, in git history).
+  Put back, it sits 48px under the paragraph (64px from 768px), in the type of the header's links and the footer:
+  its label in `--color-subtle` and the jobs beside it, set as the footer's columns are, so the
+  jobs start where the footer's email does: from 768px the label under the header's WORK and the
+  jobs under ARCHIVE (the label's column grows to fit EXPERIENCE under about 950px, the jobs then
+  a little right of ARCHIVE); on phones the label at the page's edge and the jobs 24px after it.
+  Each job is its role, in the text color, over "Company · Dates", in `--color-subtle`, 16px from
+  the next, with no rules between jobs (`.about-list`, `.experience` in `assets/css/style.css`).
 
-That's from 900px (56.25em, where four columns hold the longest role, "JUNIOR GRAPHIC
-DESIGNER"); from 768 to 899px the labels take the first two columns (Work's first) and the
-sentence, text, and jobs the last two; on phones each takes its own line. The first row's
-capitals, not its lines, start on Work's image line, as a project title's do (`.about-row`,
-`.about-intro`, `.about-text`, `.experience` in `assets/css/style.css`). The footer, the same on
-every page, is About's contact list, so the page ends with Experience; when it's shorter than
-the window the room left is the page's end, as on Work.
+- the Q&A (since 2026-11-14, the user's ask: questions that make a visitor curious): `"qa"`
+  under `"about"` in `content/site.json`, a list of `{"q": "A question?", "a": "Its answer."}`
+  (`"a"` may be a list of lines, each its own paragraph, as Light Life's years are;
+  `[TypeLab](/work/typelab/)` in an answer links a project). The same row as Experience: the
+  label Q&A under the header's WORK, the questions under ARCHIVE, one under another, in the
+  header's link type, each ending in a + (a − while open). Clicking a question opens its answer
+  under it and closes the one that was open, so one answer shows at a time (`<details>` sharing
+  a name: no JavaScript, works from the keyboard; a browser from before 2024 lets several stay
+  open), fading in (at once with reduced
+  motion): as typed, 14px, up to 420px wide. Leave `"qa"` out for no row (`about_qa` in
+  `build.py`, `.qa`, `.qa-q`, `.qa-a` in `assets/css/style.css`). The answers are written from
+  the user's own account of themselves; keep each to two or three sentences, its point first.
+
+The footer, the same on every page, is About's contact list, a section's gap under the last
+thing on the page.
+From 2026-11-12 to 2026-11-13 About was two alike rows on Work's columns split in half, a gray
+label (About, Experience) in the first column and, beside it, the sentence over the paragraphs
+in the name style, or the jobs.
 From 2026-11-06 to 2026-11-12 About read as a project page: the sentence in the display style,
 the text under it in the label style, a 3:2 photo edge to edge (`"portrait"` in
 `content/site.json`, taken out on 2026-11-12 at Kyuri's call), Experience as a table of rules,
@@ -382,14 +388,15 @@ Laid out after gougoucore.com's header since 2026-11-13 (the user's ask), from
   readers hear "Kyuri Park". If the file is missing, the name shows in
   its place and the build says so. Swap the file (same name, an SVG of `<path>` lines) to
   change the logo.
-- At the right, ABOUT and CONTACT (CONTACT where gougoucore has RESUME). CONTACT goes to the
-  footer on the same page (`#contact`), which has the header's links again, as gougoucore's
-  footer has them, and the email, LinkedIn, GitHub, and the résumé;
-  on Home (with `HOME_TRACK` on), which has no footer, to About's.
+- At the right, ABOUT and RESUME, as gougoucore's are (since late 2026-11-13, the user's ask):
+  RESUME opens the PDF (`"resume"` in `content/site.json`) in a new tab, with the same ↗ as in
+  the footer. (CONTACT stood in its place before, going to the footer, `#contact`, which still
+  has the email, LinkedIn, GitHub, and the résumé.)
 - From 768px the window is cut in eighths, as gougoucore's is: WORK starts `--gutter` into the
   first, ARCHIVE `--gutter` into the second, ABOUT ends `--gutter` before the seventh's end, and
-  CONTACT `--gutter` before the window's edge. On phones the two links at each side sit 16px
-  apart at the page's edges. The links are 14px from 768px, 12px on phones (`--size-menu`).
+  RESUME `--gutter` before the window's edge. On phones the two links at each side sit 16px
+  apart at the page's edges (12px under 360px, where RESUME and its arrow, wider than CONTACT,
+  would otherwise bring ABOUT within 5px of the logo). The links are 14px from 768px, 12px on phones (`--size-menu`).
 
 The current page's link is in the text color and the others are gray (`--color-subtle`, the
 lightest gray that passes WCAG AA) until hovered (`.site-menu a`; see Type and color).
@@ -426,6 +433,18 @@ titarvl.framer.website/about: two typefaces, Inter and Martian Mono, both self-h
 Google Fonts under the SIL Open Font License, in six styles. Each style is a typeface and cut, a
 size, a line height, a tracking, and a case, with tokens named after it (`--size-name`,
 `--leading-name`, `--tracking-name`…), and each is set once, under "Shared text styles".
+
+One exception (since 2026-11-13): the words Work's sentence leans on, one run that says who
+Kyuri is, *I'm Kyuri, a designer*, marked with asterisks in `content/site.json`
+(`work.statement`), are set in Kalnia Bold, the accent face (`--font-accent`): heavy strokes
+that flare out into hairlines, as the logo's rays run out from the sun, a face with a character
+of its own (after gougoucore.com, whose accent face is as much its own as its logo). Only the
+face changes: capitals, the display's size (1.03em, so its capitals stand as tall as Inter's)
+and the display's 500 for the rest, so the words stand out by their letters alone (the user's
+pick, 2026-11-14). About's first sentence is in it too. Cut from Fontsource 5.3.0's variable font
+with fontTools' instancer to weight 700, width 100, 14KB, SIL Open Font License. (Before:
+Instrument Serif Italic, thickened, and Monoton on 2026-11-13; Bodoni Moda Italic, too hard to
+read, and Newsreader Italic, over three words, on 2026-11-14.)
 
 | Style | Type | Size | Line height, tracking | Used for |
 | --- | --- | --- | --- | --- |

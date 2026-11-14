@@ -175,21 +175,27 @@ Blocks appear in the order you list them. The template uses Context → Explore 
   the light around where the visitor lives: sunrise and sunset worked out in the browser, the
   weather and the city search from Open-Meteo (free, no key; credited in the app), the first
   city guessed from the computer's time zone, and a recommended scene per part of the day,
-  with its one-sentence reason (`recommend()`, the rules and the words). Like the lamp, each
-  scene has two lights, apart, each with its own job: white sunlight from above that shines
-  on you (how strong) and a color from below that colors your space (which color, how strong;
-  the `--lamp-` colors in `app.css`). The panel shows the lamp as it sits, the sunlight from
-  its top and the color from its bottom, and at its foot the two lights side by side, each
-  with its job ("Shines on you", "Colors your space"); a light that's off dims. The screen
-  reads in three steps, top to bottom (2026-11-13, the user's ask for a clearer hierarchy):
-  the light now (the panel, with its scenes right under it), the day (the ruler, with Play a
-  day beside its label; hours only on the axis), and your two times at the bottom. The
-  color part turns by hand on the real lamp, not in the app, so the app doesn't show which
-  way it points (a turning dial was there on 2026-11-13, ef0bc7e, and came out the same
-  day). It is built on
+  with its one-sentence reason (`recommend()`, the rules and the words; it shows on hover over
+  the recommended scene, and to screen readers). The weather there now is an icon before the
+  city's name at the top (a pin until the forecast arrives). Like the lamp, each scene has
+  two lights, apart, each with its own job: white sunlight that shines on you (how strong)
+  and a color that colors your space (which color, how strong; the `--lamp-` colors in
+  `app.css`). The screen draws the lamp as it's built (the 2023 renders): the head, a rounded
+  square holding a round white light, with the sunlight's percent on it in dot digits; and
+  under it the base, a pill a little narrower, glowing with the color from below. Each part
+  has its own tape, a ruler that slides under a fixed yellow mark: drag the part (or its
+  ruler) sideways, tap the ruler, or use the arrow keys to set how strong that light is for
+  the part of the day showing; picking a scene again goes back to the scene's own strengths.
+  The lamp shows each part of the day as set; the day's ruler shows the slow fades between
+  them. The screen reads top to bottom: the part of the day and its time, the lamp, its
+  scenes, the day (the ruler, with Play a day beside its label), and your two times. On a
+  phone too short for all of it, the screen scrolls. The color part turns by hand on the
+  real lamp, not in the app, so the app doesn't show which way it points (a turning dial was
+  there on 2026-11-13, ef0bc7e, and came out the same day). It is built on
   the Light Life design system (https://claude.ai/artifact/EM7wMb1WZ6GntbUNgzRzLW, private):
   `app.css` copies its Night tokens and `ll-` components, so change a value there first.
-  The two-light panel, its readout and the `--lamp-` colors aren't in the system yet.
+  The two-part lamp, the tape, the weather icons and the `--lamp-` colors aren't in the
+  system yet.
 
 ## Items with no page
 

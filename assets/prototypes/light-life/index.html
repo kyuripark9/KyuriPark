@@ -21,6 +21,16 @@
   <symbol id="i-search" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m10.4 10.4 3.6 3.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
   <symbol id="i-edit" viewBox="0 0 16 16"><path d="M10.4 3.1a1.7 1.7 0 0 1 2.5 2.5l-7.4 7.4-3.3.8.8-3.3 7.4-7.4ZM9.2 4.3l2.5 2.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></symbol>
   <symbol id="i-check" viewBox="0 0 16 16"><path d="m3.5 8.4 3 3 6-6.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <!-- Weather where you live, at the top: clear (the sun, or the moon at night), partly cloudy,
+       cloudy, fog, rain, snow, storm. A cloud in front of something wears a gap the color of
+       the screen. -->
+  <symbol id="w-partly-day" viewBox="0 0 16 16"><circle cx="5.6" cy="5.6" r="2.3" fill="currentColor"/><path d="M5.6 1.2v1M1.2 5.6h1M2.5 2.5l.7.7M8.7 2.5l-.7.7M2.5 8.7l.7-.7" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path transform="translate(4 4.3) scale(.78)" d="M4.5 12.5h7.2a2.6 2.6 0 0 0 .3-5.2 3.6 3.6 0 0 0-6.9-.4A2.9 2.9 0 0 0 4.5 12.5Z" fill="currentColor" stroke="#0a0a0b" stroke-width="2.4" paint-order="stroke"/></symbol>
+  <symbol id="w-partly-night" viewBox="0 0 16 16"><path transform="translate(.3 .3) scale(.66)" d="M13.6 10.2A6 6 0 0 1 5.8 2.4a6 6 0 1 0 7.8 7.8Z" fill="currentColor"/><path transform="translate(4 4.3) scale(.78)" d="M4.5 12.5h7.2a2.6 2.6 0 0 0 .3-5.2 3.6 3.6 0 0 0-6.9-.4A2.9 2.9 0 0 0 4.5 12.5Z" fill="currentColor" stroke="#0a0a0b" stroke-width="2.4" paint-order="stroke"/></symbol>
+  <symbol id="w-cloud" viewBox="0 0 16 16"><path transform="translate(0 .4)" d="M4.5 12.5h7.2a2.6 2.6 0 0 0 .3-5.2 3.6 3.6 0 0 0-6.9-.4A2.9 2.9 0 0 0 4.5 12.5Z" fill="currentColor"/></symbol>
+  <symbol id="w-fog" viewBox="0 0 16 16"><path d="M2.5 5h11M4 8h9.5M2.5 11h8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  <symbol id="w-rain" viewBox="0 0 16 16"><path transform="translate(0 -2.6)" d="M4.5 12.5h7.2a2.6 2.6 0 0 0 .3-5.2 3.6 3.6 0 0 0-6.9-.4A2.9 2.9 0 0 0 4.5 12.5Z" fill="currentColor"/><path d="m5.6 12-.8 2.2M8.6 12l-.8 2.2M11.6 12l-.8 2.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+  <symbol id="w-snow" viewBox="0 0 16 16"><path transform="translate(0 -2.6)" d="M4.5 12.5h7.2a2.6 2.6 0 0 0 .3-5.2 3.6 3.6 0 0 0-6.9-.4A2.9 2.9 0 0 0 4.5 12.5Z" fill="currentColor"/><circle cx="5.2" cy="13" r="1" fill="currentColor"/><circle cx="8.2" cy="14.2" r="1" fill="currentColor"/><circle cx="11.2" cy="13" r="1" fill="currentColor"/></symbol>
+  <symbol id="w-storm" viewBox="0 0 16 16"><path transform="translate(0 -2.6)" d="M4.5 12.5h7.2a2.6 2.6 0 0 0 .3-5.2 3.6 3.6 0 0 0-6.9-.4A2.9 2.9 0 0 0 4.5 12.5Z" fill="currentColor"/><path d="M8.9 9.4 6.3 12.9h2.2l-1 2.6 3.1-3.8H8.4l.5-2.3Z" fill="currentColor" stroke="#0a0a0b" stroke-width="1" paint-order="stroke" stroke-linejoin="round"/></symbol>
 </svg>
 
 <div class="device" id="device">
@@ -30,34 +40,43 @@
     <div class="top">
       <!-- The logo is the lamp: its white light above, its color light below -->
       <p class="brand"><svg class="logo" viewBox="0 0 40 54" role="img" aria-label="Light Life"><circle cx="20" cy="18.5" r="18.5" fill="#f8f8f8"/><rect x="0.5" y="38.5" width="39" height="15.5" rx="7.75" fill="#fdf7bb"/></svg></p>
-      <!-- Where you live; opens the city search -->
+      <!-- Where you live, with its weather now as an icon (a pin until the forecast arrives);
+           opens the city search -->
       <button class="place ll-label" type="button" id="place" aria-haspopup="dialog">
-        <svg class="icon" aria-hidden="true"><use href="#i-pin"/></svg><span class="place-text" id="place-text">Chicago</span><svg class="icon edit-icon" aria-hidden="true"><use href="#i-edit"/></svg>
+        <svg class="icon weather-icon" aria-hidden="true"><use id="weather-use" href="#i-pin"/></svg><span class="place-text" id="place-text">Chicago</span><svg class="icon edit-icon" aria-hidden="true"><use href="#i-edit"/></svg>
       </button>
     </div>
 
-    <!-- GlowPanel: the light now, or at the time picked on the ruler. The lamp's two lights
-         fill it as the lamp sits: its white sunlight from above, its color from below. -->
-    <section class="ll-panel" id="panel" aria-labelledby="part">
-      <span class="light" id="light-sun" aria-hidden="true"></span>
-      <span class="light" id="light-color" aria-hidden="true"></span>
-      <div class="ll-panel-head">
-        <h1 class="panel-title" id="part">Morning</h1>
-        <span class="ll-tag" id="now-tag">Now</span>
-        <button class="ll-pill is-glass is-small" type="button" id="back-now" hidden>Back to now</button>
+    <!-- The time showing: which part of the day, and when -->
+    <div class="now-head">
+      <h1 class="now-title"><span id="part">Morning</span><span class="now-time" id="time">9:00 AM</span></h1>
+      <span class="ll-tag" id="now-tag">Now</span>
+      <button class="ll-pill is-glass is-small" type="button" id="back-now" hidden>Back to now</button>
+    </div>
+
+    <!-- The lamp, built like the real one: two parts, apart, each with its own light and its
+         own job. The head, a rounded square holding a white disc: sunlight that shines on you.
+         The base under it, a pill: a color that colors your space (turned by hand, on the lamp).
+         Drag either one, or its ruler, to set how strong it is for the part of the day showing. -->
+    <section class="lamp" aria-label="The lamp">
+      <div class="lamp-head" id="head">
+        <p class="ll-label lamp-label"><svg class="icon" aria-hidden="true"><use href="#i-sun"/></svg>Sunlight</p>
+        <div class="sun-disc" aria-hidden="true">
+          <span class="sun-light" id="sun-light"></span>
+          <span class="disc-value"><span id="sun-digits"></span><span class="ll-label">%</span></span>
+        </div>
+        <div class="ll-tape" id="sun-tape" role="slider" tabindex="0" aria-label="Sunlight" aria-valuemin="0" aria-valuemax="100">
+          <span class="ll-tape-window"><span class="ll-tape-track"></span></span>
+          <span class="ll-tape-mark" aria-hidden="true"></span>
+        </div>
       </div>
-      <div class="ll-panel-center">
-        <span id="digits"></span>
-        <span class="ll-label" id="ampm">AM</span>
-      </div>
-      <div class="panel-foot">
-        <p class="about" id="about">Bright, cool light to help you wake up.</p>
-        <!-- The lamp's two lights, side by side, each with its own job: the white light above
-             shines on you; the color below colors your space (turned by hand, on the lamp) -->
-        <ul class="readout">
-          <li id="sun-row"><span class="swatch is-sun" id="swatch-sun" aria-hidden="true"></span><span class="readout-text"><span class="ll-data" id="sun-value">Sunlight 66%</span><span class="job"><span class="visually-hidden">, </span>Shines on you</span></span></li>
-          <li id="color-row"><span class="swatch is-color" id="swatch-color" aria-hidden="true"></span><span class="readout-text"><span class="ll-data" id="color-value">Sand 40%</span><span class="job"><span class="visually-hidden">, </span>Colors your space</span></span></li>
-        </ul>
+      <div class="lamp-base" id="base">
+        <span class="color-light" id="color-light" aria-hidden="true"></span>
+        <p class="ll-label lamp-label base-label" aria-hidden="true"><span class="swatch" id="swatch-color"></span><span id="color-name">Mint</span><span class="base-value" id="color-value">35%</span></p>
+        <div class="ll-tape" id="color-tape" role="slider" tabindex="0" aria-label="Color" aria-valuemin="0" aria-valuemax="100">
+          <span class="ll-tape-window"><span class="ll-tape-track"></span></span>
+          <span class="ll-tape-mark" aria-hidden="true"></span>
+        </div>
       </div>
     </section>
 

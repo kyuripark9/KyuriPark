@@ -19,7 +19,6 @@
   <symbol id="i-pin" viewBox="0 0 16 16"><path d="M8 14.6s4.6-4.3 4.6-8a4.6 4.6 0 1 0-9.2 0c0 3.7 4.6 8 4.6 8Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="8" cy="6.5" r="1.6" fill="currentColor"/></symbol>
   <symbol id="i-spark" viewBox="0 0 16 16"><path d="M8 1.5c.5 3.6 2.9 6 6.5 6.5-3.6.5-6 2.9-6.5 6.5-.5-3.6-2.9-6-6.5-6.5 3.6-.5 6-2.9 6.5-6.5Z" fill="currentColor"/></symbol>
   <symbol id="i-search" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m10.4 10.4 3.6 3.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
-  <symbol id="i-edit" viewBox="0 0 16 16"><path d="M10.4 3.1a1.7 1.7 0 0 1 2.5 2.5l-7.4 7.4-3.3.8.8-3.3 7.4-7.4ZM9.2 4.3l2.5 2.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></symbol>
   <symbol id="i-check" viewBox="0 0 16 16"><path d="m3.5 8.4 3 3 6-6.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <!-- Weather where you live, at the top: clear (the sun, or the moon at night), partly cloudy,
        cloudy, fog, rain, snow, storm. A cloud in front of something wears a gap the color of
@@ -40,16 +39,29 @@
     <div class="top">
       <!-- The logo is the lamp: its white light above, its color light below -->
       <p class="brand"><svg class="logo" viewBox="0 0 40 54" role="img" aria-label="Light Life"><circle cx="20" cy="18.5" r="18.5" fill="#f8f8f8"/><rect x="0.5" y="38.5" width="39" height="15.5" rx="7.75" fill="#fdf7bb"/></svg></p>
-      <!-- Where you live, with its weather now as an icon (a pin until the forecast arrives);
-           opens the city search -->
-      <button class="place ll-label" type="button" id="place" aria-haspopup="dialog">
-        <svg class="icon weather-icon" aria-hidden="true"><use id="weather-use" href="#i-pin"/></svg><span class="place-text" id="place-text">Chicago</span><svg class="icon edit-icon" aria-hidden="true"><use href="#i-edit"/></svg>
+    </div>
+
+    <!-- What Light Life plans from, all in one place: where you live (its weather now as an
+         icon, a pin until the forecast arrives, and the time showing there), and your two
+         times. The city opens the city search; either time opens the times sheet. -->
+    <div class="facts">
+      <button class="fact fact-place" type="button" id="place" aria-haspopup="dialog">
+        <span class="ll-label fact-label"><svg class="icon weather-icon" aria-hidden="true"><use id="weather-use" href="#i-pin"/></svg><span class="place-text" id="place-text">Chicago</span></span>
+        <span class="fact-value" id="time">9:00 AM</span>
+      </button>
+      <button class="fact" type="button" id="edit-wake" aria-haspopup="dialog">
+        <span class="ll-label fact-label">Wake up</span>
+        <span class="fact-value" id="wake-text">7:00 AM</span>
+      </button>
+      <button class="fact" type="button" id="edit-bed" aria-haspopup="dialog">
+        <span class="ll-label fact-label">Lights out</span>
+        <span class="fact-value" id="bed-text">11:00 PM</span>
       </button>
     </div>
 
-    <!-- The time showing: which part of the day, and when -->
+    <!-- The part of the day showing -->
     <div class="now-head">
-      <h1 class="now-title"><span id="part">Morning</span><span class="now-time" id="time">9:00 AM</span></h1>
+      <h1 class="now-title" id="part">Morning</h1>
       <span class="ll-tag" id="now-tag">Now</span>
       <button class="ll-pill is-glass is-small" type="button" id="back-now" hidden>Back to now</button>
     </div>
@@ -95,14 +107,6 @@
       </div>
       <div class="ll-axis" aria-hidden="true"><span style="left:0%">12 AM</span><span style="left:25%">6 AM</span><span style="left:50%">12 PM</span><span style="left:75%">6 PM</span><span style="left:100%">12 AM</span></div>
     </div>
-
-    <footer class="times">
-      <button class="times-button" type="button" id="edit-times" aria-haspopup="dialog">
-        <span class="time"><svg class="icon" aria-hidden="true"><use href="#i-sun"/></svg><span class="visually-hidden">Wake up</span><span id="wake-text">7:00 AM</span></span>
-        <span class="time"><svg class="icon" aria-hidden="true"><use href="#i-moon"/></svg><span class="visually-hidden">Lights out</span><span id="bed-text">11:00 PM</span></span>
-        <svg class="icon edit-icon" aria-hidden="true"><use href="#i-edit"/></svg>
-      </button>
-    </footer>
   </main>
 
   <div class="scrim" id="scrim"></div>

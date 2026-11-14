@@ -1,8 +1,9 @@
 /* Light Life, phone prototype (2026 redesign), on the Light Life design system.
 
    The idea it shows: the lamp runs a whole day of light from two times (wake-up and lights
-   out), changing slowly from one part of the day to the next. One screen: the part of the
-   day showing and its time, the lamp itself (its two parts, each with its light), the scenes
+   out), changing slowly from one part of the day to the next. One screen: what it plans
+   from (where you live and the time showing there, your two times) in one strip, the part
+   of the day showing, the lamp itself (its two parts, each with its light), the scenes
    for that part (SceneChips), and the whole day (LightRuler: drag it, or Play a day).
    Scene names are the 2023 app's.
 
@@ -17,7 +18,8 @@
    It also plans around where you live (sky.js): the city's sunrise and sunset today and its
    forecast pick a recommended scene for each part, marked with a spark (its reason shows on
    hover). Picking another scene overrides it; picking the recommended one again follows the
-   recommendation. The weather there now is an icon at the top. The clock is the city's.
+   recommendation. The weather there now is an icon before the city's name, in the strip at
+   the top. The clock is the city's.
 
    Times are minutes after midnight. The day is laid out from where Sunrise starts (wake-up
    minus the sunrise length), so a lights-out after midnight still works. */
@@ -230,7 +232,8 @@
     $("ticks").innerHTML = html;
     $("wake-text").textContent = fmt(state.wake);
     $("bed-text").textContent = fmt(state.bed);
-    $("edit-times").setAttribute("aria-label", `Wake up ${fmt(state.wake)}, lights out ${fmt(state.bed)}. Edit your times`);
+    $("edit-wake").setAttribute("aria-label", `Wake up ${fmt(state.wake)}. Edit your times`);
+    $("edit-bed").setAttribute("aria-label", `Lights out ${fmt(state.bed)}. Edit your times`);
 
     // Behind the ticks, a faint band while the sun is up where you live.
     const s = state.sun, band = $("sun-band");
@@ -242,8 +245,9 @@
     band.style.width = `${((end - start) / DAY) * 100}%`;
   }
 
-  // Where you live, at the top: the weather there now as an icon (the moon instead of the sun
-  // once it's dark there), then the city's name. A pin until the forecast arrives.
+  // Where you live, first in the strip at the top: the weather there now as an icon (the moon
+  // instead of the sun once it's dark there), then the city's name, over the time showing
+  // there (render). A pin until the forecast arrives.
   function weatherIcon(code, day) {
     if (code == null) return "i-pin";
     if (code <= 1) return day ? "i-sun" : "i-moon";
@@ -261,7 +265,7 @@
     if (use.getAttribute("href") !== icon) use.setAttribute("href", icon);
     const words = Sky.sayWeather(code);
     $("place-text").textContent = state.city.name;
-    $("place").setAttribute("aria-label", `${state.city.name}${words ? `, ${words}` : ""}. Change where you live`);
+    $("place").setAttribute("aria-label", `${state.city.name}${words ? `, ${words}` : ""}, ${fmt(viewTime())}. Change where you live`);
   }
 
   let chipsFor = "", chipsPart = "";
@@ -413,7 +417,7 @@
     const live = state.preview === null && !state.playing;
 
     $("part").textContent = part(id).name;
-    $("time").textContent = fmt(t);
+    $("time").textContent = fmt(t);   // in the strip, under the city
     $("now-tag").hidden = !live;
     $("back-now").hidden = live || state.playing;
 
@@ -578,7 +582,7 @@
       b.disabled = next < lo || next > hi;
     }
   }
-  $("edit-times").addEventListener("click", (e) => {
+  for (const id of ["edit-wake", "edit-bed"]) $(id).addEventListener("click", (e) => {
     renderTimes();
     openSheet("times-sheet", e.currentTarget);
   });

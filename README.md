@@ -182,7 +182,7 @@ Blocks appear in the order you list them. The template uses Context → Explore 
   city guessed from the computer's time zone, and a recommended scene per part of the day,
   with its one-sentence reason (`recommend()`, the rules and the words; it shows on hover over
   the recommended scene, and to screen readers). The weather there now is an icon before the
-  city's name at the top (a pin until the forecast arrives). Like the lamp, each scene has
+  city's name (a pin until the forecast arrives). Like the lamp, each scene has
   two lights, apart, each with its own job: white sunlight that shines on you (how strong)
   and a color that colors your space (which color, how strong; the `--lamp-` colors in
   `app.css`). The screen draws the lamp as it's built (the 2023 renders): the head, a rounded
@@ -193,8 +193,10 @@ Blocks appear in the order you list them. The template uses Context → Explore 
   ruler) sideways, tap the ruler, or use the arrow keys to set how strong that light is for
   the part of the day showing; picking a scene again goes back to the scene's own strengths.
   The lamp shows each part of the day as set; the day's ruler shows the slow fades between
-  them. The screen reads top to bottom: the part of the day and its time, the lamp, its
-  scenes, the day (the ruler, with Play a day beside its label), and your two times. On a
+  them. The screen reads top to bottom: one strip with what the app plans from (the city
+  and the time showing there, then the wake-up and lights-out times; the city opens the city
+  search, either time the times sheet), the part of the day, the lamp, its scenes, and the
+  day (the ruler, with Play a day beside its label). On a
   phone too short for all of it, the screen scrolls. The color part turns by hand on the
   real lamp, not in the app, so the app doesn't show which way it points (a turning dial was
   there on 2026-11-13, ef0bc7e, and came out the same day). It is built on

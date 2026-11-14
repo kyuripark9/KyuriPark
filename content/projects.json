@@ -308,8 +308,8 @@
     "order": 4,
     "category": ["digital"],
     "featured": true,
-    "slug": "project-4",
-    "title": "[PLACEHOLDER: Palette or Self-checkout]",
+    "slug": "palette",
+    "title": "Palette",
     "oneLiner": "[PLACEHOLDER one-liner]",
     "type": "[PLACEHOLDER]",
     "roles": [
@@ -320,7 +320,7 @@
     "statement": "[PLACEHOLDER] One sentence, in big type, on what this project is and why it matters.",
     "cover": {
       "src": "cover.webp",
-      "alt": "[PLACEHOLDER] this project: cover image"
+      "alt": "[PLACEHOLDER] Palette: cover image"
     },
     "meta": {
       "link": null
@@ -328,7 +328,7 @@
     "hero": {
       "type": "image",
       "src": "hero.webp",
-      "alt": "[PLACEHOLDER] this project: hero image"
+      "alt": "[PLACEHOLDER] Palette: hero image"
     },
     "blocks": [
       {
@@ -341,7 +341,7 @@
       {
         "type": "image",
         "src": "context.webp",
-        "alt": "[PLACEHOLDER] this project: context image"
+        "alt": "[PLACEHOLDER] Palette: context image"
       },
       {
         "type": "text",
@@ -363,11 +363,11 @@
         "images": [
           {
             "src": "explore-1.webp",
-            "alt": "[PLACEHOLDER] this project: exploration 1"
+            "alt": "[PLACEHOLDER] Palette: exploration 1"
           },
           {
             "src": "explore-2.webp",
-            "alt": "[PLACEHOLDER] this project: exploration 2"
+            "alt": "[PLACEHOLDER] Palette: exploration 2"
           }
         ]
       },
@@ -381,7 +381,7 @@
       {
         "type": "image",
         "src": "build.webp",
-        "alt": "[PLACEHOLDER] this project: build image"
+        "alt": "[PLACEHOLDER] Palette: build image"
       },
       {
         "type": "text",
@@ -393,7 +393,7 @@
       {
         "type": "image",
         "src": "result.webp",
-        "alt": "[PLACEHOLDER] this project: result image"
+        "alt": "[PLACEHOLDER] Palette: result image"
       },
       {
         "type": "text",
@@ -523,23 +523,23 @@
   {
     "order": 7,
     "category": ["brand"],
-    "title": "Editorial Projects",
+    "title": "Editorial",
     "type": "[PLACEHOLDER type]",
     "year": "[PLACEHOLDER year]",
     "images": [
       "item-2.webp"
     ],
-    "alt": "[PLACEHOLDER] Editorial Projects: image"
+    "alt": "[PLACEHOLDER] Editorial: image"
   },
   {
     "order": 8,
     "category": ["physical"],
-    "title": "3D Product Projects",
+    "title": "3D Products",
     "type": "[PLACEHOLDER type]",
     "year": "[PLACEHOLDER year]",
     "images": [
       "item-3.webp"
     ],
-    "alt": "[PLACEHOLDER] 3D Product Projects: image"
+    "alt": "[PLACEHOLDER] 3D Products: image"
   }
 ]

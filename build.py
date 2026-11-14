@@ -34,10 +34,13 @@ DIST_DIR = os.path.join(ROOT, "dist")
 
 # Size of the gray placeholder for each kind of slot, used until a real file exists.
 PLACEHOLDER_SIZES = {
-    "cover": (1600, 1200),     # 4:3 (--thumb-ratio in style.css), home cards
+    "cover": (1440, 2000),     # 18:25, Work's tiles (--tile-ratio in style.css; README's size
+                               # since 2026-11-13, here since 2026-11-14; 4:3, --thumb-ratio,
+                               # before, which Home's cards keep, cropping it)
     "wide": (2400, 1350),      # 16:9, hero and full-width images and videos
     "pair": (1200, 1500),      # 4:5, each image in a two-image row
-    "piece": (1600, 1200),     # 4:3, the images of an item with no page of its own
+    "piece": (1440, 2000),     # 18:25, the images of an item with no page of its own, as a
+                               # cover (4:3 until 2026-11-14)
     "archive": (1200, 1500),   # 4:5, an Archive image whose size can't be read
 }
 # The gray boxes that stand in for Archive images in the lightbox until the files exist, in

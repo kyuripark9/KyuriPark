@@ -1900,7 +1900,7 @@ html.intro-on {
 /* Work's tiles, and Archive's (since 2026-11-13, after gougoucore.com's Work and Lab): 2 across
    on phones, 3 from 768px, from the window's left edge to its right with no gaps. A 1px line
    (--rule) runs over the first row (the header's, on Archive), under every row, and between the tiles in a row, but not at
-   the window's edges; a row that isn't full ends with a line after its last tile. A tile with
+   the window's edges; a row that isn't full is closed with an empty cell (below). A tile with
    no page is a button (it opens the lightbox) and looks the same. Every image is as tall as a
    column's full width at --tile-ratio (from the grid's width, a container), so a tile with a
    line at its right, 1px narrower, isn't 1.4px shorter than one without, and the lines under
@@ -1944,6 +1944,49 @@ html.intro-on {
 
   :is(.work-grid, .archive-grid) > li:nth-child(3n) {
     border-right: 0;
+  }
+}
+
+/* The rest of a row that isn't full (since 2026-11-14, the user's ask): an empty cell, drawn
+   with the grid's lines, so the grid closes in a rectangle, as gougoucore.com's always-full
+   grid does, and the page doesn't end on a hole. Nothing is in it; on Work the line under the
+   images runs on through it, as across a full row. It's the grid's ::after, a grid item after
+   the last tile, there only when a row has room left: on phones after a tile at 2n+1; from
+   768px one cell after a tile at 3n+2, two (with the column line between them) after 3n+1.
+   It counts every tile, so it assumes none is hidden (Work's filters, which hide tiles, are
+   off, WORK_FILTERS in build.py). */
+:is(.work-grid, .archive-grid)::after {
+  grid-column: span var(--rest, 1);
+  border-bottom: var(--rule);
+  background:
+    linear-gradient(var(--color-rule), var(--color-rule))
+      calc(50% - 0.5px) 0 / var(--rest-line, 0) 100% no-repeat;
+}
+
+/* Work's line under the images, at the images' height (see Work's tiles). */
+.work-grid::after {
+  background:
+    linear-gradient(var(--color-rule), var(--color-rule))
+      0 calc(100cqw / var(--cols) / (var(--tile-ratio))) / 100% 1px no-repeat,
+    linear-gradient(var(--color-rule), var(--color-rule))
+      calc(50% - 0.5px) 0 / var(--rest-line, 0) 100% no-repeat;
+}
+
+@media (max-width: 767px) {
+  :is(.work-grid, .archive-grid):has(> li:last-child:nth-child(2n + 1))::after {
+    content: "";
+  }
+}
+
+@media (min-width: 768px) {
+  :is(.work-grid, .archive-grid):has(> li:last-child:nth-child(3n + 2))::after {
+    content: "";
+  }
+
+  :is(.work-grid, .archive-grid):has(> li:last-child:nth-child(3n + 1))::after {
+    --rest: 2;
+    --rest-line: 1px;
+    content: "";
   }
 }
 
@@ -2673,8 +2716,8 @@ html.intro-on {
 }
 
 /* Work's and Archive's grids run to the window's edges and end with a line under their last
-   row: the footer's line lies on it (one line, not two) and runs on under a row that isn't
-   full. */
+   row: the footer's line lies on it (one line, not two). (A last row that isn't full is closed
+   with an empty cell since 2026-11-14, see Work's tiles; before, this line ran on under it.) */
 :is(.page-work, .page-archive) + .site-footer {
   margin-top: -1px;
 }

@@ -19,6 +19,7 @@
   <symbol id="i-pin" viewBox="0 0 16 16"><path d="M8 14.6s4.6-4.3 4.6-8a4.6 4.6 0 1 0-9.2 0c0 3.7 4.6 8 4.6 8Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="8" cy="6.5" r="1.6" fill="currentColor"/></symbol>
   <symbol id="i-spark" viewBox="0 0 16 16"><path d="M8 1.5c.5 3.6 2.9 6 6.5 6.5-3.6.5-6 2.9-6.5 6.5-.5-3.6-2.9-6-6.5-6.5 3.6-.5 6-2.9 6.5-6.5Z" fill="currentColor"/></symbol>
   <symbol id="i-search" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m10.4 10.4 3.6 3.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  <symbol id="i-updown" viewBox="0 0 16 16"><path d="m5 6 3-3 3 3M5 10l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-check" viewBox="0 0 16 16"><path d="m3.5 8.4 3 3 6-6.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <!-- Weather where you live, at the top: clear (the sun, or the moon at night), partly cloudy,
        cloudy, fog, rain, snow, storm. A cloud in front of something wears a gap the color of
@@ -91,8 +92,11 @@
       </div>
     </section>
 
-    <!-- SceneChips: the scenes for the part showing, right under the light they change -->
-    <div class="ll-chips" id="chips" role="radiogroup" aria-label="Scene"></div>
+    <!-- The scene playing for the part showing, right under the light it sets: one chip. Tap
+         it for the part's scenes, in a sheet that comes up from the bottom. -->
+    <div class="scene-row">
+      <button class="ll-chip is-filled scene-button" type="button" id="scene" aria-haspopup="dialog"><svg class="chip-mark" id="scene-mark" aria-hidden="true" hidden><use href="#i-spark"/></svg><span id="scene-name">High blue sky</span><svg class="scene-chevron" aria-hidden="true"><use href="#i-updown"/></svg></button>
+    </div>
 
     <!-- LightRuler: the whole day; drag it, or play it -->
     <div class="ruler-block">
@@ -110,6 +114,21 @@
   </main>
 
   <div class="scrim" id="scrim"></div>
+
+  <!-- The scenes for the part of the day showing, each with a small lamp lit as the scene
+       lights it. The recommended one wears a spark and says why. Picking one closes the sheet,
+       so you see the lamp change; arrow keys try them without closing. -->
+  <section class="ll-sheet sheet scene-sheet" id="scene-sheet" role="dialog" aria-modal="true" aria-labelledby="scene-title">
+    <span class="ll-grabber" aria-hidden="true"></span>
+    <div class="ll-sheet-head">
+      <div>
+        <h2 class="ll-sheet-title" id="scene-title" tabindex="-1">Daytime</h2>
+        <p class="ll-sheet-sub" id="scene-when">10:30 AM to 5:00 PM</p>
+      </div>
+      <button class="ll-done" type="button" data-close>Done</button>
+    </div>
+    <div class="ll-fields scenes" id="scenes" role="radiogroup" aria-label="Scene"></div>
+  </section>
 
   <section class="ll-sheet sheet" id="times-sheet" role="dialog" aria-modal="true" aria-labelledby="times-title">
     <span class="ll-grabber" aria-hidden="true"></span>

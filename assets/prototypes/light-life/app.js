@@ -3,8 +3,9 @@
    The idea it shows: the lamp runs a whole day of light from two times (wake-up and lights
    out), changing slowly from one part of the day to the next. One screen: what it plans
    from (where you live and the time showing there, your two times) in one strip, the part
-   of the day showing, the lamp itself (its two parts, each with its light), the scenes
-   for that part (SceneChips), and the whole day (LightRuler: drag it, or Play a day).
+   of the day showing, the lamp itself (its two parts, each with its light), the scene
+   playing for that part (one SceneChip: tap it for the part's scenes, in a sheet), and the
+   whole day (LightRuler: drag it, or Play a day).
    Scene names are the 2023 app's.
 
    The lamp has two parts, apart, each with its own light and its own job, and each scene
@@ -16,10 +17,10 @@
    doesn't.
 
    It also plans around where you live (sky.js): the city's sunrise and sunset today and its
-   forecast pick a recommended scene for each part, marked with a spark (its reason shows on
-   hover). Picking another scene overrides it; picking the recommended one again follows the
-   recommendation. The weather there now is an icon before the city's name, in the strip at
-   the top. The clock is the city's.
+   forecast pick a recommended scene for each part, marked with a spark (its reason shows in
+   the scene sheet, under it, and on hover over the chip). Picking another scene overrides
+   it; picking the recommended one again follows the recommendation. The weather there now
+   is an icon before the city's name, in the strip at the top. The clock is the city's.
 
    Times are minutes after midnight. The day is laid out from where Sunrise starts (wake-up
    minus the sunrise length), so a lights-out after midnight still works. */
@@ -42,6 +43,7 @@
   for (const name of Object.keys(NAMES)) COLOR[name] = hex(css.getPropertyValue(`--lamp-${name}`) || "#888888");
   const SUN = hex(css.getPropertyValue("--lamp-sun") || "#ffffff");
   const SURFACE = hex(css.getPropertyValue("--surface") || "#141416");
+  const RAISED = hex(css.getPropertyValue("--surface-raised") || "#1e1e21");
   const INK = hex(css.getPropertyValue("--ink") || "#f5f3ef");
   const INK_ON_LIGHT = hex(css.getPropertyValue("--ink-on-light") || "#141210");
 
@@ -268,34 +270,55 @@
     $("place").setAttribute("aria-label", `${state.city.name}${words ? `, ${words}` : ""}, ${fmt(viewTime())}. Change where you live`);
   }
 
-  let chipsFor = "", chipsPart = "";
-  function paintChips(id) {
-    const x = part(id), on = sceneIndex(x), rec = x.rec ? x.rec.i : -1;
-    const key = `${id}:${on}:${rec}`;
-    if (key === chipsFor) return;
-    chipsFor = key;
-    $("chips").setAttribute("aria-label", `${x.name} scene`);
-    $("chips").innerHTML = x.scenes.map((s, i) => {
-      // Each chip runs from the scene's sunlight to its color, each as strong as it is.
-      const dim = [58, 58, 62];
-      const a = blend(dim, SUN, 0.3 + 0.7 * s.sun), b = s.color ? blend(dim, COLOR[s.color], 0.3 + 0.7 * Math.min(1, s.c * 1.6)) : dim;
-      // Light or dark text, whichever reads better on the chip's weaker end.
-      const worst = (ink) => Math.min(...[a, b].map((x) => { const l = luminance(x), k = luminance(ink); return (Math.max(l, k) + 0.05) / (Math.min(l, k) + 0.05); }));
-      const dark = worst(INK) > worst(INK_ON_LIGHT);
-      const mark = i === rec ? '<svg class="chip-mark" aria-hidden="true"><use href="#i-spark"/></svg>' : "";
-      const note = i === rec ? `<span class="visually-hidden">, recommended: ${esc(x.rec.why)}</span>` : "";
-      const why = i === rec ? ` title="${esc(x.rec.why)}"` : "";
-      return `<button class="ll-chip${dark ? " is-dark" : ""}" type="button" role="radio" aria-checked="${i === on}" data-part="${id}" data-i="${i}" tabindex="${i === on ? 0 : -1}"${why} style="--a:${rgbCss(a)};--b:${rgbCss(b)}">${mark}${s.name}${note}</button>`;
-    }).join("");
+  // The scene playing, as one chip under the lamp. It runs from the scene's sunlight to its
+  // color, each as strong as it is, with light or dark text, whichever reads better on its
+  // weaker end; the recommended scene wears a spark (and says why on hover).
+  let sceneFor = "";
+  function paintScene(id) {
+    const x = part(id), on = sceneIndex(x), s = x.scenes[on], rec = x.rec?.i === on;
+    const key = `${id}:${on}:${rec ? x.rec.why : ""}`;
+    if (key === sceneFor) return;
+    sceneFor = key;
+    const dim = [58, 58, 62];
+    const a = blend(dim, SUN, 0.3 + 0.7 * s.sun), b = s.color ? blend(dim, COLOR[s.color], 0.3 + 0.7 * Math.min(1, s.c * 1.6)) : dim;
+    const worst = (ink) => Math.min(contrast(a, ink), contrast(b, ink));
+    const chip = $("scene");
+    chip.style.setProperty("--a", rgbCss(a));
+    chip.style.setProperty("--b", rgbCss(b));
+    chip.classList.toggle("is-dark", worst(INK) > worst(INK_ON_LIGHT));
+    $("scene-name").textContent = s.name;
+    $("scene-mark").toggleAttribute("hidden", !rec);
+    chip.title = rec ? x.rec.why : "";
+    chip.setAttribute("aria-label", `${x.name} scene: ${s.name}${rec ? `, recommended. ${x.rec.why}` : ""}. Change scene`);
+  }
 
-    // Keep the chosen chip in view (the recommended one may be further along the row),
-    // scrolling the row only. A new part starts the row from its start.
-    const row = $("chips"), chip = row.children[on], pad = 16;
-    if (id !== chipsPart) row.scrollLeft = 0;
-    chipsPart = id;
-    const left = chip.offsetLeft - row.offsetLeft, right = left + chip.offsetWidth;
-    if (right + pad > row.scrollLeft + row.clientWidth) row.scrollLeft = right + pad - row.clientWidth;
-    else if (left - pad < row.scrollLeft) row.scrollLeft = left - pad;
+  // The scene sheet, for the part of the day showing when it opened: the part's hours, then
+  // one row per scene with a small lamp lit as that scene lights it (the head white with its
+  // sunlight, the base with its color, each as strong as it shows on the big lamp). The sheet
+  // glows from the top with the picked scene's light.
+  let sheetPart = "morning";
+  function renderScenes() {
+    const x = part(sheetPart), on = sceneIndex(x), rec = x.rec ? x.rec.i : -1;
+    const p = plan(), n = PARTS.indexOf(x), next = PARTS[n + 1];
+    const from = p.origin + p.rel[x.id], to = p.origin + (next ? p.rel[next.id] : DAY);
+    $("scene-title").textContent = x.name;
+    $("scene-when").textContent = `${fmt(from)} – ${fmt(to)}`;
+    $("scenes").setAttribute("aria-label", `${x.name} scene`);
+    const unlit = blend(RAISED, WHITE, 0.07);
+    $("scenes").innerHTML = x.scenes.map((s, i) => {
+      const headRgb = blend(unlit, SUN, strength(s.sun));
+      const baseRgb = s.color ? blend(unlit, COLOR[s.color], strength(s.c)) : unlit;
+      const mark = i === rec ? '<svg class="chip-mark" aria-hidden="true"><use href="#i-spark"/></svg>' : "";
+      const why = i === rec ? `<span class="scene-why"><span class="visually-hidden">Recommended: </span>${esc(x.rec.why)}</span>` : "";
+      return `<button class="scene-option" type="button" role="radio" aria-checked="${i === on}" tabindex="${i === on ? 0 : -1}" data-i="${i}">
+        <span class="mini-lamp" aria-hidden="true"><i style="background:${rgbCss(headRgb)}"></i><i style="background:${rgbCss(baseRgb)}"></i></span>
+        <span class="scene-option-text"><span class="scene-option-name">${mark}<span>${esc(s.name)}</span><span class="visually-hidden">, ${esc(describe(asLight(s)))}.</span></span>${why}</span>
+        <svg class="icon scene-check" aria-hidden="true"><use href="#i-check"/></svg>
+      </button>`;
+    }).join("");
+    const s = x.scenes[on];
+    const glow = s.c > OFF && s.color ? COLOR[s.color] : s.sun > OFF ? SUN : null;
+    $("scene-sheet").style.setProperty("--glow", glow ? rgbCss(glow) : "transparent");
   }
 
   // The lamp ---------------------------------------------------------------------------------
@@ -422,7 +445,7 @@
     ruler.setAttribute("aria-valuenow", String(Math.floor(mod(t))));
     ruler.setAttribute("aria-valuetext", `${fmt(t)}, ${part(id).name}, ${describe(l)}`);
 
-    paintChips(id);
+    paintScene(id);
     paintLamp(l);
     paintPlace();
     $("status-time").textContent = clock(nowMinutes()).hm;
@@ -520,29 +543,39 @@
     io.observe(ruler);
   }
 
-  // Scenes: choosing one changes the light right away; the time showing stays put.
-  $("chips").addEventListener("click", (e) => {
-    const b = e.target.closest(".ll-chip");
-    if (!b) return;
+  // Scenes, in their sheet: picking one changes the light right away and closes the sheet,
+  // so you see the lamp change; arrow keys try them one by one with the sheet open.
+  function pickScene(i) {
     takeOver();
-    state.preview = viewTime();
     // The recommended scene again: follow the recommendation (and its updates) again.
-    const x = part(b.dataset.part), i = +b.dataset.i;
+    const x = part(sheetPart);
     x.pick = x.rec && i === x.rec.i ? null : i;
     x.tune = null;   // a scene comes with its own strengths
-    chipsFor = "";
     paintRuler();
     render();
-    $("chips").querySelector(`[data-i="${b.dataset.i}"]`).focus({ preventScroll: true });
+    renderScenes();
+  }
+  $("scene").addEventListener("click", (e) => {
+    sheetPart = partAt(viewTime());
+    renderScenes();
+    openSheet("scene-sheet", e.currentTarget);
   });
-  $("chips").addEventListener("keydown", (e) => {
+  $("scenes").addEventListener("click", (e) => {
+    const b = e.target.closest(".scene-option");
+    if (!b) return;
+    pickScene(+b.dataset.i);
+    closeSheet();
+  });
+  $("scenes").addEventListener("keydown", (e) => {
     const dir = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
     if (!dir) return;
-    const items = [...$("chips").querySelectorAll(".ll-chip")];
-    const i = items.indexOf(document.activeElement);
+    const n = $("scenes").children.length;
+    const i = [...$("scenes").children].indexOf(document.activeElement);
     if (i < 0) return;
     e.preventDefault();
-    items[(i + dir + items.length) % items.length].click();
+    const next = (i + dir + n) % n;
+    pickScene(next);
+    $("scenes").children[next].focus({ preventScroll: true });
   });
 
   // Sheets ----------------------------------------------------------------------------------
@@ -555,7 +588,7 @@
     state.sheet = id;
     $(id).classList.add("is-open");
     device.classList.add("has-sheet");
-    const first = $(id).querySelector("input") || $(id).querySelector("h2");
+    const first = $(id).querySelector("input, [aria-checked='true']") || $(id).querySelector("h2");
     setTimeout(() => first.focus({ preventScroll: true }), 50);
   }
   function closeSheet() {
@@ -614,7 +647,8 @@
       const i = r ? x.scenes.findIndex((s) => s.name === r.scene) : -1;
       x.rec = i < 0 ? null : { i, why: r.why };
     }
-    chipsFor = "";
+    sceneFor = "";
+    if (state.sheet === "scene-sheet") renderScenes();
     paintPlace();
     paintRuler();
     render();

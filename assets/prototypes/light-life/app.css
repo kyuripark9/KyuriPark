@@ -391,15 +391,22 @@ html.is-fill .app {
 .ll-axis span:first-child { transform: none; }
 .ll-axis span:last-child { transform: translateX(-100%); }
 
-/* SceneChips, right under the panel: names in plain type, so the screen's mono capitals stay
-   for small labels and numbers. */
-.ll-chips { display: flex; gap: var(--space-2); margin: var(--space-3) calc(var(--space-4) * -1) 0; padding: 2px var(--space-4) 4px; overflow-x: auto; scrollbar-width: none; scroll-padding: 0 var(--space-4); }
-.ll-chips::-webkit-scrollbar { display: none; }
+/* SceneChip: names in plain type, so the screen's mono capitals stay for small labels and
+   numbers. It runs from the scene's sunlight to its color (--a, --b; app.js). */
 .ll-chip { flex: none; height: 40px; padding: 0 var(--space-4); border: 1.5px solid transparent; border-radius: var(--radius-pill); background: linear-gradient(var(--bg), var(--bg)) padding-box, linear-gradient(90deg, var(--a), var(--b)) border-box; color: var(--ink); font-size: 14px; font-weight: 500; letter-spacing: -0.005em; white-space: nowrap; }
-.ll-chip[aria-checked="true"] { background: linear-gradient(90deg, var(--a), var(--b)) border-box; color: var(--ink-on-light); }
-.ll-chip.is-dark[aria-checked="true"] { color: var(--ink); }
+.ll-chip[aria-checked="true"],
+.ll-chip.is-filled { background: linear-gradient(90deg, var(--a), var(--b)) border-box; color: var(--ink-on-light); }
+.ll-chip.is-dark:is([aria-checked="true"], .is-filled) { color: var(--ink); }
 /* The scene Light Life recommends for where you live wears a small spark. */
-.chip-mark { width: 10px; height: 10px; margin: 0 6px 0 -2px; vertical-align: -1px; }
+.chip-mark { flex: none; width: 10px; height: 10px; margin: 0 6px 0 -2px; vertical-align: -1px; }
+.chip-mark[hidden] { display: none; }
+
+/* The scene playing, one chip centered under the lamp; it opens the scene sheet. */
+.scene-row { display: flex; justify-content: center; margin-top: var(--space-3); }
+.scene-button { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; padding: 0 12px 0 18px; }
+.scene-button .chip-mark { margin: 0 -2px 0 -4px; }
+.scene-button > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.scene-chevron { flex: none; width: 14px; height: 14px; opacity: 0.6; }
 
 /* PillButton */
 .ll-pill { display: inline-flex; align-items: center; gap: var(--space-3); height: 52px; padding: 0 6px 0 22px; border-radius: var(--radius-pill); background: var(--surface-raised); color: var(--ink); font-size: 15px; font-weight: 500; line-height: 20px; }
@@ -409,12 +416,14 @@ html.is-fill .app {
 .ll-pill-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--ink); color: var(--bg); }
 .ll-pill-icon svg { width: 16px; height: 16px; }
 
-/* Sheet */
+/* Sheet: a card that floats up from the bottom, a little in from the screen's edges, every
+   corner rounded to follow the phone's (47px, less the 8px gap). */
 .scrim { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.3); opacity: 0; visibility: hidden; transition: opacity 0.35s, visibility 0s 0.35s; z-index: 4; }
 .has-sheet .scrim { opacity: 1; visibility: visible; transition: opacity 0.35s; }
-.sheet { position: absolute; inset: auto 0 0; transform: translateY(100%); visibility: hidden; transition: transform 0.4s var(--ease), visibility 0s 0.4s; z-index: 5; }
+.sheet { position: absolute; inset: auto 8px 8px; transform: translateY(calc(100% + 8px)); visibility: hidden; transition: transform 0.4s var(--ease), visibility 0s 0.4s; z-index: 5; }
 .sheet.is-open { transform: none; visibility: visible; transition: transform 0.4s var(--ease); }
-.ll-sheet { padding: var(--space-2) var(--space-4) 40px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; background: var(--surface); box-shadow: var(--shadow-sheet); color: var(--ink); }
+.ll-sheet { padding: var(--space-2) var(--space-4) 28px; border-radius: 39px; background: var(--surface); box-shadow: var(--shadow-sheet); color: var(--ink); }
+html.is-fill .ll-sheet { border-radius: var(--radius-lg); padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px)); }
 .ll-grabber { display: block; width: 36px; height: 5px; margin: 0 auto 14px; border-radius: 3px; background: var(--surface-raised); }
 .ll-sheet-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); padding: 0 4px var(--space-4); }
 .ll-sheet-title { font-size: 24px; font-weight: 500; line-height: 28px; letter-spacing: -0.02em; outline: none; box-shadow: none; }
@@ -429,6 +438,29 @@ html.is-fill .app {
 .ll-stepper output { min-width: 96px; font-size: 20px; font-weight: 500; line-height: 24px; letter-spacing: -0.02em; text-align: center; font-variant-numeric: tabular-nums; }
 .ll-round { display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--radius-pill); background: var(--glass); color: var(--ink); font-size: 20px; line-height: 1; }
 .ll-round:disabled { opacity: 0.3; cursor: default; }
+
+/* The scene sheet: it glows faintly from the top with the light of the scene picked (--glow,
+   app.js), fading out like the lamp's own light. One row per scene: a small lamp lit as the
+   scene lights it (its head with the sunlight, its base with the color), the name, and for
+   the recommended scene, a spark and why; a check on the one playing. */
+@property --glow { syntax: "<color>"; inherits: false; initial-value: transparent; }
+.scene-sheet { background: radial-gradient(130% 75% at 50% 0%, color-mix(in srgb, var(--glow) 22%, transparent), transparent 75%), var(--surface); transition: transform 0.4s var(--ease), visibility 0s 0.4s, --glow 0.6s var(--ease); }
+.scene-sheet.is-open { transition: transform 0.4s var(--ease), --glow 0.6s var(--ease); }
+.scenes { overflow: hidden; }
+.scene-option { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 64px; padding: 12px var(--space-4); text-align: left; transition: background-color 0.2s; }
+.scene-option + .scene-option { border-top: 1px solid var(--line); }
+.scene-option:hover { background: #ffffff0a; }
+.scene-option:focus-visible { box-shadow: inset 0 0 0 2px var(--signal); }
+.scene-option-text { display: flex; flex: 1; flex-direction: column; gap: 3px; min-width: 0; }
+.scene-option-name { display: flex; align-items: center; font-size: 16px; font-weight: 500; line-height: 20px; letter-spacing: -0.01em; }
+.scene-option-name .chip-mark { margin: 0 6px 0 0; }
+.scene-why { color: var(--ink-muted); font-size: 13px; line-height: 18px; }
+.scene-check { width: 18px; height: 18px; opacity: 0; transition: opacity 0.2s; }
+.scene-option[aria-checked="true"] .scene-check { opacity: 1; }
+.mini-lamp { display: flex; flex: none; flex-direction: column; align-items: center; gap: 2px; width: 30px; }
+.mini-lamp i { display: block; transition: background-color 0.4s; }
+.mini-lamp i:first-child { width: 30px; height: 24px; border-radius: 10px; }
+.mini-lamp i:last-child { width: 25px; height: 10px; border-radius: 5px; }
 
 /* The city sheet: tall, so the search field sits at the top, above a phone's keyboard. */
 .sheet.is-tall { top: 56px; display: flex; flex-direction: column; }

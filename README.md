@@ -186,8 +186,9 @@ Blocks appear in the order you list them. The template uses Context → Explore 
   two lights, apart, each with its own job: white sunlight that shines on you (how strong)
   and a color that colors your space (which color, how strong; the `--lamp-` colors in
   `app.css`). The screen draws the lamp as it's built (the 2023 renders): the head, a rounded
-  square holding a round white light, with the sunlight's percent on it in dot digits; and
-  under it the base, a pill a little narrower, glowing with the color from below. Each part
+  square that lights white, with the sunlight's percent on it in dot digits; and under it the
+  base, a pill a little narrower, that lights in the color. Each light spreads softly through
+  its whole part, deepest in the middle and fading out, paler, toward the edges. Each part
   has its own tape, a ruler that slides under a fixed yellow mark: drag the part (or its
   ruler) sideways, tap the ruler, or use the arrow keys to set how strong that light is for
   the part of the day showing; picking a scene again goes back to the scene's own strengths.

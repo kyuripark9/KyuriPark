@@ -301,24 +301,38 @@
   const head = $("head"), base = $("base");
   // How strongly each light shows: a weak light still shows a little.
   const strength = (v) => (v > OFF ? 0.15 + 0.85 * Math.pow(v, 0.7) : 0);
-  // Light (dark-on-light) ink once the fill behind passes 0.18 luminance, where dark and
-  // light text tie in contrast. Each fill is one flat color over the whole part.
-  const bright = (rgb, a) => luminance(blend(SURFACE, rgb, a)) > 0.18;
+  // Dark ink (for light behind) where it reads better than light ink. The glow is bright in
+  // the middle, where the digits sit, and dim and pale at the edge, where the head's label and
+  // ruler sit (app.css: the color 60% with white, at 26%); the base is short, so its label
+  // and ruler sit between the two.
+  const WHITE = [255, 255, 255];
+  const contrast = (x, ink) => { const l = luminance(x), k = luminance(ink); return (Math.max(l, k) + 0.05) / (Math.min(l, k) + 0.05); };
+  const darkInk = (...spots) => {
+    const worst = (ink) => Math.min(...spots.map((x) => contrast(x, ink)));
+    return worst(INK_ON_LIGHT) > worst(INK);
+  };
+  const middle = (rgb, a) => blend(SURFACE, rgb, a);
+  const edge = (rgb, a) => blend(SURFACE, blend(rgb, WHITE, 0.4), a * 0.26);
+  const between = (rgb, a) => blend(SURFACE, rgb, a * 0.55);
 
   function paintLamp(l) {
     const sunA = strength(l.sun), colA = strength(l.c);
     $("sun-fill").style.opacity = sunA.toFixed(3);
-    head.classList.toggle("ink-light", bright(SUN, sunA));
+    head.classList.toggle("is-lit", sunA > 0);
+    head.classList.toggle("ink-light", darkInk(middle(SUN, sunA)));
+    head.classList.toggle("edge-light", darkInk(edge(SUN, sunA)));
     dotDigits($("sun-digits"), String(pct(l.sun)));
     paintTape(sunTape, l.sun, saySun(l));
 
     const rgb = rgbCss(l.rgb);
-    $("color-fill").style.backgroundColor = rgb;
+    $("color-fill").style.setProperty("--fill", rgb);
     $("color-fill").style.opacity = colA.toFixed(3);
     $("swatch-color").style.backgroundColor = l.c > OFF ? rgb : "transparent";
     $("color-name").textContent = l.c > OFF ? NAMES[l.color] : "Color";
     $("color-value").textContent = l.c > OFF ? `${pct(l.c)}%` : "Off";
-    base.classList.toggle("ink-light", bright(l.rgb, colA));
+    const baseDark = darkInk(middle(l.rgb, colA), between(l.rgb, colA));
+    base.classList.toggle("ink-light", baseDark);
+    base.classList.toggle("edge-light", baseDark);
     paintTape(colorTape, l.c, sayColor(l));
   }
 

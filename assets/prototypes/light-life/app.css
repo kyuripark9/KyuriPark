@@ -283,20 +283,26 @@ html.is-fill .app {
 .lamp-label { display: flex; align-items: center; gap: 6px; color: var(--ink-muted); transition: color 0.4s; }
 .lamp-label .icon { width: 12px; height: 12px; }
 
-/* Each light fills its whole part with one flat color: the head white with sunlight, the base
-   with its color, as strong as the light is (opacity, app.js). No circle, no gradient. Once the
-   fill is bright, everything on that part turns to dark ink (.ink-light, app.js). The color
-   moves on background-color, so it fades from one color to the next. */
-.lamp-fill { position: absolute; inset: 0; z-index: -1; border-radius: inherit; background-color: transparent; opacity: 0; transition: opacity 0.6s var(--ease), background-color 0.6s var(--ease); pointer-events: none; }
-.sun-fill { background-color: var(--lamp-sun); }
+/* Each light fills its whole part and spreads through it: the color at its deepest in the
+   middle (a blurred glow, ::before), fading out slowly and paling toward the edges (a radial
+   wash of the same color), with no edge of its own. As strong as the light is (opacity,
+   app.js). app.js sets the color (--fill) and which ink reads on the bright middle
+   (.ink-light: the digits) and near the dim edge (.edge-light: label and ruler). --fill is a
+   registered color, so a new color fades in, glow and wash together. */
+@property --fill { syntax: "<color>"; inherits: true; initial-value: transparent; }
+.lamp-fill { --edge: color-mix(in srgb, color-mix(in srgb, var(--fill) 60%, #fff) 26%, transparent); position: absolute; inset: 0; z-index: -1; overflow: hidden; border-radius: inherit; background: radial-gradient(ellipse 76% 76% at 50% 50%, color-mix(in srgb, var(--fill) 72%, transparent), color-mix(in srgb, var(--fill) 42%, transparent) 50%, var(--edge)); opacity: 0; transition: opacity 0.6s var(--ease), --fill 0.6s var(--ease); pointer-events: none; }
+.lamp-fill::before { content: ""; position: absolute; inset: 20% 16%; border-radius: 50%; background-color: var(--fill); filter: blur(44px); }
+.lamp-base .lamp-fill::before { inset: 16% 20%; filter: blur(26px); }
+.sun-fill { --fill: var(--lamp-sun); }
 .disc-value { position: relative; display: flex; flex: none; flex-direction: column; align-items: center; gap: 10px; margin: auto 0; }
 .base-label { gap: 8px; color: var(--ink); }   /* the color's name: something to read */
 .base-value { min-width: 4ch; color: var(--ink); text-align: right; transition: color 0.4s; }
+.is-lit .lamp-label { color: var(--ink); }   /* muted only on a dark part; on a lit one it fades */
 .lamp-head.ink-light,
 .lamp-base.ink-light,
-.ink-light .lamp-label,
-.ink-light .base-value,
-.ink-light .ll-tape { color: var(--ink-on-light); }
+.edge-light .lamp-label,
+.edge-light .base-value,
+.edge-light .ll-tape { color: var(--ink-on-light); }
 .swatch { flex: none; width: 12px; height: 6px; border-radius: 3px; box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 35%, transparent); transition: background-color 0.6s var(--ease); }
 
 /* Dragging a light: it follows the finger, with no easing behind. */

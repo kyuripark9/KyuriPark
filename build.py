@@ -688,9 +688,9 @@ class Builder:
 
     def header_logo(self):
         """The logo (assets/logo/logo-small.svg, made in another session on 2026-11-13: two line
-        sunbursts, one over the other), inline so it takes the header's color and blend. Its
-        lines are drawn 1px wide at any size (non-scaling), as the header's rules are; the
-        file's 4-unit lines would come out under half a pixel at the header's size. Until the
+        sunbursts, side by side since the same day), inline so it takes the header's color and
+        blend. Its lines are drawn 1px wide at any size (non-scaling), as the header's rules
+        are; the file's 4-unit lines would come out under half a pixel at the header's size. Until the
         file exists, the name stands in its place. Read once per build."""
         if self.logo is None:
             svg = self.read_logo(HEADER_LOGO, "site-logo")

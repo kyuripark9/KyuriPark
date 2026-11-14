@@ -41,9 +41,11 @@ of the header's links:
 - beside them the email, LinkedIn, GitHub, and the copyright (in gray), one under another;
 - at the right, the logo, large: `assets/logo/logo.svg`, the cut with more lines, inline with
   1px lines as the header's (`footer_logo` in `build.py`; left out, with a build note, if the
-  file is missing). 80px tall on phones, 144px from 768px, 192px from 1200px
-  (`--footer-logo-h`); it sets the footer's height, with the header's 8px over and under it
-  (7px on phones), and the two columns sit in its middle.
+  file is missing). 144px tall from 768px, 192px from 1200px (`--footer-logo-h`); it sets the
+  footer's height, with the header's 8px over and under it, and the two columns sit in its
+  middle. On phones it's 80px tall in a row of its own under the links, at the right (its
+  suns side by side, it's too wide to sit beside them), with 16px over the links and under
+  the logo, 24px between.
 
 From 768px the columns start where the header's WORK and ARCHIVE do (`--gutter` into the
 window's first and second eighths); on phones at the page's edge, 24px apart, with no counts.
@@ -79,8 +81,9 @@ assets/icons/           the browser tab and home-screen icons: favicon.svg, favi
                         pass goes (12 dots across for the tab, 24 for the home screen); to
                         change it, replace the three files, keeping their names
 assets/fonts/           Inter (with Inter Display) and Martian Mono, with their licenses
-assets/logo/            the logo: logo.svg / .png (36 rays) and logo-small.svg / .png (24 rays);
-                        the header shows logo-small.svg (see Header)
+assets/logo/            the logo, two line suns side by side (since 2026-11-13; one over the
+                        other before): logo.svg / .png (36 rays) and logo-small.svg / .png
+                        (24 rays); the header shows logo-small.svg (see Header)
 assets/Kyuri-Park-Resume.pdf
 assets/css/style.css    all styling; colors, type sizes, and spacing are at the top
 assets/js/main.js       Work's filter, lightbox, fade-ups, count-up
@@ -367,9 +370,11 @@ Laid out after gougoucore.com's header since 2026-11-13 (the user's ask), from
   number of items on Work and of images on Archive, worked out by the build (Martian Mono at
   10px; from 768px only, or on a 320px phone the links would run into the logo).
 - In the window's middle, the logo, linking home: `assets/logo/logo-small.svg` (made in another
-  session on 2026-11-13), set inline by `header_logo` in `build.py` so it takes the header's
-  color, its lines drawn 1px wide at any size. 40px tall from 768px, 30px on phones
-  (`--logo-h`). Screen readers hear "Kyuri Park". If the file is missing, the name shows in
+  session on 2026-11-13, its suns turned side by side the same day), set inline by
+  `header_logo` in `build.py` so it takes the header's color, its lines drawn 1px wide at any
+  size. 40px tall from 768px, 30px on phones, 20px under 360px, where any taller runs into
+  ABOUT (`--logo-h`; the header keeps its height, with more room over and under it). Screen
+  readers hear "Kyuri Park". If the file is missing, the name shows in
   its place and the build says so. Swap the file (same name, an SVG of `<path>` lines) to
   change the logo.
 - At the right, ABOUT and CONTACT (CONTACT where gougoucore has RESUME). CONTACT goes to the

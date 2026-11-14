@@ -171,7 +171,8 @@
   --header-pad: var(--step-2);    /* under the header's text until 2026-11-13: 16px, 24px from
                                      768px. --page-top still counts from it, so pages start
                                      where they did */
-  --logo-h: 30px;                 /* the header's logo: 30px tall, 40px from 768px */
+  --logo-h: 30px;                 /* the header's logo: 30px tall (20px under 360px, below),
+                                     40px from 768px; side by side, 1.64 times as wide */
   --header-y: 7px;                /* over and under the logo, inside the header's lines: 7px,
                                      8px from 768px */
   /* The header's box (since 2026-11-13, after gougoucore.com's): a line over and under it, and
@@ -222,7 +223,19 @@
    so they're written out; build.py's ARCHIVE_SIZES uses them too). Under 768px is a phone.
    1440px steps up the display and title sizes only, as titarvl's do.
    Work's grid alone goes by 640 and 1440px (since 2026-11-06): 1 column, 2, then 3.
+   The header's logo alone is smaller under 360px (below).
    Until 2026-11-05 there were also 640, 1024, and 1240px. */
+
+/* Under 360px the logo, its suns side by side since 2026-11-13, is 20px tall (each sun as
+   large as the upright logo's were at 30px): any taller and it runs into ABOUT on a 320px
+   phone. More room over and under it keeps the header 46px tall. */
+@media (max-width: 359px) {
+  :root {
+    --logo-h: 20px;
+    --header-y: 12px;
+  }
+}
+
 @media (min-width: 768px) {
   :root {
     --gutter: var(--step-3);
@@ -2568,25 +2581,28 @@ html.intro-on {
      - beside them the email, LinkedIn, and GitHub, and the copyright in gray, one under another;
      - the logo, large, at the right, --gutter in from the window's edge, the cut with more
        lines (assets/logo/logo.svg, build.py's footer_logo), its lines 1px wide as the header's.
-   The logo is the footer's tallest thing and sets its height: the header's --header-y over
-   and under it, as over and under the header's logo; the two columns of links sit in the
-   middle. From 768px the columns start where the header's links do: the first --gutter into
+   From 768px the logo is the footer's tallest thing and sets its height: the header's
+   --header-y over and under it, as over and under the header's logo; the two columns of links
+   sit in the middle. The columns start where the header's links do: the first --gutter into
    the window's first eighth (under WORK), the second --gutter into the second (under ARCHIVE).
-   On a phone they sit at the page's edge, --step-3 apart. Links in the text color, muted on
-   hover, as gougoucore's are (see Shared text styles). Under Work's and Archive's grids it
+   On a phone they sit at the page's edge, --step-3 apart, with the logo in a row of its own
+   under them, at the right (since 2026-11-13: its suns side by side, it's too wide to sit
+   beside them), --step-2 over the links and under the logo, --step-3 between. Links in the
+   text color, muted on hover, as gougoucore's are (see Shared text styles). Under Work's and Archive's grids it
    starts right away, its line on the grid's last one (below); under anything else, --section-gap
    down. (Until 2026-11-13: the email, LinkedIn, GitHub, and Resume in a line in the label
    style, dots between them, under a rule in the page's width, with the copyright at the
    right.) */
 .site-footer {
-  --footer-logo-h: 80px;  /* the logo's height: 80px, 144px from 768px, 192px from 1200px; on a
-                            320px phone it keeps 14px clear of the email */
+  --footer-logo-h: 80px;  /* the logo's height: 80px, 144px from 768px, 192px from 1200px;
+                            side by side, 1.64 times as wide */
   scroll-margin-top: var(--header-h);  /* the header's CONTACT (#contact) lands it under the header */
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
+  row-gap: var(--step-3);
   margin-top: var(--section-gap);
-  padding-block: var(--header-y);
+  padding-block: var(--step-2);
   border-top: var(--rule);
   font-size: var(--size-menu);
   letter-spacing: var(--tracking-name);  /* set again at its own size, as the header's links */
@@ -2621,6 +2637,8 @@ html.intro-on {
 /* No max-width (every svg has max-width: 100%, see Base): with it the browser may squeeze the
    logo's column to nothing on a phone, a percentage-wide image counting as 0px wide there. */
 .footer-logo {
+  grid-column: 1 / -1;  /* on a phone, a row of its own under the links (beside them from 768px) */
+  justify-self: end;
   width: auto;
   max-width: none;
   height: var(--footer-logo-h);
@@ -2636,10 +2654,16 @@ html.intro-on {
   .site-footer {
     --footer-logo-h: 144px;
     grid-template-columns: 12.5% minmax(0, 1fr) auto;
+    row-gap: 0;
+    padding-block: var(--header-y);
   }
 
   .footer-contact {
     padding-left: var(--gutter);
+  }
+
+  .footer-logo {
+    grid-column: auto;
   }
 }
 

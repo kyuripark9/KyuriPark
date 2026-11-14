@@ -55,23 +55,22 @@
     </div>
 
     <!-- The lamp, built like the real one: two parts, apart, each with its own light and its
-         own job. The head, a rounded square holding a white disc: sunlight that shines on you.
-         The base under it, a pill: a color that colors your space (turned by hand, on the lamp).
+         own job. The head, a rounded square that fills with white: sunlight that shines on you.
+         The base under it, a pill that fills with color: it colors your space (turned by hand,
+         on the lamp).
          Drag either one, or its ruler, to set how strong it is for the part of the day showing. -->
     <section class="lamp" aria-label="The lamp">
       <div class="lamp-head" id="head">
+        <span class="lamp-fill sun-fill" id="sun-fill" aria-hidden="true"></span>
         <p class="ll-label lamp-label"><svg class="icon" aria-hidden="true"><use href="#i-sun"/></svg>Sunlight</p>
-        <div class="sun-disc" aria-hidden="true">
-          <span class="sun-light" id="sun-light"></span>
-          <span class="disc-value"><span id="sun-digits"></span><span class="ll-label">%</span></span>
-        </div>
+        <span class="disc-value" aria-hidden="true"><span id="sun-digits"></span><span class="ll-label">%</span></span>
         <div class="ll-tape" id="sun-tape" role="slider" tabindex="0" aria-label="Sunlight" aria-valuemin="0" aria-valuemax="100">
           <span class="ll-tape-window"><span class="ll-tape-track"></span></span>
           <span class="ll-tape-mark" aria-hidden="true"></span>
         </div>
       </div>
       <div class="lamp-base" id="base">
-        <span class="color-light" id="color-light" aria-hidden="true"></span>
+        <span class="lamp-fill" id="color-fill" aria-hidden="true"></span>
         <p class="ll-label lamp-label base-label" aria-hidden="true"><span class="swatch" id="swatch-color"></span><span id="color-name">Mint</span><span class="base-value" id="color-value">35%</span></p>
         <div class="ll-tape" id="color-tape" role="slider" tabindex="0" aria-label="Color" aria-valuemin="0" aria-valuemax="100">
           <span class="ll-tape-window"><span class="ll-tape-track"></span></span>

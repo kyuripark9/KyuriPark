@@ -271,41 +271,36 @@ html.is-fill .app {
 .now-title { display: flex; align-items: baseline; gap: 10px; min-width: 0; font-size: 24px; font-weight: 500; line-height: 28px; letter-spacing: -0.02em; white-space: nowrap; }
 .now-time { color: var(--ink-muted); font-family: var(--font-mono); font-size: 13px; font-weight: 400; line-height: 16px; letter-spacing: 0.02em; }
 
-/* The lamp, built like the real one (the 2023 renders): a head, a rounded square holding a
-   round white light, over a base, a pill with the color light inside. Two parts, a small gap
+/* The lamp, built like the real one (the 2023 renders): a head, a rounded square that lights
+   white, over a base, a pill that lights in color. Two parts, a small gap
    apart, the base a little narrower. Each is dark when its light is off; app.js sets how
-   strong each light shows (opacity) and the base's color. */
+   strong each light shows and the base's color. */
 .lamp { display: flex; flex: 1 0 auto; flex-direction: column; gap: 6px; }
 .lamp-head,
-.lamp-base { position: relative; isolation: isolate; overflow: hidden; overflow: clip; display: flex; flex-direction: column; align-items: center; background: var(--surface); color: var(--ink); cursor: ew-resize; touch-action: pan-y; -webkit-user-select: none; user-select: none; }
+.lamp-base { position: relative; isolation: isolate; overflow: hidden; overflow: clip; display: flex; flex-direction: column; align-items: center; background: var(--surface); color: var(--ink); cursor: ew-resize; transition: color 0.4s; touch-action: pan-y; -webkit-user-select: none; user-select: none; }
 .lamp-head { flex: 1 0 auto; min-height: 250px; padding: 22px 24px 16px; border-radius: 76px; }
 .lamp-base { flex: none; justify-content: center; gap: 4px; height: 104px; margin: 0 12px; padding: 0 44px; border-radius: 52px; }
 .lamp-label { display: flex; align-items: center; gap: 6px; color: var(--ink-muted); transition: color 0.4s; }
 .lamp-label .icon { width: 12px; height: 12px; }
 
-/* The head's light: a disc, its rim always showing, filled with white as strong as the
-   sunlight, and a soft bloom of it on the head around. The number sits on the light, in
-   dark ink once the light behind it is bright (.ink-disc, app.js). */
-.sun-disc { position: relative; display: grid; flex: none; place-items: center; width: 168px; aspect-ratio: 1; margin: auto 0; border-radius: 50%; box-shadow: inset 0 0 0 1px #ffffff24; }
-.sun-disc::before { content: ""; position: absolute; inset: -55%; z-index: -1; border-radius: 50%; background: radial-gradient(closest-side, #ffffff52, #ffffff1c 55%, transparent); opacity: var(--sun, 0); transition: opacity 0.6s var(--ease); pointer-events: none; }
-.sun-light { position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(closest-side, #fff 60%, #ffffffe0 82%, #ffffffa8); box-shadow: 0 0 24px #ffffff59; opacity: var(--sun, 0); transition: opacity 0.6s var(--ease); }
-.disc-value { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; transition: color 0.4s; }
-.lamp-head.ink-disc .disc-value { color: var(--ink-on-light); }
-
-/* The base's light: its color glowing up from the bottom, as strong as it is. The color moves
-   on background-color (a mask gives the shape), so it fades from one color to the next. */
-.color-light { position: absolute; inset: 0; z-index: -1; background-color: transparent; -webkit-mask-image: radial-gradient(78% 112% at 50% 100%, #000, #000000e6 30%, transparent 86%); mask-image: radial-gradient(78% 112% at 50% 100%, #000, #000000e6 30%, transparent 86%); opacity: 0; transition: opacity 0.6s var(--ease), background-color 0.6s var(--ease); pointer-events: none; }
+/* Each light fills its whole part with one flat color: the head white with sunlight, the base
+   with its color, as strong as the light is (opacity, app.js). No circle, no gradient. Once the
+   fill is bright, everything on that part turns to dark ink (.ink-light, app.js). The color
+   moves on background-color, so it fades from one color to the next. */
+.lamp-fill { position: absolute; inset: 0; z-index: -1; border-radius: inherit; background-color: transparent; opacity: 0; transition: opacity 0.6s var(--ease), background-color 0.6s var(--ease); pointer-events: none; }
+.sun-fill { background-color: var(--lamp-sun); }
+.disc-value { position: relative; display: flex; flex: none; flex-direction: column; align-items: center; gap: 10px; margin: auto 0; }
 .base-label { gap: 8px; color: var(--ink); }   /* the color's name: something to read */
 .base-value { min-width: 4ch; color: var(--ink); text-align: right; transition: color 0.4s; }
-.lamp-base.ink-top .lamp-label,
-.lamp-base.ink-top .base-value { color: var(--ink-on-light); }
-.lamp-base.ink-tape .ll-tape,
-.lamp-head.ink-tape .ll-tape { color: var(--ink-on-light); }
+.lamp-head.ink-light,
+.lamp-base.ink-light,
+.ink-light .lamp-label,
+.ink-light .base-value,
+.ink-light .ll-tape { color: var(--ink-on-light); }
 .swatch { flex: none; width: 12px; height: 6px; border-radius: 3px; box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 35%, transparent); transition: background-color 0.6s var(--ease); }
 
 /* Dragging a light: it follows the finger, with no easing behind. */
-.is-tuning :is(.sun-light, .color-light, .swatch, .ll-tape-track) { transition-duration: 0s; }
-.is-tuning .sun-disc::before { transition-duration: 0s; }
+.is-tuning :is(.lamp-fill, .swatch, .ll-tape-track) { transition-duration: 0s; }
 .is-tuning .lamp-head,
 .is-tuning .lamp-base { cursor: grabbing; }
 
@@ -327,7 +322,6 @@ html.is-fill .app {
 .ll-glyph { display: grid; grid-template-columns: repeat(var(--cols, 5), var(--dot)); grid-auto-rows: var(--dot); gap: calc(var(--dot) / 2); }
 .ll-glyph i { border-radius: 50%; background: currentColor; opacity: 0; }
 .ll-glyph i.on { opacity: 1; }
-.sun-disc .ll-digits { --dot: 5px; }
 
 /* LightRuler */
 .ruler-block { margin-top: var(--space-5); }

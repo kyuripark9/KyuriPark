@@ -35,10 +35,12 @@ footer) (`templates/footer.html`, `footer()` in `build.py`, `.site-footer` in
 ask): a 1px line over it from the window's left edge to its right, and under it, in the type
 of the header's links:
 
-- at the left, the header's links one under another, WORK (8), ARCHIVE (8), ABOUT, and RESUME
-  where the header has CONTACT, as gougoucore's footer repeats its header's links, its
-  résumé among them;
-- beside them the email, LinkedIn, GitHub, and the copyright (in gray), one under another;
+- at the left, the header's links one under another, WORK (8), ARCHIVE (8), ABOUT, as
+  gougoucore's footer repeats its header's links;
+- beside them the email, LinkedIn, GitHub, and RESUME, one under another, their tops level
+  with the first column's (the résumé here since late 2026-11-13, the user's ask; under
+  ABOUT for a few hours before. No copyright since then either; `"copyright"` set again puts
+  it under them, in gray);
 - at the right, the logo, large: `assets/logo/logo.svg`, the cut with more lines, inline with
   1px lines as the header's (`footer_logo` in `build.py`; left out, with a build note, if the
   file is missing). 144px tall from 768px, 192px from 1200px (`--footer-logo-h`); it sets the
@@ -53,7 +55,7 @@ Under Work's and Archive's grids the footer starts right away, its line on the g
 one, running on under a row that isn't full; under anything else, a section's gap down. Links
 are in the text color, muted on hover. The footer is `#contact`, so `/about/#contact` (and
 `/contact/`) lands on it. The links come from `"email"`, `"linkedin"`, `"github"`, and
-`"resume"` in `content/site.json`, the copyright from `"copyright"` (empty: none). (Until
+`"resume"` in `content/site.json`, the copyright from `"copyright"` (empty or left out: none, as since 2026-11-13). (Until
 2026-11-13 the email, LinkedIn, GitHub, and Resume in one line in the label style, dots
 between them, under a rule in the page's width, with the copyright at the right; from
 2026-11-06 to 2026-11-12 a Contact label stood over it on About; until 2026-11-06 About had a
@@ -378,8 +380,8 @@ Laid out after gougoucore.com's header since 2026-11-13 (the user's ask), from
   its place and the build says so. Swap the file (same name, an SVG of `<path>` lines) to
   change the logo.
 - At the right, ABOUT and CONTACT (CONTACT where gougoucore has RESUME). CONTACT goes to the
-  footer on the same page (`#contact`), which has the email, LinkedIn, GitHub, and the résumé
-  (under the header's links again, as gougoucore's footer has them);
+  footer on the same page (`#contact`), which has the header's links again, as gougoucore's
+  footer has them, and the email, LinkedIn, GitHub, and the résumé;
   on Home (with `HOME_TRACK` on), which has no footer, to About's.
 - From 768px the window is cut in eighths, as gougoucore's is: WORK starts `--gutter` into the
   first, ARCHIVE `--gutter` into the second, ABOUT ends `--gutter` before the seventh's end, and

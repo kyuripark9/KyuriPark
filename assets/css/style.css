@@ -2576,14 +2576,16 @@ html.intro-on {
 /* After gougoucore.com's footer (since 2026-11-13, the user's ask): a 1px line over it, from the
    window's left edge to its right, as the header's lines and Work's grid run, and under it three
    parts across, in the type of the header's links (the name style at --size-menu):
-     - the header's links one under another, WORK (8), ARCHIVE (8), ABOUT, and the résumé where
-       the header has CONTACT (the footer is Contact), as gougoucore's repeats its header's links;
-     - beside them the email, LinkedIn, and GitHub, and the copyright in gray, one under another;
+     - the header's links one under another, WORK (8), ARCHIVE (8), ABOUT, as gougoucore's
+       repeats its header's links (RESUME under them, where the header has CONTACT, for a few
+       hours on 2026-11-13);
+     - beside them the email, LinkedIn, GitHub, and RESUME, one under another (the résumé here
+       since late 2026-11-13, the user's ask; the copyright under them, in gray, until then);
      - the logo, large, at the right, --gutter in from the window's edge, the cut with more
        lines (assets/logo/logo.svg, build.py's footer_logo), its lines 1px wide as the header's.
    From 768px the logo is the footer's tallest thing and sets its height: the header's
    --header-y over and under it, as over and under the header's logo; the two columns of links
-   sit in the middle. The columns start where the header's links do: the first --gutter into
+   sit in the middle, their tops level (.footer-lists). The columns start where the header's links do: the first --gutter into
    the window's first eighth (under WORK), the second --gutter into the second (under ARCHIVE).
    On a phone they sit at the page's edge, --step-3 apart, with the logo in a row of its own
    under them, at the right (since 2026-11-13: its suns side by side, it's too wide to sit
@@ -2607,6 +2609,17 @@ html.intro-on {
   font-size: var(--size-menu);
   letter-spacing: var(--tracking-name);  /* set again at its own size, as the header's links */
   white-space: nowrap;
+}
+
+/* The two columns of links, in one box on the footer's first two columns (a subgrid, so they
+   keep their places), set at its top: the first column has a line fewer than the second, and
+   each set in the middle on its own, their lines would no longer face each other. The box is
+   in the middle. */
+.footer-lists {
+  grid-column: 1 / 3;
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: start;
 }
 
 /* Work's and Archive's grids run to the window's edges and end with a line under their last

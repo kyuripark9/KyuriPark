@@ -428,7 +428,7 @@ def _svg_size(f):
 def validate(site, items):
     """Stop on content problems that would break the site; return softer warnings."""
     for key in ("name", "role", "title", "description", "email", "linkedin", "github",
-                "resume", "copyright", "about"):
+                "resume", "about"):
         need(site, key, "content/site.json")
     if not isinstance(items, list) or not items:
         raise BuildError("content/projects.json should be a list of items: [ {...}, {...} ].")
@@ -737,45 +737,47 @@ class Builder:
                 f'<span class="visually-hidden">, {n} {noun}{"" if n == 1 else "s"}</span>')
 
     # The footer (since 2026-11-13, after gougoucore.com's): a line over it, from the window's
-    # left edge to its right; the header's links and the résumé one under another at the left,
-    # the email, LinkedIn, and GitHub, and the copyright, in a column beside them, and the logo,
-    # large, at the right. (Until 2026-11-13 the email, LinkedIn, GitHub, and Resume in a line
-    # under a rule, the copyright at the right.)
+    # left edge to its right; the header's links one under another at the left, the email,
+    # LinkedIn, GitHub, and the résumé in a column beside them (the résumé under About in the
+    # first column for a few hours on 2026-11-13; the copyright under them until late that day),
+    # and the logo, large, at the right. (Until 2026-11-13 the email, LinkedIn, GitHub, and
+    # Resume in a line under a rule, the copyright at the right.)
 
     def footer(self):
         s = self.site
-        copyright = s["copyright"].strip()
+        copyright = (s.get("copyright") or "").strip()  # empty or left out: none (off since 2026-11-13)
         return render(
             "footer.html",
-            menu_links=self.menu_links("      "),
-            contact_links=self.contact_links("        "),
-            copyright=f'      <p class="copyright">{esc(copyright)}</p>' if copyright else "",
+            menu_links=self.menu_links("        "),
+            contact_links=self.contact_links("          "),
+            copyright=f'        <p class="copyright">{esc(copyright)}</p>' if copyright else "",
             logo=("    " + self.footer_logo()) if self.footer_logo() else "",
         )
 
     def menu_links(self, indent):
         """The footer's first column: the header's Work, Archive, and About, with their counts,
-        and the résumé where the header has Contact (the footer is Contact), as gougoucore's
-        footer repeats its header's links, its résumé among them."""
+        as gougoucore's footer repeats its header's links. (The résumé stood under About, where
+        the header has Contact, for a few hours on 2026-11-13; it's in the contact column now.)"""
         items = [
             f'<a href="{"/work/" if HOME_TRACK else "/"}">Work'
             f'{self.menu_count(len(self.items), "project")}</a>',
             f'<a href="/archive/">Archive{self.menu_count(len(self.archive), "image")}</a>',
             '<a href="/about/">About</a>',
-            link(url_for(self.site["resume"]), "Resume", rel="noopener noreferrer"),
         ]
         return "\n".join(f"{indent}<li>{item}</li>" for item in items)
 
     def contact_links(self, indent):
-        """The email, LinkedIn, and GitHub links from content/site.json, for the footer's second
-        column (the résumé in the first since 2026-11-13; until 2026-11-06 About's Contact
-        section listed them too, one under another)."""
+        """The email, LinkedIn, GitHub, and résumé links from content/site.json, for the
+        footer's second column (the résumé moved here from the first late on 2026-11-13, the
+        user's ask; until 2026-11-06 About's Contact section listed them too, one under
+        another)."""
         s = self.site
         rel = "noopener noreferrer"
         items = [
             link(esc("mailto:" + s["email"]), esc(s["email"])),
             link(esc(s["linkedin"]), "LinkedIn", rel=rel),
             link(esc(s["github"]), "GitHub", rel=rel),
+            link(url_for(s["resume"]), "Resume", rel=rel),
         ]
         return "\n".join(f"{indent}<li>{item}</li>" for item in items)
 

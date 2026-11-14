@@ -69,8 +69,8 @@
 
     <!-- The lamp, built like the real one: two parts, apart, each with its own light and its
          own job. The head, a rounded square that glows white at its edge: sunlight that shines on you.
-         The base under it, a pill that fills with color: it colors your space (turned by hand,
-         on the lamp).
+         The base under it, a pill that fills with color, brightest at its edge, the color's name
+         in white in the middle: it colors your space (turned by hand, on the lamp).
          Drag either one, or its ruler, to set how strong it is for the part of the day showing. -->
     <section class="lamp" aria-label="The lamp">
       <div class="lamp-head" id="head">
@@ -84,7 +84,7 @@
       </div>
       <div class="lamp-base" id="base">
         <span class="lamp-fill" id="color-fill" aria-hidden="true"></span>
-        <p class="ll-label lamp-label base-label" aria-hidden="true"><span class="swatch" id="swatch-color"></span><span id="color-name">Mint</span><span class="base-value" id="color-value">35%</span></p>
+        <p class="base-label" aria-hidden="true"><span class="base-name" id="color-name">Mint</span><span class="base-value" id="color-value">35%</span></p>
         <div class="ll-tape" id="color-tape" role="slider" tabindex="0" aria-label="Color" aria-valuemin="0" aria-valuemax="100">
           <span class="ll-tape-window"><span class="ll-tape-track"></span></span>
           <span class="ll-tape-mark" aria-hidden="true"></span>

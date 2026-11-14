@@ -307,7 +307,7 @@
     const unlit = blend(RAISED, WHITE, 0.07);
     $("scenes").innerHTML = x.scenes.map((s, i) => {
       const headRgb = blend(unlit, SUN, strength(s.sun));
-      const baseRgb = s.color ? blend(unlit, COLOR[s.color], strength(s.c)) : unlit;
+      const baseRgb = s.color ? blend(unlit, COLOR[s.color], colorStrength(s.c)) : unlit;
       const mark = i === rec ? '<svg class="chip-mark" aria-hidden="true"><use href="#i-spark"/></svg>' : "";
       const why = i === rec ? `<span class="scene-why"><span class="visually-hidden">Recommended: </span>${esc(x.rec.why)}</span>` : "";
       return `<button class="scene-option" type="button" role="radio" aria-checked="${i === on}" tabindex="${i === on ? 0 : -1}" data-i="${i}">
@@ -328,21 +328,17 @@
   const head = $("head"), base = $("base");
   // How strongly each light shows: a weak light still shows a little.
   const strength = (v) => (v > OFF ? 0.15 + 0.85 * Math.pow(v, 0.7) : 0);
-  // Dark ink (for light behind) where it reads better than light ink. The base's glow is
-  // bright in the middle, where its color's name sits, and its ruler sits between the middle
-  // and the edge. The head needs none: it lights at its rim and stays dark in the middle,
-  // where its label, digits and ruler sit (app.css), so they read in light ink at any strength.
+  // The color shows brighter sooner (the user, 2026-11-14: brighter color): even a weak
+  // color glows clearly, still rising with its strength.
+  const colorStrength = (v) => (v > OFF ? 0.42 + 0.58 * Math.pow(v, 0.6) : 0);
+  // Both parts keep light ink at any strength: the head lights at its rim and stays dark in
+  // the middle, and the base deepens inward from its bright edge, where its name sits in
+  // white (app.css).
   const WHITE = [255, 255, 255];
   const contrast = (x, ink) => { const l = luminance(x), k = luminance(ink); return (Math.max(l, k) + 0.05) / (Math.min(l, k) + 0.05); };
-  const darkInk = (...spots) => {
-    const worst = (ink) => Math.min(...spots.map((x) => contrast(x, ink)));
-    return worst(INK_ON_LIGHT) > worst(INK);
-  };
-  const middle = (rgb, a) => blend(SURFACE, rgb, a);
-  const between = (rgb, a) => blend(SURFACE, rgb, a * 0.55);
 
   function paintLamp(l) {
-    const sunA = strength(l.sun), colA = strength(l.c);
+    const sunA = strength(l.sun), colA = colorStrength(l.c);
     $("sun-fill").style.opacity = sunA.toFixed(3);
     head.classList.toggle("is-lit", sunA > 0);
     dotDigits($("sun-digits"), String(pct(l.sun)));
@@ -351,12 +347,9 @@
     const rgb = rgbCss(l.rgb);
     $("color-fill").style.setProperty("--fill", rgb);
     $("color-fill").style.opacity = colA.toFixed(3);
-    $("swatch-color").style.backgroundColor = l.c > OFF ? rgb : "transparent";
+    base.classList.toggle("is-lit", colA > 0);
     $("color-name").textContent = l.c > OFF ? NAMES[l.color] : "Color";
     $("color-value").textContent = l.c > OFF ? `${pct(l.c)}%` : "Off";
-    const baseDark = darkInk(middle(l.rgb, colA), between(l.rgb, colA));
-    base.classList.toggle("ink-light", baseDark);
-    base.classList.toggle("edge-light", baseDark);
     paintTape(colorTape, l.c, sayColor(l));
   }
 

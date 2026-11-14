@@ -193,9 +193,10 @@ Blocks appear in the order you list them. The template uses Context → Explore 
   `app.css`). The screen draws the lamp as it's built (the 2023 renders): the head, a rounded
   square that glows white at its edge, brightest along the rim and in the corners and fading
   inward, so its middle stays dark and the sunlight's percent there, in dot digits, reads in
-  light ink at any strength; and under it the base, a pill a little narrower, that lights in
-  the color, spreading softly through the whole pill, deepest in the middle and fading out,
-  paler, toward the edges. Each part
+  light ink at any strength; and under it the base, a pill a little narrower, that fills
+  with the color, brightest and a little paler at its edge and deepening softly inward (no
+  outline) to a deeper shade of the same color in the middle, where the color's name and
+  percent sit in white. Each part
   has its own tape, a ruler that slides under a fixed yellow mark: drag the part (or its
   ruler) sideways, tap the ruler, or use the arrow keys to set how strong that light is for
   the part of the day showing; picking a scene again goes back to the scene's own strengths.

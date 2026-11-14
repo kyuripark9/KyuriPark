@@ -403,19 +403,21 @@ Laid out after gougoucore.com's header since 2026-11-13 (the user's ask), from
   first, ARCHIVE `--gutter` into the second, ABOUT ends `--gutter` before the seventh's end, and
   RESUME `--gutter` before the window's edge. On phones the two links at each side sit 16px
   apart at the page's edges (12px under 360px, where RESUME and its arrow, wider than CONTACT,
-  would otherwise bring ABOUT within 5px of the logo). The links are 14px from 768px, 12px on phones (`--size-menu`).
+  would otherwise bring ABOUT within 5px of the logo). The links are 12px on phones, 14px from 768px, 15px from 1200px, 16px from 1440px (`--size-menu`).
 
-The current page's link is in the text color and the others are gray (`--color-subtle`, the
-lightest gray that passes WCAG AA) until hovered (`.site-menu a`; see Type and color).
+All four links are in the text color, muted when hovered (`.site-menu a`; see Type and color), as
+gougoucore's are (since 2026-11-14; until then the current page's was in the text color and the
+others gray, `--color-subtle`).
 Until 2026-11-13 the name ("KYURI PARK", 14px, at 600) was at the left, Work, Archive, and
 About in the window's middle, and LinkedIn, GitHub, and email as 14px line icons at the right
 (from the user's sketch, 2026-11-10), with no lines; before 2026-11-10 the name at the left and
 the links at the right.
 
 The header is sticky: it stays at the top of the window while the page scrolls, on a white,
-opaque background (`--color-header`, `#ffffff`, a step lighter than the page's `#f5f4f0`;
-since 2026-11-13, the user's ask), so the page scrolls under it and out of sight. Its links,
-logo, and lines are in the text color, the gray links in `--color-subtle` (5:1 on the white).
+opaque background (`--color-header`, white since 2026-11-13, the user's ask; the page's own white
+since 2026-11-14, when the page went from `#f5f4f0` to `#ffffff`, so the header is set off by its
+lines alone), so the page scrolls under it and out of sight. Its links, logo, and lines are in
+the text color.
 From 2026-11-10 to 2026-11-13 it had no background and its type took the opposite of whatever
 was under it (`mix-blend-mode: difference`, after theoportfolio.framer.photos): dark on the
 page, light over a dark image. It fades with the page between pages. `/about/#contact`
@@ -459,7 +461,7 @@ read, and Newsreader Italic, over three words, on 2026-11-14.)
 | title | Inter Display 500, capitals | 18px, 23px from 768px, 29px from 1200px, 36px from 1440px | 0.9, -0.01em | impact numbers, Previous / Next titles |
 | lead | Inter Display 500, as typed | 20px, growing with the window to 28px (from 800 to 1120px wide); lines up to 30em (`--measure-lead`) | 1.35, 0 | Home's sentence, a project's statement |
 | body | Inter 500, as typed; links 600 | 16px | 1.5, 0 | text, a project's "Visit" link, the 404's link |
-| name | Inter 500 (the opening 600), capitals | 14px; the header's links 12px on phones (`--size-menu`), the opening 16px (`--size-opening`) | 1.3, +0.02em | the header and the footer (since 2026-11-13, at `--size-menu`), Home's opening, project names (Home's cards, Work's tiles, Archive, the lightbox), the lightbox's Close, all of About (since 2026-11-12; at 1.5, the paragraphs as typed at 0 tracking) |
+| name | Inter 500 (the opening 600), capitals | 14px, 15px from 1200px, 16px from 1440px; the header's links 12px on phones (`--size-menu`), the opening 16px (`--size-opening`) | 1.3, -0.03em | the header and the footer (since 2026-11-13, at `--size-menu`), Home's opening, project names (Home's cards, Work's tiles, Archive, the lightbox), the lightbox's Close, all of About (since 2026-11-12; at 1.5, the paragraphs as typed at 0 tracking) |
 | label | Martian Mono 400, capitals | 12px; Work's counts 10px (`--size-count`) | 16px, -0.05em | captions, Home's type and year and SOUND ON / OFF, a project's facts and section headings, the prototype's "Open in a new tab", the lightbox's type and year, Work's filters and counts (the footer too until 2026-11-13); a label that names a column or a section (a project's fact labels, its section and note headings) in `--color-subtle` |
 
 The rules behind the table (since 2026-11-11):
@@ -470,9 +472,10 @@ The rules behind the table (since 2026-11-11):
   tracking and `--cap-display` are measured for. Until 2026-11-11 everything was Inter Display,
   which set 16px text about 8% tighter.
 - **Weights.** Inter at 500 and 600; Martian Mono at 400 only, so a link in a label stays at 400.
-- **Tracking.** One value per style. The name style's small capitals are a little open
-  (+0.02em, the header's name and links, the opening, and project names alike; project names were
-  -0.01em before). Martian Mono's letters are 0.7em wide, open enough to close up at -0.05em.
+- **Tracking.** One value per style. The name style's small capitals are set tight, as the
+  display is (-0.03em, the header's links, the footer, the opening, and project names alike, so
+  the small type and the big read as one texture, as gougoucore's do; +0.02em until 2026-11-14,
+  and project names -0.01em before that). Martian Mono's letters are 0.7em wide, open enough to close up at -0.05em.
 - **Lines.** A label's line is 16px, so a label line and `--space-2` under it make Work's 48px
   (`--grid-top`). All of About, the one place the name style runs on for lines, takes the body's 1.5.
   Display and title lines that wrap come out even (`text-wrap: balance`).
@@ -485,18 +488,19 @@ The rules behind the table (since 2026-11-11):
   weight, take the full file from git history (before 2026-11-11) or Google Fonts and cut it
   again.
 
-Color is the text color (`--color-text`), one gray for all gray text (`--color-subtle`, 4.6:1 on
+Color is the text color (`--color-text`) on white (`--color-bg`, `#ffffff` since 2026-11-14, the
+header's white; `#f5f4f0` before), one gray for all gray text (`--color-subtle`, 5:1 on
 the background, the lightest small text stays easy to read at: Home's type and year, Work's filters,
 captions, the lightbox's type and year, the labels that name a column or a section, impact labels,
-Previous / Next, About's labels, companies, and dates, the copyright, and since 2026-11-09 the
-header's links; since 2026-11-07, most of them a step darker in `--color-muted`, 5.6:1, before),
+Previous / Next, About's labels, companies, and dates, the copyright, and from 2026-11-09 to
+2026-11-14 the header's links; since 2026-11-07, most of them a step darker in `--color-muted`, 5.6:1, before),
 `--color-muted` now only for a hovered link, and `--color-line` for rules. (From 2026-11-05 to
 2026-11-09 the header's links were lighter still, `--color-faint`, 3:1, under WCAG AA's 4.5:1.)
 Things react to the pointer in one of two ways, and only by color:
-**links** are in the text color and turn muted on hover (the name, links in text, the footer,
-project links, the lightbox's buttons); **choices** are in a lighter gray and
-turn to the text color when hovered or current (the header's links and Work's filters, in
-`--color-subtle`). A link that opens a new tab (LinkedIn, GitHub, the résumé PDF, a project's "Visit" link: any
+**links** are in the text color and turn muted on hover (the header's links since 2026-11-14,
+links in text, the footer, project links, the lightbox's buttons); **choices** are in a lighter
+gray and turn to the text color when hovered or current (Work's filters, in `--color-subtle`;
+the header's links until 2026-11-14). A link that opens a new tab (LinkedIn, GitHub, the résumé PDF, a project's "Visit" link: any
 `target="_blank"`, which `build.py` sets on every external link and PDF) ends in a small ↗,
 drawn by CSS in the link's color (since 2026-11-05). It hangs on the link's last word, so it never
 wraps onto a line alone, and in Windows' contrast themes it takes the theme's link color.

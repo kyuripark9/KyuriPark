@@ -52,11 +52,13 @@
 :root {
   color-scheme: light;
 
-  --color-bg: #f5f4f0;
+  --color-bg: #ffffff;         /* white, the header's white, as gougoucore.com's page is one white
+                                  (since 2026-11-14; #f5f4f0, a warm off-white, under a white
+                                  header before, which made the header a strip of its own) */
   --color-text: #161616;
-  --color-muted: #62615d;      /* 5.6:1 on the background: a link, hovered (the site's gray text
+  --color-muted: #62615d;      /* 6.2:1 on the background: a link, hovered (the site's gray text
                                   too until 2026-11-07) */
-  --color-subtle: #706f6b;     /* 4.6:1 on the background, the lightest small text can be and
+  --color-subtle: #706f6b;     /* 5:1 on the background, the lightest small text can be and
                                   stay easy to read (WCAG AA, 4.5:1): all gray text, one gray
                                   (since 2026-11-07): Home's one-liners, Work's filters
                                   that aren't showing, the header's links that aren't the
@@ -69,9 +71,10 @@
   --color-line: #dcdbd5;
   --color-rule: var(--color-text);  /* the 1px lines between Work's and Archive's tiles, in the
                                        text color, as gougoucore.com's are (since 2026-11-13) */
-  --color-header: #ffffff;     /* the header's background, white, a step lighter than the page
-                                  (since 2026-11-13, the user's ask; see Header). The gray
-                                  links on it are at 5:1 */
+  --color-header: var(--color-bg);  /* the header's background, white (since 2026-11-13, the
+                                       user's ask; see Header), the page's white since
+                                       2026-11-14, so the header is the page's, set off by its
+                                       lines alone */
   --color-fill: #e9e8e3;       /* behind media while it loads */
   --color-mark: #e8e7e1;       /* [PLACEHOLDER] highlight; gray text on it is at 4.1:1, under
                                   AA, but a placeholder never ships */
@@ -93,7 +96,8 @@
        title    Inter Display 500     18, 23 at 768, 29, 36        0.9     -0.01em   capitals
        lead     Inter Display 500     20, growing to 28 (800-1120) 1.35    0         as typed
        body     Inter 500, links 600  16                           1.5     0         as typed
-       name     Inter 500, 600        14; 12 (menu), 16 (opening)  1.3     +0.02em   capitals
+       name     Inter 500, 600        14, 15 at 1200, 16 at 1440;  1.3     -0.03em   capitals
+                                      12 (menu on phones), 16 (opening)
        label    Martian Mono 400      12; 10 (Work's counts)       16px    -0.05em   capitals
 
        display  project titles, the 404
@@ -111,8 +115,9 @@
      names, and the menu (12-16px) get Inter's text cut, drawn for small sizes, and display,
      title, and lead (18px and up) are held at opsz 32, Inter Display, the cut their tracking
      is set for. Weights: Inter 500 and 600; Martian Mono 400 only (the file has no other), so
-     a link in a label stays at 400. Tracking: small capitals in Inter (the name style) are a
-     little open, all at one value; Martian Mono's letters are 0.7em wide, open enough to close
+     a link in a label stays at 400. Tracking: small capitals in Inter (the name style) are set
+     tight as the display is, all at one value (a little open, +0.02em, until 2026-11-14);
+     Martian Mono's letters are 0.7em wide, open enough to close
      up. Lines: a label's is 16px, so a label line and --space-2 under it make Work's 48px
      (--grid-top); About's sentence and paragraphs, the names that run on for lines, take the
      body's 1.5. Phones: display and title shrink with the window under 342px and 328px, so the
@@ -150,15 +155,18 @@
   --tracking-lead: 0;
   --tracking-body: 0;
   --measure-lead: 30em;        /* the lead's longest line, in its own size: 600-840px */
-  --tracking-name: 0.02em;     /* small capitals read better a little open: the header's name
-                                  and links, the opening, project names */
+  --tracking-name: -0.03em;    /* small capitals set tight, as the display is, so the small type
+                                  and the big read as one texture, as gougoucore.com's do (since
+                                  2026-11-14; +0.02em, a little open, before): the header's links,
+                                  the footer, the opening, project names */
   --tracking-label: -0.05em;
 
   /* Two ways things react to the pointer, both in the text color and --color-muted:
-       links      in the text color, muted on hover (the name, links in text, the footer,
-                  project links, the lightbox's buttons)
+       links      in the text color, muted on hover (the header's links since 2026-11-14,
+                  links in text, the footer, project links, the lightbox's buttons)
        choices    one of several, a lighter gray, and the text color when hovered or
-                  current (the header's links and Work's filters, in --color-subtle)
+                  current (Work's filters, in --color-subtle; the header's links until
+                  2026-11-14)
      Only color changes, over --fade (until 2026-11-05, the header's links and About's
      Contact used opacity 0.6 instead). */
 
@@ -278,13 +286,17 @@
     --section-gap: var(--step-16);
     --size-display: 3.1875rem;  /* 51px */
     --size-title: 1.8125rem;    /* 29px */
+    --size-name: 0.9375rem;     /* 15px (and so the header's links and the footer, --size-menu) */
   }
 }
 
+/* The name style grows with the display from 1200px (since 2026-11-14): 16px to the display's
+   64px at 1440px, a quarter, nearer gougoucore.com's third (17px to 53px) than 14px's fifth. */
 @media (min-width: 1440px) {
   :root {
     --size-display: 4rem;       /* 64px */
     --size-title: 2.25rem;      /* 36px */
+    --size-name: 1rem;          /* 16px */
   }
 }
 
@@ -807,23 +819,23 @@ mark.placeholder {
   }
 }
 
-/* Choices (see Shared text styles): the links in --color-subtle, the current page's and the one
-   hovered in the text color; the logo in the text color, --color-subtle hovered. */
+/* Links (see the tokens' two ways things react): all four in the text color, as gougoucore.com's
+   are, muted when hovered; the logo in the text color, --color-subtle hovered. (Until
+   2026-11-14 they were choices: in --color-subtle, the current page's and the one hovered in
+   the text color, so three of the four sat gray over the black sentence.) */
 .site-header .identity,
 .site-header .site-menu a {
   color: inherit;
   transition: color var(--fade);
 }
 
-.site-header .site-menu a,
-.site-header .identity:hover {
-  color: var(--color-subtle);
+.site-header .site-menu a:hover,
+.site-header .site-menu a:focus-visible {
+  color: var(--color-muted);
 }
 
-.site-header .site-menu a:hover,
-.site-header .site-menu a:focus-visible,
-.site-header .site-menu [aria-current] {
-  color: var(--color-text);
+.site-header .identity:hover {
+  color: var(--color-subtle);
 }
 
 /* Home: project track -------------------------------------------------- */

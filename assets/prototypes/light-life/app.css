@@ -212,83 +212,51 @@ html.is-fill .app {
   height: 22px;
 }
 
-/* What Light Life plans from, in one strip: where you live and its time, then your two times.
-   Each is a label over its value, and each is a button (the city opens the city sheet, a time
-   the times sheet). The times take the room they need and the city the rest (a long name ends
-   in an ellipsis); on a narrow screen the strip tightens. */
-.facts {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  container-type: inline-size;
-  margin-top: var(--space-2);
-  padding: var(--space-1);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-}
-
-.fact {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-  min-width: 0;
-  padding: 10px 12px 9px;
-  border-radius: 16px;
-  text-align: left;
-  transition: background-color 0.2s;
-}
-
-.fact + .fact::before {
-  content: "";
-  position: absolute;
-  top: 12px;
-  bottom: 12px;
-  left: -0.5px;
-  width: 1px;
-  background: var(--line);
-}
-
-.fact:hover,
-.fact:active {
-  background: #ffffff0a;
-}
-
-.fact-label {
+/* Where you live, in one quiet line under the part of the day (no box, no labels): the
+   weather there now as an icon, the city's name, and the time showing there, muted. A
+   button: it opens the city sheet. A long name ends in an ellipsis; the time always shows. */
+.place {
   display: flex;
   align-items: center;
   gap: 6px;
-  max-width: 100%;
-  color: var(--ink-muted);
+  max-width: calc(100% + 16px);
+  min-width: 0;
+  margin: 2px -8px 0;
+  padding: 4px 8px;
+  border-radius: var(--radius-pill);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 20px;
+  letter-spacing: -0.01em;
   white-space: nowrap;
+  transition: background-color 0.2s;
 }
 
-/* The weather there now, in full ink: something to read. */
-.fact .weather-icon {
+.place:hover,
+.place:active {
+  background: #ffffff0a;
+}
+
+.place .weather-icon {
   width: 14px;
   height: 14px;
-  color: var(--ink);
 }
 
 .place-text {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-.fact-value {
-  font-size: 17px;
-  font-weight: 500;
-  line-height: 22px;
-  letter-spacing: -0.01em;
+.place-time {
+  flex: none;
+  color: var(--ink-muted);
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
 
-@container (max-width: 330px) {
-  .fact { padding-inline: 9px; }
-  .fact-value { font-size: 15px; }
+.place-time::before {
+  content: "\00b7";
+  margin-right: 6px;
 }
 
 /* Components (from the design system) ------------------------------------ */
@@ -300,10 +268,11 @@ html.is-fill .app {
 .ll-tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--signal); }
 .ll-tag[hidden] { display: none; }
 
-/* The part of the day showing, with Now (or Back to now) at the right; its time is in the
-   strip above. */
-.now-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); min-height: 32px; margin: var(--space-4) 0 var(--space-3); padding: 0 var(--space-1); }
-.now-title { min-width: 0; font-size: 24px; font-weight: 500; line-height: 28px; letter-spacing: -0.02em; white-space: nowrap; }
+/* The part of the day showing, the city and its time under it, and Back to now at the right
+   while you look at another time. */
+.now-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin: var(--space-3) 0 var(--space-5); padding: 0 var(--space-1); }
+.now-text { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+.now-title { min-width: 0; font-size: 28px; font-weight: 500; line-height: 34px; letter-spacing: -0.025em; white-space: nowrap; }
 
 /* The lamp, built like the real one (the 2023 renders): a head, a rounded square that glows
    white at its edge, over a base, a pill that lights in color. Two parts, a small gap
@@ -368,7 +337,8 @@ html.is-fill .app {
 
 /* Tape: a ruler that slides under a fixed yellow mark, the value under the mark; ticks fade
    out toward the ends, and the ones up to the value are lit. 4px per percent: a tick every
-   2%, a taller one every 10%. app.js builds the ticks and sets --v (0-100). */
+   5%, a taller one every 25%, few enough to stay quiet (a tick every 2% until 2026-11-14).
+   app.js builds the ticks and sets --v (0-100). */
 .ll-tape { position: relative; flex: none; width: 100%; height: 34px; border-radius: var(--radius-sm); color: var(--ink); transition: color 0.4s; }
 .ll-tape-window { position: absolute; inset: 0; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent); mask-image: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent); }
 .ll-tape-track { position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(calc(var(--v, 0) * -4px)); transition: transform 0.5s var(--ease); }
@@ -392,20 +362,40 @@ html.is-fill .app {
 .ll-pill.is-small.play { gap: 6px; padding: 0 14px 0 12px; }
 .play-icon { width: 12px; height: 12px; }
 .ll-ruler { position: relative; height: 60px; cursor: ew-resize; touch-action: pan-y; border-radius: var(--radius-sm); }
-.ll-ruler::after { content: ""; position: absolute; inset: -8px 0 -26px; }   /* the axis is part of the drag area */
+.ll-ruler::after { content: ""; position: absolute; inset: -8px 0 -36px; }   /* the axis is part of the drag area */
 .ll-ruler-ticks { position: absolute; inset: 12px 0 0; display: flex; align-items: flex-end; justify-content: space-between; }
 .ll-ruler-ticks i { width: 2px; min-height: 6px; border-radius: 1px; background: var(--line); }
 /* When the sun is up where you live: a faint band behind the ticks, from sunrise to sunset,
    so you can see where the lamp carries on without it. */
 .ruler-sun { position: absolute; top: 0; bottom: 0; border-radius: 8px; background: #ffffff0f; pointer-events: none; }
 .ruler-sun[hidden] { display: none; }
-.ruler-sun-icon { position: absolute; top: 3px; left: 5px; width: 9px; height: 9px; color: var(--ink-muted); }
 .ll-ruler-now { position: absolute; top: 0; bottom: -4px; width: 2px; margin-left: -1px; border-radius: 1px; background: var(--signal); pointer-events: none; z-index: 1; }
 .ll-ruler-now::before { content: ""; position: absolute; top: -2px; left: -4px; width: 10px; height: 10px; border-radius: 50%; background: var(--signal); box-shadow: var(--shadow-knob); }
 .ll-axis { position: relative; height: 14px; margin-top: var(--space-2); color: var(--ink-muted); font-family: var(--font-mono); font-size: 10px; line-height: 14px; letter-spacing: 0.02em; text-transform: uppercase; }
-.ll-axis span { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
-.ll-axis span:first-child { transform: none; }
-.ll-axis span:last-child { transform: translateX(-100%); }
+/* The axis holds only your two times, each where it falls in the day (app.js places them):
+   wake-up with the sun, lights out with the moon. (The hours 12 AM, 6 AM, 12 PM, 6 PM,
+   12 AM until 2026-11-14.) Each is a handle, so it reads as something to move (the user's
+   asks, same day): over the graph, at the time's spot (--spot, app.js), a grip, the way a
+   resize handle looks; under the graph, the time itself in plain type (kept inside the row).
+   Drag the grip or the time sideways to move it, or tap either for the times sheet. The rest
+   of the row stays part of the ruler's drag area; the grip's own strip of the graph is the
+   handle's. Pared down the same day (the user: "cleaner"): the arrows either side of the time,
+   the raised pill around it, the knob's grooves and shadow are all gone. */
+.day-ends { height: 22px; margin-top: 6px; pointer-events: none; }
+.day-end { position: absolute; top: 0; display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 4px; border-radius: 6px; color: var(--ink-muted); font-family: var(--font-sans); font-size: 12px; font-weight: 500; line-height: 16px; letter-spacing: 0; text-transform: none; font-variant-numeric: tabular-nums; white-space: nowrap; cursor: grab; touch-action: pan-y; -webkit-user-select: none; user-select: none; pointer-events: auto; transition: color 0.2s; }
+.day-end .icon { width: 11px; height: 11px; }
+.day-end:hover,
+.day-end.is-dragging { color: var(--ink); }
+.day-end.is-dragging { cursor: grabbing; }
+/* The grip: a 28px strip of the graph down to just over the time, holding a hairline that
+   marks where your day starts or ends and, halfway up, the knob: a slim white capsule, cut
+   out from the bars behind it by a ring of the screen's black. It thickens under the finger. */
+.end-grip { position: absolute; bottom: calc(100% + 2px); left: var(--spot, 50%); width: 28px; height: 64px; margin-left: -14px; }
+.end-grip::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; margin-left: -0.5px; background: var(--ink); opacity: 0.25; transition: opacity 0.2s; }
+.end-grip i { position: absolute; top: 20px; left: 50%; width: 6px; height: 22px; margin: 0 0 0 -3px; border-radius: 3px; background: var(--ink); box-shadow: 0 0 0 2px var(--bg); transition: width 0.2s var(--ease), height 0.2s var(--ease), margin 0.2s var(--ease); }
+.day-end:hover .end-grip::before { opacity: 0.5; }
+.day-end.is-dragging .end-grip::before { opacity: 0.8; }
+.day-end.is-dragging .end-grip i { width: 8px; height: 28px; margin: -3px 0 0 -4px; border-radius: 4px; }
 
 /* SceneChip: names in plain type, so the screen's mono capitals stay for small labels and
    numbers. It runs from the scene's sunlight to its color (--a, --b; app.js). */

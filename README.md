@@ -201,12 +201,21 @@ Blocks appear in the order you list them. The template uses Context → Explore 
   ruler) sideways, tap the ruler, or use the arrow keys to set how strong that light is for
   the part of the day showing; picking a scene again goes back to the scene's own strengths.
   The lamp shows each part of the day as set; the day's ruler shows the slow fades between
-  them. The screen reads top to bottom: one strip with what the app plans from (the city
-  and the time showing there, then the wake-up and lights-out times; the city opens the city
-  search, either time the times sheet), the part of the day, the lamp, the scene playing (one
-  chip under the lamp; tap it and the part's scenes come up in a sheet, with its hours and a
-  small lamp per scene lit as that scene lights it; picking one closes the sheet so you see
-  the lamp change), and the day (the ruler, with Play a day beside its label). Every sheet is
+  them. The screen is kept quiet (no boxes or labels it can do without) and reads top to
+  bottom: the part of the day, with one line under it for the city and the time showing
+  there (it opens the city search), the lamp, the scene playing (one chip under the lamp; tap
+  it and the part's scenes come up in a sheet, with its hours and a small lamp per scene lit
+  as that scene lights it; picking one closes the sheet so you see the lamp change), and the
+  day (the ruler, with Play a day beside its label, and under it only the wake-up and
+  lights-out times, as handles: on the graph, where the time falls, a grip (a faint hairline
+  with a slim white knob on it, cut out from the bars by a black ring, like a resize handle),
+  and the time under it in plain type; drag the grip or the time sideways to move that time a
+  quarter hour at a time, the day's light moving with it (the knob thickens and the time
+  brightens), or tap either for the times sheet). The ruler runs 24
+  hours from 3 AM, not midnight, so a day from as early as 4:30 AM to as late as 1:00 AM never
+  wraps around its ends: wake-up stays left, lights out right. The boxed
+  strip of city, time and both times at the top, the Now tag and the ruler's hour labels came
+  out on 2026-11-14 to clear the screen, and the tapes thinned to a tick every 5%. Every sheet is
   a card that floats up from the bottom, a little in from the screen's edges, all corners
   rounded. On a
   phone too short for all of it, the screen scrolls. The color part turns by hand on the

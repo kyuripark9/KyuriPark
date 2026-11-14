@@ -42,28 +42,15 @@
       <p class="brand"><svg class="logo" viewBox="0 0 40 54" role="img" aria-label="Light Life"><circle cx="20" cy="18.5" r="18.5" fill="#f8f8f8"/><rect x="0.5" y="38.5" width="39" height="15.5" rx="7.75" fill="#fdf7bb"/></svg></p>
     </div>
 
-    <!-- What Light Life plans from, all in one place: where you live (its weather now as an
-         icon, a pin until the forecast arrives, and the time showing there), and your two
-         times. The city opens the city search; either time opens the times sheet. -->
-    <div class="facts">
-      <button class="fact fact-place" type="button" id="place" aria-haspopup="dialog">
-        <span class="ll-label fact-label"><svg class="icon weather-icon" aria-hidden="true"><use id="weather-use" href="#i-pin"/></svg><span class="place-text" id="place-text">Chicago</span></span>
-        <span class="fact-value" id="time">9:00 AM</span>
-      </button>
-      <button class="fact" type="button" id="edit-wake" aria-haspopup="dialog">
-        <span class="ll-label fact-label">Wake up</span>
-        <span class="fact-value" id="wake-text">7:00 AM</span>
-      </button>
-      <button class="fact" type="button" id="edit-bed" aria-haspopup="dialog">
-        <span class="ll-label fact-label">Lights out</span>
-        <span class="fact-value" id="bed-text">11:00 PM</span>
-      </button>
-    </div>
-
-    <!-- The part of the day showing -->
+    <!-- The part of the day showing, and under it in one quiet line where you live (the
+         weather there now as an icon, a pin until the forecast arrives) and the time showing
+         there; the line opens the city search. Back to now at the right while you look at
+         another time. Your two times are on the day's ruler, where your day starts and ends. -->
     <div class="now-head">
-      <h1 class="now-title" id="part">Morning</h1>
-      <span class="ll-tag" id="now-tag">Now</span>
+      <div class="now-text">
+        <h1 class="now-title" id="part">Morning</h1>
+        <button class="place" type="button" id="place" aria-haspopup="dialog"><svg class="icon weather-icon" aria-hidden="true"><use id="weather-use" href="#i-pin"/></svg><span class="place-text" id="place-text">Chicago</span><span class="place-time" id="time">9:00 AM</span></button>
+      </div>
       <button class="ll-pill is-glass is-small" type="button" id="back-now" hidden>Back to now</button>
     </div>
 
@@ -105,11 +92,19 @@
         <button class="ll-pill is-small play" type="button" id="play"><svg class="play-icon" aria-hidden="true"><use href="#i-play"/></svg><span id="play-label">Play a day</span></button>
       </div>
       <div class="ll-ruler" id="ruler" role="slider" tabindex="0" aria-label="Time of day" aria-valuemin="0" aria-valuemax="1439">
-        <span class="ruler-sun" id="sun-band" aria-hidden="true"><svg class="ruler-sun-icon"><use href="#i-sun"/></svg></span>
+        <span class="ruler-sun" id="sun-band" aria-hidden="true"></span>
         <span class="ll-ruler-ticks" id="ticks"></span>
         <span class="ll-ruler-now" id="now-line"></span>
       </div>
-      <div class="ll-axis" aria-hidden="true"><span style="left:0%">12 AM</span><span style="left:25%">6 AM</span><span style="left:50%">12 PM</span><span style="left:75%">6 PM</span><span style="left:100%">12 AM</span></div>
+      <!-- Under the ruler, only your two times, as handles: wake-up where the light comes up,
+           lights out where it goes dark. Each stands on the graph as a grip, a hairline through
+           the graph at its time with a slim knob on it, over its time in plain type under the
+           graph. Drag the grip (or the time) sideways to move that time, the day's light moving
+           with it, or tap it for the times sheet. -->
+      <div class="ll-axis day-ends">
+        <button class="day-end" type="button" id="edit-wake" aria-haspopup="dialog" aria-keyshortcuts="ArrowLeft ArrowRight"><span class="end-grip" aria-hidden="true"><i></i></span><svg class="icon" aria-hidden="true"><use href="#i-sun"/></svg><span id="wake-text">7:00 AM</span></button>
+        <button class="day-end" type="button" id="edit-bed" aria-haspopup="dialog" aria-keyshortcuts="ArrowLeft ArrowRight"><span class="end-grip" aria-hidden="true"><i></i></span><svg class="icon" aria-hidden="true"><use href="#i-moon"/></svg><span id="bed-text">11:00 PM</span></button>
+      </div>
     </div>
   </main>
 

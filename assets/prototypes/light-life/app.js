@@ -1,11 +1,11 @@
 /* Light Life, phone prototype (2026 redesign), on the Light Life design system.
 
    The idea it shows: the lamp runs a whole day of light from two times (wake-up and lights
-   out), changing slowly from one part of the day to the next. One screen: what it plans
-   from (where you live and the time showing there, your two times) in one strip, the part
-   of the day showing, the lamp itself (its two parts, each with its light), the scene
-   playing for that part (one SceneChip: tap it for the part's scenes, in a sheet), and the
-   whole day (LightRuler: drag it, or Play a day).
+   out), changing slowly from one part of the day to the next. One screen, kept quiet: the
+   part of the day showing, with where you live and the time showing there in one line under
+   it, the lamp itself (its two parts, each with its light), the scene playing for that part
+   (one SceneChip: tap it for the part's scenes, in a sheet), and the whole day (LightRuler:
+   drag it, or Play a day), with your two times under it where your day starts and ends.
    Scene names are the 2023 app's.
 
    The lamp has two parts, apart, each with its own light and its own job, and each scene
@@ -217,12 +217,20 @@
   let scale = 1;
   let touched = false;   // someone has pressed play or dragged: no first-view glide
 
+  // The ruler runs 24 hours from 3 AM, not midnight (since 2026-11-14, when your two times
+  // became handles on it): your day, from a wake-up as early as 4:30 AM (its sunrise starting
+  // at 4:00) to a lights out as late as 1:00 AM, never wraps around its ends, so wake-up is
+  // always on the left and lights out on the right, and a usual day sits in its middle.
+  // at(t): where a time falls on it, 0-1.
+  const START = 180;
+  const at = (t) => mod(t - START) / DAY;
+
   // The ruler: 96 ticks, one per 15 minutes, each built like the lamp: a white part for the
   // sunlight (its height), standing on a short part in the color (taller when stronger).
   function paintRuler() {
     let html = "";
     for (let i = 0; i < 96; i++) {
-      const l = lightAt(i * 15 + 7.5);
+      const l = lightAt(START + i * 15 + 7.5);
       const hs = l.sun > OFF ? Math.round(4 + l.sun * 30) : 0;
       const hc = l.c > OFF ? Math.round(3 + l.c * 7) : 0;
       if (!hs && !hc) { html += '<i style="height:6px"></i>'; continue; }
@@ -234,22 +242,88 @@
     $("ticks").innerHTML = html;
     $("wake-text").textContent = fmt(state.wake);
     $("bed-text").textContent = fmt(state.bed);
-    $("edit-wake").setAttribute("aria-label", `Wake up ${fmt(state.wake)}. Edit your times`);
-    $("edit-bed").setAttribute("aria-label", `Lights out ${fmt(state.bed)}. Edit your times`);
+    $("edit-wake").setAttribute("aria-label", `Wake up ${fmt(state.wake)}. Drag, or use the arrow keys, to change it; press to edit your times`);
+    $("edit-bed").setAttribute("aria-label", `Lights out ${fmt(state.bed)}. Drag, or use the arrow keys, to change it; press to edit your times`);
+    placeEnds();
 
     // Behind the ticks, a faint band while the sun is up where you live.
     const s = state.sun, band = $("sun-band");
     band.hidden = !s || s.polar === "night";
     if (band.hidden) return;
-    const end = s.polar ? DAY : Math.min(DAY, s.set);
-    const start = s.polar ? 0 : s.rise;
+    let start = 0, end = DAY;
+    if (!s.polar) {
+      start = at(s.rise) * DAY;
+      end = start + (s.set - s.rise);
+      // A sunrise before 3 AM (far north in summer) runs past the ruler's end: draw the
+      // part after 3 AM, or if that's the most of it, the part before.
+      if (end > DAY) { if (start > DAY / 2) { end -= DAY; start = 0; } else end = DAY; }
+    }
     band.style.left = `${(start / DAY) * 100}%`;
     band.style.width = `${((end - start) / DAY) * 100}%`;
   }
 
-  // Where you live, first in the strip at the top: the weather there now as an icon (the moon
-  // instead of the sun once it's dark there), then the city's name, over the time showing
-  // there (render). A pin until the forecast arrives.
+  // Your two times under the ruler, as handles: each time centered under where it falls in
+  // the day, kept inside the row, and its grip on the graph right at the spot (--spot, from
+  // the time's left; near an end the time stops and the grip moves along it instead). Wake-up
+  // is always well left of lights out (the ruler starts at 3 AM), so the two never meet.
+  function placeEnds() {
+    const row = $("edit-wake").parentElement, w = row.clientWidth;
+    if (!w) return;
+    for (const [id, t] of [["edit-wake", state.wake], ["edit-bed", state.bed]]) {
+      const el = $(id), spot = at(t) * w, ew = el.offsetWidth;
+      const x = clamp(spot - ew / 2, 0, w - ew);
+      el.style.left = `${x}px`;
+      el.style.setProperty("--spot", `${spot - x}px`);
+    }
+  }
+  document.fonts?.ready.then(placeEnds);
+
+  // Drag a handle sideways to move its time, a quarter hour at a time, within its limits:
+  // the day's light (the ruler) and the plan move with it as you go, and it's saved when you
+  // let go. The arrow keys do the same. A tap without a drag opens the times sheet.
+  let draggedEnd = false;   // the click that ends a drag doesn't open the sheet
+  function makeEnd(el, field) {
+    let drag = null;
+    const set = (v) => {
+      v = clamp(Math.round(v / 15) * 15, ...LIMITS[field]);
+      if (v === state[field]) return;
+      state[field] = v;
+      replan();
+    };
+    el.addEventListener("pointerdown", (e) => {
+      if (e.button) return;
+      draggedEnd = false;
+      drag = { x: e.clientX, v: state[field], moved: false };
+      el.setPointerCapture(e.pointerId);
+    });
+    el.addEventListener("pointermove", (e) => {
+      if (!drag) return;
+      const dx = (e.clientX - drag.x) / scale;
+      if (!drag.moved && Math.abs(dx) < 4) return;
+      if (!drag.moved) { drag.moved = true; takeOver(); el.classList.add("is-dragging"); }
+      set(drag.v + (dx / ruler.clientWidth) * DAY);
+    });
+    const end = () => {
+      if (!drag) return;
+      if (drag.moved) { draggedEnd = true; remember(); }
+      el.classList.remove("is-dragging");
+      drag = null;
+    };
+    el.addEventListener("pointerup", end);
+    el.addEventListener("pointercancel", end);
+    el.addEventListener("keydown", (e) => {
+      const step = { ArrowLeft: -15, ArrowRight: 15 }[e.key];
+      if (!step) return;
+      e.preventDefault();
+      takeOver();
+      set(state[field] + step * (e.shiftKey ? 4 : 1));
+      remember();
+    });
+  }
+
+  // Where you live, under the part of the day: the weather there now as an icon (the moon
+  // instead of the sun once it's dark there), then the city's name and the time showing there
+  // (render), all on one line. A pin until the forecast arrives.
   function weatherIcon(code, day) {
     if (code == null) return "i-pin";
     if (code <= 1) return day ? "i-sun" : "i-moon";
@@ -360,7 +434,7 @@
   const PX = 4;
   function makeTape(el, key, surface) {
     let html = "";
-    for (let v = 0; v <= 100; v += 2) html += `<i${v % 10 ? "" : ' class="is-major"'} style="left:${v * PX}px" data-v="${v}"></i>`;
+    for (let v = 0; v <= 100; v += 5) html += `<i${v % 25 ? "" : ' class="is-major"'} style="left:${v * PX}px" data-v="${v}"></i>`;
     el.querySelector(".ll-tape-track").innerHTML = html;
     const tape = { el, key, ticks: [...el.querySelectorAll("i")], lit: -1 };
 
@@ -430,12 +504,11 @@
     const live = state.preview === null && !state.playing;
 
     $("part").textContent = part(id).name;
-    $("time").textContent = fmt(t);   // in the strip, under the city
-    $("now-tag").hidden = !live;
+    $("time").textContent = fmt(t);   // after the city, under the part's name
     $("back-now").hidden = live || state.playing;
 
-    $("now-line").style.left = `${(mod(t) / DAY) * 100}%`;
-    ruler.setAttribute("aria-valuenow", String(Math.floor(mod(t))));
+    $("now-line").style.left = `${at(t) * 100}%`;
+    ruler.setAttribute("aria-valuenow", String(Math.floor(at(t) * DAY)));   // minutes from 3 AM; the text says the time
     ruler.setAttribute("aria-valuetext", `${fmt(t)}, ${part(id).name}, ${describe(l)}`);
 
     paintScene(id);
@@ -450,7 +523,7 @@
   function seek(e) {
     const r = ruler.getBoundingClientRect();
     const x = clamp((e.clientX - r.left) / r.width, 0, 1);
-    state.preview = Math.min(DAY - 1, Math.round((x * DAY) / 5) * 5);
+    state.preview = mod(START + Math.min(DAY - 1, Math.round((x * DAY) / 5) * 5));
     render();
   }
   function takeOver() { stopGlide(); stopPlay(); touched = true; }
@@ -466,8 +539,8 @@
     const steps = { ArrowRight: 15, ArrowUp: 15, ArrowLeft: -15, ArrowDown: -15, PageUp: 60, PageDown: -60 };
     let next;
     if (e.key in steps) next = mod(Math.round(viewTime() / 15) * 15 + steps[e.key]);
-    else if (e.key === "Home") next = 0;
-    else if (e.key === "End") next = DAY - 1;
+    else if (e.key === "Home") next = START;   // the ruler's ends
+    else if (e.key === "End") next = mod(START - 1);
     else return;
     e.preventDefault();
     takeOver();
@@ -510,8 +583,8 @@
   }
   $("play").addEventListener("click", play);
 
-  // The first time the phone is on screen, the signal line slides once from midnight to now,
-  // so the ruler reads as something that moves. Then it stays put.
+  // The first time the phone is on screen, the signal line slides once from the ruler's start
+  // (3 AM) to now, so the ruler reads as something that moves. Then it stays put.
   let glideRaf = 0;
   function stopGlide() { if (glideRaf) { cancelAnimationFrame(glideRaf); glideRaf = 0; state.preview = null; } }
   function glide() {
@@ -523,7 +596,7 @@
       const k = (now - t0) / ms;
       if (k >= 1) { glideRaf = 0; state.preview = null; render(); return; }
       // Now is read each frame: the city (and its clock) may arrive mid-glide.
-      state.preview = nowMinutes() * (1 - Math.pow(1 - k, 3));
+      state.preview = mod(START + at(nowMinutes()) * DAY * (1 - Math.pow(1 - k, 3)));
       render();
       glideRaf = requestAnimationFrame(step);
     };
@@ -606,9 +679,12 @@
     }
   }
   for (const id of ["edit-wake", "edit-bed"]) $(id).addEventListener("click", (e) => {
+    if (draggedEnd) { draggedEnd = false; return; }
     renderTimes();
     openSheet("times-sheet", e.currentTarget);
   });
+  makeEnd($("edit-wake"), "wake");
+  makeEnd($("edit-bed"), "bed");
   $("times-sheet").addEventListener("click", (e) => {
     const b = e.target.closest(".step");
     if (!b || b.disabled) return;

@@ -390,14 +390,23 @@ html.is-fill .app {
 .ll-chip[aria-checked="true"],
 .ll-chip.is-filled { background: linear-gradient(90deg, var(--a), var(--b)) border-box; color: var(--ink-on-light); }
 .ll-chip.is-dark:is([aria-checked="true"], .is-filled) { color: var(--ink); }
-/* The scene Light Life recommends for where you live wears a small spark. */
-.chip-mark { flex: none; width: 10px; height: 10px; margin: 0 6px 0 -2px; vertical-align: -1px; }
-.chip-mark[hidden] { display: none; }
+/* Each scene wears a small picture of where it is (index.html, sc-*): a line icon, its
+   stroke the weight of the text beside it. */
+.scene-icon { flex: none; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 
-/* The scene playing, one chip centered under the lamp; it opens the scene sheet. */
+/* The scene playing, one chip centered under the lamp; it opens the scene sheet. Its colors
+   ease from scene to scene as the lamp's light does (registered, so they can), blended in
+   oklab so the middle stays clear, and it's lit at its rim as the lamp's parts are (--rim,
+   app.js: as bright as the scene, none when its lights are off). Its tap reaches 6px past
+   its edge above and below: 49px tall. */
+@property --a { syntax: "<color>"; inherits: false; initial-value: #3a3a3e; }
+@property --b { syntax: "<color>"; inherits: false; initial-value: #3a3a3e; }
+@property --rim { syntax: "<color>"; inherits: false; initial-value: transparent; }
 .scene-row { display: flex; justify-content: center; margin-top: var(--space-3); }
-.scene-button { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; padding: 0 12px 0 18px; }
-.scene-button .chip-mark { margin: 0 -2px 0 -4px; }
+.scene-button { position: relative; display: inline-flex; align-items: center; gap: 8px; max-width: 100%; padding: 0 12px 0 14px; box-shadow: inset 0 0 10px 1px var(--rim); transition: --a 0.6s var(--ease), --b 0.6s var(--ease), --rim 0.6s var(--ease), color 0.4s; }
+.ll-chip.scene-button { background: linear-gradient(90deg in oklab, var(--a), var(--b)) border-box; }
+.scene-button::before { content: ""; position: absolute; inset: -6px -4px; border-radius: inherit; }
+.scene-button:focus-visible { box-shadow: var(--focus-ring), inset 0 0 10px 1px var(--rim); }   /* the ring over the rim */
 .scene-button > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .scene-chevron { flex: none; width: 14px; height: 14px; opacity: 0.6; }
 
@@ -434,8 +443,8 @@ html.is-fill .ll-sheet { border-radius: var(--radius-lg); padding-bottom: calc(v
 
 /* The scene sheet: it glows faintly from the top with the light of the scene picked (--glow,
    app.js), fading out like the lamp's own light. One row per scene: a small lamp lit as the
-   scene lights it (its head with the sunlight, its base with the color), the name, and for
-   the recommended scene, a spark and why; a check on the one playing. */
+   scene lights it (its head with the sunlight, its base with the color), the scene's picture
+   and name, and for the recommended scene, why; a check on the one playing. */
 @property --glow { syntax: "<color>"; inherits: false; initial-value: transparent; }
 .scene-sheet { background: radial-gradient(130% 75% at 50% 0%, color-mix(in srgb, var(--glow) 22%, transparent), transparent 75%), var(--surface); transition: transform 0.4s var(--ease), visibility 0s 0.4s, --glow 0.6s var(--ease); }
 .scene-sheet.is-open { transition: transform 0.4s var(--ease), --glow 0.6s var(--ease); }
@@ -446,7 +455,7 @@ html.is-fill .ll-sheet { border-radius: var(--radius-lg); padding-bottom: calc(v
 .scene-option:focus-visible { box-shadow: inset 0 0 0 2px var(--signal); }
 .scene-option-text { display: flex; flex: 1; flex-direction: column; gap: 3px; min-width: 0; }
 .scene-option-name { display: flex; align-items: center; font-size: 16px; font-weight: 500; line-height: 20px; letter-spacing: -0.01em; }
-.scene-option-name .chip-mark { margin: 0 6px 0 0; }
+.scene-option-name .scene-icon { margin-right: 8px; }
 .scene-why { color: var(--ink-muted); font-size: 13px; line-height: 18px; }
 .scene-check { width: 18px; height: 18px; opacity: 0; transition: opacity 0.2s; }
 .scene-option[aria-checked="true"] .scene-check { opacity: 1; }

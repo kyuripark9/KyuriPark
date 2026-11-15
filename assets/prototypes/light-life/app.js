@@ -17,8 +17,8 @@
    doesn't.
 
    It also plans around where you live (sky.js): the city's sunrise and sunset today and its
-   forecast pick a recommended scene for each part, marked with a spark (its reason shows in
-   the scene sheet, under it, and on hover over the chip). Picking another scene overrides
+   forecast pick a recommended scene for each part (its reason shows in the scene sheet,
+   under its name, and on hover over the chip). Picking another scene overrides
    it; picking the recommended one again follows the recommendation. The weather there now
    is an icon before the city's name, in the strip at the top. The clock is the city's.
 
@@ -49,36 +49,37 @@
   const INK_ON_LIGHT = hex(css.getPropertyValue("--ink-on-light") || "#141210");
 
   // The day's parts and their scenes ---------------------------------------------------------
-  // sun: the white light (0-1); color: the color light's color and c its strength (0-1).
+  // sun: the white light (0-1); color: the color light's color and c its strength (0-1);
+  // icon: a small picture of where the scene is (index.html, sc-*).
   // tune: the strengths you set with the tapes for the part, over its scene's ({ sun, c }).
   // Sunlight leads the morning and the day; color takes over toward evening.
   // fade: minutes a part takes to arrive (Sunrise: how long before wake-up it starts; Night:
   // how long before lights out it starts to dim).
-  const scene = (name, sun, color, c) => ({ name, sun, color, c });
+  const scene = (name, sun, color, c, icon) => ({ name, sun, color, c, icon });
   const PARTS = [
     { id: "sunrise", name: "Sunrise", when: "Wake-up", fade: 30, pick: null, rec: null, tune: null, scenes: [
-      scene("Before sunrise", 0.25, "rose", 0.5),
-      scene("Daybreak on the prairie", 0.35, "amber", 0.55),
-      scene("Among misty mountains", 0.3, "sky", 0.4) ] },
+      scene("Before sunrise", 0.25, "rose", 0.5, "sc-before-sunrise"),
+      scene("Daybreak on the prairie", 0.35, "amber", 0.55, "sc-prairie"),
+      scene("Among misty mountains", 0.3, "sky", 0.4, "sc-mountains") ] },
     { id: "morning", name: "Morning", when: "Morning", fade: 60, pick: null, rec: null, tune: null, scenes: [
-      scene("Misty morning sands", 0.66, "sand", 0.4),
-      scene("Morning walk in Sydney", 0.75, "sky", 0.4),
-      scene("Cloudy but fresh", 0.7, "mint", 0.35) ] },
+      scene("Misty morning sands", 0.66, "sand", 0.4, "sc-sands"),
+      scene("Morning walk in Sydney", 0.75, "sky", 0.4, "sc-sydney"),
+      scene("Cloudy but fresh", 0.7, "mint", 0.35, "sc-fresh-breeze") ] },
     { id: "day", name: "Daytime", when: "Daytime", fade: 120, pick: null, rec: null, tune: null, scenes: [
-      scene("High blue sky", 0.92, "sky", 0.45),
-      scene("Spring daylight in Seoul", 0.86, "blossom", 0.35),
-      scene("Fresh cloud", 0.82, "mint", 0.35) ] },
+      scene("High blue sky", 0.92, "sky", 0.45, "sc-high-sky"),
+      scene("Spring daylight in Seoul", 0.86, "blossom", 0.35, "sc-seoul"),
+      scene("Fresh cloud", 0.82, "mint", 0.35, "sc-clouds") ] },
     { id: "golden", name: "Golden hour", when: "Late-day", fade: 120, pick: null, rec: null, tune: null, scenes: [
-      scene("Endless gold light", 0.45, "amber", 0.7),
-      scene("It's your LA Golden hour", 0.4, "orange", 0.7),
-      scene("Late time beach", 0.4, "yellow", 0.6) ] },
+      scene("Endless gold light", 0.45, "amber", 0.7, "sc-gold"),
+      scene("It's your LA Golden hour", 0.4, "orange", 0.7, "sc-la"),
+      scene("Late time beach", 0.4, "yellow", 0.6, "sc-beach") ] },
     { id: "wind", name: "Wind down", when: "Wind-down", fade: 60, pick: null, rec: null, tune: null, scenes: [
-      scene("Sunset", 0.06, "rose", 0.45),
-      scene("Orange beach", 0.08, "orange", 0.5),
-      scene("Red ocean", 0, "red", 0.3) ] },
+      scene("Sunset", 0.06, "rose", 0.45, "sc-sunset"),
+      scene("Orange beach", 0.08, "orange", 0.5, "sc-sun-sea"),
+      scene("Red ocean", 0, "red", 0.3, "sc-ocean") ] },
     { id: "night", name: "Night", when: "Night", fade: 30, pick: null, rec: null, tune: null, scenes: [
-      scene("Lights off", 0, "red", 0),
-      scene("Night light", 0, "red", 0.1) ] },
+      scene("Lights off", 0, "red", 0, "sc-lights-off"),
+      scene("Night light", 0, "red", 0.1, "sc-night-light") ] },
   ];
   const part = (id) => PARTS.find((p) => p.id === id);
   // The color light, named for your situation: today's sky where you live if it says
@@ -319,9 +320,12 @@
     $("place").setAttribute("aria-label", `${state.city.name}${words ? `, ${words}` : ""}, ${fmt(viewTime())}. Change where you live`);
   }
 
-  // The scene playing, as one chip under the lamp. It runs from the scene's sunlight to its
-  // color, each as strong as it is, with light or dark text, whichever reads better on its
-  // weaker end; the recommended scene wears a spark (and says why on hover).
+  // The scene playing, as one chip under the lamp, wearing the scene's picture. It runs from
+  // the scene's sunlight to its color, each as strong as it is; a light that's off leaves its
+  // end the chip's gray (Lights off is all gray, not red). Light or dark text, whichever reads
+  // better on its weaker end (every scene's clears 4.5:1). It's lit at its rim, as the lamp's
+  // parts are, as brightly as the scene is lit (--rim). Why a scene is recommended shows on
+  // hover and in the scene sheet.
   let sceneFor = "";
   function paintScene(id) {
     const x = part(id), on = sceneIndex(x), s = x.scenes[on], rec = x.rec?.i === on;
@@ -329,14 +333,17 @@
     if (key === sceneFor) return;
     sceneFor = key;
     const dim = [58, 58, 62];
-    const a = blend(dim, SUN, 0.3 + 0.7 * s.sun), b = s.color ? blend(dim, COLOR[s.color], 0.3 + 0.7 * Math.min(1, s.c * 1.6)) : dim;
+    const a = s.sun > OFF ? blend(dim, SUN, 0.3 + 0.7 * s.sun) : dim;
+    const b = s.color && s.c > OFF ? blend(dim, COLOR[s.color], 0.3 + 0.7 * Math.min(1, s.c * 1.6)) : dim;
+    const lit = Math.max(s.sun, s.c);
     const worst = (ink) => Math.min(contrast(a, ink), contrast(b, ink));
     const chip = $("scene");
     chip.style.setProperty("--a", rgbCss(a));
     chip.style.setProperty("--b", rgbCss(b));
+    chip.style.setProperty("--rim", `rgb(255 255 255 / ${lit > OFF ? (0.2 + 0.3 * lit).toFixed(2) : 0})`);
     chip.classList.toggle("is-dark", worst(INK) > worst(INK_ON_LIGHT));
+    $("scene-icon").setAttribute("href", `#${s.icon}`);
     $("scene-name").textContent = s.name;
-    $("scene-mark").toggleAttribute("hidden", !rec);
     chip.title = rec ? x.rec.why : "";
     chip.setAttribute("aria-label", `${x.name} scene: ${s.name}${rec ? `, recommended. ${x.rec.why}` : ""}. Change scene`);
   }
@@ -357,11 +364,11 @@
     $("scenes").innerHTML = x.scenes.map((s, i) => {
       const headRgb = blend(unlit, SUN, strength(s.sun));
       const baseRgb = s.color ? blend(unlit, COLOR[s.color], colorStrength(s.c)) : unlit;
-      const mark = i === rec ? '<svg class="chip-mark" aria-hidden="true"><use href="#i-spark"/></svg>' : "";
+      const icon = `<svg class="scene-icon" aria-hidden="true"><use href="#${s.icon}"/></svg>`;
       const why = i === rec ? `<span class="scene-why"><span class="visually-hidden">Recommended: </span>${esc(x.rec.why)}</span>` : "";
       return `<button class="scene-option" type="button" role="radio" aria-checked="${i === on}" tabindex="${i === on ? 0 : -1}" data-i="${i}">
         <span class="mini-lamp" aria-hidden="true"><i style="background:${rgbCss(headRgb)}"></i><i style="background:${rgbCss(baseRgb)}"></i></span>
-        <span class="scene-option-text"><span class="scene-option-name">${mark}<span>${esc(s.name)}</span><span class="visually-hidden">, ${esc(describe(asLight(s)))}.</span></span>${why}</span>
+        <span class="scene-option-text"><span class="scene-option-name">${icon}<span>${esc(s.name)}</span><span class="visually-hidden">, ${esc(describe(asLight(s)))}.</span></span>${why}</span>
         <svg class="icon scene-check" aria-hidden="true"><use href="#i-check"/></svg>
       </button>`;
     }).join("");

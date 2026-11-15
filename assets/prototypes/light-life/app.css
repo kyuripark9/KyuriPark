@@ -284,7 +284,6 @@ html.is-fill .app {
 .lamp-head { flex: 1 0 auto; min-height: 250px; padding: 46px 24px 38px; border-radius: 76px; }   /* label and ruler inside the rim's light, on the dark */
 .lamp-base { flex: none; justify-content: center; gap: 7px; height: 120px; margin: 0 12px; padding: 0 44px; border-radius: 60px; }   /* 120px since it holds a label over its percent, as the head does */
 .lamp-label { display: flex; align-items: center; gap: 6px; color: var(--ink-muted); transition: color 0.4s; }
-.lamp-label .icon { width: 12px; height: 12px; }
 
 /* Each light fills its part: as strong as the light is (opacity, app.js), in its color
    (--fill, set by app.js for the base). --fill is a registered color, so a new color fades in

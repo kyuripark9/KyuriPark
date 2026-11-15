@@ -196,8 +196,11 @@ Blocks appear in the order you list them. The template uses Context → Explore 
   light ink at any strength; and under it the base, a pill a little narrower, that fills
   with the color, brightest and a little paler at its edge and deepening softly inward (no
   outline) to a deeper shade of the same color in the middle. Both parts say what they hold
-  the same way (since 2026-11-14, the user's ask): a mono label with its icon (the sun's;
-  a drop for the color, with the color's name) over the strength in plain type (Inter, the
+  the same way (since 2026-11-14, the user's ask): a mono label naming the light, SUNLIGHT
+  for the head; for the base, its color named for your situation, from today's sky where
+  you live or else the part of the day: GRAY-DAY BLUE, EARLY-SUNSET BLUE, WIND-DOWN ROSE,
+  NIGHT RED (since 2026-11-15, the user's ask: paint names like "Sky blue" didn't say
+  anything about you; no icons since then either) over the strength in plain type (Inter, the
   number large with a smaller % beside it; dot digits until 2026-11-15, the user's ask), the
   base's smaller, in white on the lit color. Each part
   has its own tape, a ruler that slides under a fixed yellow mark: drag the part (or its

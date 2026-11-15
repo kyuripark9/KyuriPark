@@ -151,39 +151,40 @@
     const at = city.name;
     const night = s.polar === "night", allDay = s.polar === "day";
     const out = {};
-    const say = (id, scene, why) => { out[id] = { scene, why }; };
+    // when: the situation in a word or two, which names the color light ("Gray-day" blue).
+    const say = (id, scene, why, when) => { out[id] = { scene, why, when }; };
 
     // Sunrise: is it still dark when you wake?
-    if (night) say("sunrise", "Daybreak on the prairie", `The sun won't rise in ${at} today, so your lamp brings the dawn.`);
-    else if (!allDay && s.rise > wake) say("sunrise", "Daybreak on the prairie", `Sunrise in ${at} isn't until ${fmt(s.rise)}, so your lamp brings the dawn.`);
-    else if (allDay) say("sunrise", "Among misty mountains", `The sun is up all night in ${at}, so your lamp wakes you gently.`);
-    else say("sunrise", "Among misty mountains", `The sun is up by ${fmt(s.rise)} in ${at}, so your lamp wakes you gently.`);
+    if (night) say("sunrise", "Daybreak on the prairie", `The sun won't rise in ${at} today, so your lamp brings the dawn.`, "Polar-night");
+    else if (!allDay && s.rise > wake) say("sunrise", "Daybreak on the prairie", `Sunrise in ${at} isn't until ${fmt(s.rise)}, so your lamp brings the dawn.`, "Before-sunrise");
+    else if (allDay) say("sunrise", "Among misty mountains", `The sun is up all night in ${at}, so your lamp wakes you gently.`, "Midnight-sun");
+    else say("sunrise", "Among misty mountains", `The sun is up by ${fmt(s.rise)} in ${at}, so your lamp wakes you gently.`, "After-sunrise");
 
     // Morning: dark, gray, or sunny?
     const morning = skyOver(w, ...win.morning);
-    if (night || (!allDay && s.rise > wake + 30)) say("morning", "Morning walk in Sydney", `${at} is still dark when you wake, so your lamp starts the day bright.`);
-    else if (morning === "gray") say("morning", "Cloudy but fresh", `A gray morning in ${at}, so your lamp adds cool, bright light.`);
-    else if (morning) say("morning", "Misty morning sands", `${morning === "clear" ? "Clear skies" : "Some sun"} in ${at} this morning, so your lamp stays gentle.`);
+    if (night || (!allDay && s.rise > wake + 30)) say("morning", "Morning walk in Sydney", `${at} is still dark when you wake, so your lamp starts the day bright.`, "Dark-morning");
+    else if (morning === "gray") say("morning", "Cloudy but fresh", `A gray morning in ${at}, so your lamp adds cool, bright light.`, "Gray-morning");
+    else if (morning) say("morning", "Misty morning sands", `${morning === "clear" ? "Clear skies" : "Some sun"} in ${at} this morning, so your lamp stays gentle.`, morning === "clear" ? "Clear-morning" : "Partly-cloudy");
 
     // Daytime: does the sun set early, and how much does it come through?
     const day = skyOver(w, ...win.day);
-    if (night) say("day", "High blue sky", `No sun in ${at} today, so your lamp is your daylight.`);
-    else if (!allDay && s.set < win.day[1] - 30) say("day", "High blue sky", `The sun sets at ${fmt(s.set)} in ${at}, so your lamp keeps the day going.`);
-    else if (day === "gray") say("day", "High blue sky", `A gray day in ${at}, so your lamp brings the blue sky in.`);
-    else if (day === "mixed") say("day", "Fresh cloud", `Sun and clouds in ${at}, so your lamp fills in the gaps.`);
-    else if (day === "clear") say("day", "Spring daylight in Seoul", `A clear day in ${at}, so your lamp works alongside the sun.`);
+    if (night) say("day", "High blue sky", `No sun in ${at} today, so your lamp is your daylight.`, "Polar-night");
+    else if (!allDay && s.set < win.day[1] - 30) say("day", "High blue sky", `The sun sets at ${fmt(s.set)} in ${at}, so your lamp keeps the day going.`, "Early-sunset");
+    else if (day === "gray") say("day", "High blue sky", `A gray day in ${at}, so your lamp brings the blue sky in.`, "Gray-day");
+    else if (day === "mixed") say("day", "Fresh cloud", `Sun and clouds in ${at}, so your lamp fills in the gaps.`, "Partly-cloudy");
+    else if (day === "clear") say("day", "Spring daylight in Seoul", `A clear day in ${at}, so your lamp works alongside the sun.`, "Clear-day");
 
     // Golden hour: has the sun already set, is it setting, or is it still out?
     const [g0, g1] = win.golden;
-    if (night) say("golden", "Endless gold light", `No sunset in ${at} today, so your lamp makes the golden hour.`);
-    else if (!allDay && s.set <= g0) say("golden", "Endless gold light", `The sun sets at ${fmt(s.set)} in ${at}, so your lamp makes its own golden hour.`);
-    else if (!allDay && s.set < g1) say("golden", "It's your LA Golden hour", `The sun sets at ${fmt(s.set)} in ${at}, so your lamp turns gold with it.`);
-    else if (allDay) say("golden", "Late time beach", `The sun stays up tonight in ${at}, so your lamp stays soft.`);
-    else say("golden", "Late time beach", `It's light out in ${at} until ${fmt(s.set)}, so your lamp stays soft.`);
+    if (night) say("golden", "Endless gold light", `No sunset in ${at} today, so your lamp makes the golden hour.`, "Polar-night");
+    else if (!allDay && s.set <= g0) say("golden", "Endless gold light", `The sun sets at ${fmt(s.set)} in ${at}, so your lamp makes its own golden hour.`, "After-sunset");
+    else if (!allDay && s.set < g1) say("golden", "It's your LA Golden hour", `The sun sets at ${fmt(s.set)} in ${at}, so your lamp turns gold with it.`, "Sunset");
+    else if (allDay) say("golden", "Late time beach", `The sun stays up tonight in ${at}, so your lamp stays soft.`, "Midnight-sun");
+    else say("golden", "Late time beach", `It's light out in ${at} until ${fmt(s.set)}, so your lamp stays soft.`, "Long-day");
 
     // Wind down: is it still light out?
-    if (allDay) say("wind", "Red ocean", `The sun stays up tonight in ${at}, so your lamp goes extra dim.`);
-    else if (!night && s.set > win.wind[0]) say("wind", "Red ocean", `It's light out in ${at} until ${fmt(s.set)}, so your lamp goes extra dim.`);
+    if (allDay) say("wind", "Red ocean", `The sun stays up tonight in ${at}, so your lamp goes extra dim.`, "Midnight-sun");
+    else if (!night && s.set > win.wind[0]) say("wind", "Red ocean", `It's light out in ${at} until ${fmt(s.set)}, so your lamp goes extra dim.`, "Bright-evening");
 
     return out;
   }

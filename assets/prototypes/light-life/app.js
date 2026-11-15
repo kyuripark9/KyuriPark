@@ -35,10 +35,11 @@
   const $ = (id) => document.getElementById(id);
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
-  // The lamp's colors (app.css), as numbers to blend, and their names.
+  // The lamp's colors (app.css), as numbers to blend, and their plain names. On the lamp a
+  // color is named for your situation too (colorName): "Gray-day blue", "Wind-down rose".
   const css = getComputedStyle(document.documentElement);
   const hex = (h) => { h = h.trim().replace("#", ""); return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)); };
-  const NAMES = { rose: "Rose", amber: "Amber", orange: "Orange", red: "Red", sand: "Sand", yellow: "Yellow", mint: "Mint", sky: "Sky blue", blossom: "Blossom" };
+  const NAMES = { rose: "Rose", amber: "Gold", orange: "Orange", red: "Red", sand: "Sand", yellow: "Yellow", mint: "Mint", sky: "Blue", blossom: "Pink" };
   const COLOR = {};
   for (const name of Object.keys(NAMES)) COLOR[name] = hex(css.getPropertyValue(`--lamp-${name}`) || "#888888");
   const SUN = hex(css.getPropertyValue("--lamp-sun") || "#ffffff");
@@ -55,31 +56,36 @@
   // how long before lights out it starts to dim).
   const scene = (name, sun, color, c) => ({ name, sun, color, c });
   const PARTS = [
-    { id: "sunrise", name: "Sunrise", fade: 30, pick: null, rec: null, tune: null, scenes: [
+    { id: "sunrise", name: "Sunrise", when: "Wake-up", fade: 30, pick: null, rec: null, tune: null, scenes: [
       scene("Before sunrise", 0.25, "rose", 0.5),
       scene("Daybreak on the prairie", 0.35, "amber", 0.55),
       scene("Among misty mountains", 0.3, "sky", 0.4) ] },
-    { id: "morning", name: "Morning", fade: 60, pick: null, rec: null, tune: null, scenes: [
+    { id: "morning", name: "Morning", when: "Morning", fade: 60, pick: null, rec: null, tune: null, scenes: [
       scene("Misty morning sands", 0.66, "sand", 0.4),
       scene("Morning walk in Sydney", 0.75, "sky", 0.4),
       scene("Cloudy but fresh", 0.7, "mint", 0.35) ] },
-    { id: "day", name: "Daytime", fade: 120, pick: null, rec: null, tune: null, scenes: [
+    { id: "day", name: "Daytime", when: "Daytime", fade: 120, pick: null, rec: null, tune: null, scenes: [
       scene("High blue sky", 0.92, "sky", 0.45),
       scene("Spring daylight in Seoul", 0.86, "blossom", 0.35),
       scene("Fresh cloud", 0.82, "mint", 0.35) ] },
-    { id: "golden", name: "Golden hour", fade: 120, pick: null, rec: null, tune: null, scenes: [
+    { id: "golden", name: "Golden hour", when: "Late-day", fade: 120, pick: null, rec: null, tune: null, scenes: [
       scene("Endless gold light", 0.45, "amber", 0.7),
       scene("It's your LA Golden hour", 0.4, "orange", 0.7),
       scene("Late time beach", 0.4, "yellow", 0.6) ] },
-    { id: "wind", name: "Wind down", fade: 60, pick: null, rec: null, tune: null, scenes: [
+    { id: "wind", name: "Wind down", when: "Wind-down", fade: 60, pick: null, rec: null, tune: null, scenes: [
       scene("Sunset", 0.06, "rose", 0.45),
       scene("Orange beach", 0.08, "orange", 0.5),
       scene("Red ocean", 0, "red", 0.3) ] },
-    { id: "night", name: "Night", fade: 30, pick: null, rec: null, tune: null, scenes: [
+    { id: "night", name: "Night", when: "Night", fade: 30, pick: null, rec: null, tune: null, scenes: [
       scene("Lights off", 0, "red", 0),
       scene("Night light", 0, "red", 0.1) ] },
   ];
   const part = (id) => PARTS.find((p) => p.id === id);
+  // The color light, named for your situation: today's sky where you live if it says
+  // something for this part of the day (sky.js, x.today: "Gray-day", "Early-sunset"), else
+  // the part of the day itself ("Wind-down"); then the color ("Blue"). It stays true
+  // whichever scene you pick: it's still a gray day.
+  const colorName = (id, color) => { const x = part(id); return `${x.today || x.when} ${NAMES[color].toLowerCase()}`; };
   // A part plays the scene you picked, or else the one recommended for where you live
   // (rec: { i, why }), or else its first; at the strengths you set, if you did.
   const sceneIndex = (p) => p.pick ?? p.rec?.i ?? 0;
@@ -380,7 +386,7 @@
   const WHITE = [255, 255, 255];
   const contrast = (x, ink) => { const l = luminance(x), k = luminance(ink); return (Math.max(l, k) + 0.05) / (Math.min(l, k) + 0.05); };
 
-  function paintLamp(l) {
+  function paintLamp(l, id) {
     const sunA = strength(l.sun), colA = colorStrength(l.c);
     $("sun-fill").style.opacity = sunA.toFixed(3);
     head.classList.toggle("is-lit", sunA > 0);
@@ -391,9 +397,10 @@
     $("color-fill").style.setProperty("--fill", rgb);
     $("color-fill").style.opacity = colA.toFixed(3);
     base.classList.toggle("is-lit", colA > 0);
-    $("color-name").textContent = l.c > OFF ? NAMES[l.color] : "Color";
     $("color-value").textContent = l.c > OFF ? pct(l.c) : 0;
-    paintTape(colorTape, l.c, sayColor(l));
+    const name = colorName(id, l.color);
+    $("color-name").textContent = l.c > OFF ? name : "Color";
+    paintTape(colorTape, l.c, l.c > OFF ? `${name} ${pct(l.c)}%` : "Color off");
   }
 
   // Tapes: a ruler that slides under a fixed mark. Drag it, or anywhere on its part of the
@@ -481,7 +488,7 @@
     ruler.setAttribute("aria-valuetext", `${fmt(t)}, ${part(id).name}, ${describe(l)}`);
 
     paintScene(id);
-    paintLamp(l);
+    paintLamp(l, id);
     paintPlace();
     $("status-time").textContent = clock(nowMinutes()).hm;
   }
@@ -684,6 +691,7 @@
       const r = recs[x.id];
       const i = r ? x.scenes.findIndex((s) => s.name === r.scene) : -1;
       x.rec = i < 0 ? null : { i, why: r.why };
+      x.today = r ? r.when : null;
     }
     sceneFor = "";
     if (state.sheet === "scene-sheet") renderScenes();

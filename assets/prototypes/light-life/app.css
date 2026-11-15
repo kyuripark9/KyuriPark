@@ -194,7 +194,7 @@ html.is-fill .app {
   padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
 }
 
-/* Where you live, in one quiet line under the part of the day (no box, no labels): the
+/* Where you live, in one quiet line at the top (no box, no labels): the
    weather there now as an icon, the city's name, and the time showing there, muted. A
    button: it opens the city sheet. A long name ends in an ellipsis; the time always shows. */
 .place {
@@ -250,11 +250,10 @@ html.is-fill .app {
 .ll-tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--signal); }
 .ll-tag[hidden] { display: none; }
 
-/* The part of the day showing, the city and its time under it, and Back to now at the right
-   while you look at another time. */
+/* The city and its time, and Back to now at the right while you look at another time. (The
+   part of the day's name is for screen readers only since 2026-11-15.) */
 .now-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin: var(--space-3) 0 var(--space-5); padding: 0 var(--space-1); }
 .now-text { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
-.now-title { min-width: 0; font-size: 28px; font-weight: 500; line-height: 34px; letter-spacing: -0.025em; white-space: nowrap; }
 
 /* The lamp, built like the real one (the 2023 renders): a head, a rounded square that glows
    white at its edge, over a base, a pill that lights in color. Two parts, a small gap

@@ -210,8 +210,10 @@ Blocks appear in the order you list them. The template uses Context → Explore 
   the part of the day showing; picking a scene again goes back to the scene's own strengths.
   The lamp shows each part of the day as set; the day's ruler shows the slow fades between
   them. The screen is kept quiet (no boxes or labels it can do without) and reads top to
-  bottom (no logo over it since 2026-11-15, the user's ask: the lamp is the product): the part of the day, with one line under it for the city and the time showing
-  there (it opens the city search), the lamp, the scene playing (one chip under the lamp; tap
+  bottom (no logo over it since 2026-11-15, the user's ask: the lamp is the product): one line for the city and the time showing
+  there (it opens the city search; the part of the day's name over it is gone since
+  2026-11-15, the user: "Daytime" was not needed, the time, the ruler and the color's name
+  already say it; screen readers still hear it), the lamp, the scene playing (one chip under the lamp; tap
   it and the part's scenes come up in a sheet, with its hours and a small lamp per scene lit
   as that scene lights it; picking one closes the sheet so you see the lamp change), and the
   day (the ruler, with Play a day beside its label, and under it only the wake-up and

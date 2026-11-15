@@ -37,16 +37,18 @@
   <div class="status" aria-hidden="true"><span id="status-time">9:41</span></div>
 
   <main class="app">
-    <!-- No logo at the top (the user's ask, 2026-11-15): the lamp under the title is the
-         product, so the screen opens on the part of the day. -->
+    <!-- No logo at the top (the user's ask, 2026-11-15): the lamp is the product, so the
+         screen opens on where you live and the time there. -->
 
-    <!-- The part of the day showing, and under it in one quiet line where you live (the
-         weather there now as an icon, a pin until the forecast arrives) and the time showing
-         there; the line opens the city search. Back to now at the right while you look at
-         another time. Your two times are on the day's ruler, where your day starts and ends. -->
+    <!-- Where you live, in one quiet line (the weather there now as an icon, a pin until the
+         forecast arrives) and the time showing there; the line opens the city search. Back to
+         now at the right while you look at another time. Your two times are on the day's
+         ruler, where your day starts and ends. The part of the day showing is named for screen
+         readers only (the user, 2026-11-15: "Daytime" said nothing the screen doesn't: the
+         time, the ruler, and the color's name, CLEAR-DAY BLUE, already tell it). -->
     <div class="now-head">
       <div class="now-text">
-        <h1 class="now-title" id="part">Morning</h1>
+        <h1 class="visually-hidden" id="part">Morning</h1>
         <button class="place" type="button" id="place" aria-haspopup="dialog"><svg class="icon weather-icon" aria-hidden="true"><use id="weather-use" href="#i-pin"/></svg><span class="place-text" id="place-text">Chicago</span><span class="place-time" id="time">9:00 AM</span></button>
       </div>
       <button class="ll-pill is-glass is-small" type="button" id="back-now" hidden>Back to now</button>

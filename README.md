@@ -21,11 +21,11 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 
 | Address | What it is |
 | --- | --- |
-| `/` | Work, the site's first page since 2026-11-12 (the user's ask: the projects first, plainly): everything, the projects first, in one grid of tiles, so a visitor sees every project at once. Laid out after gougoucore.com's Work since 2026-11-13 (the user's ask): a sentence across the page right under the header (`"work"` → `"statement"` in `content/site.json`, in the display style, justified from 768px; leave it out for no sentence), then the tiles from the window's left edge to its right, 3 across from 768px and 2 on phones, with no gaps, only 1px lines in the text color between them; each image tall (18:25, `--tile-ratio`), with a bar under it, the item's number ("001") at the left and its title at the right. A last row that isn't full is closed with an empty cell (or two) drawn in the same lines, so the grid ends in a rectangle (since 2026-11-14; Archive's too). The first time it opens in a tab, the opening plays over it (see Motion, "Home intro"). Its filters ("All 08   Digital 06   Brand 04   Physical 02", `/#digital` and so on) are off since 2026-11-09: `WORK_FILTERS` in `build.py` brings them back. `HOME_TRACK = True` in `build.py` brings Home back here, as it was from 2026-11-10 to 11-12 (laid out from the user's own sketch: the sentence that says who this is, `"home"` → `"lead"` in `content/site.json`, the featured projects on a wheel, the middle one's name, the sound switch and the 01 / 05 count; see Motion, "Home loop") and moves the grid to `/work/`. **RING / GRID** (since 2026-11-12, `WORK_RING` in `build.py`): at the right of the line over the grid, from 768px, RING shows the same items as objects on a slowly turning oval ring (`assets/js/ring.js`, after sarahsarazen.com/#projects), each one's own `object` image or, until it has one, a gray stand-in shape (`templates/ring.html`); the name and type · year of the object in front (or under the mouse) sit in the ring's middle. The ring showed first (the same evening, the user's ask; `RING_FIRST`); the browser remembers a visitor's pick. Phones get the grid only. Off since 2026-11-13, with gougoucore's layout (`WORK_RING = False`); `True` brings the ring and its switch back, the switch on its line under the sentence |
+| `/` | Work, the site's first page since 2026-11-12 (the user's ask: the projects first, plainly): everything, the projects first, in one grid of tiles, so a visitor sees every project at once. Laid out after gougoucore.com's Work since 2026-11-13 (the user's ask): a sentence across the page right under the header (`"work"` → `"statement"` in `content/site.json`, in the display style; from 768px (since 2026-11-15, the user's ask) it fills the window from the header's left gutter to its right in two lines, both edge to edge, its size the width over its longer line (`main.js` finds the break that makes the two lines most alike, here after WORKING, 17.2em each: 80px at 1440px, 110px at 1980px), on phones lines from the left at the display's size (justified at the display's size inside the page's width from 2026-11-13, its first line's gaps 2 to 4 times the last's; from the left, ragged, on 2026-11-14); leave it out for no sentence), then the tiles from the window's left edge to its right, 3 across from 768px and 2 on phones, with no gaps, only 1px lines in the text color between them; each image tall (18:25, `--tile-ratio`), with a bar under it, the item's number ("001") at the left and its title at the right. A last row that isn't full is closed with an empty cell (or two) drawn in the same lines, so the grid ends in a rectangle (since 2026-11-14; Archive's too). The first time it opens in a tab, the opening plays over it (see Motion, "Home intro"). Its filters ("All 08   Digital 06   Brand 04   Physical 02", `/#digital` and so on) are off since 2026-11-09: `WORK_FILTERS` in `build.py` brings them back. `HOME_TRACK = True` in `build.py` brings Home back here, as it was from 2026-11-10 to 11-12 (laid out from the user's own sketch: the sentence that says who this is, `"home"` → `"lead"` in `content/site.json`, the featured projects on a wheel, the middle one's name, the sound switch and the 01 / 05 count; see Motion, "Home loop") and moves the grid to `/work/`. **RING / GRID** (since 2026-11-12, `WORK_RING` in `build.py`): at the right of the line over the grid, from 768px, RING shows the same items as objects on a slowly turning oval ring (`assets/js/ring.js`, after sarahsarazen.com/#projects), each one's own `object` image or, until it has one, a gray stand-in shape (`templates/ring.html`); the name and type · year of the object in front (or under the mouse) sit in the ring's middle. The ring showed first (the same evening, the user's ask; `RING_FIRST`); the browser remembers a visitor's pick. Phones get the grid only. Off since 2026-11-13, with gougoucore's layout (`WORK_RING = False`); `True` brings the ring and its switch back, the switch on its line under the sentence |
 | `/work/` | Not a page while Work is at `/` (`HOME_TRACK` off): it sends visitors straight on to `/` (old links keep working). With `HOME_TRACK` on, Work's grid is here; `WORK_VIEWS = True` in `build.py` then adds two icons over it (grid, slider; `VIEW_ICONS`) that switch it to the same items on the loop |
-| `/work/<slug>/` | One page per project, all built from `templates/project.html` |
+| `/work/<slug>/` | One page per project, all built from `templates/project.html`. Laid out as Work is since 2026-11-14 (the user's ask): the title 16px under the header, where Work's sentence starts; lines in the text color from the window's left edge to its right (over the facts, impact numbers, and Previous / Next); Role · Team · Timeline in Work's columns (2 on phones, 3 from 768px), so they start where the tiles' numbers do; a section's heading and text in the window's halves from 768px; every image edge to edge (up to 1920px), with a 1px line where two meet, side by side or one under the other. (Until then: the title lower, under where Work's filters were; gray lines and images, 12px apart, inside the page's width) |
 | `/archive/` | Archive: personal work and hobbies, a gallery of images with nothing under them. A separate page with its own data. Laid out after gougoucore.com's Lab since 2026-11-13: Work's tiles and lines without the bars, starting right under the header, each image cropped to the tall tile (the lightbox shows it whole) |
-| `/about/` | Laid out after gougoucore.com/3/ since 2026-11-13 (the user's ask): the About text as one paragraph across the page right under the header, in the display style (the first sentence in the accent face, then the paragraphs), then a Q&A in a small row (since 2026-11-14): the label under the header's WORK, the questions under ARCHIVE, each opening its answer when clicked; the footer is its contact list (`/about/#contact`). Experience (the same kind of row) is off since late 2026-11-13: the header's RESUME has the jobs |
+| `/about/` | Laid out after gougoucore.com/3/ since 2026-11-13 (the user's ask): the About text as one paragraph across the page right under the header, in the display style (its first words, KYURI DESIGNS, in the accent face, then the rest), then a Q&A in a small row (since 2026-11-14): the label under the header's WORK, the questions under ARCHIVE, each opening its answer when clicked; the footer is its contact list (`/about/#contact`). Experience (the same kind of row) is off since late 2026-11-13: the header's RESUME has the jobs |
 | `/contact/` | Not a page: it sends visitors straight on to `/about/#contact` (old links keep working) |
 
 Contact is the footer (`#contact`), the same on every page (the header's last link went to it
@@ -83,7 +83,7 @@ assets/icons/           the browser tab and home-screen icons: favicon.svg, favi
                         pass goes (12 dots across for the tab, 24 for the home screen); to
                         change it, replace the three files, keeping their names
 assets/fonts/           Inter (with Inter Display), Martian Mono, and Kalnia (the
-                        accent face: Work's sentence's key words, About's first sentence), with
+                        accent face: Work's sentence's key words, About's first words), with
                         their licenses
 assets/logo/            the logo, two suns side by side (since 2026-11-13; one over the
                         other before), their rays wedges, thick at the sun and out to a
@@ -93,7 +93,7 @@ assets/logo/            the logo, two suns side by side (since 2026-11-13; one o
                         logo-small.svg (see Header)
 assets/Kyuri-Park-Resume.pdf
 assets/css/style.css    all styling; colors, type sizes, and spacing are at the top
-assets/js/main.js       Work's filter, lightbox, fade-ups, count-up
+assets/js/main.js       Work's sentence's size, filter, lightbox, fade-ups, count-up
 assets/js/track.js      the project loop (Work's slider; Home's with HOME_TRACK), its dots and lean on phones
 assets/js/ring.js       Work's RING view (WORK_RING): the objects on a turning oval ring
 assets/js/intro.js      Home's opening, the first time Home opens in a tab
@@ -305,7 +305,7 @@ Recommended exports (WebP, or AVIF; JPG and PNG work too):
 | Slot | Size | Notes |
 | --- | --- | --- |
 | Cover (Work tiles, and Home cards) | 1440 × 2000 | Tall, 18:25, on Work since 2026-11-13 (`--tile-ratio` in `assets/css/style.css`; 4:3 before, `--thumb-ratio`, which Home's cards keep, so with `HOME_TRACK` on the same file is cropped to 4:3 there). Another shape is cropped to fill the frame, so keep the subject near the middle |
-| Hero and full-width | 2400 px wide | Any height; the hero runs edge to edge |
+| Hero and full-width | 2400 px wide | Any height; every image on a project page runs edge to edge (the hero always; the others since 2026-11-14), up to 1920px |
 | Two-image row | 1200 px wide each | Same ratio for both looks best |
 | Image of an item with no page | 1440 × 2000 | The same 18:25 as a cover, so the Work tile shows all of it; another shape is cropped to fill the tile. The lightbox shows the whole image |
 | Archive image | 1500 px on the long side | Any shape; cropped to the tall tile on the page, whole in the lightbox |
@@ -340,11 +340,13 @@ Otherwise, and for the other pages, it uses `assets/images/og.png`.
 as one paragraph across the page (`.about-statement` in `assets/css/style.css`): the first
 sentence (`"headline"`, one string or a list of lines that run on as one sentence; it gets a full
 stop if it has none) in Kalnia, the accent face, then the paragraphs after it in the display
-style, as Work's sentence is (Inter Display 500, 64px at 1440px, 51px from 1200px, 41px from about
+style, as Work's sentence is on phones (Inter Display 500, 64px at 1440px, 51px from 1200px, 41px from about
 480px, and 8.5vw on phones, 33px at 390px, so a phone's line holds two or three words). Type it in
 capitals or not, it shows in capitals either way. Words in `*asterisks*` in the paragraphs are set
-in Kalnia too, as on Work. Lines from the left, not justified (Work's sentence is). Delete
-`"headline"` and it starts with the paragraphs.
+in Kalnia too, as on Work. Put `*asterisks*` in the headline and only those words are in Kalnia,
+the rest in the display style: `"*KYURI DESIGNS* WHERE"` since 2026-11-14 (the whole sentence in
+Kalnia ran two lines and more of heavy black). Lines from the left (Work's sentence fills its
+width since 2026-11-15; a paragraph this long would only gape, justified). Delete `"headline"` and it starts with the paragraphs.
 
 **About's layout:** after gougoucore.com/3/ since 2026-11-13 (the user's ask), whose About is
 one big paragraph in capitals, opening with who she is in its display face, and under it a small
@@ -367,8 +369,11 @@ one big paragraph in capitals, opening with who she is in its display face, and 
   under `"about"` in `content/site.json`, a list of `{"q": "A question?", "a": "Its answer."}`
   (`"a"` may be a list of lines, each its own paragraph, as Light Life's years are;
   `[TypeLab](/work/typelab/)` in an answer links a project). The same row as Experience: the
-  label Q&A under the header's WORK, the questions under ARCHIVE, one under another, in the
-  header's link type, each ending in a + (a − while open). Clicking a question opens its answer
+  label Q&A under the header's WORK, in the label style (Martian Mono, as a project's section
+  headings, since 2026-11-14), on the first question's baseline; the questions under ARCHIVE, one
+  under another, in the header's link type but a little open (+0.02em, since 2026-11-14: whole
+  sentences in small capitals read cramped at the links' -0.03em), each ending in a + (a − while
+  open). Clicking a question opens its answer
   under it and closes the one that was open, so one answer shows at a time (`<details>` sharing
   a name: no JavaScript, works from the keyboard; a browser from before 2024 lets several stay
   open), fading in (at once with reduced
@@ -463,7 +468,7 @@ that flare out into hairlines, as the logo's rays run out from the sun, a face w
 of its own (after gougoucore.com, whose accent face is as much its own as its logo). Only the
 face changes: capitals, the display's size (1.03em, so its capitals stand as tall as Inter's)
 and the display's 500 for the rest, so the words stand out by their letters alone (the user's
-pick, 2026-11-14). About's first sentence is in it too. Cut from Fontsource 5.3.0's variable font
+pick, 2026-11-14). About's first words (KYURI DESIGNS) are in it too. Cut from Fontsource 5.3.0's variable font
 with fontTools' instancer to weight 700, width 100, 14KB, SIL Open Font License. (Before:
 Instrument Serif Italic, thickened, and Monoton on 2026-11-13; Bodoni Moda Italic, too hard to
 read, and Newsreader Italic, over three words, on 2026-11-14.)
@@ -507,7 +512,11 @@ the background, the lightest small text stays easy to read at: Home's type and y
 captions, the lightbox's type and year, the labels that name a column or a section, impact labels,
 Previous / Next, About's labels, companies, and dates, the copyright, and from 2026-11-09 to
 2026-11-14 the header's links; since 2026-11-07, most of them a step darker in `--color-muted`, 5.6:1, before),
-`--color-muted` now only for a hovered link, and `--color-line` for rules. (From 2026-11-05 to
+`--color-muted` now only for a hovered link, and every line in the text color (`--color-rule`;
+a project page's were a light warm gray, `--color-line`, until 2026-11-14). The fills behind
+loading media and the gray placeholders are a neutral gray (`--color-fill`, `#e9e9e9`, and
+`#e6e6e6` in `build.py`'s placeholders, since 2026-11-14; warm grays made for the off-white page
+before). (From 2026-11-05 to
 2026-11-09 the header's links were lighter still, `--color-faint`, 3:1, under WCAG AA's 4.5:1.)
 Things react to the pointer in one of two ways, and only by color:
 **links** are in the text color and turn muted on hover (the header's links since 2026-11-14,
@@ -539,8 +548,10 @@ start on the same line (Work and Archive start right under the header since 2026
 gougoucore.com's do) (104px under the header's box from 768px, 80px on
 phones). `--grid-top` (Work's filter line and `--space-2` under it, 48px) sets where Work's
 images start under that line, and Archive's images, a project's title, and About's first
-sentence start there too (since 2026-11-06), so going from Work to any of them, or among them,
-moves nothing. For the titles and About's first row it's their capitals' top that sits on that line, not the top
+sentence started there too (from 2026-11-06), so going from Work to any of them, or among them,
+moved nothing. Since 2026-11-13 Work, Archive, and About start right under the header instead,
+and a project's title since 2026-11-14 (16px under it, where Work's sentence is), so that still
+holds. For the titles and About's first row it was their capitals' top that sat on that line, not the top
 of their line, which is higher by the room over the capitals (`--cap-display`, 0.13em: 8px at
 64px, 5px on phones), so a title doesn't look lower than an image beside it in the menu. Over the
 header's text was `--header-top` (16px from 768px, 12px on phones) until 2026-11-13; the
@@ -549,9 +560,9 @@ that line, change `--page-top` (or `--space-3`) at the top of `assets/css/style.
 a page adds its own space over its first thing. `--gutter` is the side margin the
 header and the page share, so their edges line up: 16px on phones, 24px from 768px, 32px from
 1200px. `--page-max` (1600px) is the widest the page runs; past it, it stays centered (the
-header ran no wider until 2026-11-13; now it runs the window's width, as Work's grid does). `--media-gap` (12px) is the space between images on every page
-and screen: Work's columns, Archive's images across and down, Home's cards, images side by side or
-one under another on project pages, and in the lightbox. `--step-1` and up are 8px steps, for the
+header ran no wider until 2026-11-13; now it runs the window's width, as Work's grid does). `--media-gap` (12px) is the space between images where they don't meet at a
+line: Home's cards and the lightbox (Work's and Archive's tiles meet at 1px lines since
+2026-11-13, a project page's images since 2026-11-14). `--step-1` and up are 8px steps, for the
 spacing inside things (`--step-3` is 24px).
 
 ## Motion

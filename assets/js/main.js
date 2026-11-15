@@ -1,10 +1,50 @@
 // Enhancements on top of pages that already work without JavaScript:
-// Work's views, filter, and card videos, the lightbox, and project-page motion (image fade-up,
-// count-up numbers, looping videos). (Display type broke into dots under the pointer from
-// 2026-11-07 to 2026-11-11; see the README.) The track (Home's, or Work's slider) is in track.js.
+// Work's sentence's size, Work's views, filter, and card videos, the lightbox, and project-page
+// motion (image fade-up, count-up numbers, looping videos). (Display type broke into dots under
+// the pointer from 2026-11-07 to 2026-11-11; see the README.) The track (Home's, or Work's
+// slider) is in track.js.
 (() => {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const fineHover = window.matchMedia("(hover: hover) and (pointer: fine)");
+
+  // Work's sentence fills its width in two lines from 768px (since 2026-11-15; style.css sizes
+  // it, see Work): the size is the width over --statement-ems, the longer of its two lines in
+  // ems. Measured here once the fonts are in, from a copy set on one line: of every place the
+  // sentence could break, the one that makes its two lines most alike, 0.5% over so the longer
+  // can't spill. The ems don't change with the window, so this runs once. .is-even when the two
+  // are within 2% of each other: the last line fills too.
+  const statement = document.querySelector(".work-statement");
+  if (statement) document.fonts.ready.then(() => {
+    const copy = statement.cloneNode(true);
+    copy.setAttribute("aria-hidden", "true");
+    copy.style.cssText = "position: absolute; visibility: hidden; white-space: nowrap; width: max-content";
+    statement.after(copy);
+    const size = parseFloat(getComputedStyle(copy).fontSize);
+    const words = [];  // each word's [left, right], in px
+    const walker = document.createTreeWalker(copy, NodeFilter.SHOW_TEXT);
+    for (let node; (node = walker.nextNode());) {
+      for (const word of node.data.matchAll(/\S+/g)) {
+        const range = document.createRange();
+        range.setStart(node, word.index);
+        range.setEnd(node, word.index + word[0].length);
+        const box = range.getBoundingClientRect();
+        words.push([box.left, box.right]);
+      }
+    }
+    copy.remove();
+    if (words.length < 2) return;
+    const start = words[0][0];
+    const end = words[words.length - 1][1];
+    let longer = Infinity;
+    let shorter = 0;
+    for (let i = 1; i < words.length; i++) {
+      const a = words[i - 1][1] - start;
+      const b = end - words[i][0];
+      if (Math.max(a, b) < longer) [longer, shorter] = [Math.max(a, b), Math.min(a, b)];
+    }
+    statement.style.setProperty("--statement-ems", (longer / size * 1.005).toFixed(3));
+    statement.classList.toggle("is-even", shorter / longer > 0.98);
+  });
 
   // Work: two views of the same items, GRID and SLIDER (WORK_VIEWS in build.py, since
   // 2026-11-10), or RING and GRID (WORK_RING, since 2026-11-12), one at a time: the one showing

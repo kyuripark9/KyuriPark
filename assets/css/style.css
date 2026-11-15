@@ -2,7 +2,8 @@
    Quiet by design: no accent color, the project images bring the color. */
 
 /* Two typefaces, after titarvl.framer.website: Inter for headings, text, and names, Martian
-   Mono for labels. Both from Google Fonts, latin only, SIL Open Font License (LICENSE-*.txt
+   Mono for labels; and an accent face, Kalnia, for a few words only (below, since 2026-11-14).
+   Both from Google Fonts, latin only, SIL Open Font License (LICENSE-*.txt
    beside them), cut down to what the site and the Light Life prototype use (2026-11-11, with
    fontTools' instancer; git has the full files): Inter keeps its optical-size axis (opsz
    14-32) and weights 400-600 (the prototype uses 400; the site 500 and 600), Martian Mono is
@@ -19,7 +20,7 @@
 }
 
 /* Kalnia (since 2026-11-14), the accent face, for the words Work's sentence leans on (*...* in
-   content/site.json) and About's first sentence: a display face whose heavy strokes flare out
+   content/site.json) and About's first words: a display face whose heavy strokes flare out
    into hairlines, as the logo's rays run out from the sun, with a character of its own, so the
    words read as Kyuri's, after gougoucore.com, whose accent face is as much its own as its
    logo. Google Fonts' latin cut (Fontsource 5.3.0's variable font), cut with fontTools'
@@ -68,15 +69,19 @@
                                   Next, About's labels, companies, and dates, the footer's
                                   copyright (the filters and section labels since 2026-11-06, the
                                   rest in --color-muted before) */
-  --color-line: #dcdbd5;
-  --color-rule: var(--color-text);  /* the 1px lines between Work's and Archive's tiles, in the
-                                       text color, as gougoucore.com's are (since 2026-11-13) */
+  --color-rule: var(--color-text);  /* every line on the site: the 1px lines between Work's and
+                                       Archive's tiles, in the text color, as gougoucore.com's
+                                       are (since 2026-11-13), and a project page's (since
+                                       2026-11-14; --color-line, a light warm gray, #dcdbd5,
+                                       before) */
   --color-header: var(--color-bg);  /* the header's background, white (since 2026-11-13, the
                                        user's ask; see Header), the page's white since
                                        2026-11-14, so the header is the page's, set off by its
                                        lines alone */
-  --color-fill: #e9e8e3;       /* behind media while it loads */
-  --color-mark: #e8e7e1;       /* [PLACEHOLDER] highlight; gray text on it is at 4.1:1, under
+  /* Fills, a neutral gray on the white page (since 2026-11-14; warm grays, #e9e8e3 and
+     #e8e7e1, made for the off-white page, until then). */
+  --color-fill: #e9e9e9;       /* behind media while it loads */
+  --color-mark: #e8e8e8;       /* [PLACEHOLDER] highlight; gray text on it is at 4.1:1, under
                                   AA, but a placeholder never ships */
 
   /* ↗ after a link that opens a new tab, as a mask (only its shape counts, not its color). */
@@ -445,8 +450,8 @@ button {
 
 /* Display: project titles, the 404, the sentence over Work's grid, and About's paragraph (both
    since 2026-11-13; About's first sentence alone 2026-11-06 to 2026-11-12). Inter Display
-   (opsz 32); lines that wrap come out even (Work's sentence, set justified, fills each line
-   instead, and About's runs on for lines: see Work and About). */
+   (opsz 32); lines that wrap come out even (Work's sentence fills its width in two lines
+   instead, and About's paragraph wraps where it wraps, from the left: see Work and About). */
 .project-title,
 .not-found-title,
 .work-statement,
@@ -500,7 +505,8 @@ button {
 .track-count,
 .prototype-open,
 .work-views.is-words .work-view,
-.ring-meta {
+.ring-meta,
+.about-label {
   font-family: var(--font-mono);
   font-size: var(--size-label);
   font-weight: 400;
@@ -516,7 +522,8 @@ button {
    screen, at 600 and --size-opening), and About's Experience under its paragraph (since
    2026-11-13, at --size-menu as the footer; from 2026-11-12 all of About). Set by
    name, so it wins over the label its caption is in. The header's links are at --size-menu
-   (12px, 14px from 768px); the name, in the header until 2026-11-13, at 600 (below). */
+   (12px, 14px from 768px); the name, in the header until 2026-11-13, at 600 (below). About's
+   row label (Q&A) is a label, as a project's section headings are (since 2026-11-14). */
 .site-header,
 .site-footer,
 .intro-line,
@@ -543,9 +550,10 @@ button {
 
 /* A label that names a column or a section (a project's facts, its text's headings) looks as
    Work's filters do: the label style at 400, in --color-subtle (until 2026-11-06 at 600, in
-   --color-muted, the project text's headings in the text color). About's Experience is
-   in --color-subtle too, in the name style (since 2026-11-12; the label style from
-   2026-11-06, the display style before), where gougoucore's "ALSO" is in its text color. */
+   --color-muted, the project text's headings in the text color). About's row label (Q&A,
+   or Experience) is in --color-subtle too, in the label style as a project's headings are
+   (since 2026-11-14; the name style from 2026-11-12, the label style from 2026-11-06, the
+   display style before), where gougoucore's "ALSO" is in its text color. */
 .project-meta dt,
 .text-block > .section-heading,
 .about-label,
@@ -1426,7 +1434,8 @@ html.intro-on {
    right, with no gaps, only 1px lines between them (--rule), each tall (--tile-ratio) with a
    bar under it, its number at the left and its title at the right (see Work's tiles, below).
    main starts right under the header here (Archive's too), and has no .wrap: the sentence and
-   the switches keep to the page's width in .work-head, the grid doesn't.
+   the switches sit in .work-head, inside the header's gutters (to the page's width until
+   2026-11-15), the grid from edge to edge.
    (From 2026-11-05: after cedarstudio.framer.ai/work?view=Grid, a row of filters at the top,
    then images with their title under them, at --thumb-ratio, 12px apart, inside the page's
    width.) main.js shows one filter at a time on the one grid; without JavaScript there's no
@@ -1437,24 +1446,47 @@ html.intro-on {
 }
 
 /* The sentence, in the display style, a step under the header, the grid a step under its last
-   line. From 768px its lines fill the page's width as gougoucore.com's do (justified, the last
-   line from the left); a phone's lines hold a word or two, too few to spread, so there it's
-   set from the left. */
+   line. On phones, lines from the left at the display's size. From 768px (since 2026-11-15,
+   the user's ask, as gougoucore.com's fills its) it fills the width it's given, edge to edge,
+   in two lines: its size is that width over --statement-ems, the longer of its two lines in
+   ems, so both run from the header's left gutter to its right one at any window's width
+   (.work-head has no --page-max: the header and the grid don't either). main.js measures
+   --statement-ems from the sentence, at the split that makes its two lines most alike (for
+   "I'm Kyuri, a designer working / where digital meets everyday life.", 17.20em and 17.19em),
+   0.5% over so the longer line can't spill; the number here is that one, for before the fonts
+   load and without JavaScript. Justified, the longer line takes up that 0.5%; the other one too
+   (.is-even) when it's within 2% of it, so a sentence that splits unevenly keeps a ragged last
+   line and not wide gaps. 41.6px at 768px (the display's 41px there), 80px at 1440px, 89px at
+   1600px.
+   (From 2026-11-13 the sentence was justified from 768px at the display's size, inside the
+   page's width: a two-line sentence that doesn't fill the line can't spread evenly, its first
+   line's gaps 2 to 4 times the last line's. Then on 2026-11-14, a day of lines from the left,
+   ragged, the user's pick, until it looked short of the width.) */
+.work-head {
+  max-width: none;
+  container-type: inline-size;
+}
+
 .work-statement {
+  --statement-ems: 17.29;
   padding-block: var(--step-2) var(--step-1);
   text-wrap: pretty;
 }
 
 @media (min-width: 768px) {
   .work-statement {
+    font-size: calc(100cqw / var(--statement-ems));
     text-align: justify;
-    text-align-last: left;
+  }
+
+  .work-statement.is-even {
+    text-align-last: justify;
   }
 }
 
 /* The words the sentence leans on (*...* in site.json: one run, who Kyuri is, "I'm Kyuri, a
    designer", as gougoucore.com's opens with who she is) in the accent face, Kalnia Bold;
-   About's first sentence too (see About). Only the face changes: in capitals and at the
+   About's first words too (see About). Only the face changes: in capitals and at the
    display's size like the rest (1.03em, so its capitals, 0.71em, stand as tall as Inter's,
    0.73em), the rest at the display's 500, so the words stand out by their letters alone, the
    lines keep their spacing, and the eye meets one run, not three (user, 2026-11-14). Its
@@ -2237,27 +2269,34 @@ html.intro-on {
 
 /* Project page ---------------------------------------------------------- */
 
-/* The title starts where Work's images do, --grid-top under the starting line, as About's first
-   sentence and Archive's images do (since 2026-11-06; on the starting line, where Work's filter
-   is, before), so opening a project from Work keeps its first thing at the same height.
-   The header takes main's --page-top into its own box (the title stays where it is), as About's
-   hero did until 2026-11-12: room for the title's dots, 2026-11-07 to 2026-11-11, kept so
-   nothing shifts. */
+/* A project's page is laid out as Work's is (since 2026-11-14, the user's ask; it kept the
+   layout from before Work followed gougoucore.com until then): the title a step under the
+   header, where Work's sentence and About's paragraph start, so going from Work to a project
+   moves nothing; lines in the text color from the window's left edge to its right (--rule,
+   drawn out past the page's width, below); the facts in Work's columns; the text in
+   the window's halves; images from edge to edge with a 1px line where two meet.
+   (2026-11-06 to 2026-11-14: the title --grid-top under the starting line, --page-top under
+   the header, where Work's images were under its filters; gray lines in the page's width;
+   images inside the page's width, 12px apart.)
+   main is a container, so the images can run out to the window's edges (100cqw, below). */
+.page-project {
+  padding-top: 0;
+  container-type: inline-size;
+}
+
 .project-header {
   position: relative;
-  margin-top: calc(-1 * var(--page-top));
-  padding-top: var(--page-top);
+  padding-top: var(--step-2);
 }
 
-.js .project-header {
-  padding-top: calc(var(--page-top) + var(--grid-top));
-}
-
-/* On that line go the capitals' tops, not the top of the title's line (--cap-display over them,
-   8px at 64px), the same as on About, so the title doesn't look lower than Work's images
-   (since 2026-11-06). The statement and the rest move up with it. */
-.project-title {
-  margin-top: calc(-1 * var(--cap-display));
+/* A line in the text color from the window's left edge to its right, over a thing in the
+   page's width: its top border, drawn out to both sides as a border image (which, outside
+   the box, takes no room and makes no scrollbar). */
+.project-meta,
+.impact,
+.project-nav {
+  border-top: var(--rule);
+  border-image: linear-gradient(var(--color-rule), var(--color-rule)) 1 / 1px 0 0 / 0 100vw;
 }
 
 /* Under the title, in reading order (since 2026-11-06; the facts came first before): the
@@ -2281,18 +2320,22 @@ html.intro-on {
   margin-top: var(--step-3);
 }
 
-/* Role · Team · Timeline (Category · Role · Year until 2026-11-09). On a phone, two columns
-   (Timeline under Role); from 768px, one row
-   split into equal columns, so the facts run to the end of the rule, after
-   cedarstudio.framer.ai/work/ember (as wide as what's in them, --step-8 apart, for a few hours
-   on 2026-11-06). */
+/* Role · Team · Timeline (Category · Role · Year until 2026-11-09) in Work's columns (since
+   2026-11-14): two on a phone (Timeline under Role), three from 768px, each fact --gutter
+   into its column, so Role, Team, and Timeline start where Work's tiles' numbers do. The row
+   runs out to the page's edges (the page's width, less nothing) for that. (From 2026-11-06:
+   equal columns inside the page's width, --col-gap apart, after
+   cedarstudio.framer.ai/work/ember.) */
 .project-meta {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--step-3) var(--col-gap);
-  margin-top: var(--step-8);
+  row-gap: var(--step-3);
+  margin: var(--step-8) calc(-1 * var(--gutter)) 0;
   padding-top: var(--step-3);
-  border-top: 1px solid var(--color-line);
+}
+
+.project-meta > div {
+  padding-inline: var(--gutter);
 }
 
 .project-meta dd {
@@ -2301,19 +2344,23 @@ html.intro-on {
 
 @media (min-width: 768px) {
   .project-meta {
-    grid-template-columns: none;
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-/* The hero runs edge to edge. */
+/* The hero and the images in the text run edge to edge, up to 1920px (centered past it). */
 .project-hero {
   max-width: 1920px;
   margin: var(--step-8) auto 0;
 }
 
-.project-hero .caption {
+.project-blocks .media {
+  margin-inline: calc(50% - min(50cqw, 960px));
+}
+
+.project-hero .caption,
+.project-blocks .media .caption,
+.project-blocks .prototype-open {
   padding-inline: var(--gutter);
 }
 
@@ -2329,8 +2376,17 @@ html.intro-on {
   margin-top: var(--block-gap);
 }
 
+/* Two images one under the other meet at a 1px line, as Work's tiles do. Under a caption (or
+   the prototype's Open link) the next image keeps its distance instead, so the line doesn't
+   run under the words. */
 .project-section > .media + .media {
-  margin-top: var(--media-gap);
+  margin-top: 0;
+  border-top: var(--rule);
+}
+
+.project-section > .media:has(.caption, .prototype-open) + .media {
+  margin-top: var(--block-gap);
+  border-top: 0;
 }
 
 .project-section > .text-block + .is-note {
@@ -2356,17 +2412,32 @@ html.intro-on {
 
 .is-note .text-body {
   padding-left: var(--step-3);
-  border-left: 1px solid var(--color-line);
+  border-left: var(--rule);
 }
 
+/* From 768px the heading and the text take the window's halves, each --gutter in (since
+   2026-11-14; the page's width, --col-gap apart, before), so the text starts on the
+   window's middle line plus --gutter, a line About's and the footer's eighths share. A
+   note's line is where the text above it starts. */
 @media (min-width: 768px) {
   .text-block {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: var(--col-gap);
+    column-gap: 0;
+    margin-inline: calc(-1 * var(--gutter));
+  }
+
+  .text-block > * {
+    padding-inline: var(--gutter);
   }
 
   .text-block .text-body {
     grid-column: 2;
+    max-width: calc(40rem + 2 * var(--gutter));
+  }
+
+  .is-note .text-body {
+    margin-left: var(--gutter);
+    padding-left: var(--step-3);
   }
 }
 
@@ -2381,15 +2452,28 @@ html.intro-on {
   margin-top: var(--space-1);
 }
 
+/* Two images side by side (one under the other on a phone) with a 1px line between them, as
+   Work's tiles have (12px of white, --media-gap, until 2026-11-14). From 768px the line is
+   the pair's background showing through the 1px between the columns, so both images keep
+   the same width and height. */
 .pair {
   display: grid;
-  gap: var(--media-gap);
+}
+
+.pair > * + * {
+  border-top: var(--rule);
 }
 
 @media (min-width: 768px) {
   .pair {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
+    gap: 1px;
+    background: linear-gradient(var(--color-rule), var(--color-rule)) 50% 0 / 1px 100% no-repeat;
+  }
+
+  .pair > * + * {
+    border-top: 0;
   }
 }
 
@@ -2432,7 +2516,6 @@ html.intro-on {
   grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
   gap: var(--step-4) var(--col-gap);
   padding-top: var(--step-3);
-  border-top: 1px solid var(--color-line);
 }
 
 .impact-item {
@@ -2461,18 +2544,14 @@ html.intro-on {
   transform: none;
 }
 
+/* Previous / Next under the window-wide line (see the page's top; until 2026-11-14 a gray line
+   in the page's width). */
 .project-nav {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--step-3) var(--col-gap);
   margin-top: var(--section-gap);
-}
-
-/* The rule sits inside the padding so it lines up with the content edge. */
-.project-nav::before {
-  content: "";
-  grid-column: 1 / -1;
-  border-top: 1px solid var(--color-line);
+  padding-top: var(--step-3);
 }
 
 .project-nav a {
@@ -2521,10 +2600,12 @@ html.intro-on {
   padding-top: 0;
 }
 
-/* The paragraph: the first sentence in the accent face, Kalnia (as Work's sentence's key
-   words, see Work), then the rest in the display style, all in capitals, from the left as
-   gougoucore's is (not justified as Work's: a paragraph's lines wrap where they wrap), a step
-   under the header as Work's sentence is. Its last line keeps more than one word. On phones
+/* The paragraph: its first words, KYURI DESIGNS, in the accent face, Kalnia (as Work's
+   sentence's key words, see Work; the whole first sentence until 2026-11-14, two lines and
+   more of heavy black), then the rest in the display style, all in capitals, from the left as
+   gougoucore's is (as Work's sentence was on 2026-11-14; it fills its width since 2026-11-15,
+   two lines, where a paragraph this long would only gape), a step under the header as Work's
+   sentence is. Its last line keeps more than one word. On phones
    it's 8.5vw (33px at 390px, as gougoucore's), smaller than the display's 41px there, so a
    line holds two or three words, not one; from about 480px it's the display size. */
 .about-statement {
@@ -2543,11 +2624,13 @@ html.intro-on {
    phone the label at the page's edge and the jobs --step-3 after it. Each job a paragraph of
    two lines, 16px from the next: the role, in the text color, over 'Company · Dates', in
    --color-subtle (since 2026-11-12, at Kyuri's ask; for an hour that day the role, company,
-   and dates sat a column each and looked as if they floated). No rules between the jobs. */
+   and dates sat a column each and looked as if they floated). No rules between the jobs.
+   The label, smaller and in Martian Mono since 2026-11-14 (see Shared text styles), sits on
+   the first line's baseline. */
 .about-list {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  align-items: start;
+  align-items: baseline;
   margin-top: var(--step-6);
   font-size: var(--size-menu);
   letter-spacing: var(--tracking-name);  /* set again at its own size, as the footer's */
@@ -2600,7 +2683,9 @@ html.intro-on {
    gougoucore's "ALSO" is. The answers are text to read, so as typed (not in capitals), at the
    body's line height and tracking, 14px, up to 30em (420px) wide, 8px under the question,
    16px over the next one; an answer's lines (Light Life's years) 8px apart. A project's name
-   in an answer links its page, at 600 as links in text are. */
+   in an answer links its page, at 600 as links in text are. The questions are whole sentences
+   in small capitals, so they're set a little open (+0.02em), not at the name style's tight
+   -0.03em, which suits a word or two (since 2026-11-14). */
 /* The first question's line on the label's: pulled up by the room over it. */
 .qa {
   margin-top: -4px;
@@ -2609,6 +2694,7 @@ html.intro-on {
 .qa-q {
   display: block;
   padding-block: 4px;
+  letter-spacing: 0.02em;
   list-style: none;
   cursor: pointer;
   transition: color var(--fade);

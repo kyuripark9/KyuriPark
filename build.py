@@ -245,17 +245,18 @@ def file_version(rel):
 
 
 def placeholder_svg(width, height, title, label):
-    """A soft gray block with the project name, and the file it's waiting for underneath."""
+    """A soft gray block with the project name, and the file it's waiting for underneath. Neutral
+    grays on the white page (since 2026-11-14; warm, #e6e5df, for the off-white page before)."""
     size = round(min(min(width, height) / 18, width * 1.5 / max(len(title), 1)))  # long names shrink
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
         f'viewBox="0 0 {width} {height}">\n'
-        '<rect width="100%" height="100%" fill="#e6e5df"/>\n'
+        '<rect width="100%" height="100%" fill="#e6e6e6"/>\n'
         '<g font-family="-apple-system, \'Helvetica Neue\', Arial, sans-serif" text-anchor="middle">\n'
-        f'<text x="50%" y="50%" font-size="{size}" font-weight="500" fill="#62615d">'
+        f'<text x="50%" y="50%" font-size="{size}" font-weight="500" fill="#626262">'
         f'{esc(title)}</text>\n'
         f'<text x="50%" y="50%" dy="{round(size * 1.4)}" font-size="{round(size * 0.45)}" '
-        f'fill="#8a8984">{esc(label)}</text>\n'
+        f'fill="#8a8a8a">{esc(label)}</text>\n'
         '</g>\n</svg>\n'
     )
 
@@ -1305,7 +1306,8 @@ class Builder:
         there's no toggle and it shows them all. With HOME_TRACK off (since 2026-11-10) it's the
         site's first page, at /, under Home's opening. With WORK_VIEWS on, the same items on the
         track too, the slider, under the GRID / SLIDER switch (work_views). The sentence and the
-        switches keep to the page's width (.wrap); the grid runs from the window's edge to edge,
+        switches sit inside the header's gutters (.wrap, with no --page-max on .work-head since
+        2026-11-15, the sentence filling it); the grid runs from the window's edge to edge,
         so main has no .wrap here."""
         s = self.site
         tabs = "\n".join(self.work_tab(name) for name in ("all", *CATEGORIES))
@@ -1427,7 +1429,9 @@ class Builder:
         ("headline") in the accent face, Kalnia, then the paragraphs running on after it in Inter
         Display. "headline" may be one string or a list of lines; the lines run on as one
         sentence, and it gets a full stop if it has none. Words in *asterisks* in the paragraphs
-        are set in it too, as on Work. No headline, and it starts with the paragraphs.
+        are set in it too, as on Work. A headline with *asterisks* sets only those words in it,
+        the rest in Inter Display (since 2026-11-14: the whole sentence in Kalnia ran heavy, two
+        lines and more of it). No headline, and it starts with the paragraphs.
         (From 2026-11-12 the sentence and paragraphs sat apart, in the name style, beside an
         About label; from 2026-11-06 the sentence in the display style over the text; before
         that the sentence alone in the middle of the window.)"""
@@ -1440,7 +1444,10 @@ class Builder:
         headline = " ".join(t.strip() for t in lines if t.strip())
         if headline and headline[-1] not in ".!?":
             headline += "."
-        parts = [f"<em>{inline(headline)}</em>"] if headline else []
+        if EMPHASIS_RE.search(headline):
+            parts = [EMPHASIS_RE.sub(r"<em>\1</em>", inline(headline))]
+        else:
+            parts = [f"<em>{inline(headline)}</em>"] if headline else []
         parts += [EMPHASIS_RE.sub(r"<em>\1</em>", inline(t.strip()))
                   for t in about.get("paragraphs") or [] if t.strip()]
         if not parts:

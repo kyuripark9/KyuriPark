@@ -192,11 +192,14 @@ Blocks appear in the order you list them. The template uses Context → Explore 
   (how strong) and a color that colors your space (which color, how strong; the `--lamp-` colors in
   `app.css`). The screen draws the lamp as it's built (the 2023 renders): the head, a rounded
   square that glows white at its edge, brightest along the rim and in the corners and fading
-  inward, so its middle stays dark and the sunlight's percent there, in dot digits, reads in
+  inward, so its middle stays dark and the sunlight's percent there reads in
   light ink at any strength; and under it the base, a pill a little narrower, that fills
   with the color, brightest and a little paler at its edge and deepening softly inward (no
-  outline) to a deeper shade of the same color in the middle, where the color's name and
-  percent sit in white. Each part
+  outline) to a deeper shade of the same color in the middle. Both parts say what they hold
+  the same way (since 2026-11-14, the user's ask): a mono label with its icon (the sun's;
+  a drop for the color, with the color's name) over the strength in plain type (Inter, the
+  number large with a smaller % beside it; dot digits until 2026-11-15, the user's ask), the
+  base's smaller, in white on the lit color. Each part
   has its own tape, a ruler that slides under a fixed yellow mark: drag the part (or its
   ruler) sideways, tap the ruler, or use the arrow keys to set how strong that light is for
   the part of the day showing; picking a scene again goes back to the scene's own strengths.

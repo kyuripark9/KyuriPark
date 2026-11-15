@@ -179,37 +179,6 @@
   const rgbCss = (c) => `rgb(${c.map(Math.round).join(",")})`;
   const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch]);
 
-  // DotDigits ------------------------------------------------------------------------------
-
-  const GLYPHS = {
-    "0": ["01110", "10001", "10011", "10101", "11001", "10001", "01110"],
-    "1": ["00100", "01100", "00100", "00100", "00100", "00100", "01110"],
-    "2": ["01110", "10001", "00001", "00010", "00100", "01000", "11111"],
-    "3": ["11111", "00010", "00100", "00010", "00001", "10001", "01110"],
-    "4": ["00010", "00110", "01010", "10010", "11111", "00010", "00010"],
-    "5": ["11111", "10000", "11110", "00001", "00001", "10001", "01110"],
-    "6": ["00110", "01000", "10000", "11110", "10001", "10001", "01110"],
-    "7": ["11111", "00001", "00010", "00100", "01000", "01000", "01000"],
-    "8": ["01110", "10001", "10001", "01110", "10001", "10001", "01110"],
-    "9": ["01110", "10001", "10001", "01111", "00001", "00010", "01100"],
-    ":": ["0", "0", "1", "0", "1", "0", "0"],
-  };
-  function dotDigits(el, text) {
-    if (el.dataset.text === text) return;
-    el.dataset.text = text;
-    el.className = "ll-digits";
-    el.setAttribute("role", "img");
-    el.setAttribute("aria-label", text);
-    el.innerHTML = [...text].map((ch) => {
-      const rows = GLYPHS[ch];
-      if (!rows) return "";
-      const cols = rows[0].length;
-      let dots = "";
-      for (const row of rows) for (const v of row) dots += v === "1" ? '<i class="on"></i>' : "<i></i>";
-      return `<span class="ll-glyph" style="--cols:${cols}">${dots}</span>`;
-    }).join("");
-  }
-
   // Painting ----------------------------------------------------------------------------------
 
   const device = $("device");
@@ -415,7 +384,7 @@
     const sunA = strength(l.sun), colA = colorStrength(l.c);
     $("sun-fill").style.opacity = sunA.toFixed(3);
     head.classList.toggle("is-lit", sunA > 0);
-    dotDigits($("sun-digits"), String(pct(l.sun)));
+    $("sun-value").textContent = pct(l.sun);
     paintTape(sunTape, l.sun, saySun(l));
 
     const rgb = rgbCss(l.rgb);
@@ -423,7 +392,7 @@
     $("color-fill").style.opacity = colA.toFixed(3);
     base.classList.toggle("is-lit", colA > 0);
     $("color-name").textContent = l.c > OFF ? NAMES[l.color] : "Color";
-    $("color-value").textContent = l.c > OFF ? `${pct(l.c)}%` : "Off";
+    $("color-value").textContent = l.c > OFF ? pct(l.c) : 0;
     paintTape(colorTape, l.c, sayColor(l));
   }
 

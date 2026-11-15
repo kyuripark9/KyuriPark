@@ -191,7 +191,9 @@ Blocks appear in the order you list them. The template uses Context → Explore 
   each scene has two lights, apart, each with its own job: white sunlight that shines on you
   (how strong) and a color that colors your space (which color, how strong; the `--lamp-` colors in
   `app.css`). The screen draws the lamp as it's built (the 2023 renders): the head, a rounded
-  square that glows white at its edge, brightest along the rim and in the corners and fading
+  square, as tall as it is wide like the real one (since 2026-11-15, the user's ask; it was
+  screen-wide and shorter than wide), as big as the screen leaves room for and centered,
+  that glows white at its edge, brightest along the rim and in the corners and fading
   inward, so its middle stays dark and the sunlight's percent there reads in
   light ink at any strength; and under it the base, a pill a little narrower, that fills
   with the color, brightest and a little paler at its edge and deepening softly inward (no
@@ -208,7 +210,7 @@ Blocks appear in the order you list them. The template uses Context → Explore 
   the part of the day showing; picking a scene again goes back to the scene's own strengths.
   The lamp shows each part of the day as set; the day's ruler shows the slow fades between
   them. The screen is kept quiet (no boxes or labels it can do without) and reads top to
-  bottom: the part of the day, with one line under it for the city and the time showing
+  bottom (no logo over it since 2026-11-15, the user's ask: the lamp is the product): the part of the day, with one line under it for the city and the time showing
   there (it opens the city search), the lamp, the scene playing (one chip under the lamp; tap
   it and the part's scenes come up in a sheet, with its hours and a small lamp per scene lit
   as that scene lights it; picking one closes the sheet so you see the lamp change), and the

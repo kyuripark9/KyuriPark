@@ -194,24 +194,6 @@ html.is-fill .app {
   padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
 }
 
-/* The logo. */
-.top {
-  display: flex;
-  align-items: center;
-  height: 30px;
-  padding-left: var(--space-1);
-}
-
-.brand {
-  display: flex;
-  flex: none;
-}
-
-.logo {
-  width: 16px;
-  height: 22px;
-}
-
 /* Where you live, in one quiet line under the part of the day (no box, no labels): the
    weather there now as an icon, the city's name, and the time showing there, muted. A
    button: it opens the city sheet. A long name ends in an ellipsis; the time always shows. */
@@ -278,11 +260,16 @@ html.is-fill .app {
    white at its edge, over a base, a pill that lights in color. Two parts, a small gap
    apart, the base a little narrower. Each is dark when its light is off; app.js sets how
    strong each light shows and the base's color. */
-.lamp { display: flex; flex: 1 0 auto; flex-direction: column; gap: 6px; }
+/* The head is square, as the real lamp's is (the user's ask, 2026-11-15; it was as wide as
+   the screen and shorter than wide): as big as the room the screen leaves it, never wider
+   than the screen, the base as wide less 12px a side, both centered. The lamp is a size
+   container so the head can measure that room (--head); on a phone too short for it, the
+   head stays 240px and the screen scrolls. */
+.lamp { --head: max(240px, min(100cqw, 100cqh - 126px)); display: flex; flex: 1 0 auto; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 366px; container-type: size; }
 .lamp-head,
 .lamp-base { position: relative; isolation: isolate; overflow: hidden; overflow: clip; display: flex; flex-direction: column; align-items: center; background: var(--surface); color: var(--ink); cursor: ew-resize; transition: color 0.4s; touch-action: pan-y; -webkit-user-select: none; user-select: none; }
-.lamp-head { flex: 1 0 auto; min-height: 250px; padding: 46px 24px 38px; border-radius: 76px; }   /* label and ruler inside the rim's light, on the dark */
-.lamp-base { flex: none; justify-content: center; gap: 7px; height: 120px; margin: 0 12px; padding: 0 44px; border-radius: 60px; }   /* 120px since it holds a label over its percent, as the head does */
+.lamp-head { flex: none; width: var(--head); height: var(--head); padding: 46px 24px 38px; border-radius: 76px; }   /* label and ruler inside the rim's light, on the dark */
+.lamp-base { flex: none; justify-content: center; gap: 7px; width: calc(var(--head) - 24px); height: 120px; padding: 0 44px; border-radius: 60px; }   /* 120px since it holds a label over its percent, as the head does */
 .lamp-label { display: flex; align-items: center; gap: 6px; color: var(--ink-muted); transition: color 0.4s; }
 
 /* Each light fills its part: as strong as the light is (opacity, app.js), in its color

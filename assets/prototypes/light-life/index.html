@@ -15,6 +15,7 @@
   <symbol id="i-moon" viewBox="0 0 16 16"><path d="M13.6 10.2A6 6 0 0 1 5.8 2.4a6 6 0 1 0 7.8 7.8Z" fill="currentColor"/></symbol>
   <symbol id="i-play" viewBox="0 0 16 16"><path d="M5 2.8v10.4L13.2 8 5 2.8Z" fill="currentColor"/></symbol>
   <symbol id="i-pause" viewBox="0 0 16 16"><path d="M4 2.8h2.7v10.4H4zM9.3 2.8H12v10.4H9.3z" fill="currentColor"/></symbol>
+  <symbol id="i-now" viewBox="0 0 16 16"><path d="M8 3.5A5 5 0 1 1 3.3 6.8M10 1.5 8 3.5l2 2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-back" viewBox="0 0 16 16"><path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-pin" viewBox="0 0 16 16"><path d="M8 14.6s4.6-4.3 4.6-8a4.6 4.6 0 1 0-9.2 0c0 3.7 4.6 8 4.6 8Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="8" cy="6.5" r="1.6" fill="currentColor"/></symbol>
   <symbol id="i-search" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m10.4 10.4 3.6 3.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
@@ -59,18 +60,17 @@
     <!-- No logo at the top (the user's ask, 2026-11-15): the lamp is the product, so the
          screen opens on where you live and the time there. -->
 
-    <!-- Where you live, in one quiet line (the weather there now as an icon, a pin until the
-         forecast arrives) and the time showing there; the line opens the city search. Back to
-         now at the right while you look at another time. Your two times are on the day's
-         ruler, where your day starts and ends. The part of the day showing is named for screen
-         readers only (the user, 2026-11-15: "Daytime" said nothing the screen doesn't: the
-         time, the ruler, and the color's name, CLEAR-DAY BLUE, already tell it). -->
+    <!-- Where you live, in one quiet line: the weather there now as an icon (a pin until the
+         forecast arrives) and the city's name; the line opens the city search. No time here
+         and no Back to now button (the user, 2026-11-15: too many things for what they say):
+         the time showing is on the day's ruler, at its yellow mark, and now is a ring there
+         while you look at another time; tap the ring to come back. Your two times are on the
+         ruler too, where your day starts and ends. The part of the day showing is named for
+         screen readers only (the user, 2026-11-15: "Daytime" said nothing the screen doesn't:
+         the time, the ruler, and the color's name, CLEAR-DAY BLUE, already tell it). -->
     <div class="now-head">
-      <div class="now-text">
-        <h1 class="visually-hidden" id="part">Morning</h1>
-        <button class="place" type="button" id="place" aria-haspopup="dialog"><svg class="icon weather-icon" aria-hidden="true"><use id="weather-use" href="#i-pin"/></svg><span class="place-text" id="place-text">Chicago</span><span class="place-time" id="time">9:00 AM</span></button>
-      </div>
-      <button class="ll-pill is-glass is-small" type="button" id="back-now" hidden>Back to now</button>
+      <h1 class="visually-hidden" id="part">Morning</h1>
+      <button class="place" type="button" id="place" aria-haspopup="dialog"><svg class="icon weather-icon" aria-hidden="true"><use id="weather-use" href="#i-pin"/></svg><span class="place-text" id="place-text">Chicago</span></button>
     </div>
 
     <!-- The lamp, built like the real one: two parts, apart, each with its own light and its
@@ -106,25 +106,36 @@
       <button class="ll-chip is-filled scene-button" type="button" id="scene" aria-haspopup="dialog"><svg class="scene-icon" aria-hidden="true"><use id="scene-icon" href="#sc-high-sky"/></svg><span id="scene-name">High blue sky</span><svg class="scene-chevron" aria-hidden="true"><use href="#i-updown"/></svg></button>
     </div>
 
-    <!-- LightRuler: the whole day; drag it, or play it -->
+    <!-- LightRuler: the whole day, split by a horizon the way the lamp is built: above it the
+         sunlight, a white line as high as it's strong; under it the color, a dotted line in the
+         color showing, as deep as it's strong. The time showing is the tapes' yellow mark, a
+         yellow dot where it meets the sunlight and a dot in the color where it meets the color,
+         its time always over it. While it's at another time, now stays on the sunlight's line
+         as a hollow yellow ring, and a round ↺ button comes up beside Play a day: tap it (or
+         the ring, or drag the mark onto it, Escape on the keyboard) to come back to now. Drag
+         it, or play it. -->
     <div class="ruler-block">
       <div class="ruler-head">
         <h2 class="ll-label">Your day</h2>
-        <button class="ll-pill is-small play" type="button" id="play"><svg class="play-icon" aria-hidden="true"><use href="#i-play"/></svg><span id="play-label">Play a day</span></button>
+        <div class="ruler-actions">
+          <button class="ll-pill is-small to-now" type="button" id="to-now" aria-label="Back to now" title="Back to now"><svg class="icon" aria-hidden="true"><use href="#i-now"/></svg></button>
+          <button class="ll-pill is-small play" type="button" id="play"><svg class="play-icon" aria-hidden="true"><use href="#i-play"/></svg><span id="play-label">Play a day</span></button>
+        </div>
       </div>
-      <div class="ll-ruler" id="ruler" role="slider" tabindex="0" aria-label="Time of day" aria-valuemin="0" aria-valuemax="1439">
-        <span class="ruler-sun" id="sun-band" aria-hidden="true"></span>
-        <span class="ll-ruler-ticks" id="ticks"></span>
-        <span class="ll-ruler-now" id="now-line"></span>
+      <div class="ll-ruler" id="ruler" role="slider" tabindex="0" aria-label="Time of day" aria-valuemin="0" aria-valuemax="1439" aria-keyshortcuts="Escape">
+        <span class="day-horizon" aria-hidden="true"></span>
+        <span class="day-daylight" id="sun-band" aria-hidden="true"></span>
+        <svg class="day-graph" id="day-graph" height="90" aria-hidden="true"><g id="day-color"></g><path class="day-sunlight" id="day-sunlight"/></svg>
+        <span class="day-live" id="live-ring" aria-hidden="true"></span>
+        <span class="day-now" id="now-line" aria-hidden="true"><i></i><b class="day-now-time" id="now-time"></b></span>
       </div>
-      <!-- Under the ruler, only your two times, as handles: wake-up where the light comes up,
-           lights out where it goes dark. Each stands on the graph as a grip, a hairline through
-           the graph at its time with a slim knob on it, over its time in plain type under the
-           graph. Drag the grip (or the time) sideways to move that time, the day's light moving
-           with it, or tap it for the times sheet. -->
+      <!-- Under the ruler, your two times, as a sun app shows sunrise and sunset: a dot on the
+           horizon at the time, and under it the time over what it is. Drag the dot (or the
+           time) sideways to move that time, the day's light moving with it, or tap it for the
+           times sheet. -->
       <div class="ll-axis day-ends">
-        <button class="day-end" type="button" id="edit-wake" aria-haspopup="dialog" aria-keyshortcuts="ArrowLeft ArrowRight"><span class="end-grip" aria-hidden="true"><i></i></span><svg class="icon" aria-hidden="true"><use href="#i-sun"/></svg><span id="wake-text">7:00 AM</span></button>
-        <button class="day-end" type="button" id="edit-bed" aria-haspopup="dialog" aria-keyshortcuts="ArrowLeft ArrowRight"><span class="end-grip" aria-hidden="true"><i></i></span><svg class="icon" aria-hidden="true"><use href="#i-moon"/></svg><span id="bed-text">11:00 PM</span></button>
+        <button class="day-end" type="button" id="edit-wake" aria-haspopup="dialog" aria-keyshortcuts="ArrowLeft ArrowRight"><span class="end-grip" aria-hidden="true"><i></i></span><span class="end-time" id="wake-text">7:00 AM</span><span class="end-caption">Wake up</span></button>
+        <button class="day-end" type="button" id="edit-bed" aria-haspopup="dialog" aria-keyshortcuts="ArrowLeft ArrowRight"><span class="end-grip" aria-hidden="true"><i></i></span><span class="end-time" id="bed-text">11:00 PM</span><span class="end-caption">Lights out</span></button>
       </div>
     </div>
   </main>

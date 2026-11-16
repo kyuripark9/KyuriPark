@@ -1,11 +1,12 @@
 /* Light Life, phone prototype (2026 redesign), on the Light Life design system.
 
    The idea it shows: the lamp runs a whole day of light from two times (wake-up and lights
-   out), changing slowly from one part of the day to the next. One screen, kept quiet: the
-   part of the day showing, with where you live and the time showing there in one line under
-   it, the lamp itself (its two parts, each with its light), the scene playing for that part
-   (one SceneChip: tap it for the part's scenes, in a sheet), and the whole day (LightRuler:
-   drag it, or Play a day), with your two times under it where your day starts and ends.
+   out), changing slowly from one part of the day to the next. One screen, kept quiet: where
+   you live in one line, the lamp itself (its two parts, each with its light), the scene
+   playing for the part of the day showing (one SceneChip: tap it for the part's scenes, in a
+   sheet), and the whole day (LightRuler: drag it, or Play a day; the time showing over its
+   mark, now a ring on it while you look elsewhere), with your two times under it where your
+   day starts and ends.
    Scene names are the 2023 app's.
 
    The lamp has two parts, apart, each with its own light and its own job, and each scene
@@ -201,41 +202,94 @@
   const START = 180;
   const at = (t) => mod(t - START) / DAY;
 
-  // The ruler: 96 ticks, one per 15 minutes, each built like the lamp: a white part for the
-  // sunlight (its height), standing on a short part in the color (taller when stronger).
-  function paintRuler() {
-    let html = "";
-    for (let i = 0; i < 96; i++) {
-      const l = lightAt(START + i * 15 + 7.5);
-      const hs = l.sun > OFF ? Math.round(4 + l.sun * 30) : 0;
-      const hc = l.c > OFF ? Math.round(3 + l.c * 7) : 0;
-      if (!hs && !hc) { html += '<i style="height:6px"></i>'; continue; }
-      const white = `rgba(245,243,239,${(0.35 + 0.65 * l.sun).toFixed(2)})`;
-      const color = `rgba(${l.rgb.map(Math.round).join(",")},${(0.5 + 0.5 * Math.min(1, l.c * 1.5)).toFixed(2)})`;
-      const bg = !hc ? white : !hs ? color : `linear-gradient(to top,${color} ${hc}px,transparent ${hc}px ${hc + 2}px,${white} ${hc + 2}px)`;
-      html += `<i style="height:${hs + hc + (hs && hc ? 2 : 0)}px;background:${bg}"></i>`;
+  // The ruler draws the day's light, split by a horizon as the lamp is built, head over base
+  // (since 2026-11-15, in the clean style of a sun app's arc the user showed; that day it was
+  // first 96 thin bars, then a line chart the user found dated, capsule columns, and an arc
+  // that only showed where you are in your day, which left out what the app does). Above the
+  // horizon, the sunlight: a solid white line as high as the lamp's white light is strong,
+  // smoothed into one hill (sunCurve), meeting the horizon where it goes off. Under it, the color: a dotted line, each dot in the
+  // color showing then (always one of the lamp's own, never a blend), as deep as it's strong;
+  // no dots where it's off. On the horizon, the part where the sun is up where you live is a
+  // little brighter.
+  const HORIZON = 58, SUN_H = 44, COLOR_H = 30;   // px (the ruler is 90px tall, app.css)
+
+  // The sunlight's line is drawn smooth, as one hill through the day: a curve through each
+  // part's strength, held in the middle of the part, from the horizon where Sunrise starts
+  // (rising through it) to the horizon at lights out (a monotone cubic, so it never swings past a part's strength).
+  // The fades it smooths over take an hour or two anyway; drawn as they run, the parts'
+  // plateaus gave the line a lumpy outline. The time showing rides this same line.
+  function sunCurve() {
+    const p = plan(), r = p.rel, ids = PARTS.map((x) => x.id);
+    const xs = [0], ys = [0];   // Sunrise's own strength is passed through on the way up, not held (holding it put a kink in the rise)
+    for (const id of ["morning", "day", "golden", "wind"]) {
+      const next = id === "wind" ? r.night - part("night").fade : r[ids[ids.indexOf(id) + 1]];
+      xs.push((Math.min(r[id] + part(id).fade, next) + next) / 2);
+      ys.push(sceneOf(id).sun);
     }
-    $("ticks").innerHTML = html;
+    xs.push(r.night); ys.push(0);
+    // Fritsch-Carlson tangents, then a Hermite curve between the points.
+    const n = xs.length, m = [], tg = [];
+    for (let i = 0; i < n - 1; i++) m[i] = (ys[i + 1] - ys[i]) / Math.max(1, xs[i + 1] - xs[i]);
+    tg[0] = m[0]; tg[n - 1] = m[n - 2];
+    for (let i = 1; i < n - 1; i++) tg[i] = m[i - 1] * m[i] <= 0 ? 0 : (m[i - 1] + m[i]) / 2;
+    for (let i = 0; i < n - 1; i++) {
+      if (!m[i]) { tg[i] = tg[i + 1] = 0; continue; }
+      const a = tg[i] / m[i], b = tg[i + 1] / m[i], h = a * a + b * b;
+      if (h > 9) { const k = 3 / Math.sqrt(h); tg[i] = k * a * m[i]; tg[i + 1] = k * b * m[i]; }
+    }
+    return (t) => {
+      const d = mod(t - p.origin);
+      if (d >= r.night) return 0;
+      let i = 0;
+      while (i < n - 2 && d > xs[i + 1]) i++;
+      const h = Math.max(1, xs[i + 1] - xs[i]), u = clamp((d - xs[i]) / h, 0, 1), u2 = u * u, u3 = u2 * u;
+      return clamp((2 * u3 - 3 * u2 + 1) * ys[i] + (u3 - 2 * u2 + u) * h * tg[i] + (-2 * u3 + 3 * u2) * ys[i + 1] + (u3 - u2) * h * tg[i + 1], 0, 1);
+    };
+  }
+  const sunY = (v) => HORIZON - v * SUN_H;
+  const colorY = (v) => HORIZON + v * COLOR_H;
+  const colorOf = (l) => rgbCss(COLOR[l.color] ?? l.rgb);
+  function paintRuler() {
+    const w = ruler.clientWidth || 358, STEP = 5, curve = sunCurve();
+    const x = (m) => ((m / DAY) * w).toFixed(1);
+    let line = "", on = false;
+    for (let m = 0; m <= DAY; m += STEP) {
+      const v = curve(START + m);
+      if (v > OFF) {
+        if (!on) { line += `M${x(Math.max(0, m - STEP))} ${HORIZON}`; on = true; }
+        line += `L${x(m)} ${sunY(v).toFixed(1)}`;
+      } else if (on) { line += `L${x(m)} ${HORIZON}`; on = false; }
+    }
+    let dots = "";
+    const n = Math.round(w / 6);
+    for (let i = 0; i <= n; i++) {
+      const m = (i / n) * DAY, l = lightAt(START + m);
+      if (l.c > OFF) dots += `<circle cx="${x(m)}" cy="${colorY(l.c).toFixed(1)}" r="1.6" fill="${colorOf(l)}"/>`;
+    }
+    $("day-graph").setAttribute("viewBox", `0 0 ${w} 90`);
+    $("day-sunlight").setAttribute("d", line);
+    $("day-color").innerHTML = dots;
+
+    // The sun up where you live: from sunrise to sunset, the horizon a little brighter.
+    const s = state.sun, band = $("sun-band");
+    band.hidden = !s || s.polar === "night";
+    if (!band.hidden) {
+      let start = 0, end = DAY;
+      if (!s.polar) {
+        start = at(s.rise) * DAY;
+        end = start + (s.set - s.rise);
+        // A sunrise before 3 AM (far north in summer) runs past the ruler's end: draw the
+        // part after 3 AM, or if that's the most of it, the part before.
+        if (end > DAY) { if (start > DAY / 2) { end -= DAY; start = 0; } else end = DAY; }
+      }
+      band.style.left = `${(start / DAY) * 100}%`;
+      band.style.width = `${((end - start) / DAY) * 100}%`;
+    }
     $("wake-text").textContent = fmt(state.wake);
     $("bed-text").textContent = fmt(state.bed);
     $("edit-wake").setAttribute("aria-label", `Wake up ${fmt(state.wake)}. Drag, or use the arrow keys, to change it; press to edit your times`);
     $("edit-bed").setAttribute("aria-label", `Lights out ${fmt(state.bed)}. Drag, or use the arrow keys, to change it; press to edit your times`);
     placeEnds();
-
-    // Behind the ticks, a faint band while the sun is up where you live.
-    const s = state.sun, band = $("sun-band");
-    band.hidden = !s || s.polar === "night";
-    if (band.hidden) return;
-    let start = 0, end = DAY;
-    if (!s.polar) {
-      start = at(s.rise) * DAY;
-      end = start + (s.set - s.rise);
-      // A sunrise before 3 AM (far north in summer) runs past the ruler's end: draw the
-      // part after 3 AM, or if that's the most of it, the part before.
-      if (end > DAY) { if (start > DAY / 2) { end -= DAY; start = 0; } else end = DAY; }
-    }
-    band.style.left = `${(start / DAY) * 100}%`;
-    band.style.width = `${((end - start) / DAY) * 100}%`;
   }
 
   // Your two times under the ruler, as handles: each time centered under where it falls in
@@ -297,9 +351,9 @@
     });
   }
 
-  // Where you live, under the part of the day: the weather there now as an icon (the moon
-  // instead of the sun once it's dark there), then the city's name and the time showing there
-  // (render), all on one line. A pin until the forecast arrives.
+  // Where you live, at the top: the weather there now as an icon (the moon instead of the sun
+  // once it's dark there), then the city's name; its time is on the ruler since 2026-11-15.
+  // A pin until the forecast arrives.
   function weatherIcon(code, day) {
     if (code == null) return "i-pin";
     if (code <= 1) return day ? "i-sun" : "i-moon";
@@ -317,7 +371,7 @@
     if (use.getAttribute("href") !== icon) use.setAttribute("href", icon);
     const words = Sky.sayWeather(code);
     $("place-text").textContent = state.city.name;
-    $("place").setAttribute("aria-label", `${state.city.name}${words ? `, ${words}` : ""}, ${fmt(viewTime())}. Change where you live`);
+    $("place").setAttribute("aria-label", `${state.city.name}${words ? `, ${words}` : ""}. Change where you live`);
   }
 
   // The scene playing, as one chip under the lamp, wearing the scene's picture. It runs from
@@ -483,15 +537,32 @@
 
   function render() {
     const t = viewTime(), id = partAt(t), l = asLight(sceneOf(id));
-    const live = state.preview === null && !state.playing;
 
     $("part").textContent = part(id).name;
-    $("time").textContent = fmt(t);   // after the city, under the part's name
-    $("back-now").hidden = live || state.playing;
 
-    $("now-line").style.left = `${at(t) * 100}%`;
+    // The time showing on the ruler, in the design system's yellow for now, as the tapes mark
+    // theirs (a gray disc with a sun until 2026-11-15: it read as a button and as a third sun):
+    // a fine yellow line through the day, a yellow dot where it meets the sunlight's line, a
+    // dot in the color where it meets the color's. Over the yellow dot, its time, always (the
+    // only place the time shows since 2026-11-15), kept inside the ruler.
+    const lt = lightAt(t), ys = sunY(sunCurve()(t)), yc = lt.c > OFF ? colorY(lt.c) : HORIZON, now = $("now-line");
+    const x = at(t) * ruler.clientWidth, label = $("now-time");
+    label.textContent = fmt(t);
+    now.style.left = `${at(t) * 100}%`;
+    now.style.setProperty("--y", `${ys}px`);
+    now.style.setProperty("--yc", `${yc}px`);
+    now.style.setProperty("--dot", lt.c > OFF ? colorOf(lt) : "var(--ink)");
+    now.style.setProperty("--label-x", `${clamp(-label.offsetWidth / 2, -x, ruler.clientWidth - x - label.offsetWidth)}px`);
+    // Now, while the mark is somewhere else (playing too): a hollow yellow ring on the
+    // sunlight's line, the dot the mark left behind, and the ↺ button beside Play a day. Tap
+    // either to come back (seek, and the button's click below).
+    const n = nowMinutes(), away = state.preview !== null && Math.abs(at(t) - at(n)) * DAY >= 1, ring = $("live-ring");
+    ruler.classList.toggle("is-away", away);
+    $("to-now").classList.toggle("is-on", away);
+    ring.style.setProperty("--x", `${at(n) * 100}%`);
+    ring.style.setProperty("--y", `${sunY(sunCurve()(n))}px`);
     ruler.setAttribute("aria-valuenow", String(Math.floor(at(t) * DAY)));   // minutes from 3 AM; the text says the time
-    ruler.setAttribute("aria-valuetext", `${fmt(t)}, ${part(id).name}, ${describe(l)}`);
+    ruler.setAttribute("aria-valuetext", `${fmt(t)}${away ? "" : ", now"}, ${part(id).name}, ${describe(l)}`);
 
     paintScene(id);
     paintLamp(l, id);
@@ -501,40 +572,55 @@
 
   // Moving through the day ----------------------------------------------------------------
 
+  // Back to now is the ↺ button (click below) and the ring at now: a tap that lands within
+  // 12px of the ring, or a drag that passes within 5px, goes back to now and follows the clock
+  // again (px on the 390px screen; a drag gets a lighter pull so it can still pass by now).
   let dragging = false;
-  function seek(e) {
+  function seek(e, snap) {
     const r = ruler.getBoundingClientRect();
     const x = clamp((e.clientX - r.left) / r.width, 0, 1);
-    state.preview = mod(START + Math.min(DAY - 1, Math.round((x * DAY) / 5) * 5));
+    if (Math.abs(x - at(nowMinutes())) * r.width <= snap * scale) state.preview = null;
+    else state.preview = mod(START + Math.min(DAY - 1, Math.round((x * DAY) / 5) * 5));
     render();
   }
   function takeOver() { stopGlide(); stopPlay(); touched = true; }
   ruler.addEventListener("pointerdown", (e) => {
     takeOver();
     dragging = true;
+    ruler.classList.add("is-scrubbing");
     ruler.setPointerCapture(e.pointerId);
-    seek(e);
+    seek(e, 12);
   });
-  ruler.addEventListener("pointermove", (e) => { if (dragging) seek(e); });
-  for (const type of ["pointerup", "pointercancel"]) ruler.addEventListener(type, () => { dragging = false; });
+  ruler.addEventListener("pointermove", (e) => { if (dragging) seek(e, 5); });
+  for (const type of ["pointerup", "pointercancel"]) ruler.addEventListener(type, () => { dragging = false; ruler.classList.remove("is-scrubbing"); });
   ruler.addEventListener("keydown", (e) => {
     const steps = { ArrowRight: 15, ArrowUp: 15, ArrowLeft: -15, ArrowDown: -15, PageUp: 60, PageDown: -60 };
     let next;
     if (e.key in steps) next = mod(Math.round(viewTime() / 15) * 15 + steps[e.key]);
     else if (e.key === "Home") next = START;   // the ruler's ends
     else if (e.key === "End") next = mod(START - 1);
+    else if (e.key === "Escape" && (state.preview !== null || state.playing)) next = null;   // back to now
     else return;
+    // A step that passes over now stops there, on the clock again.
+    if (next !== null && e.key in steps && state.preview !== null) {
+      const a = at(viewTime()), b = at(next), c = at(nowMinutes());
+      if ((c - a) * (c - b) <= 0) next = null;
+    }
     e.preventDefault();
     takeOver();
     state.preview = next;
     render();
   });
-  $("back-now").addEventListener("click", () => { state.preview = null; render(); ruler.focus({ preventScroll: true }); });
+  // The ↺ button: back to now (stopping a play), then the ruler keeps the keyboard, since
+  // the button goes away.
+  $("to-now").addEventListener("click", () => { takeOver(); state.preview = null; render(); ruler.focus({ preventScroll: true }); });
 
-  // Play a day: the whole 24 hours in 12 seconds, from the time showing, then back to it.
+  // Play a day: the whole 24 hours in 12 seconds, from the time showing, then back to it (to
+  // now, on the clock again, when it started at now).
   let raf = 0;
   const PLAY_MS = 12000;
   function setPlayButton() {
+    ruler.classList.toggle("is-playing", state.playing);
     $("play-label").textContent = state.playing ? "Pause" : "Play a day";
     $("play").querySelector("use").setAttribute("href", state.playing ? "#i-pause" : "#i-play");
   }
@@ -551,12 +637,12 @@
     touched = true;
     state.playing = true;
     setPlayButton();
-    const from = viewTime();
+    const from = viewTime(), fromNow = state.preview === null;
     let t0 = null;
     const step = (now) => {
       if (t0 === null) t0 = now;
       const k = (now - t0) / PLAY_MS;
-      if (k >= 1) { state.preview = from; stopPlay(); return; }
+      if (k >= 1) { state.preview = fromNow ? null : from; stopPlay(); return; }
       state.preview = mod(from + k * DAY);
       render();
       raf = requestAnimationFrame(step);
@@ -854,6 +940,7 @@
     }
   }
   window.addEventListener("resize", fit);
+  window.addEventListener("resize", paintRuler);   // the curve is drawn to the ruler's width
 
   // Follow the clock while nothing is previewed; plan again when the city's day turns over;
   // fetch the forecast again every half hour.

@@ -196,89 +196,27 @@
   const START = 180;
   const at = (t) => mod(t - START) / DAY;
 
-  // The ruler draws the day's light, split by a horizon as the lamp is built, head over base
-  // (since 2026-11-15, in the clean style of a sun app's arc the user showed; that day it was
-  // first 96 thin bars, then a line chart the user found dated, capsule columns, and an arc
-  // that only showed where you are in your day, which left out what the app does). Above the
-  // horizon, the sunlight: a solid white line as high as the lamp's white light is strong,
-  // smoothed into one hill (sunCurve), meeting the horizon where it goes off. Under it, the color: a dotted line, each dot in the
-  // color showing then (always one of the lamp's own, never a blend), as deep as it's strong;
-  // no dots where it's off. On the horizon, the part where the sun is up where you live is a
-  // little brighter.
-  const HORIZON = 58, SUN_H = 44, COLOR_H = 30;   // px (the ruler is 90px tall, app.css)
-
-  // The sunlight's line is drawn smooth, as one hill through the day: a curve through each
-  // part's strength, held in the middle of the part, from the horizon where Sunrise starts
-  // (rising through it) to the horizon at lights out (a monotone cubic, so it never swings past a part's strength).
-  // The fades it smooths over take an hour or two anyway; drawn as they run, the parts'
-  // plateaus gave the line a lumpy outline. The time showing rides this same line.
-  function sunCurve() {
-    const p = plan(), r = p.rel, ids = PARTS.map((x) => x.id);
-    const xs = [0], ys = [0];   // Sunrise's own strength is passed through on the way up, not held (holding it put a kink in the rise)
-    for (const id of ["morning", "day", "golden", "wind"]) {
-      const next = id === "wind" ? r.night - part("night").fade : r[ids[ids.indexOf(id) + 1]];
-      xs.push((Math.min(r[id] + part(id).fade, next) + next) / 2);
-      ys.push(sceneOf(id).sun);
-    }
-    xs.push(r.night); ys.push(0);
-    // Fritsch-Carlson tangents, then a Hermite curve between the points.
-    const n = xs.length, m = [], tg = [];
-    for (let i = 0; i < n - 1; i++) m[i] = (ys[i + 1] - ys[i]) / Math.max(1, xs[i + 1] - xs[i]);
-    tg[0] = m[0]; tg[n - 1] = m[n - 2];
-    for (let i = 1; i < n - 1; i++) tg[i] = m[i - 1] * m[i] <= 0 ? 0 : (m[i - 1] + m[i]) / 2;
-    for (let i = 0; i < n - 1; i++) {
-      if (!m[i]) { tg[i] = tg[i + 1] = 0; continue; }
-      const a = tg[i] / m[i], b = tg[i + 1] / m[i], h = a * a + b * b;
-      if (h > 9) { const k = 3 / Math.sqrt(h); tg[i] = k * a * m[i]; tg[i + 1] = k * b * m[i]; }
-    }
-    return (t) => {
-      const d = mod(t - p.origin);
-      if (d >= r.night) return 0;
-      let i = 0;
-      while (i < n - 2 && d > xs[i + 1]) i++;
-      const h = Math.max(1, xs[i + 1] - xs[i]), u = clamp((d - xs[i]) / h, 0, 1), u2 = u * u, u3 = u2 * u;
-      return clamp((2 * u3 - 3 * u2 + 1) * ys[i] + (u3 - 2 * u2 + u) * h * tg[i] + (-2 * u3 + 3 * u2) * ys[i + 1] + (u3 - u2) * h * tg[i + 1], 0, 1);
-    };
-  }
-  const sunY = (v) => HORIZON - v * SUN_H;
-  const colorY = (v) => HORIZON + v * COLOR_H;
-  const colorOf = (l) => rgbCss(COLOR[l.color] ?? l.rgb);
+  // The ruler shows the lamp through the day, built as the lamp is, head over base: two
+  // strips across the day, the top one lit white as strongly as the lamp's sunlight is at
+  // each moment, the one under it in the color the lamp's base shows then (blended through
+  // the fades, as the base's is), as strongly; dark where a light is off. Each lights as its
+  // part of the lamp does (strength, colorStrength), so the moment under the playhead looks
+  // like the lamp above it, and the day reads at once: bright white through the day, warm
+  // color toward evening, dark at night. (Since late 2026-11-15, the user: a line chart's
+  // meaning didn't read at once. That day it was first 96 thin bars, then a line chart the
+  // user found dated, capsule columns, an arc that only showed where you are in your day,
+  // then a white line over a horizon with a colored line under it.)
   function paintRuler() {
-    const w = ruler.clientWidth || 358, STEP = 5, curve = sunCurve();
-    const x = (m) => ((m / DAY) * w).toFixed(1);
-    let line = "", on = false;
-    for (let m = 0; m <= DAY; m += STEP) {
-      const v = curve(START + m);
-      if (v > OFF) {
-        if (!on) { line += `M${x(Math.max(0, m - STEP))} ${HORIZON}`; on = true; }
-        line += `L${x(m)} ${sunY(v).toFixed(1)}`;
-      } else if (on) { line += `L${x(m)} ${HORIZON}`; on = false; }
-    }
-    let dots = "";
-    const n = Math.round(w / 6);
+    const n = 192;   // a stop every 7.5 minutes
+    let sun = "", color = "";
     for (let i = 0; i <= n; i++) {
-      const m = (i / n) * DAY, l = lightAt(START + m);
-      if (l.c > OFF) dots += `<circle cx="${x(m)}" cy="${colorY(l.c).toFixed(1)}" r="1.6" fill="${colorOf(l)}"/>`;
+      const l = lightAt(START + (i / n) * DAY), pos = `${((i / n) * 100).toFixed(2)}%`;
+      sun += `, rgb(${SUN.join(" ")} / ${strength(l.sun).toFixed(3)}) ${pos}`;
+      color += `, rgb(${l.rgb.map(Math.round).join(" ")} / ${colorStrength(l.c).toFixed(3)}) ${pos}`;
     }
-    $("day-graph").setAttribute("viewBox", `0 0 ${w} 90`);
-    $("day-sunlight").setAttribute("d", line);
-    $("day-color").innerHTML = dots;
+    $("day-sun").style.backgroundImage = `linear-gradient(90deg${sun})`;
+    $("day-color").style.backgroundImage = `linear-gradient(90deg${color})`;
 
-    // The sun up where you live: from sunrise to sunset, the horizon a little brighter.
-    const s = state.sun, band = $("sun-band");
-    band.hidden = !s || s.polar === "night";
-    if (!band.hidden) {
-      let start = 0, end = DAY;
-      if (!s.polar) {
-        start = at(s.rise) * DAY;
-        end = start + (s.set - s.rise);
-        // A sunrise before 3 AM (far north in summer) runs past the ruler's end: draw the
-        // part after 3 AM, or if that's the most of it, the part before.
-        if (end > DAY) { if (start > DAY / 2) { end -= DAY; start = 0; } else end = DAY; }
-      }
-      band.style.left = `${(start / DAY) * 100}%`;
-      band.style.width = `${((end - start) / DAY) * 100}%`;
-    }
     $("wake-text").textContent = fmt(state.wake);
     $("bed-text").textContent = fmt(state.bed);
     $("edit-wake").setAttribute("aria-label", `Wake up ${fmt(state.wake)}. Drag, or use the arrow keys, to change it; press to edit your times`);
@@ -522,26 +460,19 @@
     $("part").textContent = part(id).name;
 
     // The time showing on the ruler, in the design system's yellow for now, as the tapes mark
-    // theirs (a gray disc with a sun until 2026-11-15: it read as a button and as a third sun):
-    // a fine yellow line through the day, a yellow dot where it meets the sunlight's line, a
-    // dot in the color where it meets the color's. Over the yellow dot, its time, always (the
-    // only place the time shows since 2026-11-15), kept inside the ruler.
-    const lt = lightAt(t), ys = sunY(sunCurve()(t)), yc = lt.c > OFF ? colorY(lt.c) : HORIZON, now = $("now-line");
-    const x = at(t) * ruler.clientWidth, label = $("now-time");
+    // theirs: a fine yellow line down through both strips, like a video's playhead, its time
+    // over it, always (the only place the time shows since 2026-11-15), kept inside the ruler.
+    const w = ruler.clientWidth, x = at(t) * w, now = $("now-line"), label = $("now-time");
     label.textContent = fmt(t);
     now.style.left = `${at(t) * 100}%`;
-    now.style.setProperty("--y", `${ys}px`);
-    now.style.setProperty("--yc", `${yc}px`);
-    now.style.setProperty("--dot", lt.c > OFF ? colorOf(lt) : "var(--ink)");
-    now.style.setProperty("--label-x", `${clamp(-label.offsetWidth / 2, -x, ruler.clientWidth - x - label.offsetWidth)}px`);
-    // Now, while the mark is somewhere else (playing too): a hollow yellow ring on the
-    // sunlight's line, the dot the mark left behind, and the ↺ button beside Play a day. Tap
+    now.style.setProperty("--label-x", `${clamp(-label.offsetWidth / 2, -x, w - x - label.offsetWidth)}px`);
+    // Now, while the mark is somewhere else (playing too): a small hollow yellow ring over
+    // the strips, and the ↺ button beside Play a day. Tap
     // either to come back (seek, and the button's click below).
     const n = nowMinutes(), away = state.preview !== null && Math.abs(at(t) - at(n)) * DAY >= 1, ring = $("live-ring");
     ruler.classList.toggle("is-away", away);
     $("to-now").classList.toggle("is-on", away);
     ring.style.setProperty("--x", `${at(n) * 100}%`);
-    ring.style.setProperty("--y", `${sunY(sunCurve()(n))}px`);
     ruler.setAttribute("aria-valuenow", String(Math.floor(at(t) * DAY)));   // minutes from 3 AM; the text says the time
     ruler.setAttribute("aria-valuetext", `${fmt(t)}${away ? "" : ", now"}, ${part(id).name}, ${describe(l)}`);
 
@@ -921,7 +852,7 @@
     }
   }
   window.addEventListener("resize", fit);
-  window.addEventListener("resize", paintRuler);   // the curve is drawn to the ruler's width
+  window.addEventListener("resize", placeEnds);   // your two times sit under their spots on the ruler
 
   // Follow the clock while nothing is previewed; plan again when the city's day turns over;
   // fetch the forecast again every half hour.

@@ -209,23 +209,22 @@ Blocks appear in the order you list them. The template uses Context → Explore 
   ruler) sideways, tap the ruler, or use the arrow keys to set how strong that light is for
   the part of the day showing; picking a scene again goes back to the scene's own strengths.
   The lamp shows each part of the day as set; the day's ruler shows the slow fades between
-  them. The day's ruler draws the day's light split by a horizon, as the lamp is built, head
-  over base (since 2026-11-15, in the clean style of a sun app's arc the user showed; that day
-  it was first 96 thin bars, then a line chart the user found dated, capsule columns, and an
-  arc that showed only where you are in your day, which the user said left out what the app
-  does): above the horizon the sunlight, one smooth white hill as high as the white light is
-  strong (a curve through each part's strength); under it the color, a dotted line, each dot
-  in the color showing then, as deep as it's strong; the horizon a little brighter while the
-  sun is up where you live. The time showing is marked in the design system's yellow for
-  now, as the lamp's tapes mark theirs: a fine yellow line through the graph, a yellow dot on
-  the sunlight's line and a dot in the color on the color's (a gray disc with a sun until
-  that day: it read as a button and as a third sun); its time shows over the yellow dot, in
-  mono, always (only while you dragged or played until 2026-11-15, when the time left the top
-  line). While the mark is at another time, now stays on the sunlight's line as a hollow
-  yellow ring, the dot left behind, and a round ↺ button comes up left of Play a day; tap it
-  (or the ring, or drag the mark onto it, or press Escape) to come back to now (a Back to now
-  text button until 2026-11-15; the user: the time and the button were too many things, then
-  that the ring alone didn't say you could go back). The screen is kept quiet (no boxes or labels it can do without) and reads top to
+  them. The day's ruler shows the lamp through the day, built as the lamp is, head over
+  base: two strips across the day, the top one lit white as strongly as the sunlight is at
+  each moment, the one under it lit in the color the base shows then, as strongly, dark
+  where a light is off, so the day reads at once (bright white through the day, warm color
+  toward evening, dark at night) and the moment under the playhead looks like the lamp
+  above it. (Since late 2026-11-15, the user: a line chart's meaning didn't read at once.
+  That day it was first 96 thin bars, then a line chart the user found dated, capsule
+  columns, an arc that showed only where you are in your day, then a white line over a
+  horizon with a colored line under it.) The time showing is marked in the design system's
+  yellow for now, as the lamp's tapes mark theirs: a fine line down through both strips,
+  like a video's playhead, its time over it in mono, always (only while you dragged or
+  played until 2026-11-15, when the time left the top line). While the mark is at another
+  time, now stays over the strips as a small hollow yellow ring and a round ↺ button comes
+  up left of Play a day; tap it (or the ring, or drag the mark onto it, or press Escape) to
+  come back to now (a Back to now text button until 2026-11-15; the user: the time and the
+  button were too many things, then that the ring alone didn't say you could go back). The screen is kept quiet (no boxes or labels it can do without) and reads top to
   bottom (no logo over it since 2026-11-15, the user's ask: the lamp is the product): the scene playing
   as the screen's title (its picture, its name in big plain type, a small up-down mark; a chip under the lamp until
   2026-11-15, then the user asked for it at the top and as a title, not a box; tap
@@ -235,9 +234,9 @@ Blocks appear in the order you list them. The template uses Context → Explore 
   2026-11-15, the user: "Daytime" was not needed, the time, the ruler and the color's name
   already say it; screen readers still hear it), then the lamp, and the
   day (the ruler, with Play a day beside its label, and under it only the wake-up and
-  lights-out times, as handles, as a sun app shows sunrise and sunset: a dot on the horizon
-  at the time, and under it the time over what it is ("Wake up", "Lights out"); drag the dot or the time sideways to move that time a
-  quarter hour at a time, the day's light moving with it (the dot grows), or tap either for the times sheet). The ruler runs 24
+  lights-out times, as handles: a white bar across the strips at the time, where your day's
+  light starts or ends, like a video clip's trim handle, and under it the time over what it is ("Wake up", "Lights out"); drag the bar or the time sideways to move that time a
+  quarter hour at a time, the day's light moving with it (the bar widens), or tap either for the times sheet). The ruler runs 24
   hours from 3 AM, not midnight, so a day from as early as 4:30 AM to as late as 1:00 AM never
   wraps around its ends: wake-up stays left, lights out right. The boxed
   strip of city, time and both times at the top, the Now tag and the ruler's hour labels came

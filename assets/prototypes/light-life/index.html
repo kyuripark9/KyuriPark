@@ -107,31 +107,33 @@
       </div>
     </section>
 
-    <!-- LightRuler: the whole day, split by a horizon the way the lamp is built: above it the
-         sunlight, a white line as high as it's strong; under it the color, a dotted line in the
-         color showing, as deep as it's strong. The time showing is the tapes' yellow mark, a
-         yellow dot where it meets the sunlight and a dot in the color where it meets the color,
-         its time always over it. While it's at another time, now stays on the sunlight's line
-         as a hollow yellow ring, and a round ↺ button comes up beside Play a day: tap it (or
-         the ring, or drag the mark onto it, Escape on the keyboard) to come back to now. Drag
-         it, or play it. -->
+    <!-- LightRuler: the lamp through the day, built as the lamp is, head over base: two strips
+         across the day, the top one lit white as strongly as the sunlight is at each moment,
+         the one under it lit in the color the base shows then, as strongly; dark where a light
+         is off. Your day's light runs between two white bars, your wake-up and lights-out
+         times, like a clip's trim handles. The time showing is the tapes' yellow mark, a line
+         down through both strips like a video's playhead, its time always over it. While it's
+         at another time, now stays over the strips as a small hollow yellow ring, and a round
+         ↺ button comes up beside Play a day: tap it (or the ring, or drag the mark onto it,
+         Escape on the keyboard) to come back to now. Drag it, or play it. No visible title
+         (the user, 2026-11-15: Wake up and Lights out under it already say what it is; "Your
+         day" stays for screen readers). -->
     <div class="ruler-block">
       <div class="ruler-head">
-        <h2 class="ll-label">Your day</h2>
+        <h2 class="visually-hidden">Your day</h2>
         <div class="ruler-actions">
           <button class="ll-pill is-small to-now" type="button" id="to-now" aria-label="Back to now" title="Back to now"><svg class="icon" aria-hidden="true"><use href="#i-now"/></svg></button>
           <button class="ll-pill is-small play" type="button" id="play"><svg class="play-icon" aria-hidden="true"><use href="#i-play"/></svg><span id="play-label">Play a day</span></button>
         </div>
       </div>
       <div class="ll-ruler" id="ruler" role="slider" tabindex="0" aria-label="Time of day" aria-valuemin="0" aria-valuemax="1439" aria-keyshortcuts="Escape">
-        <span class="day-horizon" aria-hidden="true"></span>
-        <span class="day-daylight" id="sun-band" aria-hidden="true"></span>
-        <svg class="day-graph" id="day-graph" height="90" aria-hidden="true"><g id="day-color"></g><path class="day-sunlight" id="day-sunlight"/></svg>
+        <span class="day-strip is-sun" id="day-sun" aria-hidden="true"></span>
+        <span class="day-strip is-color" id="day-color" aria-hidden="true"></span>
         <span class="day-live" id="live-ring" aria-hidden="true"></span>
         <span class="day-now" id="now-line" aria-hidden="true"><i></i><b class="day-now-time" id="now-time"></b></span>
       </div>
-      <!-- Under the ruler, your two times, as a sun app shows sunrise and sunset: a dot on the
-           horizon at the time, and under it the time over what it is. Drag the dot (or the
+      <!-- Under the ruler, your two times: a white bar across the strips at the time, and
+           under it the time over what it is. Drag the bar (or the
            time) sideways to move that time, the day's light moving with it, or tap it for the
            times sheet. -->
       <div class="ll-axis day-ends">

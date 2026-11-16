@@ -350,9 +350,8 @@ html.is-fill .app {
 
 /* LightRuler */
 .ruler-block { margin-top: var(--space-5); }
-.ruler-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-2); }
-.ruler-head .ll-label { color: var(--ink-muted); font-weight: 400; }
 .ll-pill.is-small.play { gap: 6px; padding: 0 14px 0 12px; }
+.ruler-head { display: flex; align-items: center; justify-content: flex-end; margin-bottom: var(--space-2); }
 .play-icon { width: 12px; height: 12px; }
 /* Back to now, as a round ↺ button left of Play a day (the user, 2026-11-15: the ring alone
    didn't say you could go back). Only while the time showing isn't now (app.js, .is-on): it
@@ -361,43 +360,38 @@ html.is-fill .app {
 .ll-pill.is-small.to-now { justify-content: center; width: 32px; padding: 0; opacity: 0; visibility: hidden; transform: scale(0.8); transition: opacity 0.2s, transform 0.2s var(--ease), visibility 0s 0.2s; }
 .ll-pill.is-small.to-now.is-on { opacity: 1; visibility: visible; transform: none; transition: opacity 0.2s, transform 0.2s var(--ease), visibility 0s; }
 .to-now .icon { width: 16px; height: 16px; }
-.ll-ruler { position: relative; height: 90px; cursor: ew-resize; touch-action: pan-y; border-radius: var(--radius-sm); }
+.ll-ruler { position: relative; height: 80px; cursor: ew-resize; touch-action: pan-y; border-radius: var(--radius-sm); }
 .ll-ruler::after { content: ""; position: absolute; inset: -8px 0 -46px; }   /* the times under it are part of the drag area */
-/* The day's light, split by a horizon 58px down (HORIZON in app.js) as the lamp is built:
-   above it the sunlight, a solid white line; under it the color, a dotted line in the color
-   (app.js draws both). Flat: no fills, no glow. The horizon is a little brighter while the
-   sun is up where you live (#sun-band), its ends soft. */
-.day-horizon { position: absolute; left: 0; right: 0; top: 58px; height: 1px; margin-top: -0.5px; background: #ffffff1f; pointer-events: none; }
-.day-daylight { position: absolute; top: 58px; height: 1px; margin-top: -0.5px; background: linear-gradient(90deg, transparent, #ffffff59 16px, #ffffff59 calc(100% - 16px), transparent); pointer-events: none; }
-.day-daylight[hidden] { display: none; }
-.day-graph { position: absolute; top: 0; left: 0; width: 100%; height: 90px; overflow: visible; pointer-events: none; }
-.day-sunlight { fill: none; stroke: var(--ink); stroke-width: 2px; stroke-linecap: round; stroke-linejoin: round; }
+/* The lamp through the day (app.js paints both): two strips, head over base as the lamp is
+   built, the top one lit white as the lamp's sunlight is, the one under it in the base's
+   color, each as strongly as that light is at that moment; where a light is off its strip
+   shows the lamp's dark surface. (Until late 2026-11-15 a white line over a horizon with a
+   colored line under it; the user: its meaning didn't read at once.) */
+.day-strip { position: absolute; left: 0; right: 0; background-color: var(--surface); pointer-events: none; }
+.day-strip.is-sun { top: 24px; height: 30px; border-radius: 10px; }
+.day-strip.is-color { top: 58px; height: 18px; border-radius: 9px; }
 /* The time showing, in the design system's yellow for now, as the lamp's tapes mark theirs
    (a gray disc with a sun or moon until 2026-11-15: it read as a button, weighed more than the
-   data, and made a third sun): a fine yellow line through the graph, a yellow dot where it
-   meets the sunlight's line, and a dot where it meets the color's, in the color (white on the
-   horizon while the color is off), each cut out by a ring of the screen's black. Over the
-   yellow dot, the time in mono, always (since 2026-11-15, when the time left the top line;
-   until then only while you dragged or played). --y, --yc, --dot and --label-x from app.js. */
+   data, and made a third sun): a fine yellow line down through both strips, edged in black
+   so it shows on the white too, like a video's playhead, its time over it in mono, always
+   (since 2026-11-15, when the time left the top line). --label-x from app.js. */
 .day-now { position: absolute; top: 0; left: 0; width: 0; height: 100%; pointer-events: none; z-index: 1; }
-.day-now i { position: absolute; top: 2px; bottom: 0; left: -0.75px; width: 1.5px; border-radius: 1px; background: var(--signal); }
-.day-now::before { content: ""; position: absolute; z-index: 1; top: calc(var(--y, 58px) - 5px); left: -5px; width: 10px; height: 10px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 0 2px var(--bg); }
-.day-now::after { content: ""; position: absolute; top: calc(var(--yc, 58px) - 4px); left: -4px; width: 8px; height: 8px; border-radius: 50%; background: var(--dot, var(--ink)); box-shadow: 0 0 0 2px var(--bg); }
-.day-now-time { position: absolute; z-index: 2; top: calc(var(--y, 58px) - 30px); left: var(--label-x, 0px); padding: 2px 6px; border-radius: 6px; background: var(--bg); color: var(--ink); font-family: var(--font-mono); font-size: 11px; font-weight: 400; line-height: 14px; letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.day-now i { position: absolute; top: 16px; bottom: 0; left: -1px; width: 2px; border-radius: 1px; background: var(--signal); box-shadow: 0 0 0 1px #00000073; }
+.day-now-time { position: absolute; z-index: 2; top: 0; left: var(--label-x, 0px); padding: 2px 6px; border-radius: 6px; background: var(--bg); color: var(--ink); font-family: var(--font-mono); font-size: 11px; font-weight: 400; line-height: 14px; letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap; font-variant-numeric: tabular-nums; }
 /* Now, while the mark is at another time (the Back to now button until 2026-11-15, the user:
-   too many things): the yellow dot left behind as a hollow ring on the sunlight's line, at
-   now. Tap it to come back (app.js: a tap or drag that lands within a few px of it snaps to
-   now). It fades in when the mark leaves now and out when it's back. --x, --y from app.js. */
-.day-live { position: absolute; top: calc(var(--y, 58px) - 6px); left: var(--x, 0%); width: 12px; height: 12px; margin-left: -6px; border: 1.5px solid var(--signal); border-radius: 50%; background: var(--bg); box-shadow: 0 0 0 2px var(--bg); opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+   too many things): a small hollow yellow ring just over the strips, at now. Tap it to come
+   back (app.js: a tap or drag that lands within a few px of it snaps to now). It fades in
+   when the mark leaves now and out when it's back. --x from app.js. */
+.day-live { position: absolute; top: 14px; left: var(--x, 0%); width: 9px; height: 9px; margin-left: -4.5px; border: 1.5px solid var(--signal); border-radius: 50%; background: var(--bg); opacity: 0; transition: opacity 0.2s; pointer-events: none; }
 .ll-ruler.is-away .day-live { opacity: 1; }
 .ll-axis { position: relative; height: 14px; margin-top: var(--space-2); color: var(--ink-muted); font-family: var(--font-mono); font-size: 10px; line-height: 14px; letter-spacing: 0.02em; text-transform: uppercase; }
-/* Under the graph only your two times, each under its spot on the horizon (app.js places
-   them, kept inside the row), as a sun app shows sunrise and sunset: the time over
-   what it is. (The hours 12 AM, 6 AM, 12 PM, 6 PM, 12 AM until 2026-11-14.) Each is a
-   handle: its grip is a dot on the horizon at the time's spot (--spot, app.js), in a strip
-   of the graph that is the handle's own. Drag the dot or the time sideways to move it, or
-   tap either for the times sheet; the rest of the row stays part of the ruler's drag area.
-   (A hairline with a knob until 2026-11-15.) */
+/* Under the strips only your two times, each under its spot in the day (app.js places
+   them, kept inside the row): the time over what it is. (The hours 12 AM, 6 AM, 12 PM,
+   6 PM, 12 AM until 2026-11-14.) Each is a handle: its grip is a white bar across the
+   strips at the time's spot (--spot, app.js), in a strip of the ruler that is the handle's
+   own. Drag the bar or the time sideways to move it, or tap either for the times sheet; the
+   rest of the row stays part of the ruler's drag area. (A hairline with a knob until
+   2026-11-15, then a dot on a horizon.) */
 .day-ends { height: 36px; margin-top: 8px; pointer-events: none; }
 .day-end { position: absolute; top: 0; display: inline-flex; flex-direction: column; align-items: center; padding: 0 4px; border-radius: 6px; font-family: var(--font-sans); letter-spacing: 0; text-transform: none; white-space: nowrap; cursor: grab; touch-action: pan-y; -webkit-user-select: none; user-select: none; pointer-events: auto; }
 .end-time { color: var(--ink); font-size: 15px; font-weight: 500; line-height: 20px; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
@@ -405,12 +399,14 @@ html.is-fill .app {
 .day-end:hover .end-caption,
 .day-end.is-dragging .end-caption { color: var(--ink); }
 .day-end.is-dragging { cursor: grabbing; }
-/* The grip: a 28px strip of the graph, its dot on the horizon, white, cut out from the
-   lines by a ring of the screen's black. It grows under the pointer, more while dragged. */
-.end-grip { position: absolute; bottom: calc(100% + 8px); left: var(--spot, 50%); width: 28px; height: 90px; margin-left: -14px; }
-.end-grip i { position: absolute; top: 58px; left: 50%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: var(--ink); box-shadow: 0 0 0 2px var(--bg); transition: transform 0.2s var(--ease); }
-.day-end:hover .end-grip i { transform: scale(1.3); }
-.day-end.is-dragging .end-grip i { transform: scale(1.6); }
+/* The grip: a 28px strip of the ruler, its mark a white bar across both strips at the time,
+   where your day's light starts or ends, like a video clip's trim handle (a dot on the
+   horizon until late 2026-11-15), cut out by a ring of the screen's black. It widens under
+   the pointer, more while dragged. */
+.end-grip { position: absolute; bottom: calc(100% + 8px); left: var(--spot, 50%); width: 28px; height: 80px; margin-left: -14px; }
+.end-grip i { position: absolute; top: 20px; left: 50%; width: 3px; height: 60px; margin-left: -1.5px; border-radius: 2px; background: var(--ink); box-shadow: 0 0 0 2px var(--bg); transition: transform 0.2s var(--ease); }
+.day-end:hover .end-grip i { transform: scaleX(1.5); }
+.day-end.is-dragging .end-grip i { transform: scaleX(2); }
 
 /* SceneChip: names in plain type, so the screen's mono capitals stay for small labels and
    numbers. It runs from the scene's sunlight to its color (--a, --b; app.js). */

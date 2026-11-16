@@ -267,9 +267,8 @@ html.is-fill .app {
 .lamp { --head: max(240px, min(100cqw, 100cqh - 126px)); display: flex; flex: 1 0 auto; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 366px; container-type: size; }
 .lamp-head,
 .lamp-base { position: relative; isolation: isolate; overflow: hidden; overflow: clip; display: flex; flex-direction: column; align-items: center; background: var(--surface); color: var(--ink); cursor: ew-resize; transition: color 0.4s; touch-action: pan-y; -webkit-user-select: none; user-select: none; }
-.lamp-head { flex: none; width: var(--head); height: var(--head); padding: 46px 24px 38px; border-radius: 76px; }   /* label and ruler inside the rim's light, on the dark */
-.lamp-base { flex: none; justify-content: center; gap: 7px; width: calc(var(--head) - 24px); height: 120px; padding: 0 44px; border-radius: 60px; }   /* 120px since it holds a label over its percent, as the head does */
-.lamp-label { display: flex; align-items: center; gap: 6px; color: var(--ink-muted); transition: color 0.4s; }
+.lamp-head { flex: none; width: var(--head); height: var(--head); padding: 46px 24px 38px; border-radius: 76px; }   /* the ruler inside the rim's light, on the dark */
+.lamp-base { flex: none; justify-content: center; gap: 7px; width: calc(var(--head) - 24px); height: 120px; padding: 0 44px; border-radius: 60px; }   /* 120px kept when its label went (2026-11-15), so the lamp keeps its shape */
 
 /* Each light fills its part: as strong as the light is (opacity, app.js), in its color
    (--fill, set by app.js for the base). --fill is a registered color, so a new color fades in
@@ -313,14 +312,12 @@ html.is-fill .app {
 .disc-value { position: relative; display: flex; flex: none; align-items: baseline; gap: 2px; margin: auto 0; font-variant-numeric: tabular-nums; }
 .disc-num { font-size: 76px; font-weight: 400; line-height: 1; letter-spacing: -0.045em; }
 .disc-unit { font-size: 28px; font-weight: 400; line-height: 1; letter-spacing: -0.02em; }
-.is-lit .lamp-label { color: var(--ink); }   /* muted only on a dark part; on a lit one it fades */
-/* The base says what it holds as the head does (the user, 2026-11-14: the two differed): the
-   color's name as a mono label with its icon, over the strength, smaller than the head's.
-   White on the lit color, with a soft shadow so it reads on the palest. */
+/* The base's strength, smaller than the head's, white on the lit color with a soft shadow so
+   it reads on the palest. No label over it since 2026-11-15 (the scene chip names it). */
 .lamp-base .disc-value { margin: 0; }
 .lamp-base .disc-num { font-size: 32px; font-weight: 500; letter-spacing: -0.035em; }
 .lamp-base .disc-unit { font-size: 15px; font-weight: 500; }
-.lamp-base.is-lit :is(.lamp-label, .disc-value) { color: #fff; text-shadow: 0 0 1px #00000040, 0 1px 12px #00000052; }
+.lamp-base.is-lit .disc-value { color: #fff; text-shadow: 0 0 1px #00000040, 0 1px 12px #00000052; }
 
 /* Dragging a light: it follows the finger, with no easing behind. */
 .is-tuning :is(.lamp-fill, .ll-tape-track) { transition-duration: 0s; }

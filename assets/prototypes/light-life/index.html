@@ -76,15 +76,14 @@
     <!-- The lamp, built like the real one: two parts, apart, each with its own light and its
          own job. The head, a rounded square that glows white at its edge: sunlight that shines on you.
          The base under it, a pill that fills with color, brightest at its edge: it colors your
-         space (turned by hand, on the lamp). Both parts say what they hold the same way, a mono
-         label naming the light over the strength in plain type, the base's smaller and in white.
-         No icons. The head's is its job, Sunlight; the base's is its color named for your
-         situation, "Gray-day blue", "Wind-down rose" (app.js colorName), Color when it's off.
+         space (turned by hand, on the lamp). Each part shows only its strength in plain type, the
+         base's smaller and in white. No labels (the user, 2026-11-15: the scene chip under the
+         lamp already names what's playing, so SUNLIGHT and the color's name, EARLY-SUNSET BLUE,
+         said it twice); screen readers still hear each light's name on its ruler.
          Drag either one, or its ruler, to set how strong it is for the part of the day showing. -->
     <section class="lamp" aria-label="The lamp">
       <div class="lamp-head" id="head">
         <span class="lamp-fill sun-fill" id="sun-fill" aria-hidden="true"></span>
-        <p class="ll-label lamp-label">Sunlight</p>
         <span class="disc-value" aria-hidden="true"><span class="disc-num" id="sun-value">0</span><span class="disc-unit">%</span></span>
         <div class="ll-tape" id="sun-tape" role="slider" tabindex="0" aria-label="Sunlight" aria-valuemin="0" aria-valuemax="100">
           <span class="ll-tape-window"><span class="ll-tape-track"></span></span>
@@ -93,7 +92,6 @@
       </div>
       <div class="lamp-base" id="base">
         <span class="lamp-fill" id="color-fill" aria-hidden="true"></span>
-        <p class="ll-label lamp-label" id="color-name">Color</p>
         <span class="disc-value" aria-hidden="true"><span class="disc-num" id="color-value">0</span><span class="disc-unit">%</span></span>
         <div class="ll-tape" id="color-tape" role="slider" tabindex="0" aria-label="Color" aria-valuemin="0" aria-valuemax="100">
           <span class="ll-tape-window"><span class="ll-tape-track"></span></span>

@@ -35,8 +35,8 @@
   const $ = (id) => document.getElementById(id);
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
-  // The lamp's colors (app.css), as numbers to blend, and their plain names. On the lamp a
-  // color is named for your situation too (colorName): "Gray-day blue", "Wind-down rose".
+  // The lamp's colors (app.css), as numbers to blend, and their plain names. For screen
+  // readers a color is named for your situation too (colorName): "Gray-day blue", "Wind-down rose".
   const css = getComputedStyle(document.documentElement);
   const hex = (h) => { h = h.trim().replace("#", ""); return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)); };
   const NAMES = { rose: "Rose", amber: "Gold", orange: "Orange", red: "Red", sand: "Sand", yellow: "Yellow", mint: "Mint", sky: "Blue", blossom: "Pink" };
@@ -405,8 +405,7 @@
     $("color-fill").style.opacity = colA.toFixed(3);
     base.classList.toggle("is-lit", colA > 0);
     $("color-value").textContent = l.c > OFF ? pct(l.c) : 0;
-    const name = colorName(id, l.color);
-    $("color-name").textContent = l.c > OFF ? name : "Color";
+    const name = colorName(id, l.color);   // heard on the ruler only (no label on the lamp since 2026-11-15)
     paintTape(colorTape, l.c, l.c > OFF ? `${name} ${pct(l.c)}%` : "Color off");
   }
 

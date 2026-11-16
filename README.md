@@ -226,12 +226,14 @@ Blocks appear in the order you list them. The template uses Context → Explore 
   (or the ring, or drag the mark onto it, or press Escape) to come back to now (a Back to now
   text button until 2026-11-15; the user: the time and the button were too many things, then
   that the ring alone didn't say you could go back). The screen is kept quiet (no boxes or labels it can do without) and reads top to
-  bottom (no logo over it since 2026-11-15, the user's ask: the lamp is the product): one line for the city, with the
-  weather there as an icon (it opens the city search; its time is on the ruler since 2026-11-15; the part of the day's name over it is gone since
-  2026-11-15, the user: "Daytime" was not needed, the time, the ruler and the color's name
-  already say it; screen readers still hear it), the lamp, the scene playing (one chip under the lamp; tap
+  bottom (no logo over it since 2026-11-15, the user's ask: the lamp is the product): the scene playing
+  as the screen's title (its picture, its name in big plain type, a small up-down mark; a chip under the lamp until
+  2026-11-15, then the user asked for it at the top and as a title, not a box; tap
   it and the part's scenes come up in a sheet, with its hours and a small lamp per scene lit
-  as that scene lights it; picking one closes the sheet so you see the lamp change), and the
+  as that scene lights it; picking one closes the sheet so you see the lamp change), one quiet line under it for the city, with the
+  weather there as an icon (it opens the city search; its time is on the ruler since 2026-11-15; the part of the day's name is gone since
+  2026-11-15, the user: "Daytime" was not needed, the time, the ruler and the color's name
+  already say it; screen readers still hear it), then the lamp, and the
   day (the ruler, with Play a day beside its label, and under it only the wake-up and
   lights-out times, as handles, as a sun app shows sunrise and sunset: a dot on the horizon
   at the time, and under it the time over what it is ("Wake up", "Lights out"); drag the dot or the time sideways to move that time a

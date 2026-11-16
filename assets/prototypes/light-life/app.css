@@ -256,9 +256,10 @@ html.is-fill .app {
 .ll-tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--signal); }
 .ll-tag[hidden] { display: none; }
 
-/* The city, alone at the top (its time on the ruler and Back to now a ring there since
-   2026-11-15; the part of the day's name for screen readers only since the same day). */
-.now-head { display: flex; align-items: center; min-width: 0; margin: var(--space-3) 0 var(--space-5); padding: 0 var(--space-1); }
+/* The top: the scene playing as the title, the city in one quiet line under it (its time on
+   the ruler and Back to now a ring there since 2026-11-15; the part of the day's name for
+   screen readers only since the same day). */
+.now-head { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; margin: var(--space-2) 0 var(--space-4); padding-left: var(--space-1); }
 
 /* The lamp, built like the real one (the 2023 renders): a head, a rounded square that glows
    white at its edge, over a base, a pill that lights in color. Two parts, a small gap
@@ -418,21 +419,17 @@ html.is-fill .app {
    stroke the weight of the text beside it. */
 .scene-icon { flex: none; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 
-/* The scene playing, one chip centered under the lamp; it opens the scene sheet. Its colors
-   ease from scene to scene as the lamp's light does (registered, so they can), blended in
-   oklab so the middle stays clear, and it's lit at its rim as the lamp's parts are (--rim,
-   app.js: as bright as the scene, none when its lights are off). Its tap reaches 6px past
-   its edge above and below: 49px tall. */
-@property --a { syntax: "<color>"; inherits: false; initial-value: #3a3a3e; }
-@property --b { syntax: "<color>"; inherits: false; initial-value: #3a3a3e; }
-@property --rim { syntax: "<color>"; inherits: false; initial-value: transparent; }
-.scene-row { display: flex; justify-content: center; margin-top: var(--space-3); }
-.scene-button { position: relative; display: inline-flex; align-items: center; gap: 8px; max-width: 100%; padding: 0 12px 0 14px; box-shadow: inset 0 0 10px 1px var(--rim); transition: --a 0.6s var(--ease), --b 0.6s var(--ease), --rim 0.6s var(--ease), color 0.4s; }
-.ll-chip.scene-button { background: linear-gradient(90deg in oklab, var(--a), var(--b)) border-box; }
-.scene-button::before { content: ""; position: absolute; inset: -6px -4px; border-radius: inherit; }
-.scene-button:focus-visible { box-shadow: var(--focus-ring), inset 0 0 10px 1px var(--rim); }   /* the ring over the rim */
-.scene-button > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.scene-chevron { flex: none; width: 14px; height: 14px; opacity: 0.6; }
+/* The scene playing, as the screen's title (no box since 2026-11-15, the user's ask): its
+   picture, its name in the old part-of-day title's type (28px), and a small muted up-down
+   mark saying it opens the scene sheet. Plain ink: the lamp under it shows the scene's
+   light. The longest name ("Among misty mountains", 293px) fits the 390px phone; a narrower
+   one ends it in an ellipsis. Tapped, it shades softly, as the city line does. */
+.scene-title { display: flex; align-items: center; gap: 10px; max-width: calc(100% + 16px); min-width: 0; margin: 0 -8px; padding: 2px 8px; border-radius: 14px; color: var(--ink); font-size: 28px; font-weight: 500; line-height: 34px; letter-spacing: -0.025em; white-space: nowrap; transition: background-color 0.2s; }
+.scene-title:hover,
+.scene-title:active { background: #ffffff0a; }
+.scene-title > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.scene-title .scene-icon { width: 22px; height: 22px; stroke-width: 1.6; }
+.scene-chevron { flex: none; width: 16px; height: 16px; margin-left: -2px; opacity: 0.45; }
 
 /* PillButton */
 .ll-pill { display: inline-flex; align-items: center; gap: var(--space-3); height: 52px; padding: 0 6px 0 22px; border-radius: var(--radius-pill); background: var(--surface-raised); color: var(--ink); font-size: 15px; font-weight: 500; line-height: 20px; }

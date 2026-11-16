@@ -69,9 +69,14 @@
          while you look at another time; tap the ring to come back. Your two times are on the
          ruler too, where your day starts and ends. The part of the day showing is named for
          screen readers only (the user, 2026-11-15: "Daytime" said nothing the screen doesn't:
-         the time, the ruler, and the color's name, CLEAR-DAY BLUE, already tell it). -->
+         the time, the ruler, and the color's name, CLEAR-DAY BLUE, already tell it).
+         Over it, the scene playing for the part showing, as the screen's title: its picture,
+         its name in big plain type, and a small up-down mark, no box (the user's asks,
+         2026-11-15: up from under the lamp, then out of its chip). Tap it for the part's
+         scenes, in a sheet that comes up from the bottom. -->
     <div class="now-head">
       <h1 class="visually-hidden" id="part">Morning</h1>
+      <button class="scene-title" type="button" id="scene" aria-haspopup="dialog"><svg class="scene-icon" aria-hidden="true"><use id="scene-icon" href="#sc-high-sky"/></svg><span id="scene-name">High blue sky</span><svg class="scene-chevron" aria-hidden="true"><use href="#i-updown"/></svg></button>
       <button class="place" type="button" id="place" aria-haspopup="dialog"><svg class="icon weather-icon" aria-hidden="true"><use id="weather-use" href="#i-pin"/></svg><span class="place-text" id="place-text">Chicago</span></button>
     </div>
 
@@ -79,8 +84,8 @@
          own job. The head, a rounded square that glows white at its edge: sunlight that shines on you.
          The base under it, a pill that fills with color, brightest at its edge: it colors your
          space (turned by hand, on the lamp). Each part shows only its strength in plain type, the
-         base's smaller and in white. No labels (the user, 2026-11-15: the scene chip under the
-         lamp already names what's playing, so SUNLIGHT and the color's name, EARLY-SUNSET BLUE,
+         base's smaller and in white. No labels (the user, 2026-11-15: the scene title at the
+         top already names what's playing, so SUNLIGHT and the color's name, EARLY-SUNSET BLUE,
          said it twice); screen readers still hear each light's name on its ruler.
          Drag either one, or its ruler, to set how strong it is for the part of the day showing. -->
     <section class="lamp" aria-label="The lamp">
@@ -101,12 +106,6 @@
         </div>
       </div>
     </section>
-
-    <!-- The scene playing for the part showing, right under the light it sets: one chip. Tap
-         it for the part's scenes, in a sheet that comes up from the bottom. -->
-    <div class="scene-row">
-      <button class="ll-chip is-filled scene-button" type="button" id="scene" aria-haspopup="dialog"><svg class="scene-icon" aria-hidden="true"><use id="scene-icon" href="#sc-high-sky"/></svg><span id="scene-name">High blue sky</span><svg class="scene-chevron" aria-hidden="true"><use href="#i-updown"/></svg></button>
-    </div>
 
     <!-- LightRuler: the whole day, split by a horizon the way the lamp is built: above it the
          sunlight, a white line as high as it's strong; under it the color, a dotted line in the

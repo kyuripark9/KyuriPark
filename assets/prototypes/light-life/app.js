@@ -46,8 +46,6 @@
   const SUN = hex(css.getPropertyValue("--lamp-sun") || "#ffffff");
   const SURFACE = hex(css.getPropertyValue("--surface") || "#141416");
   const RAISED = hex(css.getPropertyValue("--surface-raised") || "#1e1e21");
-  const INK = hex(css.getPropertyValue("--ink") || "#f5f3ef");
-  const INK_ON_LIGHT = hex(css.getPropertyValue("--ink-on-light") || "#141210");
 
   // The day's parts and their scenes ---------------------------------------------------------
   // sun: the white light (0-1); color: the color light's color and c its strength (0-1);
@@ -180,10 +178,6 @@
   const nowMinutes = () => Sky.clock(state.city.tz).minutes;
   const viewTime = () => (state.preview ?? nowMinutes());
 
-  function luminance(rgb) {
-    const [r, g, b] = rgb.map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
-    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  }
   const rgbCss = (c) => `rgb(${c.map(Math.round).join(",")})`;
   const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch]);
 
@@ -374,28 +368,16 @@
     $("place").setAttribute("aria-label", `${state.city.name}${words ? `, ${words}` : ""}. Change where you live`);
   }
 
-  // The scene playing, as one chip under the lamp, wearing the scene's picture. It runs from
-  // the scene's sunlight to its color, each as strong as it is; a light that's off leaves its
-  // end the chip's gray (Lights off is all gray, not red). Light or dark text, whichever reads
-  // better on its weaker end (every scene's clears 4.5:1). It's lit at its rim, as the lamp's
-  // parts are, as brightly as the scene is lit (--rim). Why a scene is recommended shows on
-  // hover and in the scene sheet.
+  // The scene playing, as the screen's title, wearing the scene's picture (plain ink, no box
+  // since 2026-11-15: the lamp under it shows the scene's light). Why a scene is recommended
+  // shows on hover and in the scene sheet.
   let sceneFor = "";
   function paintScene(id) {
     const x = part(id), on = sceneIndex(x), s = x.scenes[on], rec = x.rec?.i === on;
     const key = `${id}:${on}:${rec ? x.rec.why : ""}`;
     if (key === sceneFor) return;
     sceneFor = key;
-    const dim = [58, 58, 62];
-    const a = s.sun > OFF ? blend(dim, SUN, 0.3 + 0.7 * s.sun) : dim;
-    const b = s.color && s.c > OFF ? blend(dim, COLOR[s.color], 0.3 + 0.7 * Math.min(1, s.c * 1.6)) : dim;
-    const lit = Math.max(s.sun, s.c);
-    const worst = (ink) => Math.min(contrast(a, ink), contrast(b, ink));
     const chip = $("scene");
-    chip.style.setProperty("--a", rgbCss(a));
-    chip.style.setProperty("--b", rgbCss(b));
-    chip.style.setProperty("--rim", `rgb(255 255 255 / ${lit > OFF ? (0.2 + 0.3 * lit).toFixed(2) : 0})`);
-    chip.classList.toggle("is-dark", worst(INK) > worst(INK_ON_LIGHT));
     $("scene-icon").setAttribute("href", `#${s.icon}`);
     $("scene-name").textContent = s.name;
     chip.title = rec ? x.rec.why : "";
@@ -445,7 +427,6 @@
   // the middle, and the base deepens inward from its bright edge, where its name sits in
   // white (app.css).
   const WHITE = [255, 255, 255];
-  const contrast = (x, ink) => { const l = luminance(x), k = luminance(ink); return (Math.max(l, k) + 0.05) / (Math.min(l, k) + 0.05); };
 
   function paintLamp(l, id) {
     const sunA = strength(l.sun), colA = colorStrength(l.c);

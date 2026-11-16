@@ -145,11 +145,12 @@ html.is-fill .device {
   transform: none;
 }
 
+/* The time, level with the middle of the camera pill (as on the phone). */
 .status {
   position: absolute;
   inset: 0 0 auto;
   height: 47px;
-  padding: 16px 0 0 50px;
+  padding: 19px 0 0 50px;
   font-size: 16px;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -169,7 +170,23 @@ html.is-fill .device {
   z-index: 6;
 }
 
-html.is-fill :is(.status, .home-bar) {
+/* The phone's camera (Dynamic Island size: 126 x 37, 11px down), gray rather than the
+   real one's black so it shows on the black screen; solid, so it stays the same gray over
+   the dimmed screen when a sheet is up. */
+.island {
+  position: absolute;
+  left: 50%;
+  top: 11px;
+  width: 126px;
+  height: 37px;
+  margin-left: -63px;
+  border-radius: 19px;
+  background: #2b2b2c;
+  pointer-events: none;
+  z-index: 6;
+}
+
+html.is-fill :is(.status, .island, .home-bar) {
   display: none;
 }
 

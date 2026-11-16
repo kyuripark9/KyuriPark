@@ -190,10 +190,10 @@ Blocks appear in the order you list them. The template uses Context → Explore 
   now is an icon before the city's name (a pin until the forecast arrives). Like the lamp,
   each scene has two lights, apart, each with its own job: white sunlight that shines on you
   (how strong) and a color that colors your space (which color, how strong; the `--lamp-` colors in
-  `app.css`). The screen draws the lamp as it's built (the 2023 renders): the head, a rounded
-  square, as tall as it is wide like the real one (since 2026-11-15, the user's ask; it was
-  screen-wide and shorter than wide), as big as the screen leaves room for and centered,
-  that glows white at its edge, brightest along the rim and in the corners and fading
+  `app.css`). The screen draws the lamp as it's built (the 2023 renders): the head, a circle
+  (since late 2026-11-15, the user's ask; a rounded square as tall as wide before that, and
+  screen-wide and shorter than wide before that), as big as the screen leaves room for and
+  centered, that glows white at its edge, brightest along the rim all the way round and fading
   inward, so its middle stays dark and the sunlight's percent there reads in
   light ink at any strength; and under it the base, a pill a little narrower, that fills
   with the color, brightest and a little paler at its edge and deepening softly inward (no

@@ -10,7 +10,7 @@
    Scene names are the 2023 app's.
 
    The lamp has two parts, apart, each with its own light and its own job, and each scene
-   sets both. The head, a rounded square holding a round white light like the sun's, shines
+   sets both. The head, a circle holding a round white light like the sun's, shines
    on you (how strong, 0-100%). The base under it, a pill, holds a color that colors your
    space (which color, how strong). The screen draws them as they're built, and each has a
    Tape (a ruler under a fixed mark) to set how strong its light is for the part showing.

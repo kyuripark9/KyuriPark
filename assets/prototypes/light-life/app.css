@@ -261,19 +261,21 @@ html.is-fill .app {
    screen readers only since the same day). */
 .now-head { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; margin: var(--space-2) 0 var(--space-4); padding-left: var(--space-1); }
 
-/* The lamp, built like the real one (the 2023 renders): a head, a rounded square that glows
+/* The lamp, built like the real one (the 2023 renders): a head, a circle that glows
    white at its edge, over a base, a pill that lights in color. Two parts, a small gap
    apart, the base a little narrower. Each is dark when its light is off; app.js sets how
    strong each light shows and the base's color. */
-/* The head is square, as the real lamp's is (the user's ask, 2026-11-15; it was as wide as
-   the screen and shorter than wide): as big as the room the screen leaves it, never wider
+/* The head is a circle since late 2026-11-15 (the user's ask, after a glowing sphere; a
+   rounded square as tall as wide before that, and as wide as the screen and shorter than wide
+   before that): as big as the room the screen leaves it, never wider
    than the screen, the base as wide less 12px a side, both centered. The lamp is a size
    container so the head can measure that room (--head); on a phone too short for it, the
-   head stays 240px and the screen scrolls. */
+   head stays 240px and the screen scrolls. The ruler sits 60px in from each side, inside the
+   circle's curve. */
 .lamp { --head: max(240px, min(100cqw, 100cqh - 126px)); display: flex; flex: 1 0 auto; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 366px; container-type: size; }
 .lamp-head,
 .lamp-base { position: relative; isolation: isolate; overflow: hidden; overflow: clip; display: flex; flex-direction: column; align-items: center; background: var(--surface); color: var(--ink); cursor: ew-resize; transition: color 0.4s; touch-action: pan-y; -webkit-user-select: none; user-select: none; }
-.lamp-head { flex: none; width: var(--head); height: var(--head); padding: 46px 24px 38px; border-radius: 76px; }   /* the ruler inside the rim's light, on the dark */
+.lamp-head { flex: none; width: var(--head); height: var(--head); padding: 46px 60px 48px; border-radius: 50%; }   /* the ruler inside the rim's light, on the dark, kept in from the circle's curve */
 .lamp-base { flex: none; justify-content: center; gap: 7px; width: calc(var(--head) - 24px); height: 120px; padding: 0 44px; border-radius: 60px; }   /* 120px kept when its label went (2026-11-15), so the lamp keeps its shape */
 
 /* Each light fills its part: as strong as the light is (opacity, app.js), in its color
@@ -284,18 +286,19 @@ html.is-fill .app {
 .lamp-fill::before { content: ""; position: absolute; inset: 20% 16%; border-radius: 50%; background-color: var(--fill); filter: blur(44px); }
 .sun-fill { --fill: var(--lamp-sun); }
 /* The head lights from its rim instead (the user's ask, 2026-11-14, after a dark card whose
-   edge glows): the sunlight brightest along the edge, brighter still in the corners where two
-   edges meet, and fading inward, the middle left dark, so the digits there read in light ink
+   edge glows): the sunlight brightest along the edge, all the way round the circle, and
+   fading inward, the middle left dark, so the digits there read in light ink
    at any strength. As strong as the light is (opacity, app.js). Whiter and wider since later
    that day (the user: "the white part clearer and wider", then "spread wider, more
    naturally"): two layers of light, as a lamp's falls off: a bright one hugging the edge
    (::before, near-white there, half as bright about 14px in) and a broad soft haze under it
    (::after, about half as bright, reaching some 90px in), so the white thins out slowly
    instead of ending as a band; no hairline. Each is a thick band of light straddling the edge,
-   blurred: a wide blurred inset shadow showed seams inside the rounded square. */
+   blurred: a wide blurred inset shadow showed seams inside the head when it was a rounded
+   square. */
 .lamp-head .lamp-fill { background: none; box-shadow: inset 0 0 6px 1px color-mix(in srgb, var(--fill) 80%, transparent); }
-.lamp-head .lamp-fill::before { inset: -30px; border: 44px solid var(--fill); border-radius: 106px; background: none; filter: blur(12px); }
-.lamp-head .lamp-fill::after { content: ""; position: absolute; inset: -80px; border: 112px solid color-mix(in srgb, var(--fill) 55%, transparent); border-radius: 156px; filter: blur(36px); }
+.lamp-head .lamp-fill::before { inset: -30px; border: 44px solid var(--fill); border-radius: 50%; background: none; filter: blur(12px); }
+.lamp-head .lamp-fill::after { content: ""; position: absolute; inset: -80px; border: 112px solid color-mix(in srgb, var(--fill) 55%, transparent); border-radius: 50%; filter: blur(36px); }
 /* The base fills with its color edge to edge (the user's ask, 2026-11-14, after a blue card
    with white type in its middle): a deeper shade of the color (--deep), on which the white
    name and percent in the middle read, brightening toward the edge into a brighter one
@@ -482,8 +485,8 @@ html.is-fill .ll-sheet { border-radius: var(--radius-lg); padding-bottom: calc(v
 .scene-option[aria-checked="true"] .scene-check { opacity: 1; }
 .mini-lamp { display: flex; flex: none; flex-direction: column; align-items: center; gap: 2px; width: 30px; }
 .mini-lamp i { display: block; transition: background-color 0.4s; }
-.mini-lamp i:first-child { width: 30px; height: 24px; border-radius: 10px; }
-.mini-lamp i:last-child { width: 25px; height: 10px; border-radius: 5px; }
+.mini-lamp i:first-child { width: 24px; height: 24px; border-radius: 50%; }   /* round, as the lamp's head (2026-11-15) */
+.mini-lamp i:last-child { width: 22px; height: 10px; border-radius: 5px; }
 
 /* The city sheet: tall, so the search field sits at the top, above a phone's keyboard. */
 .sheet.is-tall { top: 56px; display: flex; flex-direction: column; }

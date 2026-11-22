@@ -506,6 +506,7 @@ button {
 .prototype-open,
 .work-views.is-words .work-view,
 .ring-meta,
+.work-axes,
 .about-label {
   font-family: var(--font-mono);
   font-size: var(--size-label);
@@ -1949,6 +1950,54 @@ html.intro-on {
   grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
 }
 
+/* An architect's axis bubbles over the grid (since 2026-11-22, the user's ask, with the
+   drawing sheets; WORK_AXES in build.py): over the middle of each column a 28px circle with
+   its letter, A, B, and C from 768px, in the label style, and from it down to the grid's top
+   line a dash-dot axis line, the line a drawing's grid is drawn in. In the grid's columns. */
+.work-axes {
+  --cols: 2;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  padding: var(--step-2) 0 var(--step-3);
+}
+
+.work-axes > span {
+  position: relative;
+  justify-self: center;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: var(--rule);
+  border-radius: 50%;
+}
+
+.work-axes > span::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: calc(50% - 0.5px);
+  width: 1px;
+  height: var(--step-3);
+  /* a center line, long dash and short, from the grid's line up, so it meets the grid */
+  background: repeating-linear-gradient(to top, var(--color-rule) 0 12px, transparent 12px 15px,
+    var(--color-rule) 15px 18px, transparent 18px 21px);
+}
+
+.work-axes > span:nth-child(3) {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .work-axes {
+    --cols: 3;
+  }
+
+  .work-axes > span:nth-child(3) {
+    display: grid;
+  }
+}
+
 /* The line over the first row is the header's own where the grid starts right under it
    (Archive; Work with no sentence), so only a grid with something over it draws one. */
 .work-head + .work-panel .work-grid {
@@ -2724,8 +2773,11 @@ html.intro-on {
   overflow: visible;
 }
 
-.stamp text {
+/* The logo's key (build.py's logo_key), here and in the footer: its words in the label's face
+   and tracking, at the size each sets for 12px. */
+.logo-key text {
   font-family: var(--font-mono);
+  font-weight: 400;
   letter-spacing: var(--tracking-label);
 }
 
@@ -3058,6 +3110,32 @@ html.intro-on {
 @media (min-width: 1200px) {
   .site-footer {
     --footer-logo-h: 192px;
+  }
+}
+
+/* The logo's suns called out, DIGITAL, EVERYDAY LIFE, WHERE THEY MEET (since 2026-11-22, the
+   user's ask; build.py's logo_key and FOOTER_KEY), as on a drawing sheet's stamp, from 768px:
+   the key reaches over and under the logo, 80 and 74 of its 208 units, so the logo makes room
+   for it there, and its words are 12px, in the logo's units: 17.33 at 144px (0.69px a unit),
+   13 at 192px. On phones the logo alone (at 80px the words wouldn't fit beside each other). */
+.footer-logo .logo-key {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .footer-logo.has-key {
+    margin-block: calc(var(--footer-logo-h) * 80 / 208) calc(var(--footer-logo-h) * 74 / 208);
+    font-size: 17.33px;
+  }
+
+  .footer-logo .logo-key {
+    display: inline;
+  }
+}
+
+@media (min-width: 1200px) {
+  .footer-logo.has-key {
+    font-size: 13px;
   }
 }
 

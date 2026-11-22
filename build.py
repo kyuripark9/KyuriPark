@@ -130,6 +130,18 @@ RING_SHAPES = 8  # the stand-in shapes in templates/ring.html, #ring-shape-1 to 
 # ("light-life",); False or (): none, the facts as a row as before.
 SHEET_PROJECTS = True
 SCALES = {"physical": "Object", "brand": "Page", "digital": "Screen"}  # smallest to largest
+# How far the logo's key (logo_key: its suns called out DIGITAL, EVERYDAY LIFE, WHERE THEY MEET)
+# reaches over and under the logo, as parts of its height: the drawing sheet's stamp makes room
+# for it, and so does the footer (style.css, .footer-logo.has-key).
+KEY_OVER, KEY_UNDER = 80 / 208, 74 / 208
+# The footer's logo with its key (since 2026-11-22, the user's ask: the logo's story, as on a
+# drawing sheet's stamp), from 768px; on phones the logo alone (the words wouldn't fit beside
+# each other at its size). False: the logo alone everywhere.
+FOOTER_KEY = True
+# Work's grid with an architect's axis bubbles over it (since 2026-11-22, the user's ask, with the
+# drawing sheets): a circle over the middle of each column, A, B (and C from 768px), a dash-dot
+# axis line down from it to the grid's top line. False: none.
+WORK_AXES = True
 LOADING_ATTRS = {"lazy": 'loading="lazy"', "eager": "", "high": 'fetchpriority="high"'}
 # Old addresses that now live elsewhere: /contact/ was a menu item and is now About's Contact
 # label, with the footer's links under it.
@@ -738,12 +750,19 @@ class Builder:
         footer, whose right end is its header's logo, large): assets/logo/logo.svg, the cut with
         more rays, made for large sizes, inline as the header's is (read_logo).
         It repeats the header's, so screen readers skip it. Left out while the file is missing.
+        From 768px its suns are called out (logo_key, FOOTER_KEY) since 2026-11-22.
         Read once per build."""
         if self.big_logo is None:
-            svg = self.read_logo(FOOTER_LOGO, "footer-logo")
-            if svg is None:
+            parts = self.logo_parts(FOOTER_LOGO)
+            if parts is None:
                 self.warnings.append(f"{FOOTER_LOGO} is missing, so the footer has no logo.")
-            self.big_logo = svg or ""
+                self.big_logo = ""
+            else:
+                (x0, y0, w, h), shapes = parts
+                key = self.logo_key(parts[0], dot=4.0) if FOOTER_KEY else ""
+                self.big_logo = (f'<svg class="footer-logo{" has-key" if key else ""}" '
+                                 f'viewBox="{x0:g} {y0:g} {w:g} {h:g}" aria-hidden="true" '
+                                 f'focusable="false">{shapes}{key}</svg>')
         return self.big_logo
 
     def read_logo(self, rel, cls):
@@ -1043,41 +1062,61 @@ class Builder:
             for i, m in enumerate(ms))
         return f'<ol class="dimension" style="grid-template-columns: {cols}">{items}</ol>'
 
-    def stamp(self):
-        """The logo as a drawing's stamp: assets/logo/logo.svg (the footer's cut), each sun
-        called out by a leader (a dot at its middle, a line out between two rays, a shoulder
-        under its word): DIGITAL over the left sun, EVERYDAY LIFE over the right, and from the
-        place their rays cross, straight down, WHERE THEY MEET (Work's sentence: "where digital
-        meets everyday life"). Drawn in the logo's units, 0.6px each, so the words are 12px.
-        Assumes the logo's two suns side by side, each as tall as the file."""
-        svg = self.read_logo(FOOTER_LOGO, "stamp-logo")
+    def logo_parts(self, rel):
+        """A logo file as (x, y, width, height) of its viewBox and its shapes, painted as
+        read_logo paints them, or None while the file is missing."""
+        svg = self.read_logo(rel, "")
         if svg is None:
-            return ""
-        x0, y0, w, h = (float(v) for v in re.search(r'viewBox="([^"]+)"', svg).group(1).split())
+            return None
+        box = tuple(float(v) for v in re.search(r'viewBox="([^"]+)"', svg).group(1).split())
+        paint = re.search(r'viewBox="[^"]+" (.*?) aria-hidden', svg).group(1)
         shapes = re.search(r">(.*)</svg>$", svg, re.S).group(1)
+        return box, f"<g {paint}>{shapes}</g>"
+
+    @staticmethod
+    def logo_key(box, dot=5.0):
+        """The logo's two suns called out, as an architect calls out parts of a drawing (since
+        2026-11-22, the user's ask: the logo's story): each sun by a leader, a dot at its middle,
+        a line out between two rays (25° from upright) and a shoulder under its word, DIGITAL
+        over the left sun and EVERYDAY LIFE over the right, and from the place their rays
+        cross, straight down, WHERE THEY MEET (Work's sentence: "where digital meets everyday
+        life"). In the logo's own units, outside its box: it reaches KEY_OVER over it and
+        KEY_UNDER under it (as parts of its height). The words take the svg's font size, so the
+        page sets it for 12px. Assumes the logo's two suns side by side, each as tall as the
+        file."""
+        x0, y0, w, h = box
         k = h / 208                     # the logo's units as drawn (208 tall)
         r = h / 2
         lx, rx, mx, cy = x0 + r, x0 + w - r, x0 + w / 2, y0 + r
-        top, bottom = y0 - 80 * k, y0 + h + 74 * k
-        shoulder = y0 - 50 * k
-        lean = (cy - shoulder) * math.tan(math.radians(25))  # 25° from upright: between two rays
+        shoulder, foot = y0 - 50 * k, y0 + h + 42 * k
+        lean = (cy - shoulder) * math.tan(math.radians(25))
+
         def f(v):
             return f"{v:.1f}"
         lines = (f'<path d="M{f(lx)} {f(cy)}L{f(lx - lean)} {f(shoulder)}H{f(x0)}'
                  f'M{f(rx)} {f(cy)}L{f(rx + lean)} {f(shoulder)}H{f(x0 + w)}'
-                 f'M{f(mx)} {f(cy)}V{f(y0 + h + 42 * k)}" fill="none" stroke="currentColor" '
+                 f'M{f(mx)} {f(cy)}V{f(foot)}" fill="none" stroke="currentColor" '
                  'stroke-width="1" vector-effect="non-scaling-stroke"/>')
-        dots = "".join(f'<circle cx="{f(x)}" cy="{f(cy)}" r="{f(5 * k)}"/>' for x in (lx, rx, mx))
-        size = 20 * k                   # 12px at 0.6px a unit
+        dots = "".join(f'<circle cx="{f(x)}" cy="{f(cy)}" r="{f(dot * k)}"/>' for x in (lx, rx, mx))
         words = (f'<text x="{f(x0)}" y="{f(shoulder - 10 * k)}">DIGITAL</text>'
                  f'<text x="{f(x0 + w)}" y="{f(shoulder - 10 * k)}" text-anchor="end">'
                  'EVERYDAY LIFE</text>'
-                 f'<text x="{f(mx)}" y="{f(y0 + h + 42 * k + 10 * k + size * 0.72)}" '
-                 'text-anchor="middle">WHERE THEY MEET</text>')
-        vb = f"{f(x0)} {f(top)} {f(w)} {f(bottom - top)}"
-        return (f'<figure class="stamp"><svg viewBox="{vb}" width="{f(w * 0.6 / k)}" '
-                f'height="{f((bottom - top) * 0.6 / k)}" fill="currentColor" font-size="{f(size)}" '
-                f'aria-hidden="true" focusable="false">{shapes}{lines}{dots}{words}</svg>'
+                 f'<text x="{f(mx)}" y="{f(foot + 10 * k)}" dy="0.72em" text-anchor="middle">'
+                 'WHERE THEY MEET</text>')
+        return f'<g class="logo-key" fill="currentColor">{lines}{dots}{words}</g>'
+
+    def stamp(self):
+        """The logo as a drawing sheet's stamp (SHEET_PROJECTS): assets/logo/logo.svg (the
+        footer's cut) with its key (logo_key), at 0.6px a unit, so the words are 12px."""
+        parts = self.logo_parts(FOOTER_LOGO)
+        if parts is None:
+            return ""
+        (x0, y0, w, h), shapes = parts
+        k = h / 208
+        top, tall = y0 - KEY_OVER * h, (1 + KEY_OVER + KEY_UNDER) * h
+        return (f'<figure class="stamp"><svg viewBox="{x0:.1f} {top:.1f} {w:.1f} {tall:.1f}" '
+                f'width="{w * 0.6 / k:.1f}" height="{tall * 0.6 / k:.1f}" font-size="{20 * k:.1f}" '
+                f'aria-hidden="true" focusable="false">{shapes}{self.logo_key(parts[0])}</svg>'
                 '<figcaption class="visually-hidden">The logo, two suns: digital and everyday '
                 'life, and where they meet.</figcaption></figure>')
 
@@ -1424,8 +1463,11 @@ class Builder:
                 + (render("work-tabs.html", tabs=tabs) if WORK_FILTERS else "") + views)
         if head:
             head = f'    <div class="work-head wrap">\n{head}    </div>\n'
+        # An architect's axis bubbles over the grid's columns (WORK_AXES), for the eye only.
+        axes = ('      <div class="work-axes" aria-hidden="true">'
+                '<span>A</span><span>B</span><span>C</span></div>\n' if WORK_AXES else "")
         content = render("work.html", cards=cards, lightbox=lightbox, opening=opening,
-                         head=head, slider=slider, ring=ring)
+                         head=head, slider=slider, ring=ring, axes=axes)
         rel, path, title = (("work/index.html", "/work/", f"Work — {s['name']}") if HOME_TRACK
                             else ("index.html", "/", s["title"]))
         self.page(rel, "work", path, title, s["description"], content, "page-work",

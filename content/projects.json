@@ -417,6 +417,12 @@
     ],
     "team": "[PLACEHOLDER]",
     "timeline": "[PLACEHOLDER]",
+    "scale": "Object → Screen",
+    "milestones": [
+      {"year": 2023, "note": "Lamp · business competition win, Temple University"},
+      {"year": 2024, "note": "Lamp and website redesign · graduation show, Sejong University"},
+      {"year": 2026, "note": "App rebuilt"}
+    ],
     "statement": "[PLACEHOLDER] One sentence, in big type, on what this project is and why it matters.",
     "cover": {
       "src": "cover.webp",

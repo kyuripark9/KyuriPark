@@ -2583,6 +2583,202 @@ html.intro-on {
 /* The titles are in the title style at every width (see Shared text styles; until 2026-11-05,
    16px text on phones). */
 
+/* Drawing sheet (a mock since 2026-11-22, SHEET_PROJECTS in build.py): a project's page drawn as
+   an architect's drawing sheet, after the architect the user wanted to be as a kid.
+
+   The title block: the facts as cells in 1px lines, as Work's tiles are (the lines are the
+   block's background showing through 1px gaps), in Work's columns, from the window's left edge
+   to its right, a line over and under it. From 768px: Role, Team, Scale; under them the
+   timeline across two columns and the sheet's stamp in the third. On phones: Role and Team,
+   then Scale, the timeline, and the stamp, each across. */
+.is-sheet .project-meta {
+  grid-template-areas: "role team" "scale scale" "time time" "stamp stamp";
+  gap: 1px;
+  padding-top: 0;
+  background: var(--color-rule);
+  border-bottom: var(--rule);
+  border-image: linear-gradient(var(--color-rule), var(--color-rule)) 1 / 1px 0 / 0 100vw;
+}
+
+.is-sheet .project-meta > div {
+  display: flex;
+  flex-direction: column;
+  padding: var(--step-2) var(--gutter) var(--step-3);
+  background: var(--color-bg);
+}
+
+/* The timeline sits at its cell's foot, level with the stamp's, the label alone at the top. */
+.sheet-time dd {
+  margin-top: auto;
+}
+
+.sheet-role { grid-area: role; }
+.sheet-team { grid-area: team; }
+.sheet-scale { grid-area: scale; }
+.sheet-time { grid-area: time; }
+.sheet-stamp { grid-area: stamp; }
+
+@media (min-width: 768px) {
+  .is-sheet .project-meta {
+    grid-template-areas: "role team scale" "time time stamp";
+  }
+}
+
+/* The timeline as a dimension line, as an architect marks a length: the line, and at each
+   milestone a short upright line across it and a slash, the year over the line and its note
+   under it, each 8px off its tick; the last one's words end at its tick. Spaced by the years
+   between the milestones (build.py's dimension). */
+.dimension {
+  position: relative;
+  display: grid;
+  margin: var(--step-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dimension::before {
+  content: "";
+  position: absolute;
+  top: 24px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--color-rule);
+}
+
+.dimension li {
+  position: relative;
+  grid-row: 1;
+  display: grid;
+  align-content: start;
+  row-gap: var(--step-2);
+  min-width: 0;
+  padding-left: var(--step-1);
+  padding-right: var(--step-2);
+}
+
+.dimension li::before,
+.dimension li::after {
+  content: "";
+  position: absolute;
+  background: var(--color-rule);
+}
+
+.dimension li::before {
+  top: 16px;
+  left: 0;
+  width: 1px;
+  height: 17px;
+}
+
+.dimension li::after {
+  top: 24px;
+  left: -5px;
+  width: 11px;
+  height: 1px;
+  transform: rotate(-45deg);
+}
+
+.dimension li.is-end {
+  justify-self: end;
+  max-width: 40%;
+  padding-left: 0;
+  padding-right: var(--step-1);
+  text-align: right;
+}
+
+.dimension li:nth-last-child(2) {
+  max-width: 60%;
+}
+
+.dimension li.is-end::before {
+  left: auto;
+  right: 0;
+}
+
+.dimension li.is-end::after {
+  left: auto;
+  right: -5px;
+}
+
+/* The stamp's cell: the sheet's number at its top left, the logo's stamp at its bottom right
+   (under the number when the cell is too narrow for both, 768 to 1199px). */
+.sheet-stamp dd {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--step-3);
+}
+
+.sheet-no {
+  align-self: flex-start;
+}
+
+.stamp {
+  margin: 0 0 0 auto;
+}
+
+.stamp svg {
+  display: block;
+  overflow: visible;
+}
+
+.stamp text {
+  font-family: var(--font-mono);
+  letter-spacing: var(--tracking-label);
+}
+
+/* Each section's heading as a detail callout: a 48px circle, a line across its middle, the
+   section's number over it and the sheet's under it; the line runs on from the circle to the
+   heading's column's end, the heading on it. */
+.is-sheet .text-block > .section-heading {
+  display: flex;
+  align-items: flex-start;
+  color: var(--color-text);
+}
+
+.callout {
+  position: relative;
+  flex: none;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  justify-items: center;
+  width: 48px;
+  height: 48px;
+  border: var(--rule);
+  border-radius: 50%;
+}
+
+.callout::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--color-rule);
+}
+
+.callout > :first-child {
+  align-self: end;
+  padding-bottom: 2px;
+}
+
+.callout > :last-child {
+  align-self: start;
+  padding-top: 3px;
+}
+
+.section-name {
+  flex: 1;
+  height: 25px;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 0 var(--step-1) var(--step-1);
+  border-bottom: var(--rule);
+}
+
 /* About ----------------------------------------------------------------- */
 
 /* After gougoucore.com/3/ (since 2026-11-13, the user's ask): About's text as one paragraph

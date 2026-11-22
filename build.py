@@ -14,6 +14,7 @@ import hashlib
 import html
 import io
 import json
+import math
 import os
 import re
 import shutil
@@ -115,6 +116,20 @@ RING_FIRST = True
 # each coming again on the far side, as on sarahsarazen.com's.
 RING_MIN_SLOTS = 16
 RING_SHAPES = 8  # the stand-in shapes in templates/ring.html, #ring-shape-1 to -8
+# Drawing sheets (a mock since 2026-11-22, the user's ask: a visual identity from their own story,
+# the architect they wanted to be as a kid, in About's Q&A): a project's page drawn as an
+# architect's drawing sheet. Its facts become a title block, cells in 1px lines in Work's columns:
+# Role, Team, its scale ("scale" in content/projects.json, else from its categories by SCALES,
+# after the Q&A's "different scales, same subject"), its timeline as a dimension line
+# ("milestones": a year and a note each, spaced by the years between them), and the sheet's
+# number (its Work number) beside the logo as a stamp, with its two suns called out as digital
+# and everyday life and the place they cross as where they meet (Work's sentence). Each section's
+# heading is a detail callout: a circle split by a line, the section's number over the sheet's.
+# Previous / Next show the sheets' numbers. On Light Life alone first (the mock), on every project
+# page since the same day (the user liked it). True: every project page; or a tuple of slugs, like
+# ("light-life",); False or (): none, the facts as a row as before.
+SHEET_PROJECTS = True
+SCALES = {"physical": "Object", "brand": "Page", "digital": "Screen"}  # smallest to largest
 LOADING_ATTRS = {"lazy": 'loading="lazy"', "eager": "", "high": 'fetchpriority="high"'}
 # Old addresses that now live elsewhere: /contact/ was a menu item and is now About's Contact
 # label, with the footer's links under it.
@@ -573,6 +588,8 @@ class Builder:
         self.warnings = []
         self.logo = None               # the header's logo, once read (header_logo)
         self.big_logo = None           # the footer's, once read (footer_logo)
+        self.sheet = None              # the page's sheet number while a drawing sheet is built
+        self.section_no = 0            # its sections so far, for their callouts
 
     # Output -----------------------------------------------------------------
 
@@ -951,6 +968,11 @@ class Builder:
             h = f'<h3 class="note-heading">{inline(heading)}</h3>' if heading else ""
             return f'<aside class="text-block is-note"><div class="text-body">{h}{paras}</div></aside>'
         h = f'<h2 class="section-heading">{inline(heading)}</h2>' if heading else ""
+        if heading and self.sheet:  # a drawing sheet's detail callout (SHEET_PROJECTS)
+            self.section_no += 1
+            h = (f'<h2 class="section-heading"><span class="callout" aria-hidden="true">'
+                 f'<span>{self.section_no}</span><span>{self.sheet}</span></span>'
+                 f'<span class="section-name">{inline(heading)}</span></h2>')
         return f'<div class="text-block">{h}<div class="text-body">{paras}</div></div>'
 
     def sections(self, blocks, p, folder):
@@ -985,6 +1007,79 @@ class Builder:
             if value:
                 rows.append((label, inline(value)))
         return "\n".join(f"          <div><dt>{k}</dt><dd>{v}</dd></div>" for k, v in rows)
+
+    def sheet_meta(self, p, number):
+        """A drawing sheet's title block (SHEET_PROJECTS): Role, Team, Scale, the timeline as a
+        dimension line, and the sheet's number with the logo's stamp. Every cell shows, a dash
+        standing in for a missing value, so the block's lines stay whole."""
+        roles = p.get("roles")
+        if isinstance(roles, list):
+            roles = ", ".join(roles)
+        scale = p.get("scale") or " / ".join(SCALES[c] for c in SCALES if c in p["category"])
+        cells = (("role", "Role", inline(roles) if roles else "—"),
+                 ("team", "Team", inline(p["team"]) if p.get("team") else "—"),
+                 ("scale", "Scale", inline(scale)),
+                 ("time", "Timeline", self.dimension(p)),
+                 ("stamp", "Sheet", f'<span class="sheet-no">{number} / {len(self.items):03d}</span>'
+                                    f'{self.stamp()}'))
+        return "\n".join(f'          <div class="sheet-{c}"><dt>{k}</dt><dd>{v}</dd></div>'
+                         for c, k, v in cells)
+
+    def dimension(self, p):
+        """The timeline as a dimension line: a tick at each milestone, spaced by the years between
+        them, the year over the line and the note under it. The last one's words end at its tick,
+        in the column the one before it starts. Fewer than two milestones: the timeline's words."""
+        ms = p.get("milestones") or []
+        if len(ms) < 2:
+            return inline(p.get("timeline") or "—")
+        years = [int(m["year"]) for m in ms]
+        cols = " ".join(f"minmax(0, {max(b - a, 1)}fr)" for a, b in zip(years, years[1:]))
+        end = ' class="is-end"'
+        items = "".join(
+            f'<li{end if i == len(ms) - 1 else ""} '
+            f'style="grid-column: {min(i, len(ms) - 2) + 1}">'
+            f'<span class="dim-year">{m["year"]}</span>'
+            f'<span class="dim-note">{inline(m.get("note", ""))}</span></li>'
+            for i, m in enumerate(ms))
+        return f'<ol class="dimension" style="grid-template-columns: {cols}">{items}</ol>'
+
+    def stamp(self):
+        """The logo as a drawing's stamp: assets/logo/logo.svg (the footer's cut), each sun
+        called out by a leader (a dot at its middle, a line out between two rays, a shoulder
+        under its word): DIGITAL over the left sun, EVERYDAY LIFE over the right, and from the
+        place their rays cross, straight down, WHERE THEY MEET (Work's sentence: "where digital
+        meets everyday life"). Drawn in the logo's units, 0.6px each, so the words are 12px.
+        Assumes the logo's two suns side by side, each as tall as the file."""
+        svg = self.read_logo(FOOTER_LOGO, "stamp-logo")
+        if svg is None:
+            return ""
+        x0, y0, w, h = (float(v) for v in re.search(r'viewBox="([^"]+)"', svg).group(1).split())
+        shapes = re.search(r">(.*)</svg>$", svg, re.S).group(1)
+        k = h / 208                     # the logo's units as drawn (208 tall)
+        r = h / 2
+        lx, rx, mx, cy = x0 + r, x0 + w - r, x0 + w / 2, y0 + r
+        top, bottom = y0 - 80 * k, y0 + h + 74 * k
+        shoulder = y0 - 50 * k
+        lean = (cy - shoulder) * math.tan(math.radians(25))  # 25° from upright: between two rays
+        def f(v):
+            return f"{v:.1f}"
+        lines = (f'<path d="M{f(lx)} {f(cy)}L{f(lx - lean)} {f(shoulder)}H{f(x0)}'
+                 f'M{f(rx)} {f(cy)}L{f(rx + lean)} {f(shoulder)}H{f(x0 + w)}'
+                 f'M{f(mx)} {f(cy)}V{f(y0 + h + 42 * k)}" fill="none" stroke="currentColor" '
+                 'stroke-width="1" vector-effect="non-scaling-stroke"/>')
+        dots = "".join(f'<circle cx="{f(x)}" cy="{f(cy)}" r="{f(5 * k)}"/>' for x in (lx, rx, mx))
+        size = 20 * k                   # 12px at 0.6px a unit
+        words = (f'<text x="{f(x0)}" y="{f(shoulder - 10 * k)}">DIGITAL</text>'
+                 f'<text x="{f(x0 + w)}" y="{f(shoulder - 10 * k)}" text-anchor="end">'
+                 'EVERYDAY LIFE</text>'
+                 f'<text x="{f(mx)}" y="{f(y0 + h + 42 * k + 10 * k + size * 0.72)}" '
+                 'text-anchor="middle">WHERE THEY MEET</text>')
+        vb = f"{f(x0)} {f(top)} {f(w)} {f(bottom - top)}"
+        return (f'<figure class="stamp"><svg viewBox="{vb}" width="{f(w * 0.6 / k)}" '
+                f'height="{f((bottom - top) * 0.6 / k)}" fill="currentColor" font-size="{f(size)}" '
+                f'aria-hidden="true" focusable="false">{shapes}{lines}{dots}{words}</svg>'
+                '<figcaption class="visually-hidden">The logo, two suns: digital and everyday '
+                'life, and where they meet.</figcaption></figure>')
 
     # Pages ------------------------------------------------------------------
 
@@ -1402,25 +1497,38 @@ class Builder:
     def build_project(self, p, prev_p, next_p):
         folder = f"assets/images/{p['slug']}"
         statement = p.get("statement")
+        sheet = SHEET_PROJECTS is True or p["slug"] in (SHEET_PROJECTS or ())
+
+        def no(q):  # a sheet's number, its Work number: " · 004" after Previous / Next
+            return f" · {self.items.index(q) + 1:03d}" if sheet else ""
+
+        self.sheet = f"{self.items.index(p) + 1:03d}" if sheet else None
+        self.section_no = 0
+        blocks = self.sections(p.get("blocks") or [], p, folder)
+        meta = self.sheet_meta(p, self.sheet) if sheet else self.meta_rows(p)
+        self.sheet = None
         content = render(
             "project.html",
             title=inline(p["title"]),
-            meta=self.meta_rows(p),
+            meta=meta,
             statement=(f'<p class="project-statement">{inline(statement)}</p>'
                        if statement else ""),
             visit=self.visit_link(p),
             hero=("        " + self.block(p["hero"], p, folder, hero=True)) if p.get("hero") else "",
-            blocks=self.sections(p.get("blocks") or [], p, folder),
+            blocks=blocks,
             prev_url=f"/work/{prev_p['slug']}/",
             prev_title=inline(prev_p["title"]),
+            prev_no=no(prev_p),
             next_url=f"/work/{next_p['slug']}/",
             next_title=inline(next_p["title"]),
+            next_no=no(next_p),
         )
         s = self.site
         self.page(f"work/{p['slug']}/index.html", p["slug"], f"/work/{p['slug']}/",
                   f"{p['title']} — {s['name']}",
                   f"{p['oneLiner']}. A project by {s['name']}, {s['role']}.",
-                  content, "page-project", current="project", image=self.og_image(p))
+                  content, "page-project is-sheet" if sheet else "page-project",
+                  current="project", image=self.og_image(p))
 
     def about_statement(self, about):
         """About's text as one paragraph across the page, in the display style, as Work's

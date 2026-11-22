@@ -19,11 +19,11 @@
 
     <nav class="project-nav wrap" aria-label="More projects">
       <a class="project-nav-prev" href="{{ prev_url }}" rel="prev">
-        <span class="project-nav-label"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false"><path d="M13 8H3M7 4 3 8l4 4"/></svg> Previous</span>
+        <span class="project-nav-label"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false"><path d="M13 8H3M7 4 3 8l4 4"/></svg> Previous{{ prev_no }}</span>
         <span class="project-nav-title">{{ prev_title }}</span>
       </a>
       <a class="project-nav-next" href="{{ next_url }}" rel="next">
-        <span class="project-nav-label">Next <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
+        <span class="project-nav-label">Next{{ next_no }} <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
         <span class="project-nav-title">{{ next_title }}</span>
       </a>
     </nav>

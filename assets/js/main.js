@@ -12,7 +12,8 @@
   // ems. Measured here once the fonts are in, from a copy set on one line: of every place the
   // sentence could break, the one that makes its two lines most alike, 0.5% over so the longer
   // can't spill. The ems don't change with the window, so this runs once. .is-even when the two
-  // are within 2% of each other: the last line fills too.
+  // are within 2% of each other: the last line fills too; .is-ragged when the first is the
+  // shorter: it isn't justified.
   const statement = document.querySelector(".work-statement");
   if (statement) document.fonts.ready.then(() => {
     const copy = statement.cloneNode(true);
@@ -37,13 +38,18 @@
     const end = words[words.length - 1][1];
     let longer = Infinity;
     let shorter = 0;
+    let first = 0;  // the first line's length at that split
     for (let i = 1; i < words.length; i++) {
       const a = words[i - 1][1] - start;
       const b = end - words[i][0];
-      if (Math.max(a, b) < longer) [longer, shorter] = [Math.max(a, b), Math.min(a, b)];
+      if (Math.max(a, b) < longer) [longer, shorter, first] = [Math.max(a, b), Math.min(a, b), a];
     }
     statement.style.setProperty("--statement-ems", (longer / size * 1.005).toFixed(3));
-    statement.classList.toggle("is-even", shorter / longer > 0.98);
+    const even = shorter / longer > 0.98;
+    statement.classList.toggle("is-even", even);
+    // A first line that comes out the shorter (Archive's, since 2026-11-22) would spread into wide
+    // gaps, justified: it stays flush left, ragged, and the second line fills the width.
+    statement.classList.toggle("is-ragged", !even && first < longer);
   });
 
   // Work: two views of the same items, GRID and SLIDER (WORK_VIEWS in build.py, since

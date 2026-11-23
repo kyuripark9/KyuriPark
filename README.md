@@ -24,8 +24,8 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 | `/` | Work, the site's first page since 2026-11-12 (the user's ask: the projects first, plainly): everything, the projects first, in one grid of tiles, so a visitor sees every project at once. Laid out after gougoucore.com's Work since 2026-11-13 (the user's ask): a sentence across the page right under the header (`"work"` → `"statement"` in `content/site.json`, in the display style; from 768px (since 2026-11-15, the user's ask) it fills the window from the header's left gutter to its right in two lines, both edge to edge, its size the width over its longer line (`main.js` finds the break that makes the two lines most alike, here after WORKING, 17.2em each: 80px at 1440px, 110px at 1980px), on phones lines from the left at the display's size (justified at the display's size inside the page's width from 2026-11-13, its first line's gaps 2 to 4 times the last's; from the left, ragged, on 2026-11-14); leave it out for no sentence), then the tiles from the window's left edge to its right, 3 across from 768px and 2 on phones, with no gaps, only 1px lines in the text color between them; each image tall (18:25, `--tile-ratio`), with a bar under it, the item's number ("001") at the left and its title at the right. A last row that isn't full is closed with an empty cell (or two) drawn in the same lines, so the grid ends in a rectangle (since 2026-11-14; Archive's too). The first time it opens in a tab, the opening plays over it (see Motion, "Home intro"). Its filters ("All 08   Digital 06   Brand 04   Physical 02", `/#digital` and so on) are off since 2026-11-09: `WORK_FILTERS` in `build.py` brings them back. `HOME_TRACK = True` in `build.py` brings Home back here, as it was from 2026-11-10 to 11-12 (laid out from the user's own sketch: the sentence that says who this is, `"home"` → `"lead"` in `content/site.json`, the featured projects on a wheel, the middle one's name, the sound switch and the 01 / 05 count; see Motion, "Home loop") and moves the grid to `/work/`. **RING / GRID** (since 2026-11-12, `WORK_RING` in `build.py`): at the right of the line over the grid, from 768px, RING shows the same items as objects on a slowly turning oval ring (`assets/js/ring.js`, after sarahsarazen.com/#projects), each one's own `object` image or, until it has one, a gray stand-in shape (`templates/ring.html`); the name and type · year of the object in front (or under the mouse) sit in the ring's middle. The ring showed first (the same evening, the user's ask; `RING_FIRST`); the browser remembers a visitor's pick. Phones get the grid only. Off since 2026-11-13, with gougoucore's layout (`WORK_RING = False`); `True` brings the ring and its switch back, the switch on its line under the sentence. Over the grid since 2026-11-22 (the user's ask, with the project pages' drawing sheets; `GRID_AXES` in `build.py`, Archive's too; see Drawing system), an architect's axis bubbles: over the middle of each column a 28px circle with its letter (A, B, and C from 768px), and a dash-and-dot center line from it down to the grid's top line |
 | `/work/` | Not a page while Work is at `/` (`HOME_TRACK` off): it sends visitors straight on to `/` (old links keep working). With `HOME_TRACK` on, Work's grid is here; `WORK_VIEWS = True` in `build.py` then adds two icons over it (grid, slider; `VIEW_ICONS`) that switch it to the same items on the loop |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html`. Laid out as Work is since 2026-11-14 (the user's ask): the title 16px under the header, where Work's sentence starts; lines in the text color from the window's left edge to its right (over the facts, impact numbers, and Previous / Next); Role · Team · Timeline in Work's columns (2 on phones, 3 from 768px), so they start where the tiles' numbers do; a section's heading and text in the window's halves from 768px; every image edge to edge (up to 1920px), with a 1px line where two meet, side by side or one under the other. (Until then: the title lower, under where Work's filters were; gray lines and images, 12px apart, inside the page's width). Drawn as an architect's drawing sheet since 2026-11-22 (the user's ask: a visual identity from their own story, the architect they wanted to be as a kid; `SHEET_PROJECTS` in `build.py`, on Light Life first, on every project page the same day; `.is-sheet` in `style.css`): the facts are a title block, cells in the window-wide lines in Work's columns: Role, Team, and Scale, then the timeline as a dimension line across two (ticks spaced by the years between `milestones`, each year over the line and its note under it) and, in the third, the sheet: its Work number (005 / 008) beside the logo as a stamp, its two suns called out DIGITAL and EVERYDAY LIFE and the place their rays cross WHERE THEY MEET (Work's sentence). Each section's heading is a detail callout, a circle split by a line, the section's number over the sheet's, the line running on under the heading; Previous / Next carry the sheets' numbers (Previous · 004). `SHEET_PROJECTS = False` puts the facts back in one row |
-| `/archive/` | Archive: personal work and hobbies, a gallery of images with nothing under them. A separate page with its own data. Laid out after gougoucore.com's Lab since 2026-11-13: Work's tiles and lines without the bars, starting right under the header, each image cropped to the tall tile (the lightbox shows it whole). Since 2026-11-22 the axis bubbles stand between the header and the grid, as over Work's (`GRID_AXES`; see Drawing system), so the grid draws its own top line under them |
-| `/about/` | Laid out after gougoucore.com/3/ since 2026-11-13 (the user's ask): the About text as one paragraph across the page right under the header, in the display style (its first words, KYURI DESIGNS, in the accent face, then the rest), then a Q&A in a small row (since 2026-11-14): the label under the header's WORK, the questions under ARCHIVE, each opening its answer when clicked; the footer is its contact list (`/about/#contact`). Experience (the same kind of row) is off since late 2026-11-13: the header's RESUME has the jobs. The Q&A's label is a detail callout since 2026-11-22, Q over A (see Drawing system) |
+| `/archive/` | Archive: personal work and hobbies, a gallery of images with nothing under them. A separate page with its own data. Laid out after gougoucore.com's Lab since 2026-11-13: Work's tiles and lines without the bars, starting right under the header, each image cropped to the tall tile (the lightbox shows it whole). Since 2026-11-22 the axis bubbles stand between the header and the grid, as over Work's (`GRID_AXES`; see Drawing system), so the grid draws its own top line under them. Since later that day it is drawn as a plan (`ARCHIVE_PLAN`; see Archive below): the user's line "Different scales, same subject: how people actually live." in Work's sentence's style, then a column for each scale, A Object, B Page, C Screen, D Space, each image in its scale's column |
+| `/about/` | Laid out after gougoucore.com/3/ since 2026-11-13 (the user's ask): the About text as one paragraph across the page right under the header, in the display style (its first words, KYURI DESIGNS, in the accent face, then the rest), then a Q&A in a small row (since 2026-11-14): the label under the header's WORK, the questions under ARCHIVE, each opening its answer when clicked; the footer is its contact list (`/about/#contact`). Experience (the same kind of row) is off since late 2026-11-13: the header's RESUME has the jobs. The Q&A's label is a detail callout since 2026-11-22, Q over A (see Drawing system). Since the same day, between the paragraph and the Q&A, the scales (`ABOUT_SCALES`): site.json's `scales` as a title block, a cell each in the window-wide lines, A Object, B Page, C Screen, D Space, each with the field it comes from (Industrial design, Graphic design, UX design, Architecture), a line from the user's Q&A, and a link to its column on Archive |
 | `/contact/` | Not a page: it sends visitors straight on to `/about/#contact` (old links keep working) |
 
 Contact is the footer (`#contact`), the same on every page (the header's last link went to it
@@ -103,8 +103,8 @@ assets/js/main.js       Work's sentence's size, filter, lightbox, fade-ups, coun
 assets/js/track.js      the project loop (Work's slider; Home's with HOME_TRACK), its dots and lean on phones
 assets/js/ring.js       Work's RING view (WORK_RING): the objects on a turning oval ring
 assets/js/intro.js      Home's opening, the first time Home opens in a tab
-templates/              page structure (header, footer, home, work and its toggle, archive,
-                        lightbox, project, about, 404, and the /contact/ redirect)
+templates/              page structure (header, footer, home, work and its toggle, archive and
+                        its plan, lightbox, project, about, 404, and the /contact/ redirect)
 dist/                   the generated site. Never edit; it's rebuilt every time.
 ```
 
@@ -289,16 +289,48 @@ items of this kind that the filter is showing). Its images go in `assets/images/
 ## Archive
 
 `/archive/` is built from `content/archive.json`, separate from the projects. Each entry is one
-image; the page shows them in the file's order, with nothing under them:
+image, with nothing under it on the page.
+
+Since 2026-11-22 (the user's ask: the drawing system and their story in one page) the page is
+drawn as an architect's plan (`ARCHIVE_PLAN` in `build.py`), from two lists in
+`content/site.json`:
 
 ```json
-{ "id": "009", "src": "009.jpg", "caption": "Sketchbook study", "date": "2025-08", "alt": "What the image shows" }
+"scales": [
+  { "name": "Object", "field": "Industrial design", "note": "3D products, mobility, and home goods, in Korea." },
+  { "name": "Page", "field": "Graphic design", "note": "Posters and books, in Korea." },
+  { "name": "Screen", "field": "UX design", "note": "Apps in Korea, then an M.S. in HCI at DePaul." },
+  { "name": "Space", "field": "Architecture", "note": "What I wanted to be as a kid: ..." }
+],
+"archive": { "statement": "*Different scales,* same subject: how people actually live." }
+```
+
+- **The sentence** (`archive.statement`) is the user's own line from About's Q&A, in Work's
+  sentence's style and place: two lines filling the width, `*...*` in Kalnia. A first line
+  shorter than the second stays flush left (main.js's `.is-ragged`), so it doesn't spread into
+  wide gaps.
+- **The scales** (`scales`, shared with About) are the columns, in their order, named axis
+  bubbles over them: A Object, B Page, C Screen, D Space. As many columns as scales, at every
+  width, phones too. `field` and `note` show on About only.
+- **The columns:** each image stands in its scale's column, one under another in the file's
+  order, numbered down it, A01, A02, in a tag in its corner, as an architect numbers a set's
+  sheets by discipline. A column with none stays white with its letter alone. In the lightbox
+  the caption line starts with the number and scale: "A01 · Object · 2025-08". Each column is a
+  link target (`/archive/#object`, from About's scales), and its tags turn black when reached.
+- For an hour that day the places of the user's story also ran down the side (Korea,
+  Philadelphia, Chicago, then Anywhere dashed); the user found them unneeded.
+
+Each entry then names its scale:
+
+```json
+{ "id": "009", "src": "009.jpg", "scale": "object", "caption": "Sketchbook study", "date": "2025-08", "alt": "What the image shows" }
 ```
 
 | Field | Where it shows |
 | --- | --- |
 | `id` | Required. A number in quotes (`"009"`), not shown on the page; screen readers announce it as "Image 009". Each one has to be different |
 | `src` | Required. A file in `assets/images/archive/`. Each entry needs its own file name (not `009.jpg` and `009.webp`) |
+| `scale` | Required with the plan. One of site.json's `scales` (any case): its column. The build stops and names the entry if it isn't |
 | `caption` | Optional. Only in the lightbox, on one line with the date; a caption too long for the screen is cut short with "…" (the date never is). Leave it `""` to show nothing |
 | `date` | Optional. Shown as you write it |
 | `alt` | What the image shows, for screen readers. The build reminds you if a real image has none |
@@ -309,8 +341,11 @@ image; the page shows them in the file's order, with nothing under them:
 - **Swap a gray box:** save your image under the name in its `src` (`001.jpg`, and so on). To use
   another format, like `.webp`, change `src` too. Until the file exists, an entry shows as a gray
   box, in eight shapes in turn (`ARCHIVE_BOXES` in `build.py`).
-- **Reorder:** move the entries in the file. Rows fill from left to right, so 001, 002, and 003
-  are the first row (since 2026-11-13; columns filled from top to bottom before).
+- **Reorder:** with the plan, an image's column comes from its `scale`; in one column, the
+  file's order runs top to bottom. Without it (`ARCHIVE_PLAN = False`, or no `scales`), the
+  plain gallery: rows fill from left to right in the file's order, so 001, 002, and 003 are the
+  first row (since 2026-11-13; columns filled from top to bottom before).
+- **Add a scale:** add it to site.json's `scales`: a column on Archive (E) and a cell on About.
 - **Remove:** delete the entry.
 - **Faster grid (optional):** the grid shows each image at a third to half of the window's
   width, so a smaller copy saves a lot of loading, most of all on phones. Run
@@ -320,8 +355,8 @@ image; the page shows them in the file's order, with nothing under them:
   always shows the full image. Leave `src` as it is.
 
 Clicking an image opens it large: Esc, Close, or a click outside the image closes it, and ← and →
-step through the images. The gallery is 2 columns on phones, 3 from 768px, edge to edge (4 from
-1200px, in the page's width, until 2026-11-13). Without
+step through the images, column by column. The plain gallery is 2 columns on phones, 3 from
+768px, edge to edge (4 from 1200px, in the page's width, until 2026-11-13). Without
 JavaScript, an image opens on its own instead, and the caption and date show under it.
 
 ## Swap in real images and videos
@@ -576,17 +611,19 @@ everywhere, black on white, in the site's 1px lines (`--rule`) and its label sty
 capitals), their circles kin to the logo's two suns. No color and no motion of their own.
 In `assets/css/style.css` the tokens are under Tokens (`--axis-d`, `--callout-d`, `--tick`,
 `--tick-ext`, `--centerline`) and the parts in the Drawing system section; in `build.py` the
-helpers are `axes`, `callout`, `dimension`, `sheet_meta`, `stamp`, and `logo_key`.
+helpers are `axes`, `callout`, `dimension`, `sheet_meta`, `stamp`, `logo_key`,
+`archive_plan`, and `about_scales`.
 
 | Part | What it is | Where |
 | --- | --- | --- |
-| Lines | 1px, in the text color, from the window's left edge to its right | the header, Work's and Archive's grids, a project's facts, the footer |
-| Axis bubbles (`.axes`) | a 28px circle over the middle of each column of a grid, with its letter (A, B, and C from 768px), and a center line (long dash, short dash) from it down to the grid | over Work's grid and Archive's (`GRID_AXES`) |
+| Lines | 1px, in the text color, from the window's left edge to its right | the header, Work's grid and Archive's plan, a project's facts, About's scales, the footer |
+| Axis bubbles (`.axes`) | a 28px circle over the middle of each column of a grid, with its letter (A, B, and C from 768px), and a center line (long dash, short dash) from it down to the grid; named (`.is-named`), its name beside it (over it on phones), every column at every width; alone beside a name (`.bubble`) | over Work's grid (`GRID_AXES`); Archive's plan, a column per scale (`ARCHIVE_PLAN`); About's scales (`ABOUT_SCALES`) |
 | Detail callout (`.callout`) | a 48px circle split by a line, a number over it and one under | a project's section headings (the section's number over the sheet's, 1 over 005, the line running on under the heading); About's Q&A label (Q over A); the 404 (? over 404) |
-| Title block | a project's facts as cells in the lines, in Work's columns: Role, Team, Scale, Timeline, Sheet | every project page (`SHEET_PROJECTS`) |
+| Title block | a set of facts as cells in the lines: a project's Role, Team, Scale, Timeline, Sheet, in Work's columns; the user's scales, A to D | every project page (`SHEET_PROJECTS`); About (`ABOUT_SCALES`) |
 | Dimension line (`.dimension`) | a timeline as a measured length: at each mark a slash and a short upright line, spaced by the years between, the year over the line and the note under it | a project's Timeline, from its `milestones` |
 | Logo key (`.logo-key`) | the logo's suns called out by leaders: DIGITAL (the left sun), EVERYDAY LIFE (the right), WHERE THEY MEET (where their rays cross), after Work's sentence | a project's stamp, beside its sheet number; the footer's logo from 768px (`FOOTER_KEY`) |
 | Sheet numbers | three digits, an item's place on Work | Work's tiles (001), a project's sheet (005 / 008) and its section callouts, Previous / Next (· 004) |
+| Item numbers | a column's letter and the item's place down it, in a tag in its corner, as a set's sheets are numbered by discipline | Archive's plan (A01, D02...), and its lightbox captions |
 
 To draw something new, reuse a part rather than adding one: a numbered thing takes a callout, a
 run of time a dimension line, a set of facts title-block cells, a grid axis bubbles. Words stay

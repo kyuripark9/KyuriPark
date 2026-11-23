@@ -518,6 +518,9 @@ button {
 .ring-meta,
 .axes,
 .callout,
+.plan-ref,
+.scale-name,
+.scale-link,
 .about-label {
   font-family: var(--font-mono);
   font-size: var(--size-label);
@@ -703,7 +706,8 @@ mark.placeholder {
      lines          --rule, window-wide: the header, Work's and Archive's grids, a project's
                     facts, the footer (from before 2026-11-22: the grid the drawings are on)
      axis bubbles   .axes: a circle over each column of a grid with its letter, a center line
-                    from it down to the grid (Work, Archive)
+                    from it down to the grid (Work); named, its name beside it (.is-named:
+                    Archive's plan); .bubble, one alone (About's scales)
      detail callout .callout: a circle split by a line, a number over it and one under
                     (a project's sections: section over sheet; About's Q&A: Q over A; the 404)
      title block    a project's facts as cells in the lines (Project page: Drawing sheet)
@@ -723,7 +727,8 @@ mark.placeholder {
   padding: var(--step-2) 0 var(--step-3);
 }
 
-.axes > span {
+.axes > span,
+.bubble {
   position: relative;
   justify-self: center;
   display: grid;
@@ -732,6 +737,11 @@ mark.placeholder {
   height: var(--axis-d);
   border: var(--rule);
   border-radius: 50%;
+}
+
+/* A bubble alone, beside its name (About's scales): no line down. */
+.bubble {
+  flex: none;
 }
 
 .axes > span::after {
@@ -755,6 +765,40 @@ mark.placeholder {
 
   .axes > span:nth-child(3) {
     display: grid;
+  }
+}
+
+/* Named axes (Archive's plan, whose columns mean something): every bubble, phones too, as many
+   as the names (--cols comes with them), each name in the label style over its bubble on phones
+   (a third of a phone is too narrow for both side by side), beside it from 768px, so the bubble
+   stays over its column's middle. */
+.axes.is-named {
+  padding-top: calc(var(--step-2) + var(--leading-label) * 1em + 4px);
+}
+
+.axes.is-named > span {
+  display: grid;
+}
+
+.axes-name {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-style: normal;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .axes.is-named {
+    padding-top: var(--step-2);
+  }
+
+  .axes-name {
+    bottom: auto;
+    top: 50%;
+    left: calc(100% + var(--step-1));
+    transform: translateY(-50%);
   }
 }
 
@@ -1680,6 +1724,11 @@ html.intro-on {
   .work-statement.is-even {
     text-align-last: justify;
   }
+
+  /* A first line shorter than the second (main.js): flush left, so it doesn't spread. */
+  .work-statement.is-ragged {
+    text-align: left;
+  }
 }
 
 /* The words the sentence leans on (*...* in site.json: one run, who Kyuri is, "I'm Kyuri, a
@@ -2344,6 +2393,65 @@ html.intro-on {
   display: none;
 }
 
+/* Archive as a plan (since 2026-11-22, ARCHIVE_PLAN in build.py, the user's ask: the drawing
+   system and their story in one page). Work's sentence's style and place hold the user's own
+   line from About's Q&A, "Different scales, same subject: how people actually live."; under it
+   the scales across, as named axis bubbles (A Object, B Page, C Screen, D Space: About's
+   scales), a column each at every width, phones too, between the grid's lines, each column's
+   images one under another, cropped as Work's tiles are (--tile-ratio), numbered down it, A01,
+   A02, in a tag in each one's corner, as an architect numbers a set's sheets by discipline. A
+   column with none is left white with its letter alone. Reached from About's scales
+   (/archive/#space), a column's tags turn black.
+   (For an hour that day the places of the user's story ran down the side, Korea, Philadelphia,
+   Chicago, then Anywhere dashed: the user found them unneeded.) */
+.plan {
+  container-type: inline-size;
+}
+
+.plan-bays {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  align-items: start;
+  border-top: var(--rule);
+}
+
+.plan-bay {
+  position: relative;
+  align-self: stretch;
+  min-width: 0;
+  min-height: var(--step-8);
+  border-right: var(--rule);
+  scroll-margin-top: calc(var(--header-h) + var(--step-12));  /* lands with the axes in view */
+}
+
+.plan-bay:last-child {
+  border-right: 0;
+}
+
+.plan-items > li {
+  position: relative;
+  border-bottom: var(--rule);
+}
+
+/* A number, A01, in a tag in its image's top-left corner, white, with the lines' right and
+   bottom edges. */
+.plan-ref {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  padding: 3px var(--step-1);
+  background: var(--color-bg);
+  border-right: var(--rule);
+  border-bottom: var(--rule);
+  pointer-events: none;
+}
+
+.plan-bay:target .plan-ref {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
 /* The lightbox (main.js opens it; Work's items with no page use it too): the item's images,
    scrolling if there are several, with Close above and the caption between Previous / Next
    below. Fades in and out. */
@@ -2929,6 +3037,78 @@ html.intro-on {
 .experience,
 .qa {
   padding-inline: var(--step-3) var(--gutter);
+}
+
+/* The scales (since 2026-11-22, ABOUT_SCALES in build.py, the user's ask: About carrying the
+   drawing system and their story): a title block under the paragraph, --step-8 down, cells in
+   the window-wide lines as a project's facts are, 2 across on phones, all 4 from 768px. Each
+   cell, --gutter in: its axis bubble and name in the label style (A OBJECT, as over Archive's
+   columns), the field it comes from in the name style, the user's own line about it in the
+   body's type in --color-subtle, and at its foot the link to its column on Archive,
+   "ARCHIVE (2)", in the label style. */
+.scales {
+  margin-top: var(--step-8);
+}
+
+.scales-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--color-rule);
+  border-block: var(--rule);
+}
+
+.scale {
+  display: flex;
+  flex-direction: column;
+  gap: var(--step-1);
+  padding: var(--step-2) var(--gutter) var(--step-3);
+  background: var(--color-bg);
+}
+
+.scale-name {
+  display: flex;
+  align-items: center;
+  gap: var(--step-1);
+  margin-bottom: var(--step-1);
+}
+
+.scale-field {
+  font-size: var(--size-name);
+  font-weight: 500;
+  line-height: var(--leading-name);
+  letter-spacing: var(--tracking-name);
+  text-transform: uppercase;
+}
+
+.scale-note {
+  max-width: 24em;
+  color: var(--color-subtle);
+  font-size: var(--size-name);
+  text-wrap: pretty;
+}
+
+.scale-link {
+  margin-top: auto;
+  padding-top: var(--step-2);
+  align-self: flex-start;
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--fade);
+}
+
+.scale-link::after {
+  content: " \2192";  /* → */
+}
+
+.scale-link:hover {
+  color: var(--color-muted);
+}
+
+@media (min-width: 768px) {
+  .scales-list {
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  }
 }
 
 /* The label's column is the window's first eighth, or the label's own width where that's

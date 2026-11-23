@@ -58,6 +58,7 @@ ARCHIVE_COLUMNS = (2, 3, 3)  # Archive's columns on phones, from 768px, from 120
 # (001-small.jpg next to 001.jpg) when there is one. Edge to edge since 2026-11-13, so a third
 # of the window from 768px, half on phones.
 ARCHIVE_SIZES = "(min-width: 768px) 33vw, 50vw"
+AXIS_LETTERS = "ABCDEFGH"  # a grid's columns, as an architect's axes are lettered
 # The same for the other images (since 2026-11-09; only Archive's before), as style.css lays
 # them out: the track's middle card (on Home, and Work's slider: from 768px, 62% of the
 # window's height and up across, half of it down from 1200px, at 4:3, so about 67vh to 85vh
@@ -143,6 +144,18 @@ FOOTER_KEY = True
 # taken across the site): a circle over the middle of each column, A, B (and C from 768px), a
 # center line down from it to the grid's top line. False: none.
 GRID_AXES = True
+# Archive drawn as a plan (since 2026-11-22, the user's ask: the drawing system and their story
+# in one page): content/site.json's "scales" are its columns, named axis bubbles A, B, C, D
+# (Object, Page, Screen, Space); each image in archive.json says its "scale" and stands in that
+# column, numbered down it, A01, A02... (archive_plan). (Places down the side, Korea,
+# Philadelphia, Chicago, Anywhere, for an hour that day: the user found them unneeded.)
+# False, or no "scales" in site.json: the plain gallery, every image in the file's order.
+ARCHIVE_PLAN = True
+# About's scales (since 2026-11-22, the user's ask: About carrying the drawing system and their
+# story): under the paragraph, site.json's "scales" as a title block, a cell each, A to D, its
+# bubble and name, the field it comes from and a line of the user's own account, and a link to
+# its column on Archive (about_scales). False: none.
+ABOUT_SCALES = True
 LOADING_ATTRS = {"lazy": 'loading="lazy"', "eager": "", "high": 'fetchpriority="high"'}
 # Old addresses that now live elsewhere: /contact/ was a menu item and is now About's Contact
 # label, with the footer's links under it.
@@ -1030,9 +1043,16 @@ class Builder:
     # The drawing system (since 2026-11-22; style.css's Drawing system, README's) -------------
 
     @staticmethod
-    def axes(indent):
+    def axes(indent, names=None):
         """Axis bubbles over a grid (GRID_AXES): one per column, A, B, C (CSS shows as many as
-        the grid has columns), for the eye only."""
+        the grid has columns), for the eye only. With names (Archive's plan, whose columns mean
+        something), one per name, each name beside its bubble, all of them on phones too, and
+        there whatever GRID_AXES says: the plan can't be read without them."""
+        if names:
+            spans = "".join(f'<span>{AXIS_LETTERS[i]}<i class="axes-name">{inline(n)}</i></span>'
+                            for i, n in enumerate(names))
+            return (f'{indent}<div class="axes is-named" style="--cols: {len(names)}" '
+                    f'aria-hidden="true">{spans}</div>\n')
         if not GRID_AXES:
             return ""
         return (f'{indent}<div class="axes" aria-hidden="true">'
@@ -1490,7 +1510,7 @@ class Builder:
         # The slider repeats the grid's items, so its notes aren't counted twice in the report.
         self.placeholder_counts["work"] -= len(PLACEHOLDER_RE.findall(slider + ring))
 
-    def archive_tile(self, item, box, loading):
+    def archive_tile(self, item, box, loading, ref="", tag=""):
         """An image on Archive with nothing under it, linking to the image itself; its number
         names the link for screen readers only. Every tile is one shape (--tile-ratio, since
         2026-11-13, after gougoucore.com's Lab), the image cropped to fill it; the lightbox
@@ -1501,6 +1521,7 @@ class Builder:
         shows in its place, in the shape of box."""
         number = esc(item["id"])
         rel = media_path(item["src"], ARCHIVE_FOLDER)
+        meta = " · ".join(x for x in (ref, inline(item.get("date") or "")) if x)
         alt, title = item.get("alt") or "", f"Archive {item['id']}"
         thumb = self.tile_image(rel, "archive", title, loading, alt=alt, sizes=ARCHIVE_SIZES)
         if thumb:
@@ -1516,26 +1537,93 @@ class Builder:
             name = (f'<span class="archive-name visually-hidden" data-lightbox-name>'
                     f'Image {number}</span>')
         return (f'        <li class="archive-item">\n'
+                + (f'          {tag}\n' if tag else '') +
                 f'          <a class="archive-tile" href="{href}" data-item aria-haspopup="dialog">\n'
                 f'            <span class="archive-media">{thumb}</span>\n'
                 f'            <span class="visually-hidden">Image {number}</span>\n'
                 f'          </a>\n'
                 f'          <p class="archive-text">{name} <span class="archive-date" '
-                f'data-lightbox-meta>{inline(item.get("date") or "")}</span></p>\n'
+                f'data-lightbox-meta>{meta}</span></p>\n'
                 f'{large}'
                 f'        </li>')
+
+    def scales(self):
+        """content/site.json's "scales": the sizes of thing the user's work comes in, in order,
+        each {"name", "field", "note"}; Archive's columns and About's title block."""
+        rows = self.site.get("scales") or []
+        for i, row in enumerate(rows):
+            need(row, "name", f"content/site.json: scales[{i}]")
+        return rows
+
+    @staticmethod
+    def scale_id(scale):
+        return re.sub(r"[^a-z0-9]+", "-", scale["name"].lower()).strip("-")
+
+    def archive_plan(self):
+        """Archive as an architect's plan (ARCHIVE_PLAN, since 2026-11-22): the scales across
+        (site.json's "scales"), named axis bubbles A, B, C, D over their columns, and each image
+        in its scale's column, one under another in the file's order, numbered down it, A01,
+        A02, in a tag in its corner, as an architect numbers a set's sheets by discipline. A
+        column with none stays white with its letter alone. In the lightbox an image's caption
+        line starts with its number and scale: "A01 · Object". Each column is a target,
+        /archive/#object (About's scales link them). Returns None when there are no scales."""
+        scales = self.scales()
+        if not scales:
+            return None
+        keys = [x["name"].lower() for x in scales]
+        cols = {}
+        for item in self.archive:
+            sc = (item.get("scale") or "").lower()
+            if sc not in keys:
+                raise BuildError(f'content/archive.json: {item.get("id")}: "scale" must be one '
+                                 f'of {", ".join(x["name"] for x in scales)}.')
+            cols.setdefault(keys.index(sc), []).append(item)
+        bays, n = [], 0
+        for c, scale in enumerate(scales):
+            letter, name = AXIS_LETTERS[c], inline(scale["name"])
+            items = cols.get(c, [])
+            head = (f'        <section class="plan-bay{"" if items else " is-empty"}" '
+                    f'id="{self.scale_id(scale)}" aria-label="{esc(scale["name"])}">')
+            if not items:
+                bays.append(f'{head}<p class="plan-ref" aria-hidden="true">{letter}</p>'
+                            '</section>')
+                continue
+            tiles = []
+            for k, item in enumerate(items, 1):
+                ref = f"{letter}{k:02d}"
+                tiles.append(self.archive_tile(
+                    item, ARCHIVE_BOXES[n % len(ARCHIVE_BOXES)], "eager" if k == 1 else "lazy",
+                    f"{ref} · {name}", f'<p class="plan-ref" aria-hidden="true">{ref}</p>'))
+                n += 1
+            bays.append(f'{head}\n          <ul class="plan-items">\n' + "\n".join(tiles)
+                        + '\n          </ul>\n        </section>')
+        return (f'    <div class="plan" style="--cols: {len(scales)}">\n'
+                + self.axes("      ", [x["name"] for x in scales])
+                + '      <div class="plan-bays">\n' + "\n".join(bays) + '\n      </div>\n'
+                '    </div>\n')
 
     def build_archive(self):
         """Every image in content/archive.json, in the file's order, left to right and down, edge
         to edge (since 2026-11-13, after gougoucore.com's Lab), so main has no .wrap here. Each
         opens the lightbox."""
         s = self.site
-        first = archive_first_screen(len(self.archive))
-        tiles = "\n".join(self.archive_tile(item, ARCHIVE_BOXES[i % len(ARCHIVE_BOXES)],
-                                            "eager" if i in first else "lazy")
-                          for i, item in enumerate(self.archive))
         lightbox = render("lightbox.html") if self.archive else ""
-        content = render("archive.html", tiles=tiles, lightbox=lightbox, axes=self.axes("    "))
+        plan = self.archive_plan() if ARCHIVE_PLAN else None
+        if plan is not None:
+            text = (s.get("archive") or {}).get("statement")
+            head = ""
+            if text:  # in Work's sentence's style and place, sized to fill its two lines
+                text = EMPHASIS_RE.sub(r"<em>\1</em>", inline(text))
+                head = (f'    <div class="work-head wrap">\n'
+                        f'      <p class="work-statement">{text}</p>\n    </div>\n')
+            content = render("archive-plan.html", head=head, plan=plan, lightbox=lightbox)
+        else:
+            first = archive_first_screen(len(self.archive))
+            tiles = "\n".join(self.archive_tile(item, ARCHIVE_BOXES[i % len(ARCHIVE_BOXES)],
+                                                "eager" if i in first else "lazy")
+                              for i, item in enumerate(self.archive))
+            content = render("archive.html", tiles=tiles, lightbox=lightbox,
+                             axes=self.axes("    "))
         self.page("archive/index.html", "archive", "/archive/", f"Archive — {s['name']}",
                   s["description"], content, "page-archive", current="archive",
                   image=self.og_image())
@@ -1654,6 +1742,38 @@ class Builder:
                 '      <div class="qa">\n' + "\n".join(rows) + '\n      </div>\n'
                 '    </section>\n')
 
+    def about_scales(self):
+        """About's scales (ABOUT_SCALES, since 2026-11-22): site.json's "scales" as a title
+        block under the paragraph, a cell each in the window-wide lines: its axis bubble and name
+        (A Object, as over Archive's columns), the field it comes from ("field", the paragraph's
+        Industrial, Graphic, and UX, and the architecture the user wanted as a kid), a line of
+        their own account ("note", from the Q&A), and, when Archive is a plan and has images of
+        that scale, a link to its column, "Archive (2)". None, no block."""
+        scales = self.scales() if ABOUT_SCALES else []
+        if not scales:
+            return ""
+        cells = []
+        for c, scale in enumerate(scales):
+            count = sum(1 for it in self.archive
+                        if (it.get("scale") or "").lower() == scale["name"].lower())
+            more = ""
+            if ARCHIVE_PLAN and count:
+                more = (f'\n          <a class="scale-link" href="/archive/#{self.scale_id(scale)}">'
+                        f'Archive ({count})</a>')
+            field = (f'\n          <h3 class="scale-field">{inline(scale["field"])}</h3>'
+                     if scale.get("field") else "")
+            note = (f'\n          <p class="scale-note">{inline(scale["note"])}</p>'
+                    if scale.get("note") else "")
+            cells.append(
+                '        <li class="scale">\n'
+                f'          <p class="scale-name"><span class="bubble" aria-hidden="true">'
+                f'{AXIS_LETTERS[c]}</span>{inline(scale["name"])}</p>{field}{note}{more}\n'
+                '        </li>')
+        return ('    <section class="scales" aria-labelledby="scales-heading">\n'
+                '      <h2 id="scales-heading" class="visually-hidden">Scales</h2>\n'
+                f'      <ol class="scales-list" style="--cols: {len(scales)}">\n'
+                + "\n".join(cells) + '\n      </ol>\n    </section>\n')
+
     def build_about(self):
         s = self.site
         about = s["about"]
@@ -1679,7 +1799,8 @@ class Builder:
                 '      <ul class="experience">\n' + "\n".join(jobs) + '\n      </ul>\n'
                 '    </section>\n')
         content = render("about.html", statement=self.about_statement(about),
-                         experience=experience, qa=self.about_qa(about))
+                         scales=self.about_scales(), experience=experience,
+                         qa=self.about_qa(about))
         self.page("about/index.html", "about", "/about/", f"About — {s['name']}",
                   s["description"], content, "page-about", current="about",
                   image=self.og_image())

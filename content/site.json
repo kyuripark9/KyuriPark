@@ -66,5 +66,14 @@
         "a": "Work where digital meets real lives and real spaces, using everything I've picked up along the way: industrial design, graphic design, and a love of architecture. As for where: anywhere. I love exploring."
       }
     ]
+  },
+  "scales": [
+    { "name": "Object", "field": "Industrial design", "note": "3D products, mobility, and home goods, in Korea." },
+    { "name": "Page", "field": "Graphic design", "note": "Posters and books, in Korea." },
+    { "name": "Screen", "field": "UX design", "note": "Apps in Korea, then an M.S. in HCI at DePaul." },
+    { "name": "Space", "field": "Architecture", "note": "What I wanted to be as a kid: classes at Temple, spatial UX at Philly Fashion Week, the Clayco rebrand." }
+  ],
+  "archive": {
+    "statement": "*Different scales,* same subject: how people actually live."
   }
 }

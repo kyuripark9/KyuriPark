@@ -138,10 +138,11 @@ KEY_OVER, KEY_UNDER = 80 / 208, 74 / 208
 # drawing sheet's stamp), from 768px; on phones the logo alone (the words wouldn't fit beside
 # each other at its size). False: the logo alone everywhere.
 FOOTER_KEY = True
-# Work's grid with an architect's axis bubbles over it (since 2026-11-22, the user's ask, with the
-# drawing sheets): a circle over the middle of each column, A, B (and C from 768px), a dash-dot
-# axis line down from it to the grid's top line. False: none.
-WORK_AXES = True
+# Work's and Archive's grids with an architect's axis bubbles over them (axes; Work's since
+# 2026-11-22, the user's ask, with the drawing sheets; Archive's the same day, the drawing system
+# taken across the site): a circle over the middle of each column, A, B (and C from 768px), a
+# center line down from it to the grid's top line. False: none.
+GRID_AXES = True
 LOADING_ATTRS = {"lazy": 'loading="lazy"', "eager": "", "high": 'fetchpriority="high"'}
 # Old addresses that now live elsewhere: /contact/ was a menu item and is now About's Contact
 # label, with the footer's links under it.
@@ -989,8 +990,7 @@ class Builder:
         h = f'<h2 class="section-heading">{inline(heading)}</h2>' if heading else ""
         if heading and self.sheet:  # a drawing sheet's detail callout (SHEET_PROJECTS)
             self.section_no += 1
-            h = (f'<h2 class="section-heading"><span class="callout" aria-hidden="true">'
-                 f'<span>{self.section_no}</span><span>{self.sheet}</span></span>'
+            h = (f'<h2 class="section-heading">{self.callout(self.section_no, self.sheet)}'
                  f'<span class="section-name">{inline(heading)}</span></h2>')
         return f'<div class="text-block">{h}<div class="text-body">{paras}</div></div>'
 
@@ -1026,6 +1026,24 @@ class Builder:
             if value:
                 rows.append((label, inline(value)))
         return "\n".join(f"          <div><dt>{k}</dt><dd>{v}</dd></div>" for k, v in rows)
+
+    # The drawing system (since 2026-11-22; style.css's Drawing system, README's) -------------
+
+    @staticmethod
+    def axes(indent):
+        """Axis bubbles over a grid (GRID_AXES): one per column, A, B, C (CSS shows as many as
+        the grid has columns), for the eye only."""
+        if not GRID_AXES:
+            return ""
+        return (f'{indent}<div class="axes" aria-hidden="true">'
+                '<span>A</span><span>B</span><span>C</span></div>\n')
+
+    @staticmethod
+    def callout(top, bottom):
+        """A detail callout: a circle split by a line, top over it, bottom under it, for the eye
+        only (the words around it say what it marks)."""
+        return (f'<span class="callout" aria-hidden="true"><span>{top}</span>'
+                f'<span>{bottom}</span></span>')
 
     def sheet_meta(self, p, number):
         """A drawing sheet's title block (SHEET_PROJECTS): Role, Team, Scale, the timeline as a
@@ -1463,11 +1481,8 @@ class Builder:
                 + (render("work-tabs.html", tabs=tabs) if WORK_FILTERS else "") + views)
         if head:
             head = f'    <div class="work-head wrap">\n{head}    </div>\n'
-        # An architect's axis bubbles over the grid's columns (WORK_AXES), for the eye only.
-        axes = ('      <div class="work-axes" aria-hidden="true">'
-                '<span>A</span><span>B</span><span>C</span></div>\n' if WORK_AXES else "")
         content = render("work.html", cards=cards, lightbox=lightbox, opening=opening,
-                         head=head, slider=slider, ring=ring, axes=axes)
+                         head=head, slider=slider, ring=ring, axes=self.axes("      "))
         rel, path, title = (("work/index.html", "/work/", f"Work — {s['name']}") if HOME_TRACK
                             else ("index.html", "/", s["title"]))
         self.page(rel, "work", path, title, s["description"], content, "page-work",
@@ -1520,7 +1535,7 @@ class Builder:
                                             "eager" if i in first else "lazy")
                           for i, item in enumerate(self.archive))
         lightbox = render("lightbox.html") if self.archive else ""
-        content = render("archive.html", tiles=tiles, lightbox=lightbox)
+        content = render("archive.html", tiles=tiles, lightbox=lightbox, axes=self.axes("    "))
         self.page("archive/index.html", "archive", "/archive/", f"Archive — {s['name']}",
                   s["description"], content, "page-archive", current="archive",
                   image=self.og_image())
@@ -1633,7 +1648,9 @@ class Builder:
         if not rows:
             return ""
         return ('\n    <section class="about-list" aria-labelledby="qa-heading">\n'
-                '      <h2 id="qa-heading" class="about-label">Q&amp;A</h2>\n'
+                # Its label a detail callout since 2026-11-22 (the drawing system): Q over A.
+                f'      <h2 id="qa-heading" class="about-label">{self.callout("Q", "A")}'
+                '<span class="visually-hidden">Q&amp;A</span></h2>\n'
                 '      <div class="qa">\n' + "\n".join(rows) + '\n      </div>\n'
                 '    </section>\n')
 
@@ -1669,8 +1686,11 @@ class Builder:
 
     def build_404(self):
         s = self.site
+        # Over its sentence a detail callout (since 2026-11-22, the drawing system): an
+        # unknown detail on sheet 404, the sheet that isn't there.
         self.page("404.html", "404", "/404.html", f"Page not found — {s['name']}",
-                  s["description"], render("404.html"), "wrap page-not-found", noindex=True)
+                  s["description"], render("404.html", mark=self.callout("?", "404")),
+                  "wrap page-not-found", noindex=True)
 
     def build_redirects(self):
         """Old addresses (REDIRECTS): a page that sends the visitor on at once, by meta refresh

@@ -244,6 +244,16 @@
                                      2026-11-13): tall, as gougoucore.com's are, 480 x 667 on
                                      a 1440px window; the image is cropped to fill it */
   --rule: 1px solid var(--color-rule);
+  /* The drawing system (since 2026-11-22; see Drawing system): the parts of an architect's
+     drawing the site is drawn with, all in --rule's 1px lines and the label's face. */
+  --axis-d: 28px;              /* an axis bubble's circle, over a grid's column */
+  --callout-d: 48px;           /* a detail callout's circle: a number over the line, one under */
+  --tick: 11px;                /* a dimension line's slash at each mark */
+  --tick-ext: 17px;            /* the short upright line across a dimension line at each mark */
+  /* A drawing's center line, long dash and short, drawn up from its foot (so it meets the line
+     under it): an axis bubble's line down to its grid. */
+  --centerline: repeating-linear-gradient(to top, var(--color-rule) 0 12px, transparent 12px 15px,
+    var(--color-rule) 15px 18px, transparent 18px 21px);
 
   --fade: 200ms ease;           /* colors, the lightbox, the brackets on Work's filters */
   --grow: 250ms ease;           /* Work's and Archive's images growing on hover, Work's videos
@@ -506,7 +516,8 @@ button {
 .prototype-open,
 .work-views.is-words .work-view,
 .ring-meta,
-.work-axes,
+.axes,
+.callout,
 .about-label {
   font-family: var(--font-mono);
   font-size: var(--size-label);
@@ -680,6 +691,192 @@ mark.placeholder {
   color: inherit;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
+}
+
+/* Drawing system -------------------------------------------------------- */
+
+/* The site is drawn as an architect's drawings (since 2026-11-22, the user's ask: a visual
+   identity from their own story, the architect they wanted to be as a kid, in About's Q&A).
+   The parts, all black on white in --rule's 1px lines, their words in the label style, their
+   circles kin to the logo's two suns; nothing moves. README's Drawing system has where each
+   is used and the switches in build.py.
+     lines          --rule, window-wide: the header, Work's and Archive's grids, a project's
+                    facts, the footer (from before 2026-11-22: the grid the drawings are on)
+     axis bubbles   .axes: a circle over each column of a grid with its letter, a center line
+                    from it down to the grid (Work, Archive)
+     detail callout .callout: a circle split by a line, a number over it and one under
+                    (a project's sections: section over sheet; About's Q&A: Q over A; the 404)
+     title block    a project's facts as cells in the lines (Project page: Drawing sheet)
+     dimension line .dimension: a timeline as a measured length (a project's title block)
+     logo key       .logo-key: the logo's suns called out by leaders, DIGITAL, EVERYDAY LIFE,
+                    WHERE THEY MEET (a project's stamp, the footer; build.py's logo_key)
+     sheet numbers  three digits, a project's place on Work: 005 (Work's tiles, a project's
+                    sheet and its callouts, Previous / Next) */
+
+/* Axis bubbles: as many as the grid under them has columns (2 on phones, 3 from 768px), each
+   over its column's middle, --axis-d across, its letter in the middle, and its center line
+   from its foot to the grid's top line, --step-3 down. */
+.axes {
+  --cols: 2;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  padding: var(--step-2) 0 var(--step-3);
+}
+
+.axes > span {
+  position: relative;
+  justify-self: center;
+  display: grid;
+  place-items: center;
+  width: var(--axis-d);
+  height: var(--axis-d);
+  border: var(--rule);
+  border-radius: 50%;
+}
+
+.axes > span::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: calc(50% - 0.5px);
+  width: 1px;
+  height: var(--step-3);
+  background: var(--centerline);
+}
+
+.axes > span:nth-child(n + 3) {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .axes {
+    --cols: 3;
+  }
+
+  .axes > span:nth-child(3) {
+    display: grid;
+  }
+}
+
+/* Detail callout: --callout-d across, a line through its middle, a number in each half, in
+   the text color wherever it sits. */
+.callout {
+  position: relative;
+  flex: none;
+  display: inline-grid;
+  grid-template-rows: 1fr 1fr;
+  justify-items: center;
+  width: var(--callout-d);
+  height: var(--callout-d);
+  border: var(--rule);
+  border-radius: 50%;
+  color: var(--color-text);
+}
+
+.callout::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--color-rule);
+}
+
+.callout > :first-child {
+  align-self: end;
+  padding-bottom: 2px;
+}
+
+.callout > :last-child {
+  align-self: start;
+  padding-top: 3px;
+}
+
+/* Dimension line: the line, and at each mark a short upright line across it (--tick-ext) and a
+   slash (--tick), the mark's value over the line and its note under it, each --step-1 off its
+   mark; the last one's words end at its mark. Marks sit at their columns' starts (build.py's
+   dimension spaces the columns by the years between them); the last shares the column before
+   it, at its end. */
+.dimension {
+  position: relative;
+  display: grid;
+  margin: var(--step-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dimension::before {
+  content: "";
+  position: absolute;
+  top: 24px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--color-rule);
+}
+
+.dimension li {
+  position: relative;
+  grid-row: 1;
+  display: grid;
+  align-content: start;
+  row-gap: var(--step-2);
+  min-width: 0;
+  padding-left: var(--step-1);
+  padding-right: var(--step-2);
+}
+
+.dimension li::before,
+.dimension li::after {
+  content: "";
+  position: absolute;
+  background: var(--color-rule);
+}
+
+.dimension li::before {
+  top: calc(24px - var(--tick-ext) / 2);
+  left: 0;
+  width: 1px;
+  height: var(--tick-ext);
+}
+
+.dimension li::after {
+  top: 24px;
+  left: calc(var(--tick) / -2);
+  width: var(--tick);
+  height: 1px;
+  transform: rotate(-45deg);
+}
+
+.dimension li.is-end {
+  justify-self: end;
+  max-width: 40%;
+  padding-left: 0;
+  padding-right: var(--step-1);
+  text-align: right;
+}
+
+.dimension li:nth-last-child(2) {
+  max-width: 60%;
+}
+
+.dimension li.is-end::before {
+  left: auto;
+  right: 0;
+}
+
+.dimension li.is-end::after {
+  left: auto;
+  right: calc(var(--tick) / -2);
+}
+
+/* Logo key (build.py's logo_key, inside the logo's svg): its words in the label's face and
+   tracking, at the size the svg sets for 12px (the stamp, the footer). */
+.logo-key text {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  letter-spacing: var(--tracking-label);
 }
 
 /* Header ---------------------------------------------------------------- */
@@ -1950,54 +2147,6 @@ html.intro-on {
   grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
 }
 
-/* An architect's axis bubbles over the grid (since 2026-11-22, the user's ask, with the
-   drawing sheets; WORK_AXES in build.py): over the middle of each column a 28px circle with
-   its letter, A, B, and C from 768px, in the label style, and from it down to the grid's top
-   line a dash-dot axis line, the line a drawing's grid is drawn in. In the grid's columns. */
-.work-axes {
-  --cols: 2;
-  display: grid;
-  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
-  padding: var(--step-2) 0 var(--step-3);
-}
-
-.work-axes > span {
-  position: relative;
-  justify-self: center;
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border: var(--rule);
-  border-radius: 50%;
-}
-
-.work-axes > span::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: calc(50% - 0.5px);
-  width: 1px;
-  height: var(--step-3);
-  /* a center line, long dash and short, from the grid's line up, so it meets the grid */
-  background: repeating-linear-gradient(to top, var(--color-rule) 0 12px, transparent 12px 15px,
-    var(--color-rule) 15px 18px, transparent 18px 21px);
-}
-
-.work-axes > span:nth-child(3) {
-  display: none;
-}
-
-@media (min-width: 768px) {
-  .work-axes {
-    --cols: 3;
-  }
-
-  .work-axes > span:nth-child(3) {
-    display: grid;
-  }
-}
-
 /* The line over the first row is the header's own where the grid starts right under it
    (Archive; Work with no sentence), so only a grid with something over it draws one. */
 .work-head + .work-panel .work-grid {
@@ -2163,7 +2312,13 @@ html.intro-on {
    date; without JavaScript those show under the image instead, in a bar like Work's.
    No title on the page (screen readers get a hidden "Archive" heading).
    (Until 2026-11-13: smaller and closer together than Work, whole images in their own shapes,
-   12px apart, in 2, 3, then 4 columns filling top to bottom, starting where Work's images did.) */
+   12px apart, in 2, 3, then 4 columns filling top to bottom, starting where Work's images did.)
+   Since 2026-11-22 (the drawing system) the axis bubbles stand between the header and the grid,
+   as over Work's, so the grid draws its own top line under them. */
+.axes + .archive-grid {
+  border-top: var(--rule);
+}
+
 .archive-tile {
   display: block;
   width: 100%;
@@ -2632,8 +2787,8 @@ html.intro-on {
 /* The titles are in the title style at every width (see Shared text styles; until 2026-11-05,
    16px text on phones). */
 
-/* Drawing sheet (a mock since 2026-11-22, SHEET_PROJECTS in build.py): a project's page drawn as
-   an architect's drawing sheet, after the architect the user wanted to be as a kid.
+/* Drawing sheet (since 2026-11-22, SHEET_PROJECTS in build.py): a project's page drawn as an
+   architect's drawing sheet, with the parts in Drawing system.
 
    The title block: the facts as cells in 1px lines, as Work's tiles are (the lines are the
    block's background showing through 1px gaps), in Work's columns, from the window's left edge
@@ -2673,83 +2828,6 @@ html.intro-on {
   }
 }
 
-/* The timeline as a dimension line, as an architect marks a length: the line, and at each
-   milestone a short upright line across it and a slash, the year over the line and its note
-   under it, each 8px off its tick; the last one's words end at its tick. Spaced by the years
-   between the milestones (build.py's dimension). */
-.dimension {
-  position: relative;
-  display: grid;
-  margin: var(--step-3) 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.dimension::before {
-  content: "";
-  position: absolute;
-  top: 24px;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: var(--color-rule);
-}
-
-.dimension li {
-  position: relative;
-  grid-row: 1;
-  display: grid;
-  align-content: start;
-  row-gap: var(--step-2);
-  min-width: 0;
-  padding-left: var(--step-1);
-  padding-right: var(--step-2);
-}
-
-.dimension li::before,
-.dimension li::after {
-  content: "";
-  position: absolute;
-  background: var(--color-rule);
-}
-
-.dimension li::before {
-  top: 16px;
-  left: 0;
-  width: 1px;
-  height: 17px;
-}
-
-.dimension li::after {
-  top: 24px;
-  left: -5px;
-  width: 11px;
-  height: 1px;
-  transform: rotate(-45deg);
-}
-
-.dimension li.is-end {
-  justify-self: end;
-  max-width: 40%;
-  padding-left: 0;
-  padding-right: var(--step-1);
-  text-align: right;
-}
-
-.dimension li:nth-last-child(2) {
-  max-width: 60%;
-}
-
-.dimension li.is-end::before {
-  left: auto;
-  right: 0;
-}
-
-.dimension li.is-end::after {
-  left: auto;
-  right: -5px;
-}
-
 /* The stamp's cell: the sheet's number at its top left, the logo's stamp at its bottom right
    (under the number when the cell is too narrow for both, 768 to 1199px). */
 .sheet-stamp dd {
@@ -2773,58 +2851,18 @@ html.intro-on {
   overflow: visible;
 }
 
-/* The logo's key (build.py's logo_key), here and in the footer: its words in the label's face
-   and tracking, at the size each sets for 12px. */
-.logo-key text {
-  font-family: var(--font-mono);
-  font-weight: 400;
-  letter-spacing: var(--tracking-label);
-}
-
-/* Each section's heading as a detail callout: a 48px circle, a line across its middle, the
-   section's number over it and the sheet's under it; the line runs on from the circle to the
-   heading's column's end, the heading on it. */
+/* Each section's heading as a detail callout (see Drawing system), the section's number over its
+   line and the sheet's under it; the callout's line runs on to the heading's column's end, the
+   heading on it. */
 .is-sheet .text-block > .section-heading {
   display: flex;
   align-items: flex-start;
   color: var(--color-text);
 }
 
-.callout {
-  position: relative;
-  flex: none;
-  display: grid;
-  grid-template-rows: 1fr 1fr;
-  justify-items: center;
-  width: 48px;
-  height: 48px;
-  border: var(--rule);
-  border-radius: 50%;
-}
-
-.callout::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: var(--color-rule);
-}
-
-.callout > :first-child {
-  align-self: end;
-  padding-bottom: 2px;
-}
-
-.callout > :last-child {
-  align-self: start;
-  padding-top: 3px;
-}
-
 .section-name {
   flex: 1;
-  height: 25px;
+  height: calc(var(--callout-d) / 2 + 1px);  /* its line on the callout's */
   display: flex;
   align-items: flex-end;
   padding: 0 0 var(--step-1) var(--step-1);
@@ -2993,6 +3031,12 @@ html.intro-on {
 }
 
 /* 404 ------------------------------------------------------------------- */
+
+/* A detail callout over the sentence (since 2026-11-22, the drawing system): ? over 404, the
+   sheet that isn't there. */
+.not-found-mark {
+  margin-bottom: var(--step-3);
+}
 
 .not-found-title {
   margin-bottom: var(--step-2);

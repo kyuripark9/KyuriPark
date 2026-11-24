@@ -198,22 +198,33 @@ Blocks appear in the order you list them. The template uses Context → Explore 
   now is an icon before the city's name (a pin until the forecast arrives). Like the lamp,
   each scene has two lights, apart, each with its own job: white sunlight that shines on you
   (how strong) and a color that colors your space (which color, how strong; the `--lamp-` colors in
-  `app.css`). The screen draws the lamp as it's built (the 2023 renders): the head, a circle
-  (since late 2026-11-15, the user's ask; a rounded square as tall as wide before that, and
-  screen-wide and shorter than wide before that), as big as the screen leaves room for and
-  centered, that glows white at its edge, brightest along the rim all the way round and fading
-  inward, so its middle stays dark and the sunlight's percent there reads in
-  light ink at any strength; and under it the base, a pill a little narrower, that fills
-  with the color, brightest and a little paler at its edge and deepening softly inward (no
-  outline) to a deeper shade of the same color in the middle. Both parts say what they hold
+  `app.css`). The screen draws the lamp as the light it makes (since late 2026-11-15, the
+  user's ask after two screens each holding one soft-edged shape of light; earlier that
+  evening both lights shared one box, and before that the screen drew the lamp's two parts
+  apart, as in the 2023 renders: a head, a circle and before that a rounded square, glowing
+  white at its rim, over a pill filled with the color). The color, the light that colors your
+  space, is the room: the whole screen behind everything, its glow pooling low where the
+  lamp's base is and falling off to a deep shade toward the top and the bottom, as strong as
+  the color is (black while it's off). Each color's room is a pair picked by hand (`--room-*`
+  in `app.css`: a tint worked out from the color looked wrong on some colors, the user,
+  2026-11-14), all on one footing in OKLCH and deep enough for white type, the yellows turned
+  toward orange as they dim so they stay gold rather than olive; a fine grain lies over it,
+  so its gradients read as light rather than flat fills. The sunlight, the light that shines
+  on you, is the lamp's head as the frosted panel it is: a rounded square of glass in the
+  room (a faint body, a fine light edge, a sheen at the top), lit from inside by a white core
+  that takes on the room's color as it spreads toward the edge, growing and brightening with
+  the light, and at strength a soft bloom past the glass (late 2026-11-15, the user: a big
+  blurred white shape looked old and awkward); its percent sits under it, off the
+  white, and the color's lower down in the room's glow, so both read in light ink at any
+  strength. Both say what they hold
   the same way (since 2026-11-14, the user's ask): a mono label naming the light, SUNLIGHT
   for the head; for the base, its color named for your situation, from today's sky where
   you live or else the part of the day: GRAY-DAY BLUE, EARLY-SUNSET BLUE, WIND-DOWN ROSE,
   NIGHT RED (since 2026-11-15, the user's ask: paint names like "Sky blue" didn't say
   anything about you; no icons since then either) over the strength in plain type (Inter, the
-  number large with a smaller % beside it; dot digits until 2026-11-15, the user's ask), the
-  base's smaller, in white on the lit color. Each part
-  has its own tape, a ruler that slides under a fixed yellow mark: drag the part (or its
+  number large with a smaller % beside it; dot digits until 2026-11-15, the user's ask), both
+  the same size, the color's in white. Each light
+  has its own tape, a ruler that slides under a fixed yellow mark: drag the light's part of the screen (or its
   ruler) sideways, tap the ruler, or use the arrow keys to set how strong that light is for
   the part of the day showing; picking a scene again goes back to the scene's own strengths.
   The lamp shows each part of the day as set; the day's ruler shows the slow fades between
@@ -232,7 +243,16 @@ Blocks appear in the order you list them. The template uses Context → Explore 
   time, now stays over the strips as a small hollow yellow ring and a round ↺ button comes
   up left of Play a day; tap it (or the ring, or drag the mark onto it, or press Escape) to
   come back to now (a Back to now text button until 2026-11-15; the user: the time and the
-  button were too many things, then that the ring alone didn't say you could go back). The screen is kept quiet (no boxes or labels it can do without) and reads top to
+  button were too many things, then that the ring alone didn't say you could go back).
+  Undo sits at that row's left, apart from those two, only while there's a change to take
+  back (since 2026-11-15, the user's idea of undo, save, then play): there's no Save, as
+  every change keeps itself (your times, and each part's scene, by name, and strengths are
+  remembered in this browser, `localStorage` `light-life`; the scene and strengths were lost
+  on reload until then), and Play a day is the preview, so you make a change, play the day
+  to see it, and Undo takes it back, one change at a time back to how the visit began (or
+  Cmd/Ctrl+Z). A change is one gesture: a drag from press to let-go, a run of arrow keys, or
+  everything done in one visit to a sheet (scenes, times, where you live); Undo goes back to
+  the time that was showing when the change was made, so you see it come undone on the lamp. The screen is kept quiet (no boxes or labels it can do without) and reads top to
   bottom (no logo over it since 2026-11-15, the user's ask: the lamp is the product): the scene playing
   as the screen's title (its picture, its name in big plain type, a small up-down mark; a chip under the lamp until
   2026-11-15, then the user asked for it at the top and as a title, not a box; tap

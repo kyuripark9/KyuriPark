@@ -67,30 +67,36 @@
          and no Back to now button (the user, 2026-11-15: too many things for what they say):
          the time showing is on the day's ruler, at its yellow mark, and now is a ring there
          while you look at another time; tap the ring to come back. Your two times are on the
-         ruler too, where your day starts and ends. The part of the day showing is named for
-         screen readers only (the user, 2026-11-15: "Daytime" said nothing the screen doesn't:
-         the time, the ruler, and the color's name, CLEAR-DAY BLUE, already tell it).
+         ruler too, where your day starts and ends. After the city, the part of the day showing,
+         muted: "Chicago · Wind down" (for screen readers only earlier on 2026-11-15, when the
+         color's name, CLEAR-DAY BLUE, still told it; back once that name left the lamp, since a
+         scene named for the sky, "Sunset" at 10:30 PM, read as the time). It stays first in the
+         page's order, the heading, and shows after the city (app.css, grid).
          Over it, the scene playing for the part showing, as the screen's title: its picture,
          its name in big plain type, and a small up-down mark, no box (the user's asks,
          2026-11-15: up from under the lamp, then out of its chip). Tap it for the part's
          scenes, in a sheet that comes up from the bottom. -->
     <div class="now-head">
-      <h1 class="visually-hidden" id="part">Morning</h1>
+      <h1 class="part-name" id="part">Morning</h1>
       <button class="scene-title" type="button" id="scene" aria-haspopup="dialog"><svg class="scene-icon" aria-hidden="true"><use id="scene-icon" href="#sc-high-sky"/></svg><span id="scene-name">High blue sky</span><svg class="scene-chevron" aria-hidden="true"><use href="#i-updown"/></svg></button>
       <button class="place" type="button" id="place" aria-haspopup="dialog"><svg class="icon weather-icon" aria-hidden="true"><use id="weather-use" href="#i-pin"/></svg><span class="place-text" id="place-text">Chicago</span></button>
     </div>
 
-    <!-- The lamp, built like the real one: two parts, apart, each with its own light and its
-         own job. The head, a circle that glows white at its edge: sunlight that shines on you.
-         The base under it, a pill that fills with color, brightest at its edge: it colors your
-         space (turned by hand, on the lamp). Each part shows only its strength in plain type, the
-         base's smaller and in white. No labels (the user, 2026-11-15: the scene title at the
-         top already names what's playing, so SUNLIGHT and the color's name, EARLY-SUNSET BLUE,
-         said it twice); screen readers still hear each light's name on its ruler.
+    <!-- The lamp, in the real one's shape (the user's ask, 2026-11-20, with a sketch and a
+         reference of dark shapes lit at their edges like neon): the head, a rounded square,
+         over the base, a pill as wide, a small gap apart, both dark inside and lit at their
+         rim. The sunlight (#head), which shines on you, lights the head's rim white; the
+         color (#base), which colors your space (turned by hand, on the lamp), lights the
+         base's rim in its color. Each glows as strongly as its light is, and is a dark shape
+         with a faint edge when its light is off. Inside each, on the dark, its strength in
+         plain type and its ruler. (Until 2026-11-20 the color filled the whole screen behind
+         a frosted white panel; before that a glowing circle over a pill.) No labels (the
+         user, 2026-11-15: the scene title at the top already names what's playing); screen
+         readers still hear each light's name on its ruler.
          Drag either one, or its ruler, to set how strong it is for the part of the day showing. -->
     <section class="lamp" aria-label="The lamp">
       <div class="lamp-head" id="head">
-        <span class="lamp-fill sun-fill" id="sun-fill" aria-hidden="true"></span>
+        <span class="lamp-glow" id="sun-fill" aria-hidden="true"></span>
         <span class="disc-value" aria-hidden="true"><span class="disc-num" id="sun-value">0</span><span class="disc-unit">%</span></span>
         <div class="ll-tape" id="sun-tape" role="slider" tabindex="0" aria-label="Sunlight" aria-valuemin="0" aria-valuemax="100">
           <span class="ll-tape-window"><span class="ll-tape-track"></span></span>
@@ -98,7 +104,7 @@
         </div>
       </div>
       <div class="lamp-base" id="base">
-        <span class="lamp-fill" id="color-fill" aria-hidden="true"></span>
+        <span class="lamp-glow" id="color-fill" aria-hidden="true"></span>
         <span class="disc-value" aria-hidden="true"><span class="disc-num" id="color-value">0</span><span class="disc-unit">%</span></span>
         <div class="ll-tape" id="color-tape" role="slider" tabindex="0" aria-label="Color" aria-valuemin="0" aria-valuemax="100">
           <span class="ll-tape-window"><span class="ll-tape-track"></span></span>
@@ -121,6 +127,10 @@
     <div class="ruler-block">
       <div class="ruler-head">
         <h2 class="visually-hidden">Your day</h2>
+        <!-- Undo, at the row's left, only while there's a change to take back (app.js): every
+             change keeps itself (no Save), so you can try one, Play a day to see it, and
+             take it back. Apart from the two on the right, which move through the time. -->
+        <button class="ll-pill is-small undo" type="button" id="undo" aria-keyshortcuts="Meta+Z Control+Z">Undo</button>
         <div class="ruler-actions">
           <button class="ll-pill is-small to-now" type="button" id="to-now" aria-label="Back to now" title="Back to now"><svg class="icon" aria-hidden="true"><use href="#i-now"/></svg></button>
           <button class="ll-pill is-small play" type="button" id="play"><svg class="play-icon" aria-hidden="true"><use href="#i-play"/></svg><span id="play-label">Play a day</span></button>

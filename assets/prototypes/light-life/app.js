@@ -10,10 +10,11 @@
    Scene names are the 2023 app's.
 
    The lamp has two parts, apart, each with its own light and its own job, and each scene
-   sets both. The head, a circle holding a round white light like the sun's, shines
-   on you (how strong, 0-100%). The base under it, a pill, holds a color that colors your
-   space (which color, how strong). The screen draws them as they're built, and each has a
-   Tape (a ruler under a fixed mark) to set how strong its light is for the part showing.
+   sets both. The head, white light like the sun's, shines on you (how strong, 0-100%). The
+   base under it holds a color that colors your space (which color, how strong). The screen
+   draws them as they're built, a rounded square over a pill, each dark and lit at its rim,
+   the head white, the base in its color (since 2026-11-20), and each has a Tape (a ruler
+   under a fixed mark) to set how strong its light is for the part showing.
    You turn the color part by hand, on the lamp itself, to point the color anywhere; the app
    doesn't.
 
@@ -45,7 +46,6 @@
   for (const name of Object.keys(NAMES)) COLOR[name] = hex(css.getPropertyValue(`--lamp-${name}`) || "#888888");
   const SUN = hex(css.getPropertyValue("--lamp-sun") || "#ffffff");
   const SURFACE = hex(css.getPropertyValue("--surface") || "#141416");
-  const RAISED = hex(css.getPropertyValue("--surface-raised") || "#1e1e21");
 
   // The day's parts and their scenes ---------------------------------------------------------
   // sun: the white light (0-1); color: the color light's color and c its strength (0-1);
@@ -255,6 +255,7 @@
     el.addEventListener("pointerdown", (e) => {
       if (e.button) return;
       draggedEnd = false;
+      begin();
       drag = { x: e.clientX, v: state[field], moved: false };
       el.setPointerCapture(e.pointerId);
     });
@@ -270,6 +271,7 @@
       if (drag.moved) { draggedEnd = true; remember(); }
       el.classList.remove("is-dragging");
       drag = null;
+      commit();
     };
     el.addEventListener("pointerup", end);
     el.addEventListener("pointercancel", end);
@@ -278,8 +280,10 @@
       if (!step) return;
       e.preventDefault();
       takeOver();
+      begin();
       set(state[field] + step * (e.shiftKey ? 4 : 1));
       remember();
+      settle();
     });
   }
 
@@ -323,9 +327,9 @@
   }
 
   // The scene sheet, for the part of the day showing when it opened: the part's hours, then
-  // one row per scene with a small lamp lit as that scene lights it (the head white with its
-  // sunlight, the base with its color, each as strong as it shows on the big lamp). The sheet
-  // glows from the top with the picked scene's light.
+  // one row per scene with a small lamp lit as that scene lights it (the big lamp in small,
+  // its head's rim white with the sunlight, its base's in the color, each as strong as it
+  // shows on the big lamp). The sheet glows from the top with the picked scene's light.
   let sheetPart = "morning";
   function renderScenes() {
     const x = part(sheetPart), on = sceneIndex(x), rec = x.rec ? x.rec.i : -1;
@@ -334,14 +338,13 @@
     $("scene-title").textContent = x.name;
     $("scene-when").textContent = `${fmt(from)} – ${fmt(to)}`;
     $("scenes").setAttribute("aria-label", `${x.name} scene`);
-    const unlit = blend(RAISED, WHITE, 0.07);
     $("scenes").innerHTML = x.scenes.map((s, i) => {
-      const headRgb = blend(unlit, SUN, strength(s.sun));
-      const baseRgb = s.color ? blend(unlit, COLOR[s.color], colorStrength(s.c)) : unlit;
+      const sunA = Math.round(strength(s.sun) * 100), colA = Math.round(colorStrength(s.c) * 100);
+      const fill = s.color ? rgbCss(COLOR[s.color]) : "transparent";
       const icon = `<svg class="scene-icon" aria-hidden="true"><use href="#${s.icon}"/></svg>`;
       const why = i === rec ? `<span class="scene-why"><span class="visually-hidden">Recommended: </span>${esc(x.rec.why)}</span>` : "";
       return `<button class="scene-option" type="button" role="radio" aria-checked="${i === on}" tabindex="${i === on ? 0 : -1}" data-i="${i}">
-        <span class="mini-lamp" aria-hidden="true"><i style="background:${rgbCss(headRgb)}"></i><i style="background:${rgbCss(baseRgb)}"></i></span>
+        <span class="mini-lamp" aria-hidden="true"><i style="--a:${sunA}%"></i><i style="--fill:${fill};--a:${colA}%"></i></span>
         <span class="scene-option-text"><span class="scene-option-name">${icon}<span>${esc(s.name)}</span><span class="visually-hidden">, ${esc(describe(asLight(s)))}.</span></span>${why}</span>
         <svg class="icon scene-check" aria-hidden="true"><use href="#i-check"/></svg>
       </button>`;
@@ -356,15 +359,15 @@
   // midway through a fade: the day's ruler shows those), and eases to the next part's.
 
   const head = $("head"), base = $("base");
-  // How strongly each light shows: a weak light still shows a little.
-  const strength = (v) => (v > OFF ? 0.15 + 0.85 * Math.pow(v, 0.7) : 0);
+  // How strongly the sunlight shows: in step with its number, so 6% looks weak (until late
+  // 2026-11-15 a curve lifted weak light, 6% drawing at about a quarter, and the head read as
+  // a lit gray card at night while the color led); a weak light still shows a little.
+  const strength = (v) => (v > OFF ? 0.06 + 0.94 * v : 0);
   // The color shows brighter sooner (the user, 2026-11-14: brighter color): even a weak
   // color glows clearly, still rising with its strength.
   const colorStrength = (v) => (v > OFF ? 0.42 + 0.58 * Math.pow(v, 0.6) : 0);
-  // Both parts keep light ink at any strength: the head lights at its rim and stays dark in
-  // the middle, and the base deepens inward from its bright edge, where its name sits in
-  // white (app.css).
-  const WHITE = [255, 255, 255];
+  // Both parts keep their numbers in light ink at any strength: each lights at its rim and
+  // stays dark in the middle, where its number sits (app.css).
 
   function paintLamp(l, id) {
     const sunA = strength(l.sun), colA = colorStrength(l.c);
@@ -373,8 +376,9 @@
     $("sun-value").textContent = pct(l.sun);
     paintTape(sunTape, l.sun, saySun(l));
 
-    const rgb = rgbCss(l.rgb);
-    $("color-fill").style.setProperty("--fill", rgb);
+    // The base's rim lights in the color (app.css, --fill, which eases to a new color). A
+    // color that's off keeps the last one as it fades out, rather than going gray.
+    if (l.color && l.c > OFF) $("color-fill").style.setProperty("--fill", rgbCss(l.rgb));
     $("color-fill").style.opacity = colA.toFixed(3);
     base.classList.toggle("is-lit", colA > 0);
     $("color-value").textContent = l.c > OFF ? pct(l.c) : 0;
@@ -404,6 +408,7 @@
     surface.addEventListener("pointerdown", (e) => {
       if (e.button) return;
       takeOver();
+      begin();
       drag = { x: e.clientX, v: level() * 100, moved: false, onTape: el.contains(e.target) };
       surface.setPointerCapture(e.pointerId);
     });
@@ -423,6 +428,7 @@
         set(Math.round(drag.v + (e.clientX - (r.left + r.width / 2)) / scale / PX));
       }
       drag = null;
+      commit();
     };
     surface.addEventListener("pointerup", end);
     surface.addEventListener("pointercancel", end);
@@ -436,7 +442,9 @@
       else return;
       e.preventDefault();
       takeOver();
+      begin();
       set(next);
+      settle();
     });
     return tape;
   }
@@ -626,10 +634,13 @@
 
   // Sheets ----------------------------------------------------------------------------------
 
+  // Everything done in one visit to a sheet is one change, to undo at once (commit, begin).
   let opener = null;
   function openSheet(id, from) {
     stopGlide();
     stopPlay();
+    commit();
+    begin();
     opener = from;
     state.sheet = id;
     $(id).classList.add("is-open");
@@ -643,6 +654,7 @@
     $(state.sheet).classList.remove("is-open");
     device.classList.remove("has-sheet");
     state.sheet = null;
+    commit();
     if (opener) opener.focus({ preventScroll: true });
   }
   for (const b of document.querySelectorAll("[data-close]")) b.addEventListener("click", closeSheet);
@@ -723,19 +735,31 @@
   }
 
   let chosen = false;   // the visitor picked a city (or one was saved): don't replace it with a guess
-  function setCity(city, save = true) {
+  // picked: a city the visitor chose, so a new place starts from its recommendations. A guess
+  // (picked false) keeps the scenes and strengths: they were set for the visitor, wherever
+  // the guess lands, and may just have been recalled from the last visit.
+  function setCity(city, picked = true) {
     state.city = city;
     state.weather = null;
-    for (const x of PARTS) { x.pick = null; x.tune = null; }   // a new place: back to its recommendations
-    if (save) remember();
+    if (picked) {
+      for (const x of PARTS) { x.pick = null; x.tune = null; }   // a new place: back to its recommendations
+      remember();
+    } else {
+      // The guess stands in for the place the visit began with, so Undo doesn't go back to it.
+      for (const u of [...undos, pending]) if (u && !u.chosen) u.state.city = city;
+    }
     replan();
     loadWeather();
   }
 
-  // Remembered between visits, in this browser only.
+  // Remembered between visits, in this browser only: where you live (once you chose it), your
+  // two times, and each part's scene and strengths if you changed them (the scene by its
+  // name, since 2026-11-15; until then a scene or strength you set was gone on reload).
   const KEY = "light-life";
   function remember() {
-    try { localStorage.setItem(KEY, JSON.stringify({ city: chosen ? state.city : null, wake: state.wake, bed: state.bed })); } catch { /* private mode */ }
+    const parts = {};
+    for (const x of PARTS) if (x.pick !== null || x.tune) parts[x.id] = { scene: x.pick === null ? null : x.scenes[x.pick].name, tune: x.tune };
+    try { localStorage.setItem(KEY, JSON.stringify({ city: chosen ? state.city : null, wake: state.wake, bed: state.bed, parts })); } catch { /* private mode */ }
   }
   function recall() {
     let saved = null;
@@ -750,7 +774,79 @@
       state.city = { name: c.name, region: String(c.region || ""), country: String(c.country || ""), lat: c.lat, lon: c.lon, tz: c.tz };
       chosen = true;
     }
+    const parts = saved.parts && typeof saved.parts === "object" ? saved.parts : {};
+    for (const x of PARTS) {
+      const p = parts[x.id];
+      if (!p || typeof p !== "object") continue;
+      const i = x.scenes.findIndex((s) => s.name === p.scene);
+      if (i >= 0) x.pick = i;
+      const tune = {};
+      for (const k of ["sun", "c"]) {
+        const v = p.tune?.[k];
+        if (Number.isFinite(v) && v >= 0 && v <= 1) tune[k] = v;
+      }
+      if (Object.keys(tune).length) x.tune = tune;
+    }
   }
+
+  // Undo ----------------------------------------------------------------------------------------
+  // No Save (the user's idea, 2026-11-15, was undo, save, then play): every change keeps
+  // itself, as the lamp shows it the moment you make it, and Play a day is the preview, so a
+  // change goes: make it, play the day to see how it runs, and Undo if you don't like it.
+  // Undo takes back one change at a time, back to how the visit began; it shows, left of the
+  // ruler's buttons, only while there's something to take back. A change is one gesture: a
+  // drag from press to let-go, a run of arrow keys, or all you do in one visit to a sheet
+  // (scenes, times, where you live). Undo goes back to the time that was showing when the
+  // change was made, so you see it come undone on the lamp.
+  const undos = [];
+  let pending = null, settleTimer = 0;   // how things were when the change under way began
+  const snap = () => ({ city: state.city, wake: state.wake, bed: state.bed, parts: PARTS.map((x) => ({ pick: x.pick, tune: x.tune })) });
+  const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  function begin() { if (!pending) pending = { state: snap(), chosen, view: state.preview }; }
+  function commit() {
+    clearTimeout(settleTimer);
+    if (!pending) return;
+    const was = pending;
+    pending = null;
+    if (same(was.state, snap())) return;
+    undos.push(was);
+    if (undos.length > 50) undos.shift();
+    remember();
+    paintUndo();
+  }
+  // Keys: presses in quick succession (or held down) are one change.
+  function settle() { clearTimeout(settleTimer); settleTimer = setTimeout(commit, 700); }
+  function undo() {
+    commit();
+    const was = undos.pop();
+    if (!was) return;
+    takeOver();
+    const s = was.state, moved = s.city !== state.city;
+    state.city = s.city;
+    chosen = was.chosen;
+    state.wake = s.wake;
+    state.bed = s.bed;
+    PARTS.forEach((x, n) => { x.pick = s.parts[n].pick; x.tune = s.parts[n].tune; });
+    state.preview = was.view;
+    if (moved) state.weather = null;
+    remember();
+    replan();
+    if (moved) loadWeather();
+    paintUndo();
+  }
+  function paintUndo() {
+    const b = $("undo"), on = undos.length > 0;
+    b.classList.toggle("is-on", on);
+    // The button goes away with the last change: the ruler keeps the keyboard.
+    if (!on && document.activeElement === b) ruler.focus({ preventScroll: true });
+  }
+  $("undo").addEventListener("click", undo);
+  document.addEventListener("keydown", (e) => {
+    if (e.key.toLowerCase() !== "z" || !(e.metaKey || e.ctrlKey) || e.shiftKey || e.altKey) return;
+    if (state.sheet || !(undos.length || pending)) return;   // in the city search, Undo is the field's
+    e.preventDefault();
+    undo();
+  });
 
   // Sheet: where you live (search) ----------------------------------------------------------
 

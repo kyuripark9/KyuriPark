@@ -24,8 +24,8 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 | `/` | Work, the site's first page since 2026-11-12 (the user's ask: the projects first, plainly): everything, the projects first, in one grid of tiles, so a visitor sees every project at once. Laid out after gougoucore.com's Work since 2026-11-13 (the user's ask): a sentence across the page right under the header (`"work"` → `"statement"` in `content/site.json`, in the display style; from 768px (since 2026-11-15, the user's ask) it fills the window from the header's left gutter to its right in two lines, both edge to edge, its size the width over its longer line (`main.js` finds the break that makes the two lines most alike, here after WORKING, 17.2em each: 80px at 1440px, 110px at 1980px), on phones lines from the left at the display's size (justified at the display's size inside the page's width from 2026-11-13, its first line's gaps 2 to 4 times the last's; from the left, ragged, on 2026-11-14); leave it out for no sentence), then the tiles from the window's left edge to its right, 3 across from 768px and 2 on phones, with no gaps, only 1px lines between them (in the text color until 2026-11-23; construction lines since, lighter, with a registration mark, a + in ink, where they cross: see Drawing system); while one tile is hovered the others go under tracing paper; each image tall (18:25, `--tile-ratio`), with a bar under it, the item's number ("001") at the left and its title at the right. A last row that isn't full is closed with an empty cell (or two) drawn in the same lines, so the grid ends in a rectangle (since 2026-11-14; Archive's too). The first time it opens in a tab, the opening plays over it (see Motion, "Home intro"). Its filters ("All 08   Digital 06   Brand 04   Physical 02", `/#digital` and so on) are off since 2026-11-09: `WORK_FILTERS` in `build.py` brings them back. `HOME_TRACK = True` in `build.py` brings Home back here, as it was from 2026-11-10 to 11-12 (laid out from the user's own sketch: the sentence that says who this is, `"home"` → `"lead"` in `content/site.json`, the featured projects on a wheel, the middle one's name, the sound switch and the 01 / 05 count; see Motion, "Home loop") and moves the grid to `/work/`. **RING / GRID** (since 2026-11-12, `WORK_RING` in `build.py`): at the right of the line over the grid, from 768px, RING shows the same items as objects on a slowly turning oval ring (`assets/js/ring.js`, after sarahsarazen.com/#projects), each one's own `object` image or, until it has one, a gray stand-in shape (`templates/ring.html`); the name and type · year of the object in front (or under the mouse) sit in the ring's middle. The ring showed first (the same evening, the user's ask; `RING_FIRST`); the browser remembers a visitor's pick. Phones get the grid only. Off since 2026-11-13, with gougoucore's layout (`WORK_RING = False`); `True` brings the ring and its switch back, the switch on its line under the sentence. Over the grid since 2026-11-22 (the user's ask, with the project pages' drawing sheets; `GRID_AXES` in `build.py`, Archive's too; see Drawing system), an architect's axis bubbles: over the middle of each column a 28px circle with its letter (A, B, and C from 768px), and a dash-and-dot center line from it down to the grid's top line |
 | `/work/` | Not a page while Work is at `/` (`HOME_TRACK` off): it sends visitors straight on to `/` (old links keep working). With `HOME_TRACK` on, Work's grid is here; `WORK_VIEWS = True` in `build.py` then adds two icons over it (grid, slider; `VIEW_ICONS`) that switch it to the same items on the loop |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html`. Laid out as Work is since 2026-11-14 (the user's ask): the title 16px under the header, where Work's sentence starts; lines in the text color from the window's left edge to its right (over the facts, impact numbers, and Previous / Next); Role · Team · Timeline in Work's columns (2 on phones, 3 from 768px), so they start where the tiles' numbers do; a section's heading and text in the window's halves from 768px; every image edge to edge (up to 1920px), with a 1px line where two meet, side by side or one under the other. (Until then: the title lower, under where Work's filters were; gray lines and images, 12px apart, inside the page's width). Drawn as an architect's drawing sheet since 2026-11-22 (the user's ask: a visual identity from their own story, the architect they wanted to be as a kid; `SHEET_PROJECTS` in `build.py`, on Light Life first, on every project page the same day; `.is-sheet` in `style.css`): the facts are a title block, cells in the window-wide lines in Work's columns: Role, Team, and Scale, then the timeline as a dimension line across two (ticks spaced by the years between `milestones`, each year over the line and its note under it) and, in the third, the sheet: its Work number (005 / 008) beside the logo as a stamp, its two suns called out DIGITAL and EVERYDAY LIFE and the place their rays cross WHERE THEY MEET (Work's sentence). Each section's heading is a detail callout, a circle split by a line, the section's number over the sheet's, the line running on under the heading; Previous / Next carry the sheets' numbers (Previous · 004). `SHEET_PROJECTS = False` puts the facts back in one row |
-| `/archive/` | Archive: personal work and hobbies. Since 2026-11-23 a binder of tracing-paper sheets, one a scale, punched, the images loose on each, the sheets laid over one another as the page scrolls (see Archive). Before: a gallery of images with nothing under them. A separate page with its own data. Laid out after gougoucore.com's Lab since 2026-11-13: Work's tiles and lines without the bars, starting right under the header, each image cropped to the tall tile (the lightbox shows it whole). Since 2026-11-22 the axis bubbles stand between the header and the grid, as over Work's (`GRID_AXES`; see Drawing system), so the grid draws its own top line under them. Since later that day it is drawn as a plan (`ARCHIVE_PLAN`; see Archive below): the user's line "Different scales, same subject: how people actually live." in Work's sentence's style, then a column for each scale, A Object, B Page, C Screen, D Space, each image in its scale's column |
-| `/about/` | Laid out after gougoucore.com/3/ since 2026-11-13 (the user's ask): the About text as one paragraph across the page right under the header, in the display style (its first words, KYURI DESIGNS, in the accent face, then the rest), then a Q&A in a small row (since 2026-11-14): the label under the header's WORK, the questions under ARCHIVE, each opening its answer when clicked; the footer is its contact list (`/about/#contact`). Experience (the same kind of row) is off since late 2026-11-13: the header's RESUME has the jobs. The Q&A's label is a detail callout since 2026-11-22, Q over A (see Drawing system). Since the same day, between the paragraph and the Q&A, the scales (`ABOUT_SCALES`): site.json's `scales` as a title block, a cell each in the window-wide lines, A Object, B Page, C Screen, D Space, each with the field it comes from (Industrial design, Graphic design, UX design, Architecture), a line from the user's Q&A, and a link to its column on Archive. Since 2026-11-23 (`ABOUT_ORBITS`, the user's moodboard) the scales are drawn too, as orbits round what they share: one ellipse a scale, smallest in, tilted, a dot on each with its bubble and name (the bubble alone on phones), a dotted line out to it from the middle; Space dashed, its dot open (the architect the user didn't become); straight down from the middle "How people actually live", and "Different scales, same subject" in the corner (`"scalesDrawing"` in `content/site.json`, the user's line from the Q&A). Over the cells, or beside them from 1200px (the drawing in five eighths); hovering a cell draws its orbit alone. Space is drawn honestly (the user's ask, the same day: `"unreached"` and `"touches"` on its scale): its dashed orbit carries where their life came near architecture anyway, along its top, in order: an open mark where it began (as a kid: buildings in magazines), then a stretch drawn solid for each time it did (Temple: architecture classes; Philly Fashion Week: spatial UX; Clayco: the rebrand), each with its words over it; beside its open dot, in the display face's italic, "I never became one." (the user's words, from the Q&A); a legend in the corner, solid "Studied, worked", dashed "Wanted to be" (`"legend"`). On phones the dots carry their bubbles alone and the story's words are left to the cells. Since 2026-11-23 About is also a page from the user's binder, three holes down the window's left edge from 768px, and the Q&A reads as a journal's entries: each question numbered 01 to 06 in the mono, the question in the display face as typed, a construction line between them, the answer in the text's face |
+| `/archive/` | Archive: personal work and hobbies. Since the afternoon of 2026-11-24 one map: every image on one sheet, gathered by scale round what they share, a line from each to its scale's bubble and from each bubble to "How people actually live", with no words beside the images (see Archive). Earlier that day one drawing that told one story, down one axis: the scales in order along it, every image a numbered station on it, Space's story at its end. From 2026-11-23 a binder of tracing-paper sheets, one a scale, punched, the images loose on each, the sheets laid over one another as the page scrolls (see Archive). Before: a gallery of images with nothing under them. A separate page with its own data. Laid out after gougoucore.com's Lab since 2026-11-13: Work's tiles and lines without the bars, starting right under the header, each image cropped to the tall tile (the lightbox shows it whole). Since 2026-11-22 the axis bubbles stand between the header and the grid, as over Work's (`GRID_AXES`; see Drawing system), so the grid draws its own top line under them. Since later that day it is drawn as a plan (`ARCHIVE_PLAN`; see Archive below): the user's line "Different scales, same subject: how people actually live." in Work's sentence's style, then a column for each scale, A Object, B Page, C Screen, D Space, each image in its scale's column |
+| `/about/` | Laid out after gougoucore.com/3/ since 2026-11-13 (the user's ask): the About text as one paragraph across the page right under the header, in the display style (its first words, KYURI DESIGNS, in the accent face, then the rest), then a Q&A in a small row (since 2026-11-14): the label under the header's WORK, the questions under ARCHIVE, each opening its answer when clicked; the footer is its contact list (`/about/#contact`). Experience (the same kind of row) is off since late 2026-11-13: the header's RESUME has the jobs. The Q&A's label is a detail callout since 2026-11-22, Q over A (see Drawing system). Since the same day, between the paragraph and the Q&A, the scales (`ABOUT_SCALES`): site.json's `scales` as a title block, a cell each in the window-wide lines, A Object, B Page, C Screen, D Space, each with the field it comes from (Industrial design, Graphic design, UX design, Architecture), a line from the user's Q&A, and a link to its column on Archive. Since 2026-11-23 (`ABOUT_ORBITS`, the user's moodboard) the scales are drawn too, as orbits round what they share: one ellipse a scale, smallest in, tilted, a dot on each with its bubble and name (the bubble alone on phones), a dotted line out to it from the middle; Space dashed, its dot open (the architect the user didn't become); straight down from the middle "How people actually live", and "Different scales, same subject" in the corner (`"scalesDrawing"` in `content/site.json`, the user's line from the Q&A). Over the cells, or beside them from 1200px (the drawing in five eighths); hovering a cell draws its orbit alone. Space is drawn honestly (the user's ask, the same day: `"unreached"` and `"touches"` on its scale): its dashed orbit carries where their life came near architecture anyway, along its top, in order: an open mark where it began (as a kid: buildings in magazines), then a stretch drawn solid for each time it did (Temple: architecture classes; Philly Fashion Week: spatial UX; Clayco: the rebrand), each with its words over it; beside its open dot, in the display face's italic, "I never became one." (the user's words, from the Q&A); a legend in the corner, solid "Studied, worked", dashed "Wanted to be" (`"legend"`). Since 2026-11-24 the drawing is in 3D, a globe that turns, and it is the whole section: the user as a designer in one simple picture (`ABOUT_GLOBE`, `assets/js/globe.js`; the user's asks that day: an orbit diagram turning in 3D, from their Pinterest; the drawing and its words as one image; then simpler, showing who they are as a designer rather than their schools and workplaces). "Different scales, same subject" in the corner; the scales as orbits round the middle, a sphere in a globe's faint lines round them all (its rim in ink with a tick at each quarter, dotted axes through its middle), Object and Page on its equator, Screen and Space tilted across it opposite ways; each scale's dot with its bubble and name (A Object), a dotted line to it from the middle; Space round the globe itself, dashed, its dot open; and under the globe, in the display face, what it's all about: "How people actually live". Beside the globe from 1024px (under it before), one scale's note at a time (the user's ask, the same day: the names on the globe, the rest beside it): its bubble and name, its field in the display face (Industrial design), and for Space "I never became one." in the italic; it's the scale chosen (the pointer over its name, or a click or tap on it until another), or while none is, the one in front, the note fading into the next as the globe turns. Nothing else is on it (the user's work, lines between scales, and the places on Space's orbit were on it for a few hours and made it hard to read; the legend went with them). The globe turns once a minute, leaning toward you a little more and a little less, so the orbits open and close as they go round; the far halves of the orbits go faint, a name is faint while its dot is round the back, and when two names would land on one another the nearer stays and the other fades out until there's room (none goes over the words under the globe or past the window's edge). Chosen by hand, the globe slows to a stop and that orbit is drawn alone; a drag sideways turns it by hand. It turns only while on screen; with reduced motion it stands still. The cells are for screen readers only with it (saying the same: the scale, its field, Space's words); without JavaScript, which draws it, the drawing isn't shown and the cells are. `ABOUT_GLOBE = False` brings back the flat, still drawing beside its cells. On phones the dots carry their bubbles alone and the story's words are left to the cells. Since 2026-11-23 About is also a page from the user's binder, three holes down the window's left edge from 768px, and the Q&A reads as a journal's entries: each question numbered 01 to 06 in the mono, the question in the display face as typed, a construction line between them, the answer in the text's face |
 | `/contact/` | Not a page: it sends visitors straight on to `/about/#contact` (old links keep working) |
 
 Contact is the footer (`#contact`), the same on every page (the header's last link went to it
@@ -103,6 +103,7 @@ assets/js/main.js       Work's sentence's size, filter, lightbox, fade-ups, coun
 assets/js/track.js      the project loop (Work's slider; Home's with HOME_TRACK), its dots and lean on phones
 assets/js/ring.js       Work's RING view (WORK_RING): the objects on a turning oval ring
 assets/js/intro.js      Home's opening, the first time Home opens in a tab
+assets/js/globe.js      About's drawing of the user as a designer, a globe that turns (ABOUT_GLOBE)
 templates/              page structure (header, footer, home, work and its toggle, archive and
                         its plan, lightbox, project, about, 404, and the /contact/ redirect)
 dist/                   the generated site. Never edit; it's rebuilt every time.
@@ -311,7 +312,78 @@ items of this kind that the filter is showing). Its images go in `assets/images/
 `/archive/` is built from `content/archive.json`, separate from the projects. Each entry is one
 image.
 
-**Since 2026-11-23 it's a binder** (`ARCHIVE_BINDER` in `build.py`, over `ARCHIVE_PLAN`; the
+**Since the afternoon of 2026-11-24 it's one map** (`ARCHIVE_MAP` in `build.py`, over the
+others; the user's ask: Archive shows their work and who they are in images more than words,
+one map rather than a list, after an architecture student's narrative sheet: pieces of work
+collaged across one sheet, overlapping, thin lines from them meeting at a few points, a legend
+in the corner). Under the sentence and an ink line, one sheet on the paper itself:
+
+- **The images**, every one, each in its own shape (read from the file; the gray box's until it
+  exists), gathered by `scale`: a scale's first image in the middle of its group, the rest
+  round it in a sunflower's spiral, overlapping a little, as prints laid on a sheet; each
+  scale's a little bigger than the one before (Object smallest, Space biggest). Nothing beside
+  them: the scale, date and caption are in the lightbox. They're prints on the paper, in grays
+  and multiplied into it, so the lines, the grain and each other show through; hovered, one
+  comes in its own colors over the others, its scale's lines stay and the rest go pale, and the
+  other images go under tracing paper, as on Work. With JavaScript, those below the window fade
+  up as they come on screen.
+- **The lines**, 1px in ink: from a small square on each image to its scale's bubble and name
+  (A Object), and from each bubble to a dot, what they share, with its words under it
+  (`scalesDrawing.center`, "How people actually live"); Space's dashed, with `"unreached"` under
+  its name in the display face's italic, "I never became one." (Space's `"touches"` aren't on
+  the map: the user wants who they are as a designer, not their schools and workplaces.)
+- **The drawing**, worked out by the build (`map_layout`), twice: from 768px the scales fan over
+  the dot from its left to its right, smallest first (`MAP_FAN`); on phones they go down the
+  sheet, left and right of its middle in turn, the dot after the first half. Each is in percent
+  of the sheet, so it scales with the window. Its numbers (how far out, how far apart, how much
+  bigger) are the `MAP_` settings in `build.py`.
+- **The legend** under the sheet at its right (`scalesDrawing.legend`): solid "Studied, worked",
+  dashed "Wanted to be".
+
+`/archive/#object` and the rest land on their bubble (About's scales link them).
+`ARCHIVE_MAP = False` brings back the sequence described next.
+
+**For a few hours on 2026-11-24 it was one sequence** (`ARCHIVE_SEQUENCE` in `build.py`, over `ARCHIVE_BINDER`
+and `ARCHIVE_PLAN`; the user's ask: keep the drawing and the tracing paper, and tell one story
+with all the images, after an architecture student's masterplan sheet on their Pinterest,
+"Across the Arid Landscape": one axis down the sheet, fragments of images collaged along it,
+stations I to IX called out at the side on dashed leaders, photos grouped in brackets, a scale
+bar and a legend at the foot). Under the sentence and an ink line, on the paper itself:
+
+- **The axis**: 1px in ink down the window's middle from 1200px, near its left edge under that;
+  solid for what the user studied and worked in, dashed through Space (the architect they
+  wanted to be). A construction line runs ahead of it, and the ink is drawn down it to the
+  window's middle as the page scrolls (scroll-driven, where the browser supports it; whole
+  otherwise, and with reduced motion).
+- **The scales**, in site.json's order, each a stretch of the axis: its bubble and name, its
+  count (`02 PIECES`), the field in the display face and the user's own line. From 1200px they
+  sit at the left in a bracket as long as the stretch and stay in view while it scrolls by;
+  under 1200px over the stretch.
+- **The stations**: every image, in its scale's stretch in the file's order, numbered I, II,
+  III down the whole axis. Each keeps its own shape (read from the file; the gray box's until
+  it exists), lies across the axis, left and right of it in turn (on phones across it or at
+  the right edge), each scale's a little wider than the one before (Object smallest, Space
+  widest), overlapping the one before a little. Its words, from 1200px in the right three
+  twelfths, under it below that: its number in a filled bubble at the end of a dashed leader
+  from the axis (a small square where the leader leaves it), its scale and date in the label
+  style, its caption in the text's italic. The images are prints on the paper: in grays and
+  multiplied into it, so the axis, the leaders and the grain show through; hovered, one comes
+  in its own colors and the others go under tracing paper, as on Work. Clicked, the lightbox,
+  its caption line starting with the number: "III · Page · 2025-08". With JavaScript they fade
+  up as they come on screen.
+- **Space's story**, marked on its dashed stretch before its images (`"touches"`): an open mark
+  where it began (as a kid, buildings in magazines), a short solid stretch for each time after
+  (Temple's classes, spatial UX at Philly Fashion Week, the Clayco rebrand), the words beside
+  the axis; where the axis ends, `"unreached"` in the display face's italic: "I never became
+  one."
+- **The key**, under the axis's end: a scale bar of the scales, each longer than the one before,
+  filled and open in turn, Space dashed; and the legend (`scalesDrawing.legend`), solid
+  "Studied, worked", dashed "Wanted to be".
+
+`/archive/#object` and the rest land on their stretch (About's scales link them). The binder
+described next is what `ARCHIVE_SEQUENCE = False` brings back.
+
+**From 2026-11-23 to 11-24 it was a binder** (`ARCHIVE_BINDER` in `build.py`, over `ARCHIVE_PLAN`; the
 user's ask: Archive with more of who they are and a story, after their moodboards: a journal's
 punched pages, a vellum book, layered tracing sheets, a loose grid of objects with small
 labels). Under the sentence ("Different scales, same subject: how people actually live."), one
@@ -381,19 +453,23 @@ Each entry then names its scale:
 | --- | --- |
 | `id` | Required. A number in quotes (`"009"`), not shown on the page; screen readers announce it as "Image 009". Each one has to be different |
 | `src` | Required. A file in `assets/images/archive/`. Each entry needs its own file name (not `009.jpg` and `009.webp`) |
-| `scale` | Required with the plan. One of site.json's `scales` (any case): its column. The build stops and names the entry if it isn't |
-| `caption` | Optional. Only in the lightbox, on one line with the date; a caption too long for the screen is cut short with "…" (the date never is). Leave it `""` to show nothing |
+| `scale` | Required with the map, the sequence and the plan. One of site.json's `scales` (any case): its column. The build stops and names the entry if it isn't |
+| `caption` | Optional. On the map (since 2026-11-24) only in the lightbox (and for screen readers); in the sequence under its station's scale, in the text's italic; in the lightbox, on one line with the date; a caption too long for the screen is cut short with "…" (the date never is). Leave it `""` to show nothing |
 | `date` | Optional. Shown as you write it |
 | `alt` | What the image shows, for screen readers. The build reminds you if a real image has none |
 
-- **Add an image:** save it in `assets/images/archive/` and add an entry. Any shape works: on the
-  page every image is cropped to fill the same tall tile (18:25, since 2026-11-13), so keep the
-  subject near the middle; the lightbox shows it whole. Its size is read from the file.
+- **Add an image:** save it in `assets/images/archive/` and add an entry. Any shape works: on
+  the map and in the sequence (since 2026-11-24) it keeps its own shape; the binder, the plan and the gallery
+  crop it (the gallery to the same tall tile, 18:25, since 2026-11-13), so keep the subject
+  near the middle; the lightbox shows it whole. Its size is read from the file.
 - **Swap a gray box:** save your image under the name in its `src` (`001.jpg`, and so on). To use
   another format, like `.webp`, change `src` too. Until the file exists, an entry shows as a gray
   box, in eight shapes in turn (`ARCHIVE_BOXES` in `build.py`).
-- **Reorder:** with the plan, an image's column comes from its `scale`; in one column, the
-  file's order runs top to bottom. Without it (`ARCHIVE_PLAN = False`, or no `scales`), the
+- **Reorder:** on the map, an image's group comes from its `scale`; in one group the file's
+  first is in its middle and the rest go round it in the file's order. In the sequence, an image's stretch of the axis comes from its `scale`; in one
+  stretch, the file's order runs down the axis, and the numbers I, II, III follow. With the
+  plan, an image's column comes from its `scale`; in one column, the file's order runs top to
+  bottom. Without it (`ARCHIVE_PLAN = False`, or no `scales`), the
   plain gallery: rows fill from left to right in the file's order, so 001, 002, and 003 are the
   first row (since 2026-11-13; columns filled from top to bottom before).
 - **Add a scale:** add it to site.json's `scales`: a column on Archive (E) and a cell on About.
@@ -595,10 +671,10 @@ tokens named after it, each set once, under "Shared text styles":
 | title | Source Serif Display 300, as typed | 18px, 23px from 768px, 29px from 1200px, 36px from 1440px | 1, -0.01em | impact numbers, Previous / Next titles |
 | lead | Source Serif Text 400, as typed | 20px, growing with the window to 28px | 1.35, 0 | a project's statement |
 | body | Source Serif Text 400, as typed; links 500 | 16px | 1.5, 0 | text, About's Q&A answers and the scales' lines |
-| name | IBM Plex Mono 400, capitals | 12px | 1.5, 0 | the header's links, the footer, project names (Work, Archive, the lightbox), the lightbox's Close |
+| name | IBM Plex Mono 400, capitals | 12px; the opening's name 24px | 1.5, 0 | the header's links, the footer, project names (Work, Archive, the lightbox), the lightbox's Close, the opening's name |
 | label | IBM Plex Mono 400, capitals | 12px; Work's counts 10px | 16px, 0 | captions, a project's facts and section headings, the drawing system's words |
 
-Set where they are, in the display face: the opening's name (24px), About's questions (20 to
+Set where they are, in the display face: About's questions (20 to
 28px, numbered 01 to 06 in the mono), the scales' fields, an Archive sheet's field, and Space's
 "I never became one." in its italic. Inter and Martian Mono stay in `assets/fonts/` for the Light
 Life prototype; Kalnia (below) stays for going back.
@@ -701,29 +777,33 @@ book seen through vellum, orbits and ellipses in thin lines, a journal page, an 
 with mono labels, prints laid over layers) the drawings are on **tracing paper**: the page is
 the paper (`--color-bg`, a light warm gray, with a still grain, `--grain`), and a sheet of it,
 part see-through and frosted (`--vellum`), lies over what isn't in focus: the header as the page
-scrolls under it, the whole page in the opening (the sheet then lifts and the work comes sharp),
+scrolls under it, the user's portrait in the opening (since 2026-11-24 a sheet over the whole
+window, smooth and milky, the sentence typed on it, the portrait coming up under it as a print
+and sinking back),
 the page behind the lightbox, and on Work and Archive the tiles not hovered while one is. Grids
 are laid out in construction lines (`--trace-rule`) with registration marks in ink where they
-cross, and orbits join the parts. Still no color of their own; what moves is the sheet lifting
-and an orbit being drawn, once, in the opening.
+cross, and orbits join the parts. Still no color of their own; what moves is the portrait coming
+up under the sheet and sinking back, once, in the opening.
 
 In `assets/css/style.css` the tokens are under Tokens (`--axis-d`, `--callout-d`, `--tick`,
 `--tick-ext`, `--centerline`, `--mark`, `--mark-cross`, `--color-trace`, `--trace-rule`,
 `--vellum`, `--vellum-blur`, `--vellum-thin`, `--vellum-thin-blur`, `--vellum-thick-blur`,
 `--grain`) and the parts in the Drawing system section; in `build.py` the helpers are `axes`,
-`callout`, `dimension`, `sheet_meta`, `stamp`, `logo_key`, `archive_plan`, `about_scales`,
-`orbits`, and `home_intro`.
+`callout`, `dimension`, `sheet_meta`, `stamp`, `logo_key`, `archive_plan`,
+`archive_sequence`, `archive_station`, `archive_map`, `map_layout`, `about_scales`, `orbits`, and `home_intro`.
 
 | Part | What it is | Where |
 | --- | --- | --- |
 | Paper and grain (`--color-bg`, `--grain`) | the page, a light warm gray, and a fine still grain over the whole window, images too | every page |
-| Tracing paper (`--vellum`) | the paper's color, part see-through, frosted: what's under it goes soft. Thick (`--vellum-thick-blur`, 24px) over the whole window, thin (`--vellum-thin`, 50%, 5px) over a tile | the header (as the page scrolls under it), the opening (a sheet over the work that lifts), the lightbox, Work's and Archive's tiles not hovered while one is |
+| Tracing paper (`--vellum`) | the paper's color, part see-through, frosted: what's under it goes soft. Thick (`--vellum-thick-blur`, 24px) over the whole window, thin (`--vellum-thin`, 50%, 5px) over a tile | the header (as the page scrolls under it), the opening (since 2026-11-24 a sheet over the whole window, smooth and milky, the user's portrait under it as a print), the lightbox, Work's and Archive's tiles not hovered while one is |
 | Lines | 1px, in ink (the text color), from the window's left edge to its right | the header, a project's facts, About's scales, the footer |
 | Construction lines (`--trace-rule`) | 1px, lighter than ink (the text color at 30%): the lines a drawing is laid out on | Work's grid and Archive's plan (their lines since 2026-11-23); About's orbits' dotted rays |
 | Registration marks (`--mark`) | a + in ink, 15px across, where a grid's construction lines cross; none at the window's edges | Work's grid, Archive's plan |
-| Orbits | ellipses in 1px lines, a dot on each, dashed (its dot open) for what wasn't reached; their words in the label style on the paper's color, so lines break round them | the opening (the logo's two suns: DIGITAL dashed, EVERYDAY LIFE solid, the name where they meet); About's scales (`ABOUT_ORBITS`: A Object to D Space round "How people actually live", Space dashed: the architect the user didn't become, with where their life came near it drawn on it, see About) |
+| Orbits | ellipses in 1px lines, a dot on each, dashed (its dot open) for what wasn't reached; their words in the label style on the paper's color, so lines break round them | About's scales (`ABOUT_ORBITS`: A Object to D Space round "How people actually live", Space dashed: the architect the user didn't become, with where their life came near it drawn on it, see About; in 3D since 2026-11-24, round a globe that turns, `ABOUT_GLOBE`) |
 | Binder holes (`--holes`, `--hole-d`) | three holes, 14px, dark, down a strip's middle a third of its height apart, in the side margin; from 768px only (on phones the margin is too narrow and they read as bullets) | About (down the window's left edge, staying as the page scrolls), each Archive sheet |
-| Sheets | a page of tracing paper (`--sheet-paper`, frosted) under an ink line, punched, at least a window tall, laid over the one before as the page scrolls | Archive (`ARCHIVE_BINDER`) |
+| Sheets | a page of tracing paper (`--sheet-paper`, frosted) under an ink line, punched, at least a window tall, laid over the one before as the page scrolls | Archive (`ARCHIVE_BINDER`, 2026-11-23 to 11-24) |
+| Axis and stations (`.sequence`) | one axis down a page in ink, a construction line ahead of it, the ink drawn as the page scrolls, dashed for what wasn't reached; along it stations, each an image across it, its Roman number in a filled bubble at the end of a dashed leader (a small square where the leader leaves the axis); its stretches named in brackets at the side; marks on it for moments without images (an open one where a story began, short solid stretches after); a scale bar and a legend at its foot | Archive (`ARCHIVE_SEQUENCE`, since 2026-11-24) |
+| Map (`.atlas`, `.map`) | one sheet of images in their own shapes, overlapping in groups, from a small square on each a 1px line to its group's bubble and name, and from each bubble to one dot with its words; dashed for what wasn't reached; the legend under it; worked out by the build in percent of the sheet, one drawing from 768px and one on phones | Archive (`ARCHIVE_MAP`, since 2026-11-24) |
 | Axis bubbles (`.axes`) | a 28px circle over the middle of each column of a grid, with its letter (A, B, and C from 768px), and a center line (long dash, short dash) from it down to the grid; named (`.is-named`), its name beside it (over it on phones), every column at every width; alone beside a name (`.bubble`) | over Work's grid (`GRID_AXES`); Archive's plan, a column per scale (`ARCHIVE_PLAN`); About's scales (`ABOUT_SCALES`) |
 | Detail callout (`.callout`) | a 48px circle split by a line, a number over it and one under | a project's section headings (the section's number over the sheet's, 1 over 005, the line running on under the heading); About's Q&A label (Q over A); the 404 (? over 404) |
 | Title block | a set of facts as cells in the lines: a project's Role, Team, Scale, Timeline, Sheet, in Work's columns; the user's scales, A to D | every project page (`SHEET_PROJECTS`); About (`ABOUT_SCALES`) |
@@ -734,7 +814,8 @@ In `assets/css/style.css` the tokens are under Tokens (`--axis-d`, `--callout-d`
 
 To draw something new, reuse a part rather than adding one: a numbered thing takes a callout, a
 run of time a dimension line, a set of facts title-block cells, a grid axis bubbles and
-registration marks, things round a shared middle orbits, something out of focus tracing paper,
+registration marks, things round a shared middle orbits, a story told in order an axis with
+stations, something out of focus tracing paper,
 a page of the user's own (a journal, an archive) binder holes.
 Words stay in the label style, lines at 1px, circles plain.
 
@@ -768,8 +849,8 @@ spacing inside things (`--step-3` is 24px).
 
 ## Motion
 
-The site keeps motion to a short list: the home loop and its intro, the Work toggle's fade and its grid / slider switch's (the same 150 ms out, 250 ms in), the Work and Archive images growing slightly (3%) and Work's videos playing on hover, the other tiles going under tracing paper while one is hovered (250 ms, since 2026-11-23), an orbit on About drawn alone while its scale is hovered (200 ms), Archive's sheets staying as the next is laid over them (scrolling only, sticky), images
-fading up on project pages, a 300 ms fade between pages (in browsers that support it; others switch pages instantly), the lightbox fading in and out (200 ms), impact numbers counting up, and a smooth scroll to a spot on a page (`/about/#contact`). If a visitor has reduced
+The site keeps motion to a short list: the home loop and its intro, the Work toggle's fade and its grid / slider switch's (the same 150 ms out, 250 ms in), the Work and Archive images growing slightly (3%) and Work's videos playing on hover, the other tiles going under tracing paper while one is hovered (250 ms, since 2026-11-23), an orbit on About drawn alone while its scale is hovered (200 ms), About's globe turning (since 2026-11-24: a turn a minute, its lean rising and falling over 41 s, slowing to a stop under the pointer over a name, names fading in and out as they make room, only while on screen, still with reduced motion), Archive's sheets staying as the next is laid over them (scrolling only, sticky; the binder), Archive's axis drawn in ink down to the window's middle as the page scrolls (since 2026-11-24, scroll-driven where the browser supports it), images
+fading up on project pages and Archive's images, a 300 ms fade between pages (in browsers that support it; others switch pages instantly), the lightbox fading in and out (200 ms), impact numbers counting up, and a smooth scroll to a spot on a page (`/about/#contact`). If a visitor has reduced
 motion turned on, all of it is off, and the home loop jumps from card to card without easing.
 
 Home loop (back on Home since 2026-11-10, after a few hours as Work's SLIDER; `HOME_TRACK` in
@@ -909,25 +990,61 @@ it ran into the next tile's title 12px away, then for part of that day right aft
 Home intro: the first time Home opens in a browser tab, an opening says who this is before the
 work shows (since 2026-11-09; over Work's grid since 2026-11-10, over the home loop before).
 
-Since 2026-11-23 (the user's moodboard: a portrait seen through frosted paper, a vellum book,
-orbits drawn in thin lines; see Drawing system) it's a sheet of tracing paper over the work and
-the header (`--intro-vellum`, the paper at 60%, frosted 24px), so the work shows only as soft
-shapes. On it, in the window's middle, the logo's two suns are drawn as orbits in 1px lines,
-each from the top place where they cross, the left one leftward and the right one rightward, a
-dot riding each pen, 1.5 s, slow out of the crossing and back into it: the left, DIGITAL,
-dashed, the right, EVERYDAY LIFE, solid, their names over their outer edges as on the footer's
-logo (their middles 100 apart at radius 100, closer than the logo's, so each middle is on the
-other's circle and the name fits where they meet; up to 520px wide). A center line (long dash,
-short dash, as over Work's grid) runs out from the middle to the window's edges, and on it,
-where the suns meet, the name ("KYURI PARK", `"name"`, in the name style at 600) rises in word
-by word, 0.45 s into the drawing; the sentence ("DESIGNS WHERE DIGITAL MEETS EVERYDAY LIFE",
-`"opening"`) under the drawing in the label style, word by word from 1.3 s; a cross marks each
-sun's middle once they're drawn. 0.9 s after the last word the sheet lifts (1.1 s): its blur and
-its tint go together, the drawing fading, and the work comes sharp; about 4.6 s in all. A click
-or tap, a key, or the wheel cuts it short (the sheet then lifts in 0.3 s). To tune it: the
-numbers at the top of `assets/js/intro.js` (`DELAY`, `DRAW`, `NAME_AT`, `WORD_IN`, `STAGGER`,
-`RISE`, `LINE_AT`, `READ`, `LIFT`, `CUT`); "Home intro" in `assets/css/style.css` has the sheet
-and the drawing, `build.py`'s `home_intro` (and `INTRO_ORBITS`) draws it.
+Since 2026-11-24 (the user's asks, from their moodboard: a portrait seen through frosted paper
+with type printed on it, a card with a soft gray picture under it and small type on it, and
+their own blurred portrait) it's a sheet of tracing paper over the whole window from the start,
+the user's portrait under it as a print. The paper is as in those pictures: smooth and milky,
+the paper's color at 50% (`--intro-vellum`), diffusing what's under it a little (`--intro-diffuse`,
+6px, so the print's edge goes soft but shows), with a fine grain like a film's (the page's grain,
+`--grain`, laid once more on the sheet at 50%, `--intro-grain-strength`). The portrait
+(`"openingImage"` in `content/site.json`, `assets/images/opening.jpg`: the user's own
+motion-blurred black-and-white portrait, 1200 x 1600, its metadata taken out) lies under it with
+the paper's margin round it (`--intro-inset`, 5% of the window's shorter side, 16 to 56px), its
+head a little over the middle, soft all through (`--intro-frost`, 3% of the window's longer side,
+22 to 52px), so only its grays show, head and shoulders. First the sheet alone (0.2 s); then the
+portrait comes up through it (1.4 s, quick and then a long settle), its blur settling from 1.8
+times as it does, as if pressed closer to the paper, and 0.3 s in, the sentence that says who
+this is is typed on the sheet in its middle (since that afternoon, the user's ask; a 0.6 s fade
+before), a letter at a time, both in the mono in capitals (since that afternoon, the user's
+ask: one face; the name in the display face before): the name in the name's style at 24px
+(`--size-opening`), and under it, in the label style, the line that finishes it ("DESIGNS WHERE DIGITAL MEETS EVERYDAY LIFE", `"opening"`; the role
+without it). A caret, a thin upright in ink 1em tall, shows a little before the name's first
+letter (0.45 s), the name is typed (about 75 ms a letter, each 0.7 to 1.3 times that, so it
+reads as typed by hand), the caret goes to the sentence's first letter (0.35 s), and the
+sentence is typed quicker, its type being smaller (about 30 ms a letter); the caret steady while
+typing, blinking while it waits. Every letter is laid out from the start, hidden until typed,
+so a line doesn't move as it's typed. It stays 1.4 s from the last letter, the caret blinking
+after it; then the portrait sinks back under the paper, its blur growing again (0.9 s), the
+words fading, and the page is that paper: the work comes up on it (0.45 s, from 0.2 s before
+the portrait is gone); about 5.7 s in all. A click or tap, a key, or the wheel cuts it short (it
+all just fades, 0.3 s). The opening waits for the portrait as for the fonts (up to 2 s). To tune
+it: the numbers at the top of `assets/js/intro.js` (`DELAY`, `PHOTO_IN`, `TYPE_AT`, `LEAD`,
+`NAME_KEY`, `LINE_KEY`, `BREAK`, `READ`, `SINK`, `OUT`, `CUT`, `FAR`); "Home intro" in
+`assets/css/style.css` has the paper (`--intro-vellum`, `--intro-diffuse`,
+`--intro-grain-strength`), the print (`--intro-inset`, `--intro-frost`, its crop), and the
+letters and the caret; `build.py`'s `home_intro` writes it. Without
+`assets/images/opening.jpg`, a deep gray stand-in shows in its place.
+
+Before, that morning: the portrait filled the window first, sharp, and a sheet of tracing paper
+the shape of A4 (the paper at 55%, frosted 24px) slid up over it from under the window and
+settled in its middle, the words on it, then spread to the window's edges and became the page;
+the user asked for the paper to be over the portrait from the start. Then, for an hour, the
+portrait filled the window under the sheet and the paper was cloudy, its fibers' mottle laid
+over it in soft light from a texture tile, with light falling across it, and the name sat on a
+center line drawn out from it to the window's edges; the user found the paper unlike their
+pictures and asked for the words shown plainly, without the line. Then, briefly, the words faded
+in together (0.6 s), nothing else moving; the user asked for them typed.
+
+Before, from 2026-11-23 (the user's earlier moodboard: a portrait seen through frosted paper, a
+vellum book, orbits drawn in thin lines): a sheet of tracing paper over the work and the header
+(the paper at 60%, frosted 24px), the work only soft shapes under it; on it the logo's two suns
+drawn as orbits in 1px lines, each from the top place where they cross, a dot riding each pen,
+1.5 s, DIGITAL dashed and EVERYDAY LIFE solid, their names over their outer edges, a center line
+running out to the window's edges, the name rising in on it where the suns meet, word by word,
+and the sentence under the drawing; then the sheet lifted, its blur and tint going together, and
+the work came sharp; about 4.6 s. (Earlier on 2026-11-24, after two Pinterest pins, a picture of
+its own came up under that sheet instead of the work and came sharp as the sheet lifted; the
+same day the user's moodboard and portrait made it the sheet laid over the portrait.)
 
 Before, from 2026-11-10, after mastak.framer.website: a black screen (the text color) over the work and the
 header, with the name ("KYURI PARK", `"name"` in `content/site.json`) in its middle, in the

@@ -43,6 +43,7 @@ PLACEHOLDER_SIZES = {
     "piece": (1440, 2000),     # 18:25, the images of an item with no page of its own, as a
                                # cover (4:3 until 2026-11-14)
     "archive": (1200, 1500),   # 4:5, an Archive image whose size can't be read
+    "opening": (1200, 1600),   # 3:4, the print under the opening's sheet (cropped to the window)
 }
 # The gray boxes that stand in for Archive images in the lightbox until the files exist, in
 # turn: 4:5, 1:1, 3:2, 3:4, 16:9, 2:3, 5:4, 3:5. Real images keep their own shape there. (On the
@@ -156,6 +157,35 @@ ARCHIVE_PLAN = True
 # the user's ask: Archive with more of who they are and a story; archive_binder). Over
 # ARCHIVE_PLAN when both are on.
 ARCHIVE_BINDER = True
+# Archive as one drawing that tells one story (since 2026-11-24, the user's ask, from an
+# architecture student's sheet on their Pinterest, "Across the Arid Landscape": a masterplan's
+# sequence drawn down one axis, fragments of images collaged along it, numbered stations I to IX
+# called out at the side, the photos grouped by brackets, a scale bar and a legend at the foot):
+# one axis down the page, the scales in order along it, A Object to D Space, every image a
+# station on it, numbered I, II, III in the story's order, its words at the side on a dashed
+# leader; each scale's name, field and line at the left in a bracket; the axis solid for what
+# the user studied and worked in, dashed for Space, the architect they wanted to be, with where
+# their life came near it marked on it and "I never became one." where it ends; under it a scale
+# bar of the four scales and the legend (archive_sequence). Over ARCHIVE_BINDER and ARCHIVE_PLAN
+# when on. False: the binder.
+ARCHIVE_SEQUENCE = True
+# How wide a station's image shows: up to about a third of the window from 1200px (the axis's
+# side, at Space's width), most of it on phones.
+SEQUENCE_SIZES = "(min-width: 1200px) 32vw, (min-width: 768px) 64vw, 90vw"
+# Archive as one map (since 2026-11-24, the user's ask: Archive shows their work and who they
+# are in images more than words, as one map rather than a list, after an architecture
+# student's narrative sheet: pieces of work collaged across one sheet, overlapping, thin lines
+# from them meeting at a few points, a legend in the corner): every image on one sheet,
+# gathered by scale round what they share, site.json's scalesDrawing "center" ("How people
+# actually live"), a line from each image to its scale's bubble and one from each bubble to
+# that; Space's lines dashed, "I never became one." at its bubble; no words beside the images
+# (their captions are in the lightbox). From 768px the scales fan out over it, smallest at the
+# left, as the sheet reads; on phones two over it and two under (archive_map, map_layout).
+# Over ARCHIVE_SEQUENCE, ARCHIVE_BINDER and ARCHIVE_PLAN when on. False: the sequence.
+ARCHIVE_MAP = True
+# How wide a map's image shows: up to about a quarter of the window from 768px (Space's
+# biggest), about half on phones.
+MAP_SIZES = "(min-width: 768px) 26vw, 56vw"
 # About's scales (since 2026-11-22, the user's ask: About carrying the drawing system and their
 # story): under the paragraph, site.json's "scales" as a title block, a cell each, A to D, its
 # bubble and name, the field it comes from and a line of the user's own account, and a link to
@@ -164,6 +194,12 @@ ABOUT_SCALES = True
 # About's scales drawn as orbits round what they share, over (beside, from 1200px) their cells
 # (since 2026-11-23, the user's moodboard; build.py's orbits). Needs ABOUT_SCALES.
 ABOUT_ORBITS = True
+# ...drawn in 3D, as a globe that turns (since 2026-11-24, the user's ask, from an orbit diagram
+# turning in 3D on their Pinterest), and, the same day, the whole section, the user as a designer
+# in one simple picture: the scales as orbits tilted each its own way round what their work is
+# about, the cells kept for screen readers (build.py's globe, assets/js/globe.js). False: the
+# orbits flat, still, beside the cells. Needs ABOUT_ORBITS.
+ABOUT_GLOBE = True
 LOADING_ATTRS = {"lazy": 'loading="lazy"', "eager": "", "high": 'fetchpriority="high"'}
 # Old addresses that now live elsewhere: /contact/ was a menu item and is now About's Contact
 # label, with the footer's links under it.
@@ -293,20 +329,23 @@ def file_version(rel):
         return "0"
 
 
-def placeholder_svg(width, height, title, label):
+def placeholder_svg(width, height, title, label, dark=False):
     """A soft gray block with the project name, and the file it's waiting for underneath. A shade
     under the tracing paper (since 2026-11-23, style.css's --color-fill); neutral grays on the
-    white page from 2026-11-14, warm, #e6e5df, for the off-white page before."""
+    white page from 2026-11-14, warm, #e6e5df, for the off-white page before. dark=True (the
+    opening's picture, since 2026-11-24) is a deep gray, so that it shows through the sheet as
+    a picture would."""
     size = round(min(min(width, height) / 18, width * 1.5 / max(len(title), 1)))  # long names shrink
+    fill, ink, note = ("#4a4945", "#a8a7a1", "#8a8984") if dark else ("#e2e1db", "#5e5d59", "#86857f")
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
         f'viewBox="0 0 {width} {height}">\n'
-        '<rect width="100%" height="100%" fill="#e2e1db"/>\n'
+        f'<rect width="100%" height="100%" fill="{fill}"/>\n'
         '<g font-family="-apple-system, \'Helvetica Neue\', Arial, sans-serif" text-anchor="middle">\n'
-        f'<text x="50%" y="50%" font-size="{size}" font-weight="500" fill="#5e5d59">'
+        f'<text x="50%" y="50%" font-size="{size}" font-weight="500" fill="{ink}">'
         f'{esc(title)}</text>\n'
         f'<text x="50%" y="50%" dy="{round(size * 1.4)}" font-size="{round(size * 0.45)}" '
-        f'fill="#86857f">{esc(label)}</text>\n'
+        f'fill="{note}">{esc(label)}</text>\n'
         '</g>\n</svg>\n'
     )
 
@@ -869,7 +908,8 @@ class Builder:
         box gives another. Returns (url, (w, h))."""
         width, height = box or PLACEHOLDER_SIZES[slot]
         ph_rel = placeholder_rel(rel)
-        self.write(ph_rel, placeholder_svg(width, height, title, os.path.basename(rel)))
+        self.write(ph_rel, placeholder_svg(width, height, title, os.path.basename(rel),
+                                           dark=slot == "opening"))
         self.missing_media.add(rel)
         return url_for(ph_rel), (width, height)
 
@@ -1248,54 +1288,32 @@ class Builder:
         return render("track.html", cards=cards, caption=self.card_caption(items[0]), dots=dots,
                       count=count)
 
-    # The opening's drawing (since 2026-11-23): the logo's two suns as two orbits, radius 100,
-    # their middles 100 apart (closer than the logo's, so the name fits where they meet), so they
-    # cross at (150, 13.4) and (150, 186.6); each drawn from the top crossing, the left one
-    # leftward, the right one rightward, back to where it started.
-    INTRO_ORBITS = ("M150 13.4A100 100 0 1 0 150 186.6A100 100 0 0 0 150 13.4",
-                    "M150 13.4A100 100 0 1 1 150 186.6A100 100 0 0 1 150 13.4")
-
     def home_intro(self):
-        """Home's opening (assets/js/intro.js), on tracing paper since 2026-11-23 (the user's
-        moodboard): a sheet of vellum over the page, the work soft under it; on it the logo's
-        two suns drawn as orbits, DIGITAL dashed and EVERYDAY LIFE solid (the logo's key), a
-        center line through their middles with the name on it where they meet, the line that
-        finishes the sentence under them; then the sheet lifts and the work comes sharp. The line
-        is "opening" in content/site.json (since 2026-11-12, the user's ask: "Designs where
-        digital meets everyday life", the name being its subject; the role, "Product
-        Designer", before), or the role without it. Each word is a span of its own, so it can
-        rise in on its own. (A black screen with the name, then the line, from 2026-11-10;
-        About's first sentence, made of dots, from 2026-11-09.)"""
+        """Home's opening (assets/js/intro.js). Since 2026-11-24 (the user's asks, from their
+        moodboard: a portrait seen through frosted paper, a card with a soft gray picture under
+        it and small type on it, their own blurred portrait): a sheet of tracing paper covers
+        the window from the start, smooth and milky with a fine grain, and their portrait
+        ("openingImage" in content/site.json) comes up under it as a print with the paper's
+        margin round it, only soft grays; the sentence that says who this is is typed on the
+        sheet, a letter at a time (intro.js splits the lines into letters): the name, and under
+        it the line that finishes the sentence ("opening", "Designs where digital meets everyday
+        life", the name being its subject; the role without it).
+        Then the portrait sinks back under the paper and the page is that paper. (Earlier that
+        day: the portrait first and an A4 sheet sliding up over it; then the paper cloudy, the
+        name on a center line drawn out to the window's edges; the logo's two suns drawn as
+        orbits on a sheet of vellum over the work from 2026-11-23; a black screen with the name,
+        then the line, from 2026-11-10; About's first sentence, made of dots, from 2026-11-09.)"""
         s = self.site
-
-        def words(text):
-            return " ".join(f"<span>{esc(w)}</span>" for w in text.split())
-
+        photo_rel = s.get("openingImage") or "assets/images/opening.jpg"
+        photo = self.img(photo_rel, "", "opening", "Opening", loading="high", decorative=True)
         line = s.get("opening") or s["role"]
-        left, right = self.INTRO_ORBITS
-        pens = "".join(
-            f'<mask id="intro-pen-{i}" maskUnits="userSpaceOnUse" x="-10" y="-10" width="320" '
-            f'height="220"><path class="intro-pen" d="{d}" pathLength="1"/></mask>'
-            for i, d in enumerate((left, right)))
-        marks = "".join(f'<path class="intro-mark" d="M{x - 7} 100h14M{x} 93v14"/>'
-                        for x in (100, 200))
         return ('    <div class="intro" aria-hidden="true">\n'
-                '      <div class="intro-stage">\n'
-                '        <div class="intro-figure">\n'
-                '          <svg class="intro-orbits" viewBox="0 0 300 200" focusable="false">'
-                f'<defs>{pens}</defs>'
-                f'<path class="intro-orbit is-dashed" d="{left}" mask="url(#intro-pen-0)"/>'
-                f'<path class="intro-orbit" d="{right}" mask="url(#intro-pen-1)"/>'
-                f'<g class="intro-marks">{marks}</g>'
-                '<circle class="intro-dot" r="2.5" cx="150" cy="13.4"/>'
-                '<circle class="intro-dot" r="2.5" cx="150" cy="13.4"/></svg>\n'
-                '          <p class="intro-key is-left">Digital</p>\n'
-                '          <p class="intro-key is-right">Everyday life</p>\n'
-                '          <div class="intro-axis">\n'
-                f'            <p class="intro-line intro-name">{words(s["name"])}</p>\n'
-                '          </div>\n'
+                f'      <div class="intro-photo">{photo}</div>\n'
+                '      <div class="intro-sheet">\n'
+                '        <div class="intro-text">\n'
+                f'          <p class="intro-line intro-name">{esc(s["name"])}</p>\n'
+                f'          <p class="intro-line intro-role">{esc(line)}</p>\n'
                 '        </div>\n'
-                f'        <p class="intro-line intro-role">{words(line)}</p>\n'
                 '      </div>\n'
                 '    </div>\n')
 
@@ -1718,13 +1736,363 @@ class Builder:
                 '      </section>')
         return ('    <div class="binder">\n' + "\n".join(sheets) + '\n    </div>\n')
 
+    @staticmethod
+    def roman(n):
+        """1 to 3999 in Roman numerals, as a sequence's stations are numbered: 4 is IV."""
+        out = ""
+        for value, letters in ((1000, "M"), (900, "CM"), (500, "D"), (400, "CD"), (100, "C"),
+                               (90, "XC"), (50, "L"), (40, "XL"), (10, "X"), (9, "IX"),
+                               (5, "V"), (4, "IV"), (1, "I")):
+            while n >= value:
+                out, n = out + letters, n - value
+        return out
+
+    def archive_station(self, item, box, loading, numeral, name, side):
+        """One image as a station on Archive's axis (archive_sequence): the image in its own
+        shape (--r, from the file, or the gray box's until it exists), on the axis's left or
+        right (side), linking to itself as Archive's tiles do (the lightbox opens it); beside it
+        its number in a filled bubble, its scale and date in the label style, and its caption
+        in the text's italic, as a sheet's stations are called out. The lightbox's caption line
+        starts with its number: "III · Page · 2025-08"."""
+        number = esc(item["id"])
+        rel = media_path(item["src"], ARCHIVE_FOLDER)
+        alt, title = item.get("alt") or "", f"Archive {item['id']}"
+        thumb = self.tile_image(rel, "archive", title, loading, alt=alt, sizes=SEQUENCE_SIZES)
+        w, h = (media_size(rel) if thumb else None) or box
+        if thumb:
+            href, large = url_for(rel), ""
+        else:
+            href = url_for(placeholder_rel(rel))
+            large = (f'          <template>'
+                     f'{self.img(rel, alt, "archive", title, "eager", decorative=True, box=box)}'
+                     f'</template>\n')
+        if item.get("caption"):
+            caption = (f'<span class="seq-caption" data-lightbox-name>'
+                       f'{inline(item["caption"])}</span>')
+        else:  # names the lightbox for screen readers, with nothing on screen
+            caption = (f'<span class="seq-caption visually-hidden" data-lightbox-name>'
+                       f'Image {number}</span>')
+        meta = " · ".join(x for x in (name, inline(item.get("date") or "")) if x)
+        return (f'          <li class="seq-station is-{side}" style="--r: {w} / {h}">\n'
+                f'            <a class="seq-figure" href="{href}" data-item aria-haspopup="dialog">\n'
+                f'              <span class="archive-media">{thumb}</span>\n'
+                f'              <span class="visually-hidden">Image {number}</span>\n'
+                f'            </a>\n'
+                f'            <p class="seq-label"><span class="seq-no" aria-hidden="true">'
+                f'{numeral}</span><span class="seq-meta" data-lightbox-meta>'
+                f'<span class="seq-ref">{numeral} · </span>{meta}</span>{caption}</p>\n'
+                f'{large}'
+                f'          </li>')
+
+    def archive_sequence(self):
+        """Archive as one drawing that tells one story (ARCHIVE_SEQUENCE, since 2026-11-24, the
+        user's ask, after an architecture student's masterplan sequence on their Pinterest: one
+        axis, fragments of images along it, numbered stations, brackets, a scale bar). One axis
+        down the page (the window's middle from 1200px, near its left edge under that), and
+        along it the scales in order (site.json's "scales", smallest first), each a stretch of
+        it: at the left its bubble and name, its count, the field it comes from and the user's
+        own line, in a bracket as long as its stretch (from 1200px the words stay in view while
+        it scrolls by); on the axis its images, in the file's order, each a station
+        (archive_station), numbered I, II, III down the whole axis, left and right of it in
+        turn, each scale's a little wider than the one before, as the things get bigger. A
+        scale with "unreached" (Space, the architect the user wanted to be) is drawn dashed,
+        and its "touches" are marked on it before its images, the first an open mark where it
+        began, each after it a short solid stretch, its place and what it was beside it; where
+        the axis ends, its "unreached" in the display face's italic, "I never became one.". At
+        the foot, a scale bar of the scales, each longer than the one before, the last dashed,
+        and the legend (scalesDrawing's "legend": solid, dashed). Each stretch is a target,
+        /archive/#object (About's scales link them). Returns None when there are no scales."""
+        scales = self.scales()
+        if not scales:
+            return None
+        cols = self.archive_by_scale(scales)
+        groups, n = [], 0
+        for c, scale in enumerate(scales):
+            letter, name = AXIS_LETTERS[c], inline(scale["name"])
+            items = cols.get(c, [])
+            stations = []
+            for item in items:
+                n += 1
+                stations.append(self.archive_station(
+                    item, ARCHIVE_BOXES[(n - 1) % len(ARCHIVE_BOXES)],
+                    "eager" if n <= 2 else "lazy", self.roman(n), name,
+                    "left" if n % 2 else "right"))
+            count = f'{len(items):02d} piece{"" if len(items) == 1 else "s"}'
+            field = (f'          <p class="seq-field">{inline(scale["field"])}</p>\n'
+                     if scale.get("field") else "")
+            note = (f'          <p class="seq-note">{inline(scale["note"])}</p>\n'
+                    if scale.get("note") else "")
+            touches = ""
+            if scale.get("touches"):
+                rows = "\n".join(
+                    f'          <li><span class="seq-at">{inline(t["at"])}</span>'
+                    f'<span class="seq-what">{inline(t.get("what") or "")}</span></li>'
+                    for t in scale["touches"])
+                touches = f'        <ol class="seq-touches">\n{rows}\n        </ol>\n'
+            body = ('        <ol class="seq-stations">\n' + "\n".join(stations)
+                    + '\n        </ol>\n') if stations else ""
+            end = (f'        <p class="seq-end">{inline(scale["unreached"])}</p>\n'
+                   if scale.get("unreached") else "")
+            unreached = " is-unreached" if scale.get("unreached") else ""
+            groups.append(
+                f'      <section class="seq-group{unreached}" id="{self.scale_id(scale)}" '
+                f'style="--k: {c}" aria-labelledby="seq-{letter.lower()}">\n'
+                '        <span class="seq-bracket" aria-hidden="true"></span>\n'
+                '        <div class="seq-head">\n'
+                f'          <h2 class="seq-name" id="seq-{letter.lower()}">'
+                f'<span class="bubble" aria-hidden="true">{letter}</span>{name}</h2>\n'
+                f'          <p class="seq-count">{count}</p>\n'
+                f'{field}{note}'
+                '        </div>\n'
+                f'{touches}{body}{end}'
+                '      </section>')
+        bar = "".join(
+            f'<li class="{"is-unreached" if x.get("unreached") else ""}" '
+            f'style="--u: {i + 2}">{inline(x["name"])}</li>'
+            for i, x in enumerate(scales))
+        legend = (self.site.get("scalesDrawing") or {}).get("legend") or []
+        legend = "".join(f'<li class="is-{kind}">{inline(words)}</li>'
+                         for kind, words in zip(("solid", "dashed"), legend))
+        key = ('      <div class="seq-key" aria-hidden="true">\n'
+               f'        <ol class="scale-bar">{bar}</ol>\n'
+               + (f'        <ul class="seq-legend">{legend}</ul>\n' if legend else "") +
+               '      </div>\n')
+        return ('    <div class="sequence">\n' + "\n".join(groups) + '\n' + key + '    </div>\n')
+
+    def archive_by_scale(self, scales):
+        """content/archive.json's items gathered by their "scale" (one of site.json's "scales",
+        by name), in the file's order: {scale's index: [items]}."""
+        keys = [x["name"].lower() for x in scales]
+        cols = {}
+        for item in self.archive:
+            sc = (item.get("scale") or "").lower()
+            if sc not in keys:
+                raise BuildError(f'content/archive.json: {item.get("id")}: "scale" must be one '
+                                 f'of {", ".join(x["name"] for x in scales)}.')
+            cols.setdefault(keys.index(sc), []).append(item)
+        return cols
+
+    # The map's drawing (map_layout), in image widths round the subject at (0, 0), y down. From
+    # 768px the scales fan over it, from its left to its right: their angles (degrees,
+    # counterclockwise from its right) and how far out, across and up. On phones they go down
+    # the sheet, in turn left and right of its middle (MAP_TALL_X), the subject after the
+    # first half (MAP_TALL_GAP clear of them). An image's width is its scale's (each a little
+    # bigger than the one before, MAP_GROW) by the next of MAP_JITTER; a scale's images lie
+    # round its first in a sunflower's spiral, MAP_SPREAD apart, overlapping as prints laid on
+    # a sheet do.
+    MAP_FAN = (180, 0, 2.0, 1.45)
+    MAP_TALL_X, MAP_TALL_GAP, MAP_TALL_STEP = 0.38, (0.4, 0.8), 0.34
+    MAP_GROW, MAP_SPREAD = 0.16, 0.55
+    MAP_JITTER = (1.08, 0.84, 0.97, 0.8, 0.92, 0.76, 0.88)
+
+    @classmethod
+    def map_layout(cls, groups, tall=False):
+        """Where a map's images, bubbles and subject go (archive_map). groups: for each scale,
+        its images' shapes (width / height). Returns {"ratio": the sheet's "width / height",
+        "pieces": per scale, per image (x, y, w, ax, ay): its top left corner and width and
+        where its line ends, "nodes": per scale its bubble (x, y, flip: its name at its left),
+        "subject": (x, y)}, x and w in percent of the sheet's width, y of its height."""
+        sizes = [1 + cls.MAP_GROW * k for k in range(len(groups))]
+        local = []  # each scale's images round (0, 0): (x, y, w, h)
+        for k, shapes in enumerate(groups):
+            rects = []
+            for i, r in enumerate(shapes):
+                w = sizes[k] * cls.MAP_JITTER[(i + 2 * k) % len(cls.MAP_JITTER)]
+                a = math.radians(i * 137.5 + 50 * k)
+                d = cls.MAP_SPREAD * sizes[k] * math.sqrt(i)
+                rects.append((d * math.cos(a) - w / 2, d * math.sin(a) - w / r / 2, w, w / r))
+            local.append(rects or [(-0.3, -0.3, 0.6, 0.6)])
+        centers, subject = [], (0.0, 0.0)
+        if tall:
+            half, y = (len(groups) + 1) // 2, 0.0
+            for k, rects in enumerate(local):
+                if k == half:  # the subject, a bubble's room over it and its words' under it
+                    subject = (0.0, y + cls.MAP_TALL_GAP[0])
+                    y = subject[1] + cls.MAP_TALL_GAP[1]
+                elif k:
+                    y += cls.MAP_TALL_STEP  # a bubble's room between two scales
+                cy = y - min(r[1] for r in rects)
+                centers.append((cls.MAP_TALL_X * (-1 if k % 2 == 0 else 1), cy))
+                y = cy + max(r[1] + r[3] for r in rects)
+        else:
+            a0, a1, rx, ry = cls.MAP_FAN
+            for k in range(len(groups)):
+                t = k / (len(groups) - 1) if len(groups) > 1 else 0.5
+                a = math.radians(a0 + (a1 - a0) * t)
+                centers.append((rx * math.cos(a), -ry * math.sin(a)))
+        rects, nodes, anchors = [], [], []
+        for (cx, cy), loc in zip(centers, local):
+            rs = [(cx + x, cy + y, w, h) for x, y, w, h in loc]
+            dx, dy = subject[0] - cx, subject[1] - cy
+            dist = math.hypot(dx, dy) or 1.0
+            ux, uy = dx / dist, dy / dist
+            # The bubble just past its images' edge on the subject's side.
+            reach = max(max((x - cx) * ux + (y - cy) * uy for x in (rx_, rx_ + w)
+                            for y in (ry_, ry_ + h)) for rx_, ry_, w, h in rs) + 0.15
+            reach = min(reach, dist - 0.45)
+            nx, ny = cx + ux * reach, cy + uy * reach
+            ends = []
+            for x, y, w, h in rs:  # each image's line ends inside it, on the bubble's side
+                mx, my = x + w / 2, y + h / 2
+                ex, ey = nx - mx, ny - my
+                el = math.hypot(ex, ey) or 1.0
+                ex, ey = ex / el, ey / el
+                edge = min(w / 2 / abs(ex) if ex else 1e9, h / 2 / abs(ey) if ey else 1e9)
+                ends.append((mx + ex * edge * 0.4, my + ey * edge * 0.4))
+            rects.append(rs)
+            nodes.append((nx, ny))
+            anchors.append(ends)
+        # The sheet: everything, the bubbles' names and the subject's words a little round them.
+        # (On phones a bubble's name is on the middle's side of it, so the bubble's enough.)
+        reach = (-0.2, 0.2) if tall else (-0.75, 0.75)
+        xs = ([x for rs in rects for x, _, w, _ in rs] + [x + w for rs in rects for x, _, w, _ in rs]
+              + [x + d for x, _ in nodes for d in reach]
+              + [subject[0] + d for d in (-0.95, 0.95)])
+        ys = ([y for rs in rects for _, y, _, _ in rs]
+              + [y + h for rs in rects for _, y, _, h in rs]
+              + [y + d for _, y in nodes for d in (-0.2, 0.2)] + [subject[1] + 0.4])
+        pad = 0.08
+        x0, x1, y0, y1 = min(xs) - pad, max(xs) + pad, min(ys) - pad, max(ys) + pad
+        k = 100 / (x1 - x0)  # an image width, in percent of the sheet's width
+        tall_ = (y1 - y0) * k  # the sheet's height, in the same
+
+        def px(x):
+            return round((x - x0) * k, 2)
+
+        def py(y):
+            return round((y - y0) * k / tall_ * 100, 2)
+
+        def flip(x):  # its name at its left: on phones right of the middle, else far right
+            return x > 0.05 if tall else px(x) > 72
+
+        return {
+            "ratio": f"100 / {tall_:.2f}",
+            "pieces": [[(px(x), py(y), round(w * k, 2), px(ax), py(ay))
+                        for (x, y, w, _), (ax, ay) in zip(rs, ends)]
+                       for rs, ends in zip(rects, anchors)],
+            "nodes": [(px(x), py(y), flip(x)) for x, y in nodes],
+            "subject": (px(subject[0]), py(subject[1])),
+        }
+
+    def archive_map(self):
+        """Archive as one map (ARCHIVE_MAP, since 2026-11-24, the user's ask: images rather than
+        words, one map rather than a list, after an architecture student's narrative sheet).
+        Every image in archive.json on one sheet, in its own shape (from the file, or the gray
+        box's until it exists), gathered by its "scale" round what the scales share
+        (scalesDrawing's "center", "How people actually live", a dot and the words), a thin
+        line from each image, ending in a small square on it, to its scale's bubble and name,
+        and one from each bubble to the subject; a scale with "unreached" (Space, the
+        architect the user wanted to be) has its lines dashed and those words at its bubble,
+        "I never became one.". The images have nothing beside them: their scale, date and
+        caption are the lightbox's (as on Archive's tiles; for screen readers too). Where
+        everything goes is drawn twice (map_layout), from 768px wide and on phones tall; the
+        CSS takes one. The legend (scalesDrawing's "legend": solid, dashed) under it. Each
+        bubble is a target, /archive/#space. Returns None when there are no scales."""
+        scales = self.scales()
+        if not scales:
+            return None
+        cols = self.archive_by_scale(scales)
+        drawing = self.site.get("scalesDrawing") or {}
+        boxes, n = {}, 0
+        for c in range(len(scales)):
+            for item in cols.get(c, []):
+                box = ARCHIVE_BOXES[n % len(ARCHIVE_BOXES)]
+                rel = media_path(item["src"], ARCHIVE_FOLDER)
+                real = os.path.exists(os.path.join(ROOT, rel)) and media_size(rel)
+                boxes[id(item)] = (box, real or box)
+                n += 1
+        shapes = [[boxes[id(it)][1][0] / boxes[id(it)][1][1] for it in cols.get(c, [])]
+                  for c in range(len(scales))]
+        wide, tall = self.map_layout(shapes), self.map_layout(shapes, tall=True)
+        center = drawing.get("center")
+
+        def lines(lay, c):
+            nx, ny, _ = lay["nodes"][c]
+            out = []
+            if center:
+                sx, sy = lay["subject"]
+                out.append(f'<line x1="{nx}%" y1="{ny}%" x2="{sx}%" y2="{sy}%"/>')
+            for _, _, _, ax, ay in lay["pieces"][c]:
+                out.append(f'<line x1="{nx}%" y1="{ny}%" x2="{ax}%" y2="{ay}%"/>'
+                           f'<rect x="{ax}%" y="{ay}%" width="5" height="5" '
+                           f'transform="translate(-2.5 -2.5)"/>')
+            return "".join(out)
+
+        groups, n = [], 0
+        for c, scale in enumerate(scales):
+            letter, name, sid = AXIS_LETTERS[c], inline(scale["name"]), self.scale_id(scale)
+            pieces = []
+            for i, item in enumerate(cols.get(c, [])):
+                (box, (w, h)), n = boxes[id(item)], n + 1
+                number = esc(item["id"])
+                rel = media_path(item["src"], ARCHIVE_FOLDER)
+                alt, title = item.get("alt") or "", f"Archive {item['id']}"
+                thumb = self.tile_image(rel, "archive", title, "eager" if n <= 4 else "lazy",
+                                        alt=alt, sizes=MAP_SIZES)
+                if thumb:
+                    href, large = url_for(rel), ""
+                else:
+                    href = url_for(placeholder_rel(rel))
+                    large = (f'            <template>'
+                             f'{self.img(rel, alt, "archive", title, "eager", decorative=True, box=box)}'
+                             f'</template>\n')
+                caption = inline(item.get("caption") or "") or f"Image {number}"
+                meta = " · ".join(x for x in (name, inline(item.get("date") or "")) if x)
+                x, y, wd = wide["pieces"][c][i][:3]
+                tx, ty, tw = tall["pieces"][c][i][:3]
+                pieces.append(
+                    f'          <li class="map-piece" style="--r: {w} / {h}; --x: {x}%; '
+                    f'--y: {y}%; --w: {wd}%; --tx: {tx}%; --ty: {ty}%; --tw: {tw}%">\n'
+                    f'            <a class="map-fig" href="{href}" data-item aria-haspopup="dialog">\n'
+                    f'              <span class="archive-media">{thumb}</span>\n'
+                    f'              <span class="visually-hidden">Image {number}</span>\n'
+                    f'            </a>\n'
+                    f'            <p class="visually-hidden"><span data-lightbox-name>{caption}'
+                    f'</span> <span data-lightbox-meta>{meta}</span></p>\n'
+                    f'{large}'
+                    f'          </li>')
+            unreached = scale.get("unreached")
+            (x, y, flip), (tx, ty, tflip) = wide["nodes"][c], tall["nodes"][c]
+            kinds = "".join((" is-flip" if flip else "", " is-tall-flip" if tflip else ""))
+            words = (f'<span class="map-unreached">{inline(unreached)}</span>'
+                     if unreached else "")
+            body = ('        <ol class="map-pieces">\n' + "\n".join(pieces)
+                    + '\n        </ol>\n') if pieces else ""
+            groups.append(
+                f'      <section class="map-group{" is-unreached" if unreached else ""}" '
+                f'aria-labelledby="{sid}">\n'
+                f'        <h2 class="map-node{kinds}" id="{sid}" style="--x: {x}%; --y: {y}%; '
+                f'--tx: {tx}%; --ty: {ty}%"><span class="bubble" aria-hidden="true">{letter}'
+                f'</span><span class="map-name">{name}</span>{words}</h2>\n'
+                '        <svg class="map-lines" aria-hidden="true" focusable="false">'
+                f'<g class="is-wide">{lines(wide, c)}</g>'
+                f'<g class="is-tall">{lines(tall, c)}</g></svg>\n'
+                f'{body}'
+                '      </section>')
+        subject = ""
+        if center:
+            (x, y), (tx, ty) = wide["subject"], tall["subject"]
+            subject = (f'      <p class="map-subject" style="--x: {x}%; --y: {y}%; --tx: {tx}%; '
+                       f'--ty: {ty}%"><span>{inline(center)}</span></p>\n')
+        legend = "".join(f'<li class="is-{kind}">{inline(words)}</li>'
+                         for kind, words in zip(("solid", "dashed"), drawing.get("legend") or []))
+        legend = (f'      <ul class="map-legend" aria-hidden="true">{legend}</ul>\n'
+                  if legend else "")
+        return (f'    <div class="atlas">\n'
+                f'      <div class="map" style="--ratio: {wide["ratio"]}; '
+                f'--tall-ratio: {tall["ratio"]}">\n'
+                + "\n".join(groups) + "\n" + subject +
+                '      </div>\n' + legend + '    </div>\n')
+
     def build_archive(self):
         """Every image in content/archive.json, in the file's order, left to right and down, edge
         to edge (since 2026-11-13, after gougoucore.com's Lab), so main has no .wrap here. Each
         opens the lightbox."""
         s = self.site
         lightbox = render("lightbox.html") if self.archive else ""
-        plan = (self.archive_binder() if ARCHIVE_BINDER
+        plan = (self.archive_map() if ARCHIVE_MAP
+                else self.archive_sequence() if ARCHIVE_SEQUENCE
+                else self.archive_binder() if ARCHIVE_BINDER
                 else self.archive_plan() if ARCHIVE_PLAN else None)
         if plan is not None:
             text = (s.get("archive") or {}).get("statement")
@@ -1887,6 +2255,8 @@ class Builder:
         orbit drawn solid, each with its words over it. Hovering a scale's cell in the list
         draws its orbit alone (style.css). For the eye only: the list beside it says the same
         in words."""
+        if ABOUT_GLOBE:
+            return self.globe(scales)
         drawing = self.site.get("scalesDrawing") or {}
         w, h = self.ORBIT_BOX
         mx, my = self.ORBIT_MID
@@ -1961,7 +2331,20 @@ class Builder:
         middle = (f'<g class="orbit-middle"><circle cx="{mx}" cy="{my}" r="7"/>'
                   f'<path d="M{mx - 12} {my}h24M{mx} {my - 12}v24"/>'
                   f'<path class="orbit-ray" d="M{mx} {my + 12}V{f(foot)}"/></g>')
-        center = (f'<span class="orbit-center" style="top: {f(100 * (foot + 8) / h)}%">'
+        title, key, center = self.orbits_words(scales, h, foot)
+        return ('      <div class="orbits" aria-hidden="true">\n'
+                f'{title}{key}'
+                f'        <div class="orbits-figure" style="aspect-ratio: {w} / {h}">'
+                f'<svg viewBox="0 0 {w} {h}" focusable="false">{"".join(shapes)}{middle}</svg>'
+                f'{"".join(words)}{center}</div>\n'
+                '      </div>\n')
+
+    def orbits_words(self, scales, h, foot):
+        """The orbits' drawing's title, its legend, and the words under its middle, from
+        content/site.json's "scalesDrawing" (see orbits); foot is where the line down from the
+        middle ends, in a drawing h high."""
+        drawing = self.site.get("scalesDrawing") or {}
+        center = (f'<span class="orbit-center" style="top: {100 * (foot + 8) / h:.1f}%">'
                   f'{inline(drawing["center"])}</span>') if drawing.get("center") else ""
         title = (f'        <span class="orbits-title">{inline(drawing["title"])}</span>\n'
                  if drawing.get("title") else "")
@@ -1971,11 +2354,82 @@ class Builder:
             key = ('        <span class="orbits-legend">'
                    f'<span class="is-solid">{inline(legend[0])}</span>'
                    f'<span class="is-dashed">{inline(legend[1])}</span></span>\n')
-        return ('      <div class="orbits" aria-hidden="true">\n'
-                f'{title}{key}'
-                f'        <div class="orbits-figure" style="aspect-ratio: {w} / {h}">'
-                f'<svg viewBox="0 0 {w} {h}" focusable="false">{"".join(shapes)}{middle}</svg>'
+        return title, key, center
+
+    # About's scales as a globe that turns (ABOUT_GLOBE, since 2026-11-24): the drawing's box and
+    # the globe's middle and radius in it. Where each orbit lies in 3D, where each thing sits on
+    # it, and how the globe turns are in assets/js/globe.js, which draws them; it has room for
+    # four orbits.
+    GLOBE_BOX = (680, 520)
+    GLOBE_MID = (340, 248)
+    GLOBE_R = 210
+
+    def globe(self, scales):
+        """The user as a designer, drawn as a globe that turns (ABOUT_GLOBE, since 2026-11-24,
+        the user's ask, from an orbit diagram turning in 3D on their Pinterest; then, the same
+        day: the drawing and its words one picture, simple, showing who they are as a designer
+        rather than where they studied or worked): under it what their work is about ("How
+        people actually live", "scalesDrawing" in content/site.json), and round its middle the
+        scales they design at, an orbit each, smallest in, its dot with its bubble and name (A
+        Object), a dotted line out to it from the middle. Space, what they wanted to be as a
+        kid, round the globe itself, dashed, its dot open. Object and Page lie on the globe's
+        equator, Screen and Space tilt across it opposite ways. Nothing else on it: the work,
+        the places and the touches were on it for a few hours the same day, and made it hard
+        to read. Beside it (under it on narrow screens) the chosen scale's note (the user's ask,
+        the same day: the names on the globe, the rest beside it): its bubble and name, its
+        field in the display face (Industrial design), and for Space "I never became one.";
+        the one chosen, or while none is, the one in front (globe.js).
+        Written here: the still parts (the globe's rim with a tick at each quarter, dotted
+        axes through the middle, the middle's circle and cross, the line down to its words),
+        each orbit's parts, empty, the names, and the notes. assets/js/globe.js places and
+        turns it all.
+        Drawn only with JavaScript (style.css); the list after it (about_scales) says the same
+        in words, for screen readers, and is what shows without it."""
+        w, h = self.GLOBE_BOX
+        mx, my = self.GLOBE_MID
+        r = self.GLOBE_R
+        if not scales or len(scales) > 4:
+            return ""
+        backs, fronts, words, notes = [], [], [], []
+        for i, scale in enumerate(scales):
+            n = i + 1
+            unreached = scale.get("unreached")
+            dashed = " is-dashed" if unreached else ""
+            backs.append(f'<g class="orbit{dashed}" data-orbit="{n}">'
+                         '<path class="orbit-line is-back"/></g>')
+            fronts.append(f'<g class="orbit{dashed}" data-orbit="{n}"><path class="orbit-line"/>'
+                          '<path class="orbit-ray"/><circle class="orbit-dot" r="4"/></g>')
+            key = (f'<span class="bubble">{AXIS_LETTERS[i]}</span>'
+                   f'<span class="orbit-name">{inline(scale["name"])}</span>')
+            words.append(f'<span class="orbit-label{dashed}" data-orbit="{n}">'
+                         f'<span class="orbit-key">{key}</span></span>')
+            field = (f'<p class="globe-note-field">{inline(scale["field"])}</p>'
+                     if scale.get("field") else "")
+            words_unreached = (f'<p class="globe-note-unreached">{inline(unreached)}</p>'
+                               if unreached else "")
+            notes.append(f'<div class="globe-note" data-orbit="{n}">'
+                         f'<p class="globe-note-key">{key}</p>{field}{words_unreached}</div>')
+        foot = my + r + 30
+        out = 24  # how far the axes run past the rim
+        rim = (f'<circle class="globe-rim" cx="{mx}" cy="{my}" r="{r}"/>'
+               f'<path class="globe-rim" d="M{mx} {my - r - 7}v14M{mx} {my + r - 7}v14'
+               f'M{mx - r - 7} {my}h14M{mx + r - 7} {my}h14"/>'
+               f'<path class="globe-axis" d="M{mx - r - out} {my}H{mx + r + out}'
+               f'M{mx} {my - r - out}V{my - 12}"/>')
+        middle = (f'<g class="orbit-middle"><circle cx="{mx}" cy="{my}" r="7"/>'
+                  f'<path d="M{mx - 12} {my}h24M{mx} {my - 12}v24"/>'
+                  f'<path class="orbit-ray" d="M{mx} {my + 12}V{foot}"/></g>')
+        title, _, center = self.orbits_words(scales, h, foot)  # no legend: the note says it
+        return ('      <div class="orbits is-globe" aria-hidden="true">\n'
+                f'{title}'
+                f'        <div class="orbits-figure is-globe" style="aspect-ratio: {w} / {h}" '
+                f'data-globe="{mx} {my} {r}">'
+                f'<svg viewBox="0 0 {w} {h}" focusable="false">'
+                f'<g class="globe-back">{"".join(backs)}</g>'
+                '<path class="globe-lines"/>'
+                f'{rim}<g class="globe-front">{"".join(fronts)}</g>{middle}</svg>'
                 f'{"".join(words)}{center}</div>\n'
+                f'        <div class="globe-notes">{"".join(notes)}</div>\n'
                 '      </div>\n')
 
     def about_scales(self):
@@ -1988,6 +2442,7 @@ class Builder:
         scales = self.scales() if ABOUT_SCALES else []
         if not scales:
             return ""
+        globe = ABOUT_ORBITS and ABOUT_GLOBE
         cells = []
         for c, scale in enumerate(scales):
             count = sum(1 for it in self.archive
@@ -2000,13 +2455,21 @@ class Builder:
                      if scale.get("field") else "")
             note = (f'\n          <p class="scale-note">{inline(scale["note"])}</p>'
                     if scale.get("note") else "")
+            # With the globe the list is the drawing in words (for screen readers, and what
+            # shows without JavaScript, see globe), so it says what the drawing says: the
+            # scale, its field, and, for Space, "I never became one."; not the notes on where
+            # (the user's ask, 2026-11-24: who they are as a designer, not their schools).
+            if globe:
+                note = (f'\n          <p class="scale-unreached">{inline(scale["unreached"])}</p>'
+                        if scale.get("unreached") else "")
             cells.append(
                 f'        <li class="scale" data-orbit="{c + 1}">\n'
                 f'          <p class="scale-name"><span class="bubble" aria-hidden="true">'
                 f'{AXIS_LETTERS[c]}</span>{inline(scale["name"])}</p>{field}{note}{more}\n'
                 '        </li>')
         drawing = self.orbits(scales) if ABOUT_ORBITS else ""
-        return (f'    <section class="scales{" has-orbits" if drawing else ""}" '
+        kind = " has-orbits has-globe" if globe and drawing else " has-orbits" if drawing else ""
+        return (f'    <section class="scales{kind}" '
                 'aria-labelledby="scales-heading">\n'
                 '      <h2 id="scales-heading" class="visually-hidden">Scales</h2>\n'
                 f'{drawing}'
@@ -2037,8 +2500,12 @@ class Builder:
                 '      <h2 id="experience-heading" class="about-label">Experience</h2>\n'
                 '      <ul class="experience">\n' + "\n".join(jobs) + '\n      </ul>\n'
                 '    </section>\n')
+        scales = self.about_scales()
+        if 'class="orbits-figure is-globe"' in scales:
+            scales += (f'    <script src="/assets/js/globe.js'
+                       f'?v={file_version("assets/js/globe.js")}" defer></script>\n')
         content = render("about.html", statement=self.about_statement(about),
-                         scales=self.about_scales(), experience=experience,
+                         scales=scales, experience=experience,
                          qa=self.about_qa(about))
         self.page("about/index.html", "about", "/about/", f"About — {s['name']}",
                   s["description"], content, "page-about", current="about",

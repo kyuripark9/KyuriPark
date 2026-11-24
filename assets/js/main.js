@@ -335,7 +335,8 @@
 
   if (reduceMotion.matches || !("IntersectionObserver" in window)) return;
 
-  // Project pages: images below the fold fade up as they come on screen.
+  // Project pages, and Archive's images (since 2026-11-24, its sequence's stations or its map's
+  // images): images below the fold fade up as they come on screen.
   const revealer = new IntersectionObserver((entries) => {
     entries.forEach(({ target, isIntersecting }) => {
       if (!isIntersecting) return;
@@ -343,7 +344,7 @@
       revealer.unobserve(target);
     });
   }, { rootMargin: "0px 0px -10% 0px" });
-  document.querySelectorAll(".project-blocks .media").forEach((figure) => {
+  document.querySelectorAll(".project-blocks .media, .seq-figure, .map-fig").forEach((figure) => {
     if (figure.getBoundingClientRect().top < window.innerHeight) return;  // already on screen
     figure.classList.add("reveal");
     revealer.observe(figure);

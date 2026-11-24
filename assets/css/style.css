@@ -191,7 +191,7 @@
   --size-identity: var(--size-name);  /* 14px, the name in the header (since 2026-11-13 only in
                                          the logo's place, while its file is missing) */
   --size-menu: var(--size-label);     /* 12px, the header's links */
-  --size-opening: 1.5rem;             /* 24px, the name in Home's opening, in the display face */
+  --size-opening: 1.5rem;             /* 24px, the name in Home's opening, in the mono */
 
   --leading-display: 1.02;
   /* Over the display style's capitals, inside its line: Inter Display's ascent less its cap
@@ -597,9 +597,16 @@ button {
 .scale-link,
 .about-label,
 .intro-role,
-.intro-key,
 .sheet-name,
-.sheet-number {
+.sheet-number,
+.seq-name,
+.seq-count,
+.seq-meta,
+.seq-at,
+.scale-bar,
+.seq-legend,
+.map-name,
+.map-legend {
   font-family: var(--font-mono);
   font-size: var(--size-label);
   font-weight: 400;
@@ -1701,17 +1708,23 @@ mark.placeholder {
 /* Home intro ------------------------------------------------------------ */
 
 /* The first time Home opens in a browser tab, an opening says who this is before the work shows.
-   On tracing paper since 2026-11-23 (the user's moodboard: a portrait seen through frosted
-   paper, a vellum book, orbits drawn in thin lines): a sheet of vellum over the work and the
-   header, so they show only as soft shapes; on it, the logo's two suns drawn as orbits in 1px
-   lines, each from the top place where they cross, the left one (DIGITAL, dashed, as the
-   intangible half) leftward and the right one (EVERYDAY LIFE, solid) rightward, a dot riding
-   each pen; a center line through their middles (--centerline, as over Work's grid), and on it,
-   where the suns meet, the name, each word rising in; under them the opening's sentence, word
-   by word; then the sheet lifts, its blur and tint going together, and the work comes sharp.
-   assets/js/intro.js runs it (timings at its top). Later arrivals at Home come with the 300 ms
-   fade between pages, as every page does.
-   (Before: from 2026-11-10 a black screen, the name and then the sentence, after
+   Since 2026-11-24 (the user's asks, from their moodboard: a portrait seen through frosted paper
+   with type printed on it, a card with a soft gray picture under it, their own blurred
+   portrait): a sheet of tracing paper covers the whole window from the start, smooth and milky
+   with a fine grain, the user's portrait under it as a print with the paper's margin round it.
+   The sentence that says who this is is typed on the sheet, the name and the sentence under
+   it, and the portrait comes up through the paper, only soft grays, its blur settling as if
+   pressed closer to the sheet. Then the portrait sinks back under the paper and the page is that
+   paper: the work comes up on it. assets/js/intro.js runs it (timings at its top). Later
+   arrivals at Home come with the 300 ms fade between pages, as every page does.
+   (Before: that morning the portrait filled the window first and an A4 sheet slid up over it,
+   then spread to the edges, changed at the user's ask: the paper is there from the start; then,
+   for an hour, the paper cloudy (its fibers' mottle) and the name on a center line drawn out to
+   the window's edges, changed at the user's ask: the paper as smooth as in their pictures, the
+   words shown plainly; from
+   2026-11-23, on the user's earlier moodboard, a sheet of vellum over the work, the logo's two
+   suns drawn on it as orbits, DIGITAL dashed and EVERYDAY LIFE solid, the name where they meet,
+   then the sheet lifting; from 2026-11-10 a black screen, the name and then the sentence, after
    mastak.framer.website; from 2026-11-09, About's first sentence made of dots, blurring away as
    a cover of the page's color faded; that morning, the page fading in over 1 s, after
    soren-template.framer.website; until 2026-11-08 a black screen with the name and role and the
@@ -1734,146 +1747,121 @@ mark.placeholder {
   position: fixed;
   inset: 0;
   z-index: 25;  /* over the work and the header (20), under the skip link (30) */
-  background: var(--intro-vellum);
-  -webkit-backdrop-filter: blur(var(--intro-blur));
-  backdrop-filter: blur(var(--intro-blur));
+  overflow: hidden;
+  background: var(--color-bg);
 }
 
-/* A thicker sheet than the header's, so the work under it is only shapes. */
+/* The sheet's paper, as in the user's pictures: smooth and milky, the picture under it a soft
+   gray with no detail, a fine grain over it. Its color, part see-through (--intro-vellum); how
+   far it diffuses what's under it (--intro-diffuse, so the print's edge goes soft); the paper's
+   margin round the print (--intro-inset); how soft the portrait is under it (--intro-frost,
+   growing with the window); and its grain, the paper's own (--grain, as over every page) laid
+   once more on the sheet at --intro-grain-strength (0 for none), so it shows as a film's grain
+   does in the user's pictures. */
 .intro {
-  --intro-vellum: rgb(238 237 232 / 0.6);
-  --intro-blur: var(--vellum-thick-blur);
+  --intro-vellum: rgb(238 237 232 / 0.5);
+  --intro-diffuse: 6px;
+  --intro-inset: clamp(16px, 5vmin, 56px);
+  --intro-frost: clamp(22px, 3vmax, 52px);
+  --intro-grain-strength: 0.5;
 }
 
-/* The drawing and the sentence, one under the other in the window's middle. */
-.intro-stage {
-  display: grid;
-  place-content: center;
-  justify-items: center;
-  row-gap: var(--step-4);
-  height: 100%;
-  padding-inline: var(--gutter);
-}
-
-/* The two orbits, 1.5 times as wide as tall (300 x 200 in the svg's units, radius 100), as wide
-   as fits up to 520px; the dots, crosses, and words come in with them. */
-.intro-figure {
-  position: relative;
-  width: min(100vw - 2 * var(--gutter), 520px);
-  aspect-ratio: 300 / 200;
-}
-
-.intro-orbits {
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-.intro-orbit,
-.intro-mark {
-  fill: none;
-  stroke: var(--color-text);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-
-.intro-orbit.is-dashed {
-  stroke-dasharray: 3 3;
-}
-
-/* What draws each orbit: a pen in its mask, uncovering it from its start (intro.js moves it). */
-.intro-pen {
-  fill: none;
-  stroke: #fff;
-  stroke-width: 6;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-}
-
-.intro-dot {
-  fill: var(--color-text);
-}
-
-.intro-marks,
-.intro-dot,
-.intro-key {
+/* The portrait, under the sheet: a print, the paper's margin round it, its head a little over
+   the middle, soft all through; its own edges kept (the picture is drawn past them, so its
+   blur doesn't fade at them) and softened only by the paper. intro.js brings it up. */
+.intro-photo {
+  position: absolute;
+  inset: var(--intro-inset);
+  overflow: hidden;
   opacity: 0;
 }
 
-/* The logo's key, as on the footer's logo: DIGITAL over the left sun's outer edge, EVERYDAY LIFE
-   over the right's. */
-.intro-key {
+.intro-photo img {
   position: absolute;
-  bottom: calc(100% + var(--step-1));
+  top: calc(-2 * var(--intro-frost));
+  left: calc(-2 * var(--intro-frost));
+  display: block;
+  width: calc(100% + 4 * var(--intro-frost));
+  height: calc(100% + 4 * var(--intro-frost));
+  object-fit: cover;
+  object-position: 50% 42%;
+  filter: blur(var(--intro-frost));
 }
 
-.intro-key.is-left {
-  left: 0;
-}
-
-.intro-key.is-right {
-  right: 0;
-}
-
-/* The center line through the suns' middles, out to the window's edges, broken for the name. */
-.intro-axis {
+/* The sheet, over the whole window, the words printed on it, in the middle. */
+.intro-sheet {
   position: absolute;
-  top: 50%;
-  left: calc(50% - 50vw);
-  width: 100vw;
-  display: flex;
-  align-items: center;
-  gap: var(--step-2);
-  transform: translateY(-50%);
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-inline: var(--gutter);
+  background: var(--intro-vellum);
+  -webkit-backdrop-filter: blur(var(--intro-diffuse));
+  backdrop-filter: blur(var(--intro-diffuse));
 }
 
-.intro-axis::before,
-.intro-axis::after {
+.intro-sheet::before {
   content: "";
-  flex: 1;
-  height: 1px;
-  background: repeating-linear-gradient(to left, var(--color-rule) 0 12px, transparent 12px 15px,
-    var(--color-rule) 15px 18px, transparent 18px 21px);
-  transform: scaleX(0);
-  transform-origin: right;
+  position: absolute;
+  inset: 0;
+  background: var(--grain);
+  opacity: var(--intro-grain-strength);
+  pointer-events: none;
 }
 
-.intro-axis::after {
-  background: repeating-linear-gradient(to right, var(--color-rule) 0 12px,
-    transparent 12px 15px, var(--color-rule) 15px 18px, transparent 18px 21px);
-  transform-origin: left;
+/* The words, both in the mono in capitals (since 2026-11-24, the user's ask: one face; the name
+   in the display face, as typed, before): the name in the name's style at --size-opening, as a
+   sheet's title is lettered; the sentence in the label style under it, as a drawing's note,
+   smaller. On phones the sentence can wrap:
+   it breaks in even lines, centered. They're typed out (since 2026-11-24, the user's ask; a
+   plain fade before): intro.js splits each line into its letters (.intro-char), all laid out
+   from the start, so the line doesn't move as it's typed, and shows each as it's typed
+   (.is-typed), with a caret (.intro-caret) at the next letter, steady while typing and
+   blinking while it waits (.is-idle). */
+.intro-text {
+  position: relative;  /* over the grain, and the caret's frame */
+  display: grid;
+  justify-items: center;
+  row-gap: var(--step-1);
 }
 
-.intro-on .intro.is-drawing .intro-axis::before,
-.intro-on .intro.is-drawing .intro-axis::after {
-  transform: none;
-  transition: transform 1100ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/* The name on the line; the sentence in the label style under the drawing, as a drawing's
-   note. On phones the sentence can wrap: it
-   breaks in even lines, centered. */
 .intro-line {
   margin: 0;
   text-align: center;
   text-wrap: balance;
+  visibility: hidden;  /* until typed, and the plain text before intro.js splits it */
 }
 
-/* The name in the display face, as typed, as a sheet's title is lettered (since 2026-11-23;
-   the name style at 600 in capitals before). */
 .intro-name {
-  flex: none;
-  font-family: var(--font-display);
   font-size: var(--size-opening);
-  font-weight: 300;
-  letter-spacing: -0.01em;
-  text-transform: none;
 }
 
-.intro-line > span {
-  display: inline-block;
+.intro-char.is-typed {
+  visibility: visible;
+}
+
+/* The caret: a thin upright in ink, its place and size set by intro.js from the letters'. */
+.intro-caret {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--color-text);
   opacity: 0;
+  pointer-events: none;
+}
+
+.intro-caret.is-on {
+  opacity: 1;
+}
+
+.intro-caret.is-on.is-idle {
+  animation: intro-blink 1060ms steps(1, end) infinite;
+}
+
+@keyframes intro-blink {
+  50% {
+    opacity: 0;
+  }
 }
 
 /* Work ------------------------------------------------------------------ */
@@ -2954,6 +2942,779 @@ mark.placeholder {
   }
 }
 
+/* Archive as one sequence (since 2026-11-24, ARCHIVE_SEQUENCE in build.py, the user's ask, from
+   an architecture student's masterplan sequence on their Pinterest: one axis down the sheet,
+   fragments of images collaged along it, stations I to IX called out at the side on dashed
+   leaders, photos grouped in brackets, a scale bar and a legend at the foot). One story down
+   one axis, drawn on the paper itself, under an ink line from the window's left edge to its
+   right:
+     the axis       1px in ink, down the window's middle from 1200px (--spine-x), near its left
+                    edge under that, a construction line ahead of it, the ink drawn down it as
+                    the page scrolls; dashed through Space, the architect the user wanted to be
+     a scale        a stretch of the axis: its bubble and name, its count, its field in the
+                    display face, the user's line; from 1200px at the left in a bracket as long
+                    as the stretch, staying in view while it goes by
+     a station      an image in its own shape (--r), across the axis, left and right of it in
+                    turn, each scale's wider than the one before (--k), as things get bigger;
+                    its number in a filled bubble at the end of a dashed leader from the axis,
+                    a small square where the leader leaves it, its scale and date in the label
+                    style, its caption in the text's italic
+     Space's story  where the user's life came near architecture, marked on the dashed axis:
+                    an open mark where it began, a short solid stretch for each time after,
+                    their words beside it; "I never became one." where the axis ends
+     the key        a scale bar of the scales, each longer than the one before, the last
+                    dashed, and the legend: solid, dashed
+   The images are prints on the paper, in grays and multiplied into it, so the axis, the leaders
+   and the grain show through, as a sheet's fragments do; hovered, one comes in its own colors
+   and the others go under tracing paper, as on Work. */
+.sequence {
+  --spine-x: calc(var(--gutter) + 12px);  /* the axis, from the window's left edge */
+  --spine-in: 20px;                       /* the axis to the words beside it */
+  --to-spine: calc(-1 * var(--spine-in)); /* a station's words back to the axis */
+  --sq: 5px;                              /* the square where a leader leaves the axis */
+  --dashes: repeating-linear-gradient(to bottom, var(--color-rule) 0 6px, transparent 6px 11px);
+  --dashes-trace: repeating-linear-gradient(to bottom, var(--color-trace) 0 6px,
+    transparent 6px 11px);
+  margin-top: var(--step-6);
+  padding-bottom: var(--space-3);
+  border-top: var(--rule);
+}
+
+.seq-group {
+  --w: min(62% + var(--k, 0) * 9%, 92%);  /* a station's image, of the words' width */
+  position: relative;
+  display: grid;
+  align-content: start;
+  padding: var(--step-6) var(--gutter) var(--step-8) calc(var(--spine-x) + var(--spine-in));
+  scroll-margin-top: var(--header-h);
+}
+
+/* The axis: a construction line the whole way, and the ink over it. */
+.seq-group::before,
+.seq-group::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--spine-x) - 0.5px);
+  width: 1px;
+  background: var(--color-trace);
+  pointer-events: none;
+}
+
+.seq-group::after {
+  background: var(--color-rule);
+}
+
+.seq-group.is-unreached::before {
+  background: var(--dashes-trace);
+}
+
+.seq-group.is-unreached::after {
+  background: var(--dashes);
+}
+
+/* Where the axis ends: at the middle of the words there. */
+.seq-group:has(> .seq-end) {
+  padding-bottom: 0;
+}
+
+.seq-group:has(> .seq-end)::before,
+.seq-group:has(> .seq-end)::after {
+  bottom: 0.75rem;
+}
+
+/* The ink drawn down the axis as the page scrolls, reaching the window's middle (the
+   construction line shows where it's going). Still, and whole, with reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .seq-group {
+      view-timeline: --seq block;
+    }
+
+    .seq-group::after {
+      animation: seq-draw linear both;
+      animation-timeline: --seq;
+      animation-range: cover 50vh cover calc(100% - 50vh);
+    }
+  }
+}
+
+@keyframes seq-draw {
+  from { clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(0); }
+}
+
+.seq-bracket {
+  display: none;
+}
+
+.seq-head {
+  display: grid;
+  align-content: start;
+  row-gap: var(--step-2);
+  margin-bottom: var(--step-8);
+}
+
+.seq-name {
+  display: flex;
+  align-items: center;
+  gap: var(--step-1);
+}
+
+.seq-group:target .seq-name .bubble {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+.seq-count {
+  margin-top: calc(-1 * var(--step-1));
+  color: var(--color-subtle);
+}
+
+.seq-field {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3vw, 2.75rem);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+}
+
+.seq-note {
+  max-width: 22em;
+  color: var(--color-subtle);
+  text-wrap: pretty;
+}
+
+/* The stations. On phones each image starts across the axis or ends at the right edge, in
+   turn, its words under it. */
+.seq-stations {
+  display: grid;
+  row-gap: var(--step-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.seq-station {
+  position: relative;
+  display: grid;
+  align-items: start;
+  row-gap: var(--step-2);
+}
+
+.seq-figure {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: var(--w);
+  margin-left: calc(-1 * var(--spine-in) - 12px);
+  mix-blend-mode: multiply;  /* on the figure, so it blends with the page, not inside itself */
+}
+
+.seq-station.is-right .seq-figure {
+  margin-left: auto;
+}
+
+.seq-figure .archive-media {
+  height: auto;
+  aspect-ratio: var(--r, 4 / 5);
+}
+
+.seq-figure img {
+  filter: grayscale(1);
+  transition: filter var(--grow), transform var(--grow);
+}
+
+.seq-label {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--axis-d) minmax(0, 1fr);
+  grid-template-rows: var(--axis-d) auto;
+  align-items: center;
+  column-gap: var(--step-1);
+  margin: 0;
+}
+
+/* The leader, dashed, from the axis to the number, and the square where it leaves the axis. */
+.seq-label::before,
+.seq-label::after {
+  content: "";
+  position: absolute;
+  top: calc(var(--axis-d) / 2);
+  pointer-events: none;
+}
+
+.seq-label::before {
+  left: var(--to-spine);
+  width: calc(-1 * var(--to-spine));
+  border-top: 1px dashed var(--color-rule);
+}
+
+.seq-label::after {
+  left: calc(var(--to-spine) - var(--sq) / 2);
+  width: var(--sq);
+  height: var(--sq);
+  margin-top: calc(var(--sq) / -2 + 0.5px);
+  background: var(--color-rule);
+}
+
+/* The number, in a filled bubble, as a sequence's stations are (I to VIII: 10px, so four
+   numerals fit). */
+.seq-no {
+  display: grid;
+  place-items: center;
+  width: var(--axis-d);
+  height: var(--axis-d);
+  border-radius: 50%;
+  background: var(--color-text);
+  color: var(--color-bg);
+  font-family: var(--font-mono);
+  font-size: var(--size-count);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.seq-meta {
+  grid-column: 2;
+  color: var(--color-subtle);
+}
+
+/* The number is in its bubble here; the lightbox's caption line keeps it. */
+.seq-label .seq-ref {
+  display: none;
+}
+
+.seq-caption {
+  grid-column: 2;
+  align-self: start;
+  font-style: italic;
+  line-height: 1.35;
+}
+
+/* Space's story, on its dashed axis: the words beside it, the marks on it. */
+.seq-touches {
+  display: grid;
+  row-gap: var(--step-3);
+  margin: 0 0 var(--step-8);
+  padding: 0;
+  list-style: none;
+}
+
+.seq-touches li {
+  position: relative;
+  display: grid;
+  row-gap: 2px;
+}
+
+.seq-touches li::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  left: calc(-1 * var(--spine-in) - 1px);
+  width: 3px;
+  background: var(--color-rule);
+}
+
+.seq-touches li:first-child::before {
+  top: 0.25em;
+  bottom: auto;
+  left: calc(-1 * var(--spine-in) - 4.5px);
+  width: 9px;
+  height: 9px;
+  border: var(--rule);
+  border-radius: 50%;
+  background: var(--color-bg);
+}
+
+.seq-what {
+  font-style: italic;
+  line-height: 1.35;
+  color: var(--color-subtle);
+}
+
+.seq-end {
+  position: relative;
+  margin: var(--step-8) 0 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-style: italic;
+  font-weight: 300;
+  line-height: 1;
+}
+
+/* The key, under the axis's end. */
+.seq-key {
+  display: grid;
+  row-gap: var(--step-4);
+  margin-top: var(--step-12);
+  padding: 0 var(--gutter) 0 calc(var(--spine-x) + var(--spine-in));
+}
+
+.scale-bar {
+  display: flex;
+  max-width: 32rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scale-bar li {
+  position: relative;
+  flex: calc(var(--u) + 1) 1 0;
+  min-width: 0;
+  padding-top: calc(6px + var(--step-1));
+}
+
+.scale-bar li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  border: var(--rule);
+  border-right: 0;
+}
+
+.scale-bar li:nth-child(odd)::before {
+  background: var(--color-text);
+}
+
+.scale-bar li:last-child::before {
+  border-right: var(--rule);
+}
+
+.scale-bar li.is-unreached::before {
+  border-style: dashed;
+  background: none;
+}
+
+.seq-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--step-1) var(--step-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-subtle);
+}
+
+.seq-legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--step-1);
+}
+
+.seq-legend li::before {
+  content: "";
+  width: var(--step-4);
+  border-top: 1px solid var(--color-rule);
+}
+
+.seq-legend li.is-dashed::before {
+  border-top-style: dashed;
+}
+
+@media (min-width: 768px) {
+  .seq-group {
+    --w: min(40% + var(--k, 0) * 8%, 72%);
+  }
+}
+
+/* From 1200px the axis runs down the window's middle: each scale's words at the left in their
+   bracket (the left three twelfths), the images across the axis (the middle six), and the
+   stations' words at the right (the last three), each image overlapping the one before a
+   little, as fragments laid down a sheet. */
+@media (min-width: 1200px) {
+  .sequence {
+    --spine-x: 50%;
+  }
+
+  .seq-group {
+    --w: min(34% + var(--k, 0) * 9%, 64%);  /* of the middle six twelfths */
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    padding: var(--step-6) var(--gutter);
+  }
+
+  .seq-bracket {
+    display: block;
+    position: absolute;
+    top: var(--step-6);
+    bottom: var(--step-6);
+    left: calc(var(--gutter) - 14px);
+    width: 6px;
+    border: var(--rule);
+    border-right: 0;
+  }
+
+  .seq-group:has(> .seq-end) .seq-bracket {
+    bottom: 0;
+  }
+
+  .seq-head {
+    position: sticky;
+    top: calc(var(--header-h) + var(--step-4));
+    grid-column: 1 / span 3;
+    grid-row: 1 / span 9;
+    align-self: start;
+    margin: 0;
+  }
+
+  .seq-stations,
+  .seq-touches,
+  .seq-end {
+    grid-column: 4 / -1;
+  }
+
+  .seq-touches,
+  .seq-end {
+    grid-column: 7 / -1;
+    --spine-in: calc(var(--col-gap) / 2);
+  }
+
+  .seq-stations {
+    grid-template-columns: subgrid;
+    row-gap: 0;
+  }
+
+  .seq-station {
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
+
+  .seq-station + .seq-station {
+    margin-top: calc(-1 * var(--step-6));
+  }
+
+  .seq-figure,
+  .seq-station.is-right .seq-figure {
+    grid-column: 1 / span 6;
+    grid-row: 1;
+    margin-left: calc(50% - var(--w) * 0.7);
+  }
+
+  .seq-station.is-right .seq-figure {
+    margin-left: calc(50% - var(--w) * 0.3);
+  }
+
+  /* The words in the last three twelfths: the axis is their width and a gap and a half back. */
+  .seq-label {
+    --to-spine: calc(-100% - 1.5 * var(--col-gap));
+    grid-column: 7 / span 3;
+    grid-row: 1;
+    margin-top: var(--step-4);
+  }
+
+  .seq-key {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    align-items: end;
+    padding: 0 var(--gutter);
+  }
+
+  .scale-bar {
+    grid-column: 4 / span 6;
+    justify-self: center;
+    width: 100%;
+  }
+
+  .seq-legend {
+    grid-column: 10 / span 3;
+    flex-direction: column;
+  }
+}
+
+/* Hovered, an image comes in its own colors, grows a little in its frame, and the others go
+   under tracing paper, as on Work. */
+@media (hover: hover) {
+  .seq-figure:hover img {
+    filter: none;
+  }
+
+  .sequence:has(.seq-figure:hover) .seq-figure:not(:hover) .archive-media::after {
+    opacity: 1;
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .seq-figure:hover img {
+    transform: scale(1.03);
+  }
+}
+
+/* Archive as one map (since 2026-11-24, ARCHIVE_MAP in build.py, the user's ask: Archive shows
+   their work and who they are in images more than words, one map rather than a list, after an
+   architecture student's narrative sheet: pieces of work collaged across one sheet, thin lines
+   from them meeting at a few points, a legend in the corner). One sheet under an ink line from
+   the window's left edge to its right, drawn on the paper itself:
+     the images     each in its own shape (--r), where build.py's map_layout puts it (--x, --y,
+                    --w from 768px; --tx, --ty, --tw on phones, in percent of the sheet),
+                    gathered by scale, overlapping a little, each scale's a little bigger
+     the lines      1px in ink, from a small square on each image to its scale's bubble, and
+                    from each bubble to the subject; Space's dashed (one svg a scale, its
+                    drawing from 768px and its drawing on phones, one shown)
+     a scale        its bubble and name on the paper, where its images' lines meet; Space's
+                    with the user's words under it, "I never became one."
+     the subject    a dot where the bubbles' lines meet, "How people actually live" under it
+     the legend     under the sheet at its right: solid, dashed
+   The images are prints on the paper, in grays and multiplied into it, so the lines, the grain
+   and each other show through where they overlap; hovered, one comes in its own colors, its
+   scale's lines stay and the rest go under tracing paper, as on Work. */
+.atlas {
+  --sq: 5px;
+  margin-top: var(--step-6);
+  padding: var(--step-6) var(--gutter);
+  border-top: var(--rule);
+}
+
+.map {
+  position: relative;
+  aspect-ratio: var(--tall-ratio);
+}
+
+.map-pieces {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.map-piece {
+  position: absolute;
+  z-index: 1;
+  left: var(--tx);
+  top: var(--ty);
+  width: var(--tw);
+  mix-blend-mode: multiply;  /* on the piece, so it blends with the page and the others */
+}
+
+.map-fig {
+  display: block;
+}
+
+.map-fig .archive-media {
+  height: auto;
+  aspect-ratio: var(--r, 4 / 5);
+}
+
+.map-fig img {
+  filter: grayscale(1);
+  transition: filter var(--grow), transform var(--grow);
+}
+
+.map-lines {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: var(--color-rule);
+  stroke: var(--color-rule);
+  stroke-width: 1px;
+  pointer-events: none;
+  transition: opacity var(--grow);
+}
+
+.map-lines rect {
+  stroke: none;
+}
+
+.map-lines .is-wide {
+  display: none;
+}
+
+.map-group.is-unreached .map-lines line {
+  stroke-dasharray: 6 5;
+}
+
+/* A scale: its bubble where its lines meet, its name beside it (at its left far right). */
+.map-node {
+  position: absolute;
+  z-index: 4;
+  left: var(--tx);
+  top: var(--ty);
+  display: flex;
+  align-items: center;
+  gap: var(--step-1);
+  margin: 0;
+  font: inherit;
+  white-space: nowrap;
+  transform: translate(calc(var(--axis-d) / -2), -50%);
+  scroll-margin-top: calc(var(--header-h) + var(--step-8));
+}
+
+.map-node .bubble {
+  background: var(--color-bg);
+}
+
+.map-node:target .bubble {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+.map-name {
+  padding: 0 4px;
+  background: var(--color-bg);
+}
+
+.map-unreached {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: calc(var(--axis-d) + var(--step-1));
+  padding: 0 4px;
+  background: var(--color-bg);
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-style: italic;
+  line-height: 1.3;
+}
+
+.map-node.is-tall-flip {
+  flex-direction: row-reverse;
+  transform: translate(calc(-100% + var(--axis-d) / 2), -50%);
+}
+
+.map-node.is-tall-flip .map-unreached {
+  left: auto;
+  right: calc(var(--axis-d) + var(--step-1));
+}
+
+/* What they share: a dot where the scales' lines meet, its words under it. */
+.map-subject {
+  position: absolute;
+  z-index: 4;
+  left: var(--tx);
+  top: var(--ty);
+  margin: 0;
+  padding-top: var(--step-2);
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  line-height: 1.1;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+.map-subject::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: calc(50% - 5px);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-text);
+}
+
+.map-subject span {
+  padding: 0 4px;
+  background: var(--color-bg);
+}
+
+.map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--step-1) var(--step-4);
+  margin: var(--step-4) 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-subtle);
+}
+
+.map-legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--step-1);
+}
+
+.map-legend li::before {
+  content: "";
+  width: var(--step-4);
+  border-top: 1px solid var(--color-rule);
+}
+
+.map-legend li.is-dashed::before {
+  border-top-style: dashed;
+}
+
+@media (min-width: 768px) {
+  .map {
+    aspect-ratio: var(--ratio);
+  }
+
+  .map-piece,
+  .map-node,
+  .map-subject {
+    left: var(--x);
+    top: var(--y);
+  }
+
+  .map-piece {
+    width: var(--w);
+  }
+
+  .map-lines .is-wide {
+    display: inline;
+  }
+
+  .map-lines .is-tall {
+    display: none;
+  }
+
+  .map-node.is-tall-flip {
+    flex-direction: row;
+    transform: translate(calc(var(--axis-d) / -2), -50%);
+  }
+
+  .map-node.is-tall-flip .map-unreached {
+    left: calc(var(--axis-d) + var(--step-1));
+    right: auto;
+  }
+
+  .map-node.is-flip {
+    flex-direction: row-reverse;
+    transform: translate(calc(-100% + var(--axis-d) / 2), -50%);
+  }
+
+  .map-node.is-flip .map-unreached {
+    left: auto;
+    right: calc(var(--axis-d) + var(--step-1));
+  }
+
+  .map-subject {
+    font-size: 1.5rem;
+  }
+}
+
+/* Hovered, an image comes in its own colors over the others, grows a little in its frame, and
+   the others go under tracing paper, as on Work; its scale's lines stay, the others' go pale. */
+@media (hover: hover) {
+  .map-piece:has(.map-fig:hover) {
+    z-index: 2;
+  }
+
+  .map-fig:hover img {
+    filter: none;
+  }
+
+  .map:has(.map-fig:hover) .map-fig:not(:hover) .archive-media::after {
+    opacity: 1;
+  }
+
+  .map:has(.map-fig:hover) .map-group:not(:has(.map-fig:hover)) .map-lines {
+    opacity: 0.25;
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .map-fig:hover img {
+    transform: scale(1.03);
+  }
+}
+
 /* The lightbox (main.js opens it; Work's items with no page use it too): the item's images,
    scrolling if there are several, with Close above and the caption between Previous / Next
    below. Fades in and out. On a sheet of tracing paper laid over the page (since 2026-11-23,
@@ -3881,6 +4642,242 @@ mark.placeholder {
   .scales:has(.scale[data-orbit="3"]:hover) [data-orbit="3"],
   .scales:has(.scale[data-orbit="4"]:hover) [data-orbit="4"] {
     opacity: 1;
+  }
+}
+
+/* The user as a designer, drawn as a globe that turns (since 2026-11-24, ABOUT_GLOBE in build.py,
+   the user's ask, from an orbit diagram turning in 3D on their Pinterest; then, the same day:
+   the drawing and its words one picture, simple, showing who they are as a designer;
+   assets/js/globe.js turns it): the globe's rim in ink, a tick at each quarter, its lines
+   (meridians and parallels) on its near side as construction lines, dotted axes through its
+   middle; each orbit's far half faint, under the globe's lines; each scale's bubble and name in
+   the label style on the paper's color, kept beside its dot by globe.js: --ux and --uy the way
+   out from the middle, --ax and --ay the side or corner of the name that meets the dot (from
+   -1 to 1), --near how strongly it shows (faint round the back, gone while another is in its
+   place), data-align how its lines line up. Beside the globe from 1024px (under it before) the
+   chosen scale's note (.globe-note.is-on, globe.js): its bubble and name, its field in the
+   display face, for Space its words in the italic; the notes share one place, so the space
+   is the tallest's and one fades into the next. Chosen by hand, its orbit is drawn alone
+   (data-focus) and the globe holds still; a drag sideways turns it. The drawing is the whole
+   section, between two window-wide lines, at every width; the list after it says the same in
+   words, for screen readers only. Without JavaScript, which draws it, the drawing isn't shown
+   and the list is. */
+html:not(.js) .orbits.is-globe {
+  display: none;
+}
+
+.js .scales.has-orbits.has-globe {
+  display: block;
+  border-block: var(--rule);
+}
+
+.js .scales.has-orbits.has-globe .orbits {
+  border: 0;
+}
+
+.js .scales.has-globe .scales-list {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.orbits-figure.is-globe {
+  max-width: 1080px;
+  touch-action: pan-y;  /* a sideways drag turns it, an upright one scrolls the page */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .orbits-figure.is-globe {
+    cursor: grab;
+  }
+
+  .orbits-figure.is-globe.is-dragging {
+    cursor: grabbing;
+  }
+}
+
+.globe-rim,
+.globe-lines,
+.globe-axis,
+.orbit-line {
+  fill: none;
+  stroke: var(--color-text);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.globe-lines {
+  stroke: var(--color-trace);
+  opacity: 0.5;  /* fainter than the orbits' far halves, so the orbits lead */
+}
+
+.globe-axis {
+  stroke: var(--color-trace);
+  stroke-dasharray: 1 3;
+}
+
+.orbit-line.is-back {
+  opacity: 0.25;
+}
+
+.is-globe .orbit-label {
+  --gap: 10px;
+  position: absolute;
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  padding: 1px 4px;
+  background: var(--color-bg);
+  opacity: var(--near, 1);
+  transform: translate(calc((var(--ax, 1) - 1) * 50% + var(--ux, 1) * var(--gap) + var(--shift, 0px)),
+                       calc((var(--ay, 0) - 1) * 50% + var(--uy, 0) * var(--gap)));
+}
+
+/* What their work is about, under the globe, in the display face as typed: the line the
+   drawing is about, so it reads first. */
+.is-globe .orbit-center {
+  padding: 0 var(--step-1);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+
+.is-globe .orbit-name {
+  display: inline;  /* the flat drawing leaves it out on phones */
+}
+
+.is-globe [data-align="center"] {
+  justify-items: center;
+  text-align: center;
+}
+
+.is-globe [data-align="end"] {
+  justify-items: end;
+  text-align: right;
+}
+
+.orbit-key {
+  display: flex;
+  align-items: center;
+  gap: var(--step-1);
+}
+
+.globe-notes {
+  display: grid;
+  margin-top: var(--step-4);
+  justify-items: center;
+  text-align: center;
+}
+
+.globe-note {
+  grid-area: 1 / 1;
+  display: grid;
+  justify-items: inherit;
+  align-content: start;
+  gap: var(--step-1);
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+
+.globe-note.is-on {
+  opacity: 1;
+}
+
+.globe-note-key {
+  display: flex;
+  align-items: center;
+  gap: var(--step-1);
+  font-family: var(--font-mono);
+  font-size: var(--size-label);
+  line-height: var(--leading-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.globe-note-field {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 300;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+/* Space's words, in the display face's italic, as a note in a journal. */
+.globe-note-unreached {
+  color: var(--color-subtle);
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-style: italic;
+  font-weight: 300;
+  line-height: 1.2;
+}
+
+/* Under the globe, the note a step under the line it's about. */
+@media (max-width: 1023px) {
+  .globe-note-field {
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .orbits.is-globe {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 860px) minmax(0, 1fr);
+    align-items: center;
+    column-gap: var(--step-4);
+  }
+
+  .orbits.is-globe .orbits-figure {
+    grid-column: 2;
+    width: 100%;
+    max-width: none;
+  }
+
+  .globe-notes {
+    grid-column: 3;
+    margin-top: 0;
+    justify-items: start;
+    text-align: left;
+  }
+}
+
+.is-globe[data-focus="1"] :is(.orbit, .orbit-label):not([data-orbit="1"]),
+.is-globe[data-focus="2"] :is(.orbit, .orbit-label):not([data-orbit="2"]),
+.is-globe[data-focus="3"] :is(.orbit, .orbit-label):not([data-orbit="3"]),
+.is-globe[data-focus="4"] :is(.orbit, .orbit-label):not([data-orbit="4"]) {
+  opacity: 0.15;
+}
+
+/* The words that end Space's story ("I never became one."), last in its cell, in the display
+   face's italic, as a note in a journal. */
+.scale-unreached {
+  margin-top: var(--step-1);
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-style: italic;
+  font-weight: 300;
+  line-height: 1.2;
+}
+
+@media (max-width: 599px) {
+  .is-globe .orbit-label {
+    --gap: 6px;
+  }
+
+  .globe-note-field {
+    font-size: 1.25rem;
+  }
+
+  .is-globe .orbit-center {
+    font-size: 1.25rem;
   }
 }
 

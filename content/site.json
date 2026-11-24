@@ -26,9 +26,9 @@
 
   "about": {
     "headline": [
-      "*KYURI DESIGNS* WHERE",
-      "DIGITAL MEETS",
-      "EVERYDAY LIFE"
+      "*Kyuri designs* where",
+      "digital meets",
+      "everyday life"
     ],
     "paragraphs": [
       "With a background in Industrial, Graphic, and UX Design, I create brand and digital experiences.",
@@ -71,8 +71,20 @@
     { "name": "Object", "field": "Industrial design", "note": "3D products, mobility, and home goods, in Korea." },
     { "name": "Page", "field": "Graphic design", "note": "Posters and books, in Korea." },
     { "name": "Screen", "field": "UX design", "note": "Apps in Korea, then an M.S. in HCI at DePaul." },
-    { "name": "Space", "field": "Architecture", "note": "What I wanted to be as a kid: classes at Temple, spatial UX at Philly Fashion Week, the Clayco rebrand." }
+    { "name": "Space", "field": "Architecture", "note": "What I wanted to be as a kid: classes at Temple, spatial UX at Philly Fashion Week, the Clayco rebrand.",
+      "unreached": "I never became one.",
+      "touches": [
+        { "at": "As a kid", "what": "Buildings in magazines" },
+        { "at": "Temple", "what": "Architecture classes" },
+        { "at": "Philly Fashion Week", "what": "Spatial UX" },
+        { "at": "Clayco", "what": "The rebrand" }
+      ] }
   ],
+  "scalesDrawing": {
+    "title": "Different scales, same subject",
+    "center": "How people actually live",
+    "legend": ["Studied, worked", "Wanted to be"]
+  },
   "archive": {
     "statement": "*Different scales,* same subject: how people actually live."
   }

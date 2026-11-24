@@ -387,4 +387,25 @@
     video.controls = false;
     looper.observe(video);
   });
+
+  // Archive's sheets (since 2026-11-23; style.css's Archive as a binder): each stays as the page
+  // scrolls on, so the next is laid over it. A sheet shorter than the window under the header
+  // stops under the header; a taller one stops once its foot reaches the window's foot, so all
+  // of it has been seen before the next covers it. Set again when the window or a sheet changes
+  // size.
+  const sheets = [...document.querySelectorAll(".sheet")];
+  if (sheets.length) {
+    const header = document.querySelector(".site-header");
+    const place = () => {
+      const under = header ? header.getBoundingClientRect().height : 0;
+      sheets.forEach((sheet) => sheet.style.setProperty("--sheet-top",
+        `${Math.min(under, innerHeight - sheet.offsetHeight)}px`));
+    };
+    place();
+    addEventListener("resize", place);
+    if ("ResizeObserver" in window) {
+      const watch = new ResizeObserver(place);
+      sheets.forEach((sheet) => watch.observe(sheet));
+    }
+  }
 })();

@@ -21,11 +21,11 @@ If you change `build.py` itself, stop the server (Ctrl+C) and start it again.
 
 | Address | What it is |
 | --- | --- |
-| `/` | Work, the site's first page since 2026-11-12 (the user's ask: the projects first, plainly): everything, the projects first, in one grid of tiles, so a visitor sees every project at once. Laid out after gougoucore.com's Work since 2026-11-13 (the user's ask): a sentence across the page right under the header (`"work"` → `"statement"` in `content/site.json`, in the display style; from 768px (since 2026-11-15, the user's ask) it fills the window from the header's left gutter to its right in two lines, both edge to edge, its size the width over its longer line (`main.js` finds the break that makes the two lines most alike, here after WORKING, 17.2em each: 80px at 1440px, 110px at 1980px), on phones lines from the left at the display's size (justified at the display's size inside the page's width from 2026-11-13, its first line's gaps 2 to 4 times the last's; from the left, ragged, on 2026-11-14); leave it out for no sentence), then the tiles from the window's left edge to its right, 3 across from 768px and 2 on phones, with no gaps, only 1px lines in the text color between them; each image tall (18:25, `--tile-ratio`), with a bar under it, the item's number ("001") at the left and its title at the right. A last row that isn't full is closed with an empty cell (or two) drawn in the same lines, so the grid ends in a rectangle (since 2026-11-14; Archive's too). The first time it opens in a tab, the opening plays over it (see Motion, "Home intro"). Its filters ("All 08   Digital 06   Brand 04   Physical 02", `/#digital` and so on) are off since 2026-11-09: `WORK_FILTERS` in `build.py` brings them back. `HOME_TRACK = True` in `build.py` brings Home back here, as it was from 2026-11-10 to 11-12 (laid out from the user's own sketch: the sentence that says who this is, `"home"` → `"lead"` in `content/site.json`, the featured projects on a wheel, the middle one's name, the sound switch and the 01 / 05 count; see Motion, "Home loop") and moves the grid to `/work/`. **RING / GRID** (since 2026-11-12, `WORK_RING` in `build.py`): at the right of the line over the grid, from 768px, RING shows the same items as objects on a slowly turning oval ring (`assets/js/ring.js`, after sarahsarazen.com/#projects), each one's own `object` image or, until it has one, a gray stand-in shape (`templates/ring.html`); the name and type · year of the object in front (or under the mouse) sit in the ring's middle. The ring showed first (the same evening, the user's ask; `RING_FIRST`); the browser remembers a visitor's pick. Phones get the grid only. Off since 2026-11-13, with gougoucore's layout (`WORK_RING = False`); `True` brings the ring and its switch back, the switch on its line under the sentence. Over the grid since 2026-11-22 (the user's ask, with the project pages' drawing sheets; `GRID_AXES` in `build.py`, Archive's too; see Drawing system), an architect's axis bubbles: over the middle of each column a 28px circle with its letter (A, B, and C from 768px), and a dash-and-dot center line from it down to the grid's top line |
+| `/` | Work, the site's first page since 2026-11-12 (the user's ask: the projects first, plainly): everything, the projects first, in one grid of tiles, so a visitor sees every project at once. Laid out after gougoucore.com's Work since 2026-11-13 (the user's ask): a sentence across the page right under the header (`"work"` → `"statement"` in `content/site.json`, in the display style; from 768px (since 2026-11-15, the user's ask) it fills the window from the header's left gutter to its right in two lines, both edge to edge, its size the width over its longer line (`main.js` finds the break that makes the two lines most alike, here after WORKING, 17.2em each: 80px at 1440px, 110px at 1980px), on phones lines from the left at the display's size (justified at the display's size inside the page's width from 2026-11-13, its first line's gaps 2 to 4 times the last's; from the left, ragged, on 2026-11-14); leave it out for no sentence), then the tiles from the window's left edge to its right, 3 across from 768px and 2 on phones, with no gaps, only 1px lines between them (in the text color until 2026-11-23; construction lines since, lighter, with a registration mark, a + in ink, where they cross: see Drawing system); while one tile is hovered the others go under tracing paper; each image tall (18:25, `--tile-ratio`), with a bar under it, the item's number ("001") at the left and its title at the right. A last row that isn't full is closed with an empty cell (or two) drawn in the same lines, so the grid ends in a rectangle (since 2026-11-14; Archive's too). The first time it opens in a tab, the opening plays over it (see Motion, "Home intro"). Its filters ("All 08   Digital 06   Brand 04   Physical 02", `/#digital` and so on) are off since 2026-11-09: `WORK_FILTERS` in `build.py` brings them back. `HOME_TRACK = True` in `build.py` brings Home back here, as it was from 2026-11-10 to 11-12 (laid out from the user's own sketch: the sentence that says who this is, `"home"` → `"lead"` in `content/site.json`, the featured projects on a wheel, the middle one's name, the sound switch and the 01 / 05 count; see Motion, "Home loop") and moves the grid to `/work/`. **RING / GRID** (since 2026-11-12, `WORK_RING` in `build.py`): at the right of the line over the grid, from 768px, RING shows the same items as objects on a slowly turning oval ring (`assets/js/ring.js`, after sarahsarazen.com/#projects), each one's own `object` image or, until it has one, a gray stand-in shape (`templates/ring.html`); the name and type · year of the object in front (or under the mouse) sit in the ring's middle. The ring showed first (the same evening, the user's ask; `RING_FIRST`); the browser remembers a visitor's pick. Phones get the grid only. Off since 2026-11-13, with gougoucore's layout (`WORK_RING = False`); `True` brings the ring and its switch back, the switch on its line under the sentence. Over the grid since 2026-11-22 (the user's ask, with the project pages' drawing sheets; `GRID_AXES` in `build.py`, Archive's too; see Drawing system), an architect's axis bubbles: over the middle of each column a 28px circle with its letter (A, B, and C from 768px), and a dash-and-dot center line from it down to the grid's top line |
 | `/work/` | Not a page while Work is at `/` (`HOME_TRACK` off): it sends visitors straight on to `/` (old links keep working). With `HOME_TRACK` on, Work's grid is here; `WORK_VIEWS = True` in `build.py` then adds two icons over it (grid, slider; `VIEW_ICONS`) that switch it to the same items on the loop |
 | `/work/<slug>/` | One page per project, all built from `templates/project.html`. Laid out as Work is since 2026-11-14 (the user's ask): the title 16px under the header, where Work's sentence starts; lines in the text color from the window's left edge to its right (over the facts, impact numbers, and Previous / Next); Role · Team · Timeline in Work's columns (2 on phones, 3 from 768px), so they start where the tiles' numbers do; a section's heading and text in the window's halves from 768px; every image edge to edge (up to 1920px), with a 1px line where two meet, side by side or one under the other. (Until then: the title lower, under where Work's filters were; gray lines and images, 12px apart, inside the page's width). Drawn as an architect's drawing sheet since 2026-11-22 (the user's ask: a visual identity from their own story, the architect they wanted to be as a kid; `SHEET_PROJECTS` in `build.py`, on Light Life first, on every project page the same day; `.is-sheet` in `style.css`): the facts are a title block, cells in the window-wide lines in Work's columns: Role, Team, and Scale, then the timeline as a dimension line across two (ticks spaced by the years between `milestones`, each year over the line and its note under it) and, in the third, the sheet: its Work number (005 / 008) beside the logo as a stamp, its two suns called out DIGITAL and EVERYDAY LIFE and the place their rays cross WHERE THEY MEET (Work's sentence). Each section's heading is a detail callout, a circle split by a line, the section's number over the sheet's, the line running on under the heading; Previous / Next carry the sheets' numbers (Previous · 004). `SHEET_PROJECTS = False` puts the facts back in one row |
-| `/archive/` | Archive: personal work and hobbies, a gallery of images with nothing under them. A separate page with its own data. Laid out after gougoucore.com's Lab since 2026-11-13: Work's tiles and lines without the bars, starting right under the header, each image cropped to the tall tile (the lightbox shows it whole). Since 2026-11-22 the axis bubbles stand between the header and the grid, as over Work's (`GRID_AXES`; see Drawing system), so the grid draws its own top line under them. Since later that day it is drawn as a plan (`ARCHIVE_PLAN`; see Archive below): the user's line "Different scales, same subject: how people actually live." in Work's sentence's style, then a column for each scale, A Object, B Page, C Screen, D Space, each image in its scale's column |
-| `/about/` | Laid out after gougoucore.com/3/ since 2026-11-13 (the user's ask): the About text as one paragraph across the page right under the header, in the display style (its first words, KYURI DESIGNS, in the accent face, then the rest), then a Q&A in a small row (since 2026-11-14): the label under the header's WORK, the questions under ARCHIVE, each opening its answer when clicked; the footer is its contact list (`/about/#contact`). Experience (the same kind of row) is off since late 2026-11-13: the header's RESUME has the jobs. The Q&A's label is a detail callout since 2026-11-22, Q over A (see Drawing system). Since the same day, between the paragraph and the Q&A, the scales (`ABOUT_SCALES`): site.json's `scales` as a title block, a cell each in the window-wide lines, A Object, B Page, C Screen, D Space, each with the field it comes from (Industrial design, Graphic design, UX design, Architecture), a line from the user's Q&A, and a link to its column on Archive |
+| `/archive/` | Archive: personal work and hobbies. Since 2026-11-23 a binder of tracing-paper sheets, one a scale, punched, the images loose on each, the sheets laid over one another as the page scrolls (see Archive). Before: a gallery of images with nothing under them. A separate page with its own data. Laid out after gougoucore.com's Lab since 2026-11-13: Work's tiles and lines without the bars, starting right under the header, each image cropped to the tall tile (the lightbox shows it whole). Since 2026-11-22 the axis bubbles stand between the header and the grid, as over Work's (`GRID_AXES`; see Drawing system), so the grid draws its own top line under them. Since later that day it is drawn as a plan (`ARCHIVE_PLAN`; see Archive below): the user's line "Different scales, same subject: how people actually live." in Work's sentence's style, then a column for each scale, A Object, B Page, C Screen, D Space, each image in its scale's column |
+| `/about/` | Laid out after gougoucore.com/3/ since 2026-11-13 (the user's ask): the About text as one paragraph across the page right under the header, in the display style (its first words, KYURI DESIGNS, in the accent face, then the rest), then a Q&A in a small row (since 2026-11-14): the label under the header's WORK, the questions under ARCHIVE, each opening its answer when clicked; the footer is its contact list (`/about/#contact`). Experience (the same kind of row) is off since late 2026-11-13: the header's RESUME has the jobs. The Q&A's label is a detail callout since 2026-11-22, Q over A (see Drawing system). Since the same day, between the paragraph and the Q&A, the scales (`ABOUT_SCALES`): site.json's `scales` as a title block, a cell each in the window-wide lines, A Object, B Page, C Screen, D Space, each with the field it comes from (Industrial design, Graphic design, UX design, Architecture), a line from the user's Q&A, and a link to its column on Archive. Since 2026-11-23 (`ABOUT_ORBITS`, the user's moodboard) the scales are drawn too, as orbits round what they share: one ellipse a scale, smallest in, tilted, a dot on each with its bubble and name (the bubble alone on phones), a dotted line out to it from the middle; Space dashed, its dot open (the architect the user didn't become); straight down from the middle "How people actually live", and "Different scales, same subject" in the corner (`"scalesDrawing"` in `content/site.json`, the user's line from the Q&A). Over the cells, or beside them from 1200px (the drawing in five eighths); hovering a cell draws its orbit alone. Space is drawn honestly (the user's ask, the same day: `"unreached"` and `"touches"` on its scale): its dashed orbit carries where their life came near architecture anyway, along its top, in order: an open mark where it began (as a kid: buildings in magazines), then a stretch drawn solid for each time it did (Temple: architecture classes; Philly Fashion Week: spatial UX; Clayco: the rebrand), each with its words over it; beside its open dot, in the display face's italic, "I never became one." (the user's words, from the Q&A); a legend in the corner, solid "Studied, worked", dashed "Wanted to be" (`"legend"`). On phones the dots carry their bubbles alone and the story's words are left to the cells. Since 2026-11-23 About is also a page from the user's binder, three holes down the window's left edge from 768px, and the Q&A reads as a journal's entries: each question numbered 01 to 06 in the mono, the question in the display face as typed, a construction line between them, the answer in the text's face |
 | `/contact/` | Not a page: it sends visitors straight on to `/about/#contact` (old links keep working) |
 
 Contact is the footer (`#contact`), the same on every page (the header's last link went to it
@@ -309,7 +309,38 @@ items of this kind that the filter is showing). Its images go in `assets/images/
 ## Archive
 
 `/archive/` is built from `content/archive.json`, separate from the projects. Each entry is one
-image, with nothing under it on the page.
+image.
+
+**Since 2026-11-23 it's a binder** (`ARCHIVE_BINDER` in `build.py`, over `ARCHIVE_PLAN`; the
+user's ask: Archive with more of who they are and a story, after their moodboards: a journal's
+punched pages, a vellum book, layered tracing sheets, a loose grid of objects with small
+labels). Under the sentence ("Different scales, same subject: how people actually live."), one
+sheet a scale, A Object, B Page, C Screen, D Space, smallest first, each from the window's left
+edge to its right under an ink line, at least a window tall, punched for a binder down its left
+edge (three holes, from 768px):
+
+- **The head** (from 1200px the left three twelfths, else over the images): the scale's bubble
+  and name and `SHEET A / D · 02 PIECES` in the label style, the field it comes from in the
+  display face, and the user's own line about it (`"field"` and `"note"` in `"scales"`). A scale
+  with `"touches"` tells its story: Space lists where the user's life came near architecture,
+  in order, the first (as a kid, buildings in magazines) an open mark, the rest a solid one
+  (Temple's classes, spatial UX at Philly Fashion Week, the Clayco rebrand), then its
+  `"unreached"` in the display face's italic: "I never became one." (the user's ask, the same
+  day: show who they are, honestly; the same story is on About's orbits). Its sheet starts on
+  a dashed line, as its orbit is drawn.
+- **The images**: loose on a faint drawing grid (9 columns from 768px, 6 on phones), every six
+  placed alike (a column, a width, a shape, a step down: `.sheet-items` in
+  `assets/css/style.css`), cropped to that shape, each with its number and scale under it
+  (`A01 · OBJECT`). Clicked, the lightbox, as before. Hovered, the others go under tracing
+  paper, as on Work.
+- **Laid over each other**: with JavaScript each sheet stays as the page scrolls on, where its
+  foot meets the window's foot, or under the header if it's shorter (`main.js` sets
+  `--sheet-top`), and the next one slides over it. Each sheet is tracing paper (the paper at 86%,
+  frosted), so the one under shows through, soft, with a soft shadow at the top edge.
+  Without JavaScript they just follow one another.
+
+`/archive/#object` and the rest still land on their sheet (About's scales link them).
+The plan described next is what `ARCHIVE_BINDER = False` brings back.
 
 Since 2026-11-22 (the user's ask: the drawing system and their story in one page) the page is
 drawn as an architect's plan (`ARCHIVE_PLAN` in `build.py`), from two lists in
@@ -530,8 +561,8 @@ Every page keeps room for a scrollbar at the right, Home too, though it doesn't 
 (`scrollbar-gutter: stable` on `html`, since 2026-11-10). Where scrollbars take room (a mouse
 plugged in, or "Show scroll bars: Always" on a Mac), Home had none and the other pages did, so
 Home's links sat 7.5px further right and its icons (in the header until 2026-11-13) 15px. Scrollbars that float over the page (a
-Mac trackpad's) take no room, so there nothing changes. During Home's opening that room is black
-with the cover and fades with it (`html.intro-on`, and `assets/js/intro.js`).
+Mac trackpad's) take no room, so there nothing changes. (While Home's opening was a black
+screen, 2026-11-10 to 2026-11-23, that room was black with it.)
 
 `<body data-page="…">` names the kind of page (`home`, `work`, `project`, `archive`, `about`,
 `404`), for CSS that applies to one page only, like the space over About's footer.
@@ -540,20 +571,49 @@ with the cover and fades with it (`html.intro-on`, and `assets/js/intro.js`).
 
 Every size, line height, and color on the site is a token at the top of
 `assets/css/style.css`; no rule sets its own. The Type comment there is the spec; this table
-repeats it, and `git log -- assets/css/style.css` has how it got here. The type follows
-titarvl.framer.website/about: two typefaces, Inter and Martian Mono, both self-hosted from
-Google Fonts under the SIL Open Font License, in six styles. Each style is a typeface and cut, a
-size, a line height, a tracking, and a case, with tokens named after it (`--size-name`,
-`--leading-name`, `--tracking-name`…), and each is set once, under "Shared text styles".
+repeats it, and `git log -- assets/css/style.css` has how it got here.
 
-One exception (since 2026-11-13): the words Work's sentence leans on, one run that says who
+**Since 2026-11-23** (the user's ask: type that fits the tracing-paper system and the
+moodboards: a journal page's serif, a drawing's mono lettering) the site sets two typefaces,
+both self-hosted from Google Fonts (Fontsource 5.3) under the SIL Open Font License: **Source
+Serif 4** for the words to read, **IBM Plex Mono** for the words that name, number, and lead
+somewhere. Source Serif 4 is cut with fontTools' instancer into the few static styles the site
+uses, about 20KB each, each at the optical size it's set at: *Source Serif Display* (opsz 60) at
+300, roman and italic, for the big type; *Source Serif Text* (opsz 16) at 400, its italic, and
+500 for links. Plex Mono at 400 only. Big type is as typed now, not in capitals, so the About
+headline in `content/site.json` is typed in sentence case (the same words). The words a sentence
+leans on (`*...*`: *I'm Kyuri, a designer*, *Kyuri designs*, *Different scales,*) are in the
+display face's italic. Picked from Source Serif 4, Newsreader, EB Garamond, and Instrument
+Serif, each with a mono, set side by side on the paper; Source Serif is the nearest to the
+journal page in the About moodboard, and its Light the nearest to tracing paper's thin lines.
+Six styles still, each a typeface and cut, a size, a line height, a tracking, and a case, with
+tokens named after it, each set once, under "Shared text styles":
+
+| Style | Type | Size | Line height, tracking | Used for |
+| --- | --- | --- | --- | --- |
+| display | Source Serif Display 300, as typed; its italic for the words leaned on | 41px, 51px from 1200px, 64px from 1440px (Work's and Archive's sentences fill the window) | 1.02, -0.02em | project titles, the 404, Work's and Archive's sentences, About's paragraph |
+| title | Source Serif Display 300, as typed | 18px, 23px from 768px, 29px from 1200px, 36px from 1440px | 1, -0.01em | impact numbers, Previous / Next titles |
+| lead | Source Serif Text 400, as typed | 20px, growing with the window to 28px | 1.35, 0 | a project's statement |
+| body | Source Serif Text 400, as typed; links 500 | 16px | 1.5, 0 | text, About's Q&A answers and the scales' lines |
+| name | IBM Plex Mono 400, capitals | 12px | 1.5, 0 | the header's links, the footer, project names (Work, Archive, the lightbox), the lightbox's Close |
+| label | IBM Plex Mono 400, capitals | 12px; Work's counts 10px | 16px, 0 | captions, a project's facts and section headings, the drawing system's words |
+
+Set where they are, in the display face: the opening's name (24px), About's questions (20 to
+28px, numbered 01 to 06 in the mono), the scales' fields, an Archive sheet's field, and Space's
+"I never became one." in its italic. Inter and Martian Mono stay in `assets/fonts/` for the Light
+Life prototype; Kalnia (below) stays for going back.
+
+**2026-11-11 to 2026-11-23**, after titarvl.framer.website/about: Inter and Martian Mono in the
+six styles in the table that follows (display and title in Inter Display capitals, names in
+Inter capitals, labels in Martian Mono), and one exception (since 2026-11-13): the words Work's
+sentence leans on, one run that says who
 Kyuri is, *I'm Kyuri, a designer*, marked with asterisks in `content/site.json`
-(`work.statement`), are set in Kalnia Bold, the accent face (`--font-accent`): heavy strokes
+(`work.statement`), set in Kalnia Bold, the accent face (`--font-accent`): heavy strokes
 that flare out into hairlines, as the logo's rays run out from the sun, a face with a character
 of its own (after gougoucore.com, whose accent face is as much its own as its logo). Only the
-face changes: capitals, the display's size (1.03em, so its capitals stand as tall as Inter's)
-and the display's 500 for the rest, so the words stand out by their letters alone (the user's
-pick, 2026-11-14). About's first words (KYURI DESIGNS) are in it too. Cut from Fontsource 5.3.0's variable font
+face changed: capitals, the display's size (1.03em, so its capitals stand as tall as Inter's)
+and the display's 500 for the rest, so the words stood out by their letters alone (the user's
+pick, 2026-11-14). About's first words (KYURI DESIGNS) were in it too. Cut from Fontsource 5.3.0's variable font
 with fontTools' instancer to weight 700, width 100, 14KB, SIL Open Font License. (Before:
 Instrument Serif Italic, thickened, and Monoton on 2026-11-13; Bodoni Moda Italic, too hard to
 read, and Newsreader Italic, over three words, on 2026-11-14.)
@@ -567,7 +627,7 @@ read, and Newsreader Italic, over three words, on 2026-11-14.)
 | name | Inter 500 (the opening 600), capitals | 14px, 15px from 1200px, 16px from 1440px; the header's links 12px on phones (`--size-menu`), the opening 16px (`--size-opening`) | 1.3, -0.03em | the header and the footer (since 2026-11-13, at `--size-menu`), Home's opening, project names (Home's cards, Work's tiles, Archive, the lightbox), the lightbox's Close, all of About (since 2026-11-12; at 1.5, the paragraphs as typed at 0 tracking) |
 | label | Martian Mono 400, capitals | 12px; Work's counts 10px (`--size-count`) | 16px, -0.05em | captions, Home's type and year and SOUND ON / OFF, a project's facts and section headings, the prototype's "Open in a new tab", the lightbox's type and year, Work's filters and counts (the footer too until 2026-11-13); a label that names a column or a section (a project's fact labels, its section and note headings) in `--color-subtle` |
 
-The rules behind the table (since 2026-11-11):
+The rules behind that table (2026-11-11 to 2026-11-23):
 
 - **Cuts.** Inter's optical size follows the font size (`font-optical-sizing: auto` on `body`):
   body text, names, and the menu (12-16px) get Inter's text cut, drawn to read at small sizes;
@@ -591,17 +651,23 @@ The rules behind the table (since 2026-11-11):
   weight, take the full file from git history (before 2026-11-11) or Google Fonts and cut it
   again.
 
-Color is the text color (`--color-text`) on white (`--color-bg`, `#ffffff` since 2026-11-14, the
-header's white; `#f5f4f0` before), one gray for all gray text (`--color-subtle`, 5:1 on
-the background, the lightest small text stays easy to read at: Home's type and year, Work's filters,
+Color is the text color (`--color-text`) on tracing paper (`--color-bg`, `#eeede8`, a light
+warm gray, since 2026-11-23, the user's moodboard; white, `#ffffff`, from 2026-11-14, the
+header's white; `#f5f4f0` before), with a still grain over the whole window (`--grain`, fine
+noise a few percent dark, images too, as on a print of a drawing, at `--grain-strength`, 0.45
+since the user found it a little much the same day; not in Windows' contrast themes or print), one gray for all gray text (`--color-subtle`, `#666561`, 5:1 on
+the paper (`#706f6b` on white until 2026-11-23), the lightest small text stays easy to read at: Home's type and year, Work's filters,
 captions, the lightbox's type and year, the labels that name a column or a section, impact labels,
 Previous / Next, About's labels, companies, and dates, the copyright, and from 2026-11-09 to
 2026-11-14 the header's links; since 2026-11-07, most of them a step darker in `--color-muted`, 5.6:1, before),
-`--color-muted` now only for a hovered link, and every line in the text color (`--color-rule`;
+`--color-muted` (`#585753`, 6.2:1) now only for a hovered link, and every line in the text color (`--color-rule`;
 a project page's were a light warm gray, `--color-line`, until 2026-11-14). The fills behind
-loading media and the gray placeholders are a neutral gray (`--color-fill`, `#e9e9e9`, and
-`#e6e6e6` in `build.py`'s placeholders, since 2026-11-14; warm grays made for the off-white page
-before). (From 2026-11-05 to
+loading media and the gray placeholders are a shade under the paper (`--color-fill`, `#e2e1db`,
+the same in `build.py`'s placeholders, since 2026-11-23; a neutral gray, `#e9e9e9`, on the white
+page from 2026-11-14; warm grays made for the off-white page before). Since 2026-11-23 the grids'
+lines are construction lines, lighter than ink (`--color-trace`, the text color at 30%, 2:1 on
+the paper, lines only; see Drawing system), and tracing paper (`--vellum`, the paper at 72%,
+frosted 16px) is the header's background, the lightbox's, and the opening's. (From 2026-11-05 to
 2026-11-09 the header's links were lighter still, `--color-faint`, 3:1, under WCAG AA's 4.5:1.)
 Things react to the pointer in one of two ways, and only by color:
 **links** are in the text color and turn muted on hover (the header's links since 2026-11-14,
@@ -627,16 +693,37 @@ columns on phones and 3 from 768px, edge to edge (since 2026-11-13; Work's went 
 Since 2026-11-22 (the user's ask: a visual identity from their own story) the site is drawn as
 an architect's drawings: they wanted to be an architect as a kid (About's Q&A), and their work
 runs from objects to pages to screens, "different scales, same subject". The same few parts
-everywhere, black on white, in the site's 1px lines (`--rule`) and its label style (Martian Mono
-capitals), their circles kin to the logo's two suns. No color and no motion of their own.
+everywhere, in ink, in the site's 1px lines (`--rule`) and its label style (Martian Mono
+capitals), their circles kin to the logo's two suns.
+
+Since 2026-11-23 (the user's moodboards: architect's drawings on tracing paper, a portrait and a
+book seen through vellum, orbits and ellipses in thin lines, a journal page, an orbit diagram
+with mono labels, prints laid over layers) the drawings are on **tracing paper**: the page is
+the paper (`--color-bg`, a light warm gray, with a still grain, `--grain`), and a sheet of it,
+part see-through and frosted (`--vellum`), lies over what isn't in focus: the header as the page
+scrolls under it, the whole page in the opening (the sheet then lifts and the work comes sharp),
+the page behind the lightbox, and on Work and Archive the tiles not hovered while one is. Grids
+are laid out in construction lines (`--trace-rule`) with registration marks in ink where they
+cross, and orbits join the parts. Still no color of their own; what moves is the sheet lifting
+and an orbit being drawn, once, in the opening.
+
 In `assets/css/style.css` the tokens are under Tokens (`--axis-d`, `--callout-d`, `--tick`,
-`--tick-ext`, `--centerline`) and the parts in the Drawing system section; in `build.py` the
-helpers are `axes`, `callout`, `dimension`, `sheet_meta`, `stamp`, `logo_key`,
-`archive_plan`, and `about_scales`.
+`--tick-ext`, `--centerline`, `--mark`, `--mark-cross`, `--color-trace`, `--trace-rule`,
+`--vellum`, `--vellum-blur`, `--vellum-thin`, `--vellum-thin-blur`, `--vellum-thick-blur`,
+`--grain`) and the parts in the Drawing system section; in `build.py` the helpers are `axes`,
+`callout`, `dimension`, `sheet_meta`, `stamp`, `logo_key`, `archive_plan`, `about_scales`,
+`orbits`, and `home_intro`.
 
 | Part | What it is | Where |
 | --- | --- | --- |
-| Lines | 1px, in the text color, from the window's left edge to its right | the header, Work's grid and Archive's plan, a project's facts, About's scales, the footer |
+| Paper and grain (`--color-bg`, `--grain`) | the page, a light warm gray, and a fine still grain over the whole window, images too | every page |
+| Tracing paper (`--vellum`) | the paper's color, part see-through, frosted: what's under it goes soft. Thick (`--vellum-thick-blur`, 24px) over the whole window, thin (`--vellum-thin`, 50%, 5px) over a tile | the header (as the page scrolls under it), the opening (a sheet over the work that lifts), the lightbox, Work's and Archive's tiles not hovered while one is |
+| Lines | 1px, in ink (the text color), from the window's left edge to its right | the header, a project's facts, About's scales, the footer |
+| Construction lines (`--trace-rule`) | 1px, lighter than ink (the text color at 30%): the lines a drawing is laid out on | Work's grid and Archive's plan (their lines since 2026-11-23); About's orbits' dotted rays |
+| Registration marks (`--mark`) | a + in ink, 15px across, where a grid's construction lines cross; none at the window's edges | Work's grid, Archive's plan |
+| Orbits | ellipses in 1px lines, a dot on each, dashed (its dot open) for what wasn't reached; their words in the label style on the paper's color, so lines break round them | the opening (the logo's two suns: DIGITAL dashed, EVERYDAY LIFE solid, the name where they meet); About's scales (`ABOUT_ORBITS`: A Object to D Space round "How people actually live", Space dashed: the architect the user didn't become, with where their life came near it drawn on it, see About) |
+| Binder holes (`--holes`, `--hole-d`) | three holes, 14px, dark, down a strip's middle a third of its height apart, in the side margin; from 768px only (on phones the margin is too narrow and they read as bullets) | About (down the window's left edge, staying as the page scrolls), each Archive sheet |
+| Sheets | a page of tracing paper (`--sheet-paper`, frosted) under an ink line, punched, at least a window tall, laid over the one before as the page scrolls | Archive (`ARCHIVE_BINDER`) |
 | Axis bubbles (`.axes`) | a 28px circle over the middle of each column of a grid, with its letter (A, B, and C from 768px), and a center line (long dash, short dash) from it down to the grid; named (`.is-named`), its name beside it (over it on phones), every column at every width; alone beside a name (`.bubble`) | over Work's grid (`GRID_AXES`); Archive's plan, a column per scale (`ARCHIVE_PLAN`); About's scales (`ABOUT_SCALES`) |
 | Detail callout (`.callout`) | a 48px circle split by a line, a number over it and one under | a project's section headings (the section's number over the sheet's, 1 over 005, the line running on under the heading); About's Q&A label (Q over A); the 404 (? over 404) |
 | Title block | a set of facts as cells in the lines: a project's Role, Team, Scale, Timeline, Sheet, in Work's columns; the user's scales, A to D | every project page (`SHEET_PROJECTS`); About (`ABOUT_SCALES`) |
@@ -646,8 +733,10 @@ helpers are `axes`, `callout`, `dimension`, `sheet_meta`, `stamp`, `logo_key`,
 | Item numbers | a column's letter and the item's place down it, in a tag in its corner, as a set's sheets are numbered by discipline | Archive's plan (A01, D02...), and its lightbox captions |
 
 To draw something new, reuse a part rather than adding one: a numbered thing takes a callout, a
-run of time a dimension line, a set of facts title-block cells, a grid axis bubbles. Words stay
-in the label style, lines at 1px, circles plain.
+run of time a dimension line, a set of facts title-block cells, a grid axis bubbles and
+registration marks, things round a shared middle orbits, something out of focus tracing paper,
+a page of the user's own (a journal, an archive) binder holes.
+Words stay in the label style, lines at 1px, circles plain.
 
 ## Spacing
 
@@ -679,7 +768,7 @@ spacing inside things (`--step-3` is 24px).
 
 ## Motion
 
-The site keeps motion to a short list: the home loop and its intro, the Work toggle's fade and its grid / slider switch's (the same 150 ms out, 250 ms in), the Work and Archive images growing slightly (3%) and Work's videos playing on hover, images
+The site keeps motion to a short list: the home loop and its intro, the Work toggle's fade and its grid / slider switch's (the same 150 ms out, 250 ms in), the Work and Archive images growing slightly (3%) and Work's videos playing on hover, the other tiles going under tracing paper while one is hovered (250 ms, since 2026-11-23), an orbit on About drawn alone while its scale is hovered (200 ms), Archive's sheets staying as the next is laid over them (scrolling only, sticky), images
 fading up on project pages, a 300 ms fade between pages (in browsers that support it; others switch pages instantly), the lightbox fading in and out (200 ms), impact numbers counting up, and a smooth scroll to a spot on a page (`/about/#contact`). If a visitor has reduced
 motion turned on, all of it is off, and the home loop jumps from card to card without easing.
 
@@ -818,8 +907,29 @@ it ran into the next tile's title 12px away, then for part of that day right aft
   `MERGED` in `assets/js/main.js`, so links to it still open the right filter.
 
 Home intro: the first time Home opens in a browser tab, an opening says who this is before the
-work shows (since 2026-11-09; over Work's grid since 2026-11-10, over the home loop before). Since
-2026-11-10, after mastak.framer.website: a black screen (the text color) over the work and the
+work shows (since 2026-11-09; over Work's grid since 2026-11-10, over the home loop before).
+
+Since 2026-11-23 (the user's moodboard: a portrait seen through frosted paper, a vellum book,
+orbits drawn in thin lines; see Drawing system) it's a sheet of tracing paper over the work and
+the header (`--intro-vellum`, the paper at 60%, frosted 24px), so the work shows only as soft
+shapes. On it, in the window's middle, the logo's two suns are drawn as orbits in 1px lines,
+each from the top place where they cross, the left one leftward and the right one rightward, a
+dot riding each pen, 1.5 s, slow out of the crossing and back into it: the left, DIGITAL,
+dashed, the right, EVERYDAY LIFE, solid, their names over their outer edges as on the footer's
+logo (their middles 100 apart at radius 100, closer than the logo's, so each middle is on the
+other's circle and the name fits where they meet; up to 520px wide). A center line (long dash,
+short dash, as over Work's grid) runs out from the middle to the window's edges, and on it,
+where the suns meet, the name ("KYURI PARK", `"name"`, in the name style at 600) rises in word
+by word, 0.45 s into the drawing; the sentence ("DESIGNS WHERE DIGITAL MEETS EVERYDAY LIFE",
+`"opening"`) under the drawing in the label style, word by word from 1.3 s; a cross marks each
+sun's middle once they're drawn. 0.9 s after the last word the sheet lifts (1.1 s): its blur and
+its tint go together, the drawing fading, and the work comes sharp; about 4.6 s in all. A click
+or tap, a key, or the wheel cuts it short (the sheet then lifts in 0.3 s). To tune it: the
+numbers at the top of `assets/js/intro.js` (`DELAY`, `DRAW`, `NAME_AT`, `WORD_IN`, `STAGGER`,
+`RISE`, `LINE_AT`, `READ`, `LIFT`, `CUT`); "Home intro" in `assets/css/style.css` has the sheet
+and the drawing, `build.py`'s `home_intro` (and `INTRO_ORBITS`) draws it.
+
+Before, from 2026-11-10, after mastak.framer.website: a black screen (the text color) over the work and the
 header, with the name ("KYURI PARK", `"name"` in `content/site.json`) in its middle, in the
 header name's style and in the page's color, each word rising 0.8em into place as it fades in
 (0.6 s, 0.1 s apart); 0.5 s later the name rises away and fades (0.4 s) as the sentence that
@@ -832,9 +942,7 @@ from the middle in a growing circle, as mastak's does, then the black lifted awa
 gradient edge; both were dropped for the plain fade.) A click or tap on it, a key, or the wheel
 cuts it short (the black then fades in 0.3 s; a key only does that: the page doesn't move). Later arrivals
 at Home come with the 300 ms fade between pages, as every page does; with reduced motion there's
-no opening. To tune it: the numbers at the top of `assets/js/intro.js` (`DELAY`, `WORD_IN`,
-`STAGGER`, `RISE`, `HOLD`, `SWAP`, `ROLE_AT`, `READ`, `OPEN`, `CUT`); "Home intro" in
-`assets/css/style.css` has the black and the type. (From 2026-11-09 to 2026-11-10
+no opening (still so). (From 2026-11-09 to 2026-11-10
 a cover of the page's own color held About's first sentence, exactly where About has it and made
 of the same dots: it came into focus from a 10px blur with About's pass going through it once,
 then blurred away as the cover faded, about 4.5 s, after the preloader on

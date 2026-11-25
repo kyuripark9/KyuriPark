@@ -255,7 +255,7 @@
     el.addEventListener("pointerdown", (e) => {
       if (e.button) return;
       draggedEnd = false;
-      begin();
+      press();
       drag = { x: e.clientX, v: state[field], moved: false };
       el.setPointerCapture(e.pointerId);
     });
@@ -263,7 +263,7 @@
       if (!drag) return;
       const dx = (e.clientX - drag.x) / scale;
       if (!drag.moved && Math.abs(dx) < 4) return;
-      if (!drag.moved) { drag.moved = true; takeOver(); el.classList.add("is-dragging"); }
+      if (!drag.moved) { drag.moved = true; el.classList.add("is-dragging"); }
       set(drag.v + (dx / ruler.clientWidth) * DAY);
     });
     const end = () => {
@@ -271,7 +271,7 @@
       if (drag.moved) { draggedEnd = true; remember(); }
       el.classList.remove("is-dragging");
       drag = null;
-      commit();
+      release();
     };
     el.addEventListener("pointerup", end);
     el.addEventListener("pointercancel", end);
@@ -369,18 +369,20 @@
   // Both parts keep their numbers in light ink at any strength: each lights at its rim and
   // stays dark in the middle, where its number sits (app.css).
 
+  let baseLit = false;   // the base's rim was lit at the last paint
   function paintLamp(l, id) {
     const sunA = strength(l.sun), colA = colorStrength(l.c);
     $("sun-fill").style.opacity = sunA.toFixed(3);
-    head.classList.toggle("is-lit", sunA > 0);
     $("sun-value").textContent = pct(l.sun);
     paintTape(sunTape, l.sun, saySun(l));
 
     // The base's rim lights in the color (app.css, --fill, which eases to a new color). A
-    // color that's off keeps the last one as it fades out, rather than going gray.
-    if (l.color && l.c > OFF) $("color-fill").style.setProperty("--fill", rgbCss(l.rgb));
+    // color that's off keeps the last one as it fades out, rather than going gray; while the
+    // rim is dark it takes the scene's color anyway, so it lights in that color, never white
+    // first (the white default is the head's).
+    if (l.color && (l.c > OFF || !baseLit)) $("color-fill").style.setProperty("--fill", rgbCss(l.rgb));
     $("color-fill").style.opacity = colA.toFixed(3);
-    base.classList.toggle("is-lit", colA > 0);
+    baseLit = colA > 0;
     $("color-value").textContent = l.c > OFF ? pct(l.c) : 0;
     const name = colorName(id, l.color);   // heard on the ruler only (no label on the lamp since 2026-11-15)
     paintTape(colorTape, l.c, l.c > OFF ? `${name} ${pct(l.c)}%` : "Color off");
@@ -398,17 +400,22 @@
     const tape = { el, key, ticks: [...el.querySelectorAll("i")], lit: -1 };
 
     const level = () => sceneOf(partAt(viewTime()))[key];
+    // A strength back at the scene's own is no longer a change of yours: it leaves the part's
+    // tune (null once nothing's left), so a tap on the mark doesn't bring up Undo. Kept at
+    // once, as every change is.
     const set = (v) => {
       const x = part(partAt(viewTime()));
-      x.tune = { ...x.tune, [key]: clamp(v, 0, 100) / 100 };
+      const tune = { ...x.tune, [key]: clamp(v, 0, 100) / 100 };
+      if (Math.abs(tune[key] - x.scenes[sceneIndex(x)][key]) < 1e-6) delete tune[key];
+      x.tune = Object.keys(tune).length ? tune : null;
       paintRuler();
       render();
+      remember();
     };
     let drag = null;
     surface.addEventListener("pointerdown", (e) => {
       if (e.button) return;
-      takeOver();
-      begin();
+      press();
       drag = { x: e.clientX, v: level() * 100, moved: false, onTape: el.contains(e.target) };
       surface.setPointerCapture(e.pointerId);
     });
@@ -428,7 +435,7 @@
         set(Math.round(drag.v + (e.clientX - (r.left + r.width / 2)) / scale / PX));
       }
       drag = null;
-      commit();
+      release();
     };
     surface.addEventListener("pointerup", end);
     surface.addEventListener("pointercancel", end);
@@ -608,6 +615,7 @@
     paintRuler();
     render();
     renderScenes();
+    remember();   // kept at once, sheet open or not (Undo still takes the whole visit back)
   }
   $("scene").addEventListener("click", (e) => {
     sheetPart = partAt(viewTime());
@@ -800,9 +808,16 @@
   // change was made, so you see it come undone on the lamp.
   const undos = [];
   let pending = null, settleTimer = 0;   // how things were when the change under way began
-  const snap = () => ({ city: state.city, wake: state.wake, bed: state.bed, parts: PARTS.map((x) => ({ pick: x.pick, tune: x.tune })) });
+  let held = false;   // a press on a light or a time handle is under way
+  // chosen counts as a change (choosing the city the guess already shows is one, and is kept);
+  // a tune's keys in one order, so the same strengths always compare the same.
+  const snap = () => ({ city: state.city, chosen, wake: state.wake, bed: state.bed, parts: PARTS.map((x) => ({ pick: x.pick, tune: x.tune && { sun: x.tune.sun, c: x.tune.c } })) });
   const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
   function begin() { if (!pending) pending = { state: snap(), chosen, view: state.preview }; }
+  // A press is a change of its own: a run of arrow keys still settling is kept first, so a
+  // drag right after keys isn't cut in two by their timer; the change ends when it's let go.
+  function press() { takeOver(); commit(); begin(); held = true; }
+  function release() { held = false; commit(); }
   function commit() {
     clearTimeout(settleTimer);
     if (!pending) return;
@@ -842,8 +857,8 @@
   }
   $("undo").addEventListener("click", undo);
   document.addEventListener("keydown", (e) => {
-    if (e.key.toLowerCase() !== "z" || !(e.metaKey || e.ctrlKey) || e.shiftKey || e.altKey) return;
-    if (state.sheet || !(undos.length || pending)) return;   // in the city search, Undo is the field's
+    if ((e.key || "").toLowerCase() !== "z" || !(e.metaKey || e.ctrlKey) || e.shiftKey || e.altKey) return;
+    if (state.sheet || held || !(undos.length || pending)) return;   // in the city search, Undo is the field's; not mid-drag
     e.preventDefault();
     undo();
   });

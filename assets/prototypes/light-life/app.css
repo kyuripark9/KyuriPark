@@ -26,7 +26,7 @@
   --glass: #ffffff1f;
   --line: #ffffff1a;
   --ink: #f5f3ef;
-  --ink-muted: #f5f3efb8;   /* the ink at 72%, so it reads on the black and on every room color alike (#a7a39c, a warm gray, until late 2026-11-15) */
+  --ink-muted: #f5f3efb8;   /* the ink at 72% (#a7a39c, a warm gray, until late 2026-11-15, when the color filled the screen) */
   --ink-on-light: #141210;
   --signal: #ffd84d;
   --on-signal: #141210;
@@ -265,7 +265,7 @@ html.is-fill .app {
 .now-head .scene-title { grid-area: 1 / 1 / 2 / -1; justify-self: start; }
 .now-head .place { grid-area: 2 / 1; justify-self: start; }
 .part-name { grid-area: 2 / 2; margin-top: 2px; color: var(--ink-muted); font-size: 15px; font-weight: 400; line-height: 20px; letter-spacing: -0.01em; white-space: nowrap; }   /* 2px down, as .place is */
-.part-name::before { content: "·"; margin: 0 7px; }
+.part-name::before { content: "·"; content: "·" / ""; margin: 0 7px; }   /* the dot is only drawn: the heading reads "Wind down" (the first content for browsers without alt text) */
 
 /* The lamp in the real one's shape, each part a dark shape lit at its rim, like neon (the
    user's ask, 2026-11-20, with a sketch and a reference): the head, a rounded square, over the
@@ -319,7 +319,7 @@ html.is-fill .app {
 .ll-tape-track i { position: absolute; bottom: 7px; width: 1.5px; height: 10px; margin-left: -0.75px; border-radius: 1px; background: currentColor; opacity: 0.26; }
 .ll-tape-track i.is-major { height: 18px; }
 .ll-tape-track i.on { opacity: 0.9; }
-.ll-tape-mark { position: absolute; left: 50%; bottom: 3px; width: 2px; height: 28px; margin-left: -1px; border-radius: 1px; background: var(--signal); box-shadow: 0 0 0 1px #00000066; pointer-events: none; }   /* edged darker since the room took color (late 2026-11-15), so the yellow shows on a gold room too */
+.ll-tape-mark { position: absolute; left: 50%; bottom: 3px; width: 2px; height: 28px; margin-left: -1px; border-radius: 1px; background: var(--signal); box-shadow: 0 0 0 1px #00000066; pointer-events: none; }   /* edged in black, so it stays crisp over the lit ticks */
 .lamp-base .ll-tape { height: 30px; }
 .lamp-base .ll-tape-mark { height: 24px; }
 
@@ -361,7 +361,7 @@ html.is-fill .app {
    (since 2026-11-15, when the time left the top line). --label-x from app.js. */
 .day-now { position: absolute; top: 0; left: 0; width: 0; height: 100%; pointer-events: none; z-index: 1; }
 .day-now i { position: absolute; top: 16px; bottom: 0; left: -1px; width: 2px; border-radius: 1px; background: var(--signal); box-shadow: 0 0 0 1px #00000073; }
-.day-now-time { position: absolute; z-index: 2; top: 0; left: var(--label-x, 0px); padding: 2px 6px; border-radius: 6px; background: #00000052; color: var(--ink); font-family: var(--font-mono); font-size: 11px; font-weight: 400; line-height: 14px; letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.day-now-time { position: absolute; z-index: 2; top: 0; left: var(--label-x, 0px); padding: 2px 6px; border-radius: 6px; background: var(--bg); color: var(--ink); font-family: var(--font-mono); font-size: 11px; font-weight: 400; line-height: 14px; letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap; font-variant-numeric: tabular-nums; }
 /* Now, while the mark is at another time (the Back to now button until 2026-11-15, the user:
    too many things): a small hollow yellow ring just over the strips, at now. Tap it to come
    back (app.js: a tap or drag that lands within a few px of it snaps to now). It fades in

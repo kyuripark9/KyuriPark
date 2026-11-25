@@ -199,34 +199,28 @@ Blocks appear in the order you list them. The template uses Context → Explore 
   now is an icon before the city's name (a pin until the forecast arrives). Like the lamp,
   each scene has two lights, apart, each with its own job: white sunlight that shines on you
   (how strong) and a color that colors your space (which color, how strong; the `--lamp-` colors in
-  `app.css`). The screen draws the lamp as the light it makes (since late 2026-11-15, the
-  user's ask after two screens each holding one soft-edged shape of light; earlier that
-  evening both lights shared one box, and before that the screen drew the lamp's two parts
-  apart, as in the 2023 renders: a head, a circle and before that a rounded square, glowing
-  white at its rim, over a pill filled with the color). The color, the light that colors your
-  space, is the room: the whole screen behind everything, its glow pooling low where the
-  lamp's base is and falling off to a deep shade toward the top and the bottom, as strong as
-  the color is (black while it's off). Each color's room is a pair picked by hand (`--room-*`
-  in `app.css`: a tint worked out from the color looked wrong on some colors, the user,
-  2026-11-14), all on one footing in OKLCH and deep enough for white type, the yellows turned
-  toward orange as they dim so they stay gold rather than olive; a fine grain lies over it,
-  so its gradients read as light rather than flat fills. The sunlight, the light that shines
-  on you, is the lamp's head as the frosted panel it is: a rounded square of glass in the
-  room (a faint body, a fine light edge, a sheen at the top), lit from inside by a white core
-  that takes on the room's color as it spreads toward the edge, growing and brightening with
-  the light, and at strength a soft bloom past the glass (late 2026-11-15, the user: a big
-  blurred white shape looked old and awkward); its percent sits under it, off the
-  white, and the color's lower down in the room's glow, so both read in light ink at any
-  strength. Both say what they hold
-  the same way (since 2026-11-14, the user's ask): a mono label naming the light, SUNLIGHT
-  for the head; for the base, its color named for your situation, from today's sky where
-  you live or else the part of the day: GRAY-DAY BLUE, EARLY-SUNSET BLUE, WIND-DOWN ROSE,
-  NIGHT RED (since 2026-11-15, the user's ask: paint names like "Sky blue" didn't say
-  anything about you; no icons since then either) over the strength in plain type (Inter, the
-  number large with a smaller % beside it; dot digits until 2026-11-15, the user's ask), both
-  the same size, the color's in white. Each light
-  has its own tape, a ruler that slides under a fixed yellow mark: drag the light's part of the screen (or its
-  ruler) sideways, tap the ruler, or use the arrow keys to set how strong that light is for
+  `app.css`). The screen draws the lamp in the real one's shape (since 2026-11-20, the user's
+  ask, with a sketch and a reference of dark shapes lit at their edges like neon): the head,
+  a rounded square (its corners 19% of its side), over the base, a pill as wide and 132px
+  tall, 8px apart, both dark inside and lit at their rim on the black screen. The sunlight,
+  the light that shines on you, lights the head's rim white; the color, the light that colors
+  your space, lights the base's rim in its color; each as strongly as that light is, brightest
+  right at the rim, fading inward over some 30px so the middle stays dark, and spilling a
+  little past the edge (layers of shadow, the color a little more vivid toward the edge, in
+  OKLCH, so a yellow goes gold, not olive). A light that's off leaves a dark shape with a faint
+  edge. (From late 2026-11-15 until 2026-11-20 the color filled the whole screen as a room
+  behind the head, drawn as a frosted white panel; earlier that evening both lights shared
+  one box, and before that, as in the 2023 renders, the head, a circle and before that a
+  rounded square, glowed white at its rim over a pill filled with the color.) On each part's dark
+  middle, its strength in plain type (Inter, the number large with a smaller % beside it;
+  dot digits until 2026-11-15, the user's ask), the base's smaller, as the part is, both in
+  light ink at any strength. No labels on the lamp since 2026-11-15 (the user: the scene
+  title at the top already names what's playing); screen readers hear each light's name on
+  its ruler, Sunlight, and the color named for your situation, from today's sky where you
+  live or else the part of the day: Gray-day blue, Early-sunset blue, Wind-down rose, Night
+  red (paint names like "Sky blue" didn't say anything about you, the user, 2026-11-15).
+  Each light has its own tape, a ruler that slides under a fixed yellow mark: drag its part
+  of the lamp (or its ruler) sideways, tap the ruler, or use the arrow keys to set how strong that light is for
   the part of the day showing; picking a scene again goes back to the scene's own strengths.
   The lamp shows each part of the day as set; the day's ruler shows the slow fades between
   them. The day's ruler shows the lamp through the day, built as the lamp is, head over
@@ -259,9 +253,10 @@ Blocks appear in the order you list them. The template uses Context → Explore 
   2026-11-15, then the user asked for it at the top and as a title, not a box; tap
   it and the part's scenes come up in a sheet, with its hours and a small lamp per scene lit
   as that scene lights it; picking one closes the sheet so you see the lamp change), one quiet line under it for the city, with the
-  weather there as an icon (it opens the city search; its time is on the ruler since 2026-11-15; the part of the day's name is gone since
-  2026-11-15, the user: "Daytime" was not needed, the time, the ruler and the color's name
-  already say it; screen readers still hear it), then the lamp, and the
+  weather there as an icon (it opens the city search; its time is on the ruler since 2026-11-15), and after the city, muted, the part of the day showing, "Chicago · Wind down"
+  (for screen readers only for a while on 2026-11-15, while the color's name on the lamp
+  still said it; back in sight once that name left the lamp, since a scene named for the sky,
+  "Sunset" at 10:30 PM, read as the time), then the lamp, and the
   day (the ruler, with Play a day beside its label, and under it only the wake-up and
   lights-out times, as handles: a white bar across the strips at the time, where your day's
   light starts or ends, like a video clip's trim handle, and under it the time over what it is ("Wake up", "Lights out"); drag the bar or the time sideways to move that time a

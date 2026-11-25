@@ -1339,11 +1339,15 @@ class Builder:
         return ""
 
     def work_card(self, p, index):
-        """'001' at the left and 'TypeLab' at the right, on one line under the image, for one
-        item: its place in the list and its title (since 2026-11-13, after gougoucore.com's
-        Work; its title alone, at the left, from 2026-11-07, and a project's one-liner, or an
-        item's type, after it before). The number is for the eye only: screen readers get the
-        title. A project's one-liner is on Home; an item's type is in the lightbox. main.js
+        """One item's tile: its image as a print on the sheet, and over its foot a card of
+        tracing paper ruled as a spec sheet (since 2026-11-24, the user's moodboard: a shop's
+        ruled box over its photo, an archive copy): '001' and a mark, an arrow for a page or a
+        plus for the lightbox (.work-go, drawn in style.css), over its title. The number and
+        the mark are for the eye only: screen readers get the title. (From 2026-11-13, after
+        gougoucore.com's Work, '001' at the left and 'TypeLab' at the right on one line under
+        the image; its title alone from 2026-11-07, and a project's one-liner, or an item's
+        type, after it before.) A project's one-liner is on Home; an item's type is in the
+        lightbox. main.js
         filters the tiles on data-categories. A
         project's tile links to its page, and if the cover has a video next to it, main.js
         plays it while the tile is hovered. An item with no page opens the lightbox, which shows
@@ -1366,6 +1370,7 @@ class Builder:
                 f'            <{tag} class="work-card" {attrs}>\n'
                 f'              <span class="work-caption">'
                 f'<span class="work-number" aria-hidden="true">{index + 1:03d}</span>'
+                f'<span class="work-go" aria-hidden="true"></span>'
                 f'<span class="work-name" data-lightbox-name>{inline(p["title"])}</span>'
                 f'{meta}</span>\n'
                 f'              <span class="work-media"{data}>{img}</span>\n'

@@ -11,11 +11,11 @@
       "[PLACEHOLDER]"
     ],
     "team": "[PLACEHOLDER]",
-    "timeline": "[PLACEHOLDER how long], 2026",
-    "statement": "[PLACEHOLDER] One sentence, in big type, on what this project is and why it matters.",
+    "timeline": "Since September 2026",
+    "statement": "Don't edit numbers. Design letters.",
     "cover": {
-      "src": "cover.webp",
-      "alt": "[PLACEHOLDER] TypeLab: cover image"
+      "src": "cover.jpg",
+      "alt": "TypeLab's letter editor in Points mode: a serif R drawn as an outline with its points"
     },
     "meta": {
       "link": {
@@ -25,79 +25,69 @@
     },
     "hero": {
       "type": "image",
-      "src": "hero.webp",
-      "alt": "[PLACEHOLDER] TypeLab: hero image"
+      "src": "hero.jpg",
+      "alt": "TypeLab's Style page: starting styles as cards that read Design everything, with filters by category and feeling beside them"
     },
     "blocks": [
       {
         "type": "text",
         "heading": "Context",
         "body": [
-          "[PLACEHOLDER] The problem, who it was for, and why it mattered. Two or three sentences."
-        ]
-      },
-      {
-        "type": "image",
-        "src": "context.webp",
-        "alt": "[PLACEHOLDER] TypeLab: context image"
-      },
-      {
-        "type": "text",
-        "heading": "Explore",
-        "body": [
-          "[PLACEHOLDER] What you tried first and the directions you compared."
-        ]
-      },
-      {
-        "type": "text",
-        "heading": "What broke",
-        "body": [
-          "[PLACEHOLDER] One or two attempts that failed, and what each one taught you."
-        ],
-        "variant": "note"
-      },
-      {
-        "type": "imagePair",
-        "images": [
-          {
-            "src": "explore-1.webp",
-            "alt": "[PLACEHOLDER] TypeLab: exploration 1"
-          },
-          {
-            "src": "explore-2.webp",
-            "alt": "[PLACEHOLDER] TypeLab: exploration 2"
-          }
+          "TypeLab is an interactive font design playground: start from a style, reshape its proportions, shapes and details with plain-language controls, watch every letter update live, save designs to your library, and export a real .otf font."
         ]
       },
       {
         "type": "text",
         "heading": "Build",
         "body": [
-          "[PLACEHOLDER] What you made and the key decisions behind it."
+          "Every design starts from one of TypeLab's own fonts, free to change, use and share under the Open Font License. Every setting reshapes their letters, and Points redraws any of them.",
+          "The settings come in three groups: proportions (weight, size and slant, heights, inner space, spacing), shapes (build and curves, corners, stroke ends) and details (letters, handwriting, effects)."
         ]
       },
       {
         "type": "image",
-        "src": "build.webp",
-        "alt": "[PLACEHOLDER] TypeLab: build image"
-      },
-      {
-        "type": "text",
-        "heading": "Result",
-        "body": [
-          "[PLACEHOLDER] Where it ended up. Only real outcomes: shipped, tested, adopted, or measured."
-        ]
+        "src": "stroke-ends.jpg",
+        "alt": "Choosing how strokes end: flat, flared, round, pointed and brush ends in a grid, over the preview text Design letters"
       },
       {
         "type": "image",
-        "src": "result.webp",
-        "alt": "[PLACEHOLDER] TypeLab: result image"
+        "src": "points.jpg",
+        "alt": "Points mode: the R's outline with its points, where an edit goes to every letter shaped the same there"
       },
       {
         "type": "text",
-        "heading": "Reflection",
+        "heading": "Usability test",
         "body": [
-          "[PLACEHOLDER] What you would do differently, or what you are taking into the next project."
+          "I worked through eight tasks as a first-time user would, in real Chrome, at 1440, 1024 and 390 pixels wide. The test found 13 problems: 3 high, 6 medium and 4 low.",
+          "TypeLab's core loop works: picking a style, changing it with sliders, saving and exporting a real font all succeeded. The biggest problems were about where things are, not whether they work."
+        ]
+      },
+      {
+        "type": "imagePair",
+        "images": [
+          {
+            "src": "test-summary.jpg",
+            "alt": "The usability test report's first page: 13 problems found, 3 high severity, 6 medium, 4 low, and all problems by severity"
+          },
+          {
+            "src": "test-layout.jpg",
+            "alt": "Problem 1 in the report: the editor doesn't fit screens narrower than about 1280 pixels"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "heading": "What broke",
+        "body": [
+          "The editor didn't fit screens narrower than about 1280 pixels, so Export was cut off on a 1024-pixel laptop and phones couldn't use it. A name change was lost if you left without pressing Save. And after you picked a style, nothing pointed to what to do next."
+        ],
+        "variant": "note"
+      },
+      {
+        "type": "text",
+        "heading": "Next",
+        "body": [
+          "No real participants took part: the findings come from an expert walkthrough, so they show where people are likely to struggle. The next step is to confirm the high-severity problems with three to five real users, such as typography students or designers new to type design."
         ]
       }
     ]
@@ -109,97 +99,95 @@
     "slug": "clack",
     "title": "Clack",
     "oneLiner": "While AI works",
-    "type": "[PLACEHOLDER]",
+    "type": "Interactive sound toy",
     "roles": [
-      "[PLACEHOLDER]"
+      "Concept",
+      "Interaction design",
+      "Visual design",
+      "Sound design"
     ],
     "team": "[PLACEHOLDER]",
-    "timeline": "[PLACEHOLDER]",
-    "statement": "[PLACEHOLDER] One sentence, in big type, on what this project is and why it matters.",
+    "timeline": "2026",
+    "statement": "Ten satisfying materials to pop, squish and crunch with nothing but a cursor.",
     "cover": {
-      "src": "cover.webp",
-      "alt": "[PLACEHOLDER] Clack: cover image"
+      "src": "cover.jpg",
+      "alt": "Clack's Cyanotype: white halftone dots exposed on cobalt blue where the cursor passed"
     },
     "meta": {
-      "link": null
+      "link": {
+        "label": "kyuripark9.github.io/Keyboard",
+        "url": "https://kyuripark9.github.io/Keyboard/"
+      }
     },
     "hero": {
-      "type": "video",
-      "src": "demo.mp4",
-      "poster": "demo-poster.webp",
-      "alt": "Clack demo video",
-      "caption": "Demo video"
+      "type": "image",
+      "src": "hero.jpg",
+      "alt": "Clack's website: the materials side by side, Cyanotype in the middle, with Play to start a sample agent under it"
     },
     "blocks": [
       {
         "type": "text",
-        "heading": "Context",
+        "heading": "Why",
         "body": [
-          "[PLACEHOLDER] The problem, who it was for, and why it mattered. Two or three sentences."
+          "We pop bubble wrap, squeeze slime and watch soap get shaved into cubes, not to finish anything but because the small, repeatable feeling settles us. ASMR videos turned these textures into a genre, and on Roblox, ASMR tower obbies have players climb from one satisfying material to the next.",
+          "On a screen, though, we mostly watch. The textures are right there, but our hands never get to touch them. What if the cursor were the fingertip?"
+        ]
+      },
+      {
+        "type": "text",
+        "heading": "The idea",
+        "body": [
+          "The screen is laid out as a grid of invisible keys. Each cell the cursor crosses is pressed once: it plays a sound, and the picture under it reacts. Slow strokes tap, fast flicks sweep, and even an idle wiggle turns into a run of sound.",
+          "No clicks, no goals, no score to lose. Each sound draws its own picture, and the picture answers where you touch it: bubbles flatten, snow takes a boot print, soap gives up a path down to the paper."
         ]
       },
       {
         "type": "image",
-        "src": "context.webp",
-        "alt": "[PLACEHOLDER] Clack: context image"
+        "src": "materials-1.jpg",
+        "alt": "Five of the materials after a stroke of the cursor: Crunchy Slime, Cyanotype, Bubble Wrap, Wax Ball and Thocky Keys",
+        "caption": "01 to 05: Crunchy Slime, Cyanotype, Bubble Wrap, Wax Ball, Thocky Keys"
+      },
+      {
+        "type": "image",
+        "src": "materials-2.jpg",
+        "alt": "The other five materials after a stroke of the cursor: Chewy Jellies, Pudding, Soap Cutting, Squeaky Snow and Sugar Slime",
+        "caption": "06 to 10: Chewy Jellies, Pudding, Soap Cutting, Squeaky Snow, Sugar Slime"
       },
       {
         "type": "text",
-        "heading": "Explore",
+        "heading": "Process",
         "body": [
-          "[PLACEHOLDER] What you tried first and the directions you compared."
+          "It started as a keyboard. The first version was called ddalkkak, the Korean word for a click: a full-screen keyboard that clicked under a passing cursor, with ten sound sets and seven keycap themes. The name clack comes from there.",
+          "Once the sounds turned into wax, slime and bubble wrap, a keycap was the wrong picture for them, so each sound got a picture of its own. Most ideas didn't survive being played: the lineup shrank to Bubble Wrap and Crunchy Slime, then grew back to ten. Seventeen materials were built, played and cut along the way."
         ]
       },
       {
         "type": "text",
         "heading": "What broke",
         "body": [
-          "[PLACEHOLDER] One or two attempts that failed, and what each one taught you."
+          "A quick stroke can fire twenty sounds a second, so anything with a hard edge (a ring, a ping, a thump) soon sounds like gunfire. Cyanotype went from a ringing twinkle to bubble blips to soft blips, and each still sounded like shooting under a fast cursor. Filtered noise with slow attacks fixed it, and became the recipe for the calmer sounds that followed."
         ],
         "variant": "note"
-      },
-      {
-        "type": "imagePair",
-        "images": [
-          {
-            "src": "explore-1.webp",
-            "alt": "[PLACEHOLDER] Clack: exploration 1"
-          },
-          {
-            "src": "explore-2.webp",
-            "alt": "[PLACEHOLDER] Clack: exploration 2"
-          }
-        ]
-      },
-      {
-        "type": "text",
-        "heading": "Build",
-        "body": [
-          "[PLACEHOLDER] What you made and the key decisions behind it."
-        ]
-      },
-      {
-        "type": "image",
-        "src": "build.webp",
-        "alt": "[PLACEHOLDER] Clack: build image"
       },
       {
         "type": "text",
         "heading": "Result",
         "body": [
-          "[PLACEHOLDER] Where it ended up. Only real outcomes: shipped, tested, adopted, or measured."
+          "Clack is on the Chrome Web Store as a browser extension. It opens in the side panel beside claude.ai or ChatGPT and wakes up as an answer starts. When the answer is done, the picture fades to gray and the sound stops: your cue to go back and read it.",
+          "It only checks whether the chat is writing an answer, by its stop button. It doesn't read your messages or the answers, and it sends nothing anywhere."
         ]
       },
       {
-        "type": "image",
-        "src": "result.webp",
-        "alt": "[PLACEHOLDER] Clack: result image"
-      },
-      {
-        "type": "text",
-        "heading": "Reflection",
-        "body": [
-          "[PLACEHOLDER] What you would do differently, or what you are taking into the next project."
+        "type": "imagePair",
+        "images": [
+          {
+            "src": "extension-1.jpg",
+            "alt": "Clack in the browser's side panel beside a chat, with the line Something to clack while your chat writes"
+          },
+          {
+            "src": "extension-3.jpg",
+            "alt": "When the answer is ready, the picture in the side panel fades to gray"
+          }
         ]
       }
     ]
@@ -210,17 +198,19 @@
     "featured": true,
     "slug": "nbcuniversal",
     "title": "NBCUniversal",
-    "oneLiner": "[PLACEHOLDER one-liner]",
-    "type": "[PLACEHOLDER]",
+    "oneLiner": "IP product concepts",
+    "type": "Product design internship",
     "roles": [
-      "[PLACEHOLDER]"
+      "Trend research",
+      "IP product concepts",
+      "Collaboration visuals"
     ],
-    "team": "[PLACEHOLDER]",
-    "timeline": "[PLACEHOLDER]",
-    "statement": "[PLACEHOLDER] One sentence, in big type, on what this project is and why it matters.",
+    "team": "UP&E PD: Jinkyung Kim",
+    "timeline": "2025, Seoul",
+    "statement": "Translating market insights into collaborative brand experiences.",
     "cover": {
       "src": "cover.webp",
-      "alt": "[PLACEHOLDER] NBCUniversal: cover image"
+      "alt": "The Universal globe in front of a theme park entrance"
     },
     "meta": {
       "link": null
@@ -228,79 +218,99 @@
     "hero": {
       "type": "image",
       "src": "hero.webp",
-      "alt": "[PLACEHOLDER] NBCUniversal: hero image"
+      "alt": "The NBCUniversal sign on a glass office tower against a blue sky"
     },
     "blocks": [
       {
         "type": "text",
         "heading": "Context",
         "body": [
-          "[PLACEHOLDER] The problem, who it was for, and why it mattered. Two or three sentences."
-        ]
-      },
-      {
-        "type": "image",
-        "src": "context.webp",
-        "alt": "[PLACEHOLDER] NBCUniversal: context image"
-      },
-      {
-        "type": "text",
-        "heading": "Explore",
-        "body": [
-          "[PLACEHOLDER] What you tried first and the directions you compared."
+          "At NBCUniversal, as a product design intern, I researched fashion, beauty, and lifestyle trends and transformed market insights into IP-based product concepts. I developed collaboration visuals to pitch partnership ideas to global brands, contributing to large-scale events and high-profile brand launches."
         ]
       },
       {
         "type": "text",
-        "heading": "What broke",
+        "heading": "Trend research",
         "body": [
-          "[PLACEHOLDER] One or two attempts that failed, and what each one taught you."
-        ],
-        "variant": "note"
+          "Trend reports on beauty, food, living, and fashion: the market insights the product concepts started from."
+        ]
       },
       {
         "type": "imagePair",
         "images": [
           {
-            "src": "explore-1.webp",
-            "alt": "[PLACEHOLDER] NBCUniversal: exploration 1"
+            "src": "trend-beauty.webp",
+            "alt": "Beauty trend report cover: a bottle behind a frosted, water-beaded surface"
           },
           {
-            "src": "explore-2.webp",
-            "alt": "[PLACEHOLDER] NBCUniversal: exploration 2"
+            "src": "trend-food.webp",
+            "alt": "Food trend report cover: slices of toast spread with butter"
+          }
+        ]
+      },
+      {
+        "type": "imagePair",
+        "images": [
+          {
+            "src": "trend-living.webp",
+            "alt": "Living trend report cover: a low wooden daybed in a bare room"
+          },
+          {
+            "src": "trend-fashion.webp",
+            "alt": "Fashion trend report cover: red heels and black tights"
           }
         ]
       },
       {
         "type": "text",
-        "heading": "Build",
+        "heading": "Pitches",
         "body": [
-          "[PLACEHOLDER] What you made and the key decisions behind it."
+          "Collaboration visuals to pitch partnership ideas to brands, like this creative pitch for Olive Young."
+        ]
+      },
+      {
+        "type": "imagePair",
+        "images": [
+          {
+            "src": "pitch-olive-young.jpg",
+            "alt": "Title slide: Universal Products and Experiences, creative pitching, Olive Young"
+          },
+          {
+            "src": "pitch-products.jpg",
+            "alt": "Concept visuals of beauty and snack products featuring the Minions"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "heading": "The big idea",
+        "body": [
+          "Universal Originals: a reimagining of storytelling through style, transforming classic icons and nostalgia into a trend-forward lifestyle experience. Universal Originals gives style-conscious fans a way to wear the stories they love."
         ]
       },
       {
         "type": "image",
-        "src": "build.webp",
-        "alt": "[PLACEHOLDER] NBCUniversal: build image"
+        "src": "universal-originals.jpg",
+        "alt": "The Universal Originals concept: an in-store branded shop with classic characters on its walls and packaging"
       },
       {
-        "type": "text",
-        "heading": "Result",
-        "body": [
-          "[PLACEHOLDER] Where it ended up. Only real outcomes: shipped, tested, adopted, or measured."
+        "type": "imagePair",
+        "images": [
+          {
+            "src": "little-lulu.jpg",
+            "alt": "Little Lulu apparel and bags on two models against red and pink gingham"
+          },
+          {
+            "src": "felix.jpg",
+            "alt": "Felix the Cat apparel, a cap and bags on two models"
+          }
         ]
       },
       {
         "type": "image",
-        "src": "result.webp",
-        "alt": "[PLACEHOLDER] NBCUniversal: result image"
-      },
-      {
-        "type": "text",
-        "heading": "Reflection",
-        "body": [
-          "[PLACEHOLDER] What you would do differently, or what you are taking into the next project."
-        ]
+        "src": "summit.jpg",
+        "alt": "A full auditorium facing a stage screen with the Universal logo",
+        "caption": "2025 Universal Korea Summit"
       }
     ]
   },
@@ -310,17 +320,19 @@
     "featured": true,
     "slug": "palette",
     "title": "Palette",
-    "oneLiner": "[PLACEHOLDER one-liner]",
-    "type": "[PLACEHOLDER]",
+    "oneLiner": "Creating together",
+    "type": "Collaboration platform",
     "roles": [
-      "[PLACEHOLDER]"
+      "UX research",
+      "Digital design",
+      "Art direction"
     ],
     "team": "[PLACEHOLDER]",
-    "timeline": "[PLACEHOLDER]",
-    "statement": "[PLACEHOLDER] One sentence, in big type, on what this project is and why it matters.",
+    "timeline": "2024, Seoul",
+    "statement": "Creating together, growing beyond limits.",
     "cover": {
-      "src": "cover.webp",
-      "alt": "[PLACEHOLDER] Palette: cover image"
+      "src": "cover.jpg",
+      "alt": "Palette on a phone among white curving tubes against a pale blue sky"
     },
     "meta": {
       "link": null
@@ -328,78 +340,51 @@
     "hero": {
       "type": "image",
       "src": "hero.webp",
-      "alt": "[PLACEHOLDER] Palette: hero image"
+      "alt": "Palette on a phone among white curving tubes against a pale blue sky"
     },
     "blocks": [
       {
         "type": "text",
         "heading": "Context",
         "body": [
-          "[PLACEHOLDER] The problem, who it was for, and why it mattered. Two or three sentences."
+          "Palette is a collaborative platform for solo artists. It enables connection, shared exhibition opportunities, and creative support. The design lowers barriers to collaboration, helping artists transform individual ideas into collective experiences."
+        ]
+      },
+      {
+        "type": "text",
+        "heading": "Research",
+        "body": [
+          "Market research, then three personas, three interviews, and a needs analysis of the problems artists meet and how the platform could solve them."
         ]
       },
       {
         "type": "image",
-        "src": "context.webp",
-        "alt": "[PLACEHOLDER] Palette: context image"
+        "src": "market.webp",
+        "alt": "Market research slide: Collaboration will be happening here, on this platform, with real relationships, over three charts"
+      },
+      {
+        "type": "image",
+        "src": "persona.webp",
+        "alt": "Personas slide: three artists, each with their difficulty and needs"
       },
       {
         "type": "text",
-        "heading": "Explore",
+        "heading": "Design",
         "body": [
-          "[PLACEHOLDER] What you tried first and the directions you compared."
+          "Screens for finding exhibition spaces and their schedules, matching with artists by field, team size and how they like to collaborate, and inviting them into a project."
         ]
-      },
-      {
-        "type": "text",
-        "heading": "What broke",
-        "body": [
-          "[PLACEHOLDER] One or two attempts that failed, and what each one taught you."
-        ],
-        "variant": "note"
       },
       {
         "type": "imagePair",
         "images": [
           {
-            "src": "explore-1.webp",
-            "alt": "[PLACEHOLDER] Palette: exploration 1"
+            "src": "screens-1.webp",
+            "alt": "Palette's screens: exhibition spaces, filters for matching profiles, a space's floor plan and schedule, and an artist's profile"
           },
           {
-            "src": "explore-2.webp",
-            "alt": "[PLACEHOLDER] Palette: exploration 2"
+            "src": "screens-2.webp",
+            "alt": "More of Palette's screens: exploring artwork, matching profiles, a project page, messages with a project invitation, and a calendar"
           }
-        ]
-      },
-      {
-        "type": "text",
-        "heading": "Build",
-        "body": [
-          "[PLACEHOLDER] What you made and the key decisions behind it."
-        ]
-      },
-      {
-        "type": "image",
-        "src": "build.webp",
-        "alt": "[PLACEHOLDER] Palette: build image"
-      },
-      {
-        "type": "text",
-        "heading": "Result",
-        "body": [
-          "[PLACEHOLDER] Where it ended up. Only real outcomes: shipped, tested, adopted, or measured."
-        ]
-      },
-      {
-        "type": "image",
-        "src": "result.webp",
-        "alt": "[PLACEHOLDER] Palette: result image"
-      },
-      {
-        "type": "text",
-        "heading": "Reflection",
-        "body": [
-          "[PLACEHOLDER] What you would do differently, or what you are taking into the next project."
         ]
       }
     ]
@@ -410,23 +395,29 @@
     "featured": true,
     "slug": "light-life",
     "title": "Light Life",
-    "oneLiner": "[PLACEHOLDER one-liner]",
-    "type": "[PLACEHOLDER]",
+    "oneLiner": "Sleep-rhythm lighting",
+    "type": "Lamp and app",
     "roles": [
-      "[PLACEHOLDER]"
+      "Product design",
+      "Art direction",
+      "App design"
     ],
-    "team": "[PLACEHOLDER]",
-    "timeline": "[PLACEHOLDER]",
+    "team": [
+      "Kyuri Park, CDO",
+      "Allison Chu, CEO",
+      "Jun Ho Hong, COO"
+    ],
+    "timeline": "2023 to 2026",
     "scale": "Object → Screen",
     "milestones": [
       {"year": 2023, "note": "Lamp · business competition win, Temple University"},
       {"year": 2024, "note": "Lamp and website redesign · graduation show, Sejong University"},
       {"year": 2026, "note": "App rebuilt"}
     ],
-    "statement": "[PLACEHOLDER] One sentence, in big type, on what this project is and why it matters.",
+    "statement": "Lighting designed to restore natural sleep rhythms.",
     "cover": {
-      "src": "cover.webp",
-      "alt": "[PLACEHOLDER] Light Life: cover image"
+      "src": "cover.jpg",
+      "alt": "Light Life poster: the name in a warm yellow glow on black"
     },
     "meta": {
       "link": null
@@ -434,55 +425,53 @@
     "hero": {
       "type": "image",
       "src": "hero.webp",
-      "alt": "[PLACEHOLDER] Light Life: hero image"
+      "alt": "Two Light Life lamps stacked, lit white and warm yellow, on a yellow to blue gradient"
     },
     "blocks": [
       {
         "type": "text",
         "heading": "Context",
         "body": [
-          "[PLACEHOLDER] The problem, who it was for, and why it mattered. Two or three sentences."
+          "Light Life is a lighting system designed to support sustainable, healthier sleep in environments that often disconnect us from natural light cycles. Many people struggle to wake up or wind down due to seasonal changes, jet lag, or limited daylight exposure. Light Life addresses this by recreating the rhythm of sunlight indoors, allowing users to experience gradual changes in brightness and color that feel familiar and intuitive rather than abrupt or artificial.",
+          "The system features a dual-sided design that separates ambient and functional lighting, allowing light to influence both space and behavior. By aligning light color, intensity, and direction with human circadian patterns, the design encourages improved sleep quality within everyday living spaces."
         ]
       },
       {
         "type": "image",
-        "src": "context.webp",
-        "alt": "[PLACEHOLDER] Light Life: context image"
+        "src": "audience.webp",
+        "alt": "Who it's for: people aged 18 to 35, patients, and parents"
       },
       {
         "type": "text",
-        "heading": "Explore",
+        "heading": "The lamp",
         "body": [
-          "[PLACEHOLDER] What you tried first and the directions you compared."
+          "2023: With it, my team won the Be Your Own Boss Bowl, a business competition at Temple University.",
+          "2024: I redesigned the lamp and its website for my graduation show at Sejong University. Link it to your time zone, flip it to stack the suns and expand the light, and rotate it to color your space."
         ]
+      },
+      {
+        "type": "image",
+        "src": "lamps.webp",
+        "alt": "Three Light Life lamps, flipped and turned different ways, under the Light Life name"
+      },
+      {
+        "type": "image",
+        "src": "pair.webp",
+        "alt": "Two Light Life lamps side by side, each a rounded-square head with a white light over a ribbed base"
       },
       {
         "type": "text",
-        "heading": "What broke",
+        "heading": "The app",
         "body": [
-          "[PLACEHOLDER] One or two attempts that failed, and what each one taught you."
-        ],
-        "variant": "note"
-      },
-      {
-        "type": "imagePair",
-        "images": [
-          {
-            "src": "explore-1.webp",
-            "alt": "[PLACEHOLDER] Light Life: exploration 1"
-          },
-          {
-            "src": "explore-2.webp",
-            "alt": "[PLACEHOLDER] Light Life: exploration 2"
-          }
+          "2026: I rebuilt its app: tell it your day and your city, and it suggests the light you need.",
+          "Like the lamp, each scene has two lights, each with its own job: white sunlight that shines on you, and a color that colors your space."
         ]
       },
       {
-        "type": "text",
-        "heading": "Build",
-        "body": [
-          "[PLACEHOLDER] What you made and the key decisions behind it."
-        ]
+        "type": "image",
+        "src": "tablet-app.webp",
+        "alt": "The earlier Light Life app on a tablet, lying on a concrete surface",
+        "caption": "The earlier app, on a tablet"
       },
       {
         "type": "prototype",
@@ -490,27 +479,10 @@
         "title": "Light Life app prototype"
       },
       {
-        "type": "image",
-        "src": "build.webp",
-        "alt": "[PLACEHOLDER] Light Life: build image"
-      },
-      {
-        "type": "text",
-        "heading": "Result",
-        "body": [
-          "[PLACEHOLDER] Where it ended up. Only real outcomes: shipped, tested, adopted, or measured."
-        ]
-      },
-      {
-        "type": "image",
-        "src": "result.webp",
-        "alt": "[PLACEHOLDER] Light Life: result image"
-      },
-      {
         "type": "text",
         "heading": "Reflection",
         "body": [
-          "[PLACEHOLDER] What you would do differently, or what you are taking into the next project."
+          "From an object to a screen, it has grown the way I have."
         ]
       }
     ]
@@ -519,33 +491,50 @@
     "order": 6,
     "category": ["digital", "brand"],
     "title": "Lulu Walk",
-    "type": "[PLACEHOLDER type]",
-    "year": "[PLACEHOLDER year]",
+    "type": "Dog-walking app",
+    "year": "2022",
     "images": [
-      "item-1.webp"
+      "lulu-walk-1.webp",
+      "lulu-walk-2.webp"
     ],
-    "alt": "[PLACEHOLDER] Lulu Walk: image"
+    "alt": "Lulu Walk, a dog-walking assistant: the app on a phone beside a dog's paws, and its screens"
   },
   {
     "order": 7,
     "category": ["brand"],
     "title": "Editorial",
-    "type": "[PLACEHOLDER type]",
-    "year": "[PLACEHOLDER year]",
+    "type": "Editorial design",
+    "year": "2024",
     "images": [
-      "item-2.webp"
+      "editorial-1.webp",
+      "editorial-2.webp",
+      "editorial-3.webp",
+      "editorial-4.webp",
+      "editorial-5.webp",
+      "editorial-6.webp",
+      "editorial-7.webp",
+      "editorial-8.webp",
+      "editorial-9.webp",
+      "editorial-10.webp"
     ],
-    "alt": "[PLACEHOLDER] Editorial: image"
+    "alt": "Editorial work: festival and exhibition posters, posters on a wall, a type grid, a book, a typeface's letters, and a character on a tote bag"
   },
   {
     "order": 8,
     "category": ["physical"],
     "title": "3D Products",
-    "type": "[PLACEHOLDER type]",
-    "year": "[PLACEHOLDER year]",
+    "type": "3D product design",
+    "year": "2025",
     "images": [
-      "item-3.webp"
+      "3d-products-1.webp",
+      "3d-products-2.webp",
+      "3d-products-3.webp",
+      "3d-products-4.webp",
+      "3d-products-5.webp",
+      "3d-products-6.webp",
+      "3d-products-7.webp",
+      "3d-products-8.webp"
     ],
-    "alt": "[PLACEHOLDER] 3D Products: image"
+    "alt": "3D product renders: a window light, a mobility vehicle, a sleek device, a skeleton watch, a robot figure, sketches, and a pet board"
   }
 ]

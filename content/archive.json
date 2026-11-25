@@ -1,10 +1,10 @@
 [
-  { "id": "001", "src": "001.jpg", "scale": "object", "caption": "", "date": "", "alt": "" },
-  { "id": "002", "src": "002.jpg", "scale": "page", "caption": "", "date": "", "alt": "" },
-  { "id": "003", "src": "003.jpg", "scale": "screen", "caption": "", "date": "", "alt": "" },
-  { "id": "004", "src": "004.jpg", "scale": "space", "caption": "", "date": "", "alt": "" },
-  { "id": "005", "src": "005.jpg", "scale": "object", "caption": "", "date": "", "alt": "" },
-  { "id": "006", "src": "006.jpg", "scale": "page", "caption": "", "date": "", "alt": "" },
-  { "id": "007", "src": "007.jpg", "scale": "screen", "caption": "", "date": "", "alt": "" },
-  { "id": "008", "src": "008.jpg", "scale": "space", "caption": "", "date": "", "alt": "" }
+  { "id": "001", "src": "001.webp", "scale": "space", "caption": "", "date": "", "alt": "A waterfall falling under a stone footbridge in a green forest" },
+  { "id": "002", "src": "002.webp", "scale": "page", "caption": "", "date": "", "alt": "A poster titled A Designer's Anatomy, in red, blue and pink" },
+  { "id": "003", "src": "003.webp", "scale": "space", "caption": "", "date": "", "alt": "A wooden model of a small open pavilion, with a figure for scale" },
+  { "id": "004", "src": "004.webp", "scale": "space", "caption": "", "date": "", "alt": "Two wooden models of stepped landscapes on a slatted bench" },
+  { "id": "005", "src": "005.gif", "scale": "screen", "caption": "", "date": "", "alt": "White shapes in a row on black, each with a blue dot, squeezing and stretching" },
+  { "id": "006", "src": "006.webp", "scale": "page", "caption": "", "date": "", "alt": "A sheet of pink and orange marks on paper, held over a tiled floor" },
+  { "id": "007", "src": "007.webp", "scale": "page", "caption": "", "date": "", "alt": "A blue ink drawing of a coast, held up against the sea" },
+  { "id": "008", "src": "008.gif", "scale": "space", "caption": "", "date": "", "alt": "A whale shark and a school of fish swimming in a blue aquarium tank" }
 ]

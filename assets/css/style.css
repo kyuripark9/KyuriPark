@@ -605,8 +605,7 @@ button {
 .seq-at,
 .scale-bar,
 .seq-legend,
-.map-lane,
-.map-key,
+.map-pin,
 .globe-key-label,
 .globe-key-tag {
   font-family: var(--font-mono);
@@ -3447,29 +3446,22 @@ mark.placeholder {
   }
 }
 
-/* Archive as one map (since 2026-11-24, ARCHIVE_MAP in build.py, the user's ask: Archive shows
+/* Archive as one map (since 2026-11-24, ARCHIVE_MAP in build.py, the user's asks: Archive shows
    their work and who they are in images more than words, one map rather than a list; that
-   evening closer together, more joined, and in time's order, after the masterplan sequence on
-   their moodboard, "Across the Arid Landscape"). One sheet under an ink line from the window's
-   left edge to its right, drawn on the paper itself, where build.py's map_layout puts each part
-   (--x, --y, --w from 768px; --tx, --ty, --tw on phones; in percent of the sheet):
-     the time axis  a center line (long dash, short dash) down the sheet, oldest at the top
-     the images     each in its own shape (--r), across the axis, left and right of it in
-                    turn, each starting partway down the one before, so they overlap as
-                    fragments laid down a sheet; each scale's a little bigger
-     the lanes      at the right, a scale each, A Object to D Space, its bubble and name over
-                    it (the bubble alone on phones), a construction line down to its first
-                    image's number and ink from there to its last; Space's dashed
-     the numbers    I, II, III in time's order, each in a filled bubble on its scale's lane
-                    (open on Space's), at the end of a dashed line from its image's top edge,
-                    a small square where that leaves the image; under Space's last, the
-                    user's words, "I never became one."
-     the date       beside an image's top left corner, when it has one (from 768px)
-     the key        under the sheet at its right: the scales' names on phones, and the legend
-   The lines are drawn under the images, and the images are prints on the paper, in grays and
-   multiplied into it, so the lines, the grain and each other show through where they overlap;
-   hovered, one comes in its own colors over the others and the others go under tracing paper,
-   as on Work.
+   evening closer together, more joined, and in time's order; that night free, their interests
+   across fields and their eye, not sorted into A B C D). One sheet on the paper itself, where
+   build.py's map_layout puts each part (--x, --y, --w from 768px; --tx, --ty, --tw on phones;
+   in percent of the sheet):
+     the images   each in its own shape (--r), oldest first down the sheet, big and small, left
+                  and right as on a pinboard, each starting partway down the one before and
+                  overlapping the others a little
+     the thread   one dashed line through them in time's order, pin to pin, a small square
+                  where it meets each, at the top corner facing the one before
+     the pins     beside each square its number, 01, 02, and its date when it has one
+   The thread is drawn under the images, and the images are prints on the paper, in grays and
+   multiplied into it, so the thread, the grain and each other show through where they
+   overlap; hovered, one comes in its own colors over the others and the others go under
+   tracing paper, as on Work.
    No sentence over it since 2026-11-24 (the user's ask: the images say it), so it starts right
    under the header's line; with one (archive.statement in site.json), an ink line between. */
 .atlas {
@@ -3479,50 +3471,6 @@ mark.placeholder {
 .work-head + .atlas {
   margin-top: var(--step-6);
   border-top: var(--rule);
-}
-
-/* The lanes' heads: a bubble over each lane, and a construction line from it down to the
-   sheet, where the lane goes on. */
-.map-heads {
-  position: relative;
-  height: calc(var(--axis-d) + var(--step-2));
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.map-heads li {
-  position: absolute;
-  bottom: var(--step-2);
-  left: var(--tx);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  transform: translateX(-50%);
-  scroll-margin-top: calc(var(--header-h) + var(--step-6));
-}
-
-.map-heads li::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: calc(50% - 0.5px);
-  height: var(--step-2);
-  border-left: var(--trace-rule);
-}
-
-.map-heads li.is-unreached .bubble {
-  border-style: dashed;
-}
-
-.map-heads li:target .bubble {
-  background: var(--color-text);
-  color: var(--color-bg);
-}
-
-.map-lane {
-  display: none;
 }
 
 .map {
@@ -3536,30 +3484,15 @@ mark.placeholder {
   width: 100%;
   height: 100%;
   overflow: visible;
-  fill: var(--color-rule);
+  fill: var(--color-text);
   stroke: var(--color-rule);
   stroke-width: 1px;
+  stroke-dasharray: 3 3;
   pointer-events: none;
 }
 
 .map-lines rect {
   stroke: none;
-}
-
-.map-lines .is-axis {
-  stroke-dasharray: 24 4 4 4;
-}
-
-.map-lines .is-lead {
-  stroke: var(--color-trace);
-}
-
-.map-lines .is-unreached {
-  stroke-dasharray: 6 5;
-}
-
-.map-lines .is-row {
-  stroke-dasharray: 3 3;
 }
 
 .map-lines .is-wide {
@@ -3579,7 +3512,7 @@ mark.placeholder {
   top: var(--ty);
   display: block;
   width: var(--tw);
-  mix-blend-mode: multiply;  /* on the image, so it blends with the page, the lines, the others */
+  mix-blend-mode: multiply;  /* on the image, so it blends with the page, the thread, the others */
 }
 
 .map-fig .archive-media {
@@ -3592,103 +3525,32 @@ mark.placeholder {
   transition: filter var(--grow), transform var(--grow);
 }
 
-/* An image's number, on its scale's lane, level with its top edge. */
-.map-station {
+/* A pin's number (and date), over its square, on the outer side of the corner: at a top left
+   corner it reads from the square to the right, at a top right one it ends at the square. */
+.map-pin {
   position: absolute;
   z-index: 3;
   left: var(--tx);
   top: var(--ty);
-  display: grid;
-  place-items: center;
-  width: var(--axis-d);
-  height: var(--axis-d);
-  border: 1px solid var(--color-text);
-  border-radius: 50%;
-  background: var(--color-text);
-  color: var(--color-bg);
-  font-family: var(--font-mono);
-  font-size: var(--size-count);
-  line-height: 1;
-  letter-spacing: -0.02em;
-  transform: translate(-50%, -50%);
-}
-
-.map-piece.is-unreached .map-station {
-  border-style: dashed;
+  padding: 0 2px;
   background: var(--color-bg);
-  color: var(--color-text);
-}
-
-.map-date {
-  display: none;
-}
-
-/* Under Space's last number, ending where it ends. */
-.map-unreached {
-  position: absolute;
-  z-index: 3;
-  left: var(--tx);
-  top: var(--ty);
-  margin: 0;
-  padding: 0 4px;
-  background: var(--color-bg);
-  font-family: var(--font-display);
-  font-size: 1.125rem;
-  font-style: italic;
-  line-height: 1.3;
   white-space: nowrap;
-  transform: translate(calc(-100% + var(--axis-d) / 2), calc(var(--axis-d) / 2 + 6px));
+  transform: translate(-2px, calc(-100% - 5px));
 }
 
-.map-key {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: var(--step-2) var(--step-4);
-  margin: var(--step-4) 0 0;
-  padding: 0;
-  list-style: none;
+.map-pin.is-tright {
+  transform: translate(calc(-100% + 2px), calc(-100% - 5px));
+}
+
+.map-when {
+  margin-left: 0.5em;
   color: var(--color-subtle);
 }
 
-.map-key li {
-  display: flex;
-  align-items: center;
-  gap: var(--step-1);
-}
-
-.map-key .bubble {
-  --axis-d: 20px;
-  color: var(--color-text);
-  font-size: var(--size-count);
-}
-
-.map-key li.is-solid::before,
-.map-key li.is-dashed::before {
-  content: "";
-  width: var(--step-4);
-  border-top: 1px solid var(--color-rule);
-}
-
-.map-key li.is-dashed::before {
-  border-top-style: dashed;
-}
-
 @media (min-width: 768px) {
-  .map-heads {
-    height: calc(var(--axis-d) + var(--step-2) + 6px + var(--leading-label) * var(--size-label));
-  }
-
-  .map-heads li,
   .map-fig,
-  .map-station,
-  .map-unreached {
+  .map-pin {
     left: var(--x);
-  }
-
-  .map-fig,
-  .map-station,
-  .map-unreached {
     top: var(--y);
   }
 
@@ -3696,8 +3558,12 @@ mark.placeholder {
     width: var(--w);
   }
 
-  .map-lane {
-    display: block;
+  .map-pin.is-tright {
+    transform: translate(-2px, calc(-100% - 5px));
+  }
+
+  .map-pin.is-right {
+    transform: translate(calc(-100% + 2px), calc(-100% - 5px));
   }
 
   .map {
@@ -3709,27 +3575,6 @@ mark.placeholder {
   }
 
   .map-lines .is-tall {
-    display: none;
-  }
-
-  .map-date {
-    position: absolute;
-    z-index: 3;
-    left: var(--x);
-    top: var(--y);
-    display: block;
-    padding: 0 4px;
-    background: var(--color-bg);
-    font-family: var(--font-display);
-    font-size: 1rem;
-    font-style: italic;
-    line-height: 1.2;
-    white-space: nowrap;
-    transform: translate(calc(-100% - 6px), -50%);
-  }
-
-  /* The names are over the lanes here. */
-  .map-key .map-key-scale {
     display: none;
   }
 }

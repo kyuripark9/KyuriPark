@@ -267,6 +267,11 @@
       // A name only for screen readers stays that way, and takes no room in the caption.
       name.classList.toggle("visually-hidden", nameSource.classList.contains("visually-hidden"));
       meta.innerHTML = item.querySelector("[data-lightbox-meta]").innerHTML;
+      // A link from text only the lightbox shows (the "link" of an image on Archive's map) was
+      // kept out of the page's Tab order; here it's in sight, so it takes a stop.
+      for (const a of lightbox.querySelectorAll(".lightbox-caption [tabindex]")) {
+        a.removeAttribute("tabindex");
+      }
       stage.scrollTop = 0;
       fit();
     };
@@ -319,7 +324,7 @@
         show(current + (e.key === "ArrowLeft" ? -1 : 1));
       } else if (e.key === "Tab") {
         // Keep focus inside: past the last stop back to the first, and the other way.
-        const stops = [...lightbox.querySelectorAll("button, [tabindex='0']")];
+        const stops = [...lightbox.querySelectorAll("button, a[href], [tabindex='0']")];
         const i = stops.indexOf(document.activeElement);
         if (e.shiftKey ? i <= 0 : i === stops.length - 1) {
           e.preventDefault();

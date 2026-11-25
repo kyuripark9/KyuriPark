@@ -1,6 +1,6 @@
 [
   {
-    "order": 1,
+    "order": 2,
     "category": ["digital", "brand"],
     "featured": true,
     "slug": "typelab",
@@ -93,7 +93,7 @@
     ]
   },
   {
-    "order": 2,
+    "order": 3,
     "category": ["digital"],
     "featured": true,
     "slug": "clack",
@@ -193,7 +193,7 @@
     ]
   },
   {
-    "order": 3,
+    "order": 4,
     "category": ["digital", "brand"],
     "featured": true,
     "slug": "nbcuniversal",
@@ -315,82 +315,7 @@
     ]
   },
   {
-    "order": 4,
-    "category": ["digital"],
-    "featured": true,
-    "slug": "palette",
-    "title": "Palette",
-    "oneLiner": "Creating together",
-    "type": "Collaboration platform",
-    "roles": [
-      "UX research",
-      "Digital design",
-      "Art direction"
-    ],
-    "team": "[PLACEHOLDER]",
-    "timeline": "2024, Seoul",
-    "statement": "Creating together, growing beyond limits.",
-    "cover": {
-      "src": "cover.jpg",
-      "alt": "Palette on a phone among white curving tubes against a pale blue sky"
-    },
-    "meta": {
-      "link": null
-    },
-    "hero": {
-      "type": "image",
-      "src": "hero.webp",
-      "alt": "Palette on a phone among white curving tubes against a pale blue sky"
-    },
-    "blocks": [
-      {
-        "type": "text",
-        "heading": "Context",
-        "body": [
-          "Palette is a collaborative platform for solo artists. It enables connection, shared exhibition opportunities, and creative support. The design lowers barriers to collaboration, helping artists transform individual ideas into collective experiences."
-        ]
-      },
-      {
-        "type": "text",
-        "heading": "Research",
-        "body": [
-          "Market research, then three personas, three interviews, and a needs analysis of the problems artists meet and how the platform could solve them."
-        ]
-      },
-      {
-        "type": "image",
-        "src": "market.webp",
-        "alt": "Market research slide: Collaboration will be happening here, on this platform, with real relationships, over three charts"
-      },
-      {
-        "type": "image",
-        "src": "persona.webp",
-        "alt": "Personas slide: three artists, each with their difficulty and needs"
-      },
-      {
-        "type": "text",
-        "heading": "Design",
-        "body": [
-          "Screens for finding exhibition spaces and their schedules, matching with artists by field, team size and how they like to collaborate, and inviting them into a project."
-        ]
-      },
-      {
-        "type": "imagePair",
-        "images": [
-          {
-            "src": "screens-1.webp",
-            "alt": "Palette's screens: exhibition spaces, filters for matching profiles, a space's floor plan and schedule, and an artist's profile"
-          },
-          {
-            "src": "screens-2.webp",
-            "alt": "More of Palette's screens: exploring artwork, matching profiles, a project page, messages with a project invitation, and a calendar"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "order": 5,
+    "order": 1,
     "category": ["digital", "physical"],
     "featured": true,
     "slug": "light-life",
@@ -488,19 +413,7 @@
     ]
   },
   {
-    "order": 6,
-    "category": ["digital", "brand"],
-    "title": "Lulu Walk",
-    "type": "Dog-walking app",
-    "year": "2022",
-    "images": [
-      "lulu-walk-1.webp",
-      "lulu-walk-2.webp"
-    ],
-    "alt": "Lulu Walk, a dog-walking assistant: the app on a phone beside a dog's paws, and its screens"
-  },
-  {
-    "order": 7,
+    "order": 5,
     "category": ["brand"],
     "title": "Editorial",
     "type": "Editorial design",
@@ -508,33 +421,9 @@
     "images": [
       "editorial-1.webp",
       "editorial-2.webp",
-      "editorial-3.webp",
-      "editorial-4.webp",
       "editorial-5.webp",
-      "editorial-6.webp",
-      "editorial-7.webp",
-      "editorial-8.webp",
-      "editorial-9.webp",
-      "editorial-10.webp"
+      "editorial-7.webp"
     ],
-    "alt": "Editorial work: festival and exhibition posters, posters on a wall, a type grid, a book, a typeface's letters, and a character on a tote bag"
-  },
-  {
-    "order": 8,
-    "category": ["physical"],
-    "title": "3D Products",
-    "type": "3D product design",
-    "year": "2025",
-    "images": [
-      "3d-products-1.webp",
-      "3d-products-2.webp",
-      "3d-products-3.webp",
-      "3d-products-4.webp",
-      "3d-products-5.webp",
-      "3d-products-6.webp",
-      "3d-products-7.webp",
-      "3d-products-8.webp"
-    ],
-    "alt": "3D product renders: a window light, a mobility vehicle, a sleek device, a skeleton watch, a robot figure, sketches, and a pet board"
+    "alt": "Editorial work: a dance festival poster, an exhibition poster, a letter drawn on its construction grid, and a typeface's letters"
   }
 ]

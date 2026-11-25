@@ -307,6 +307,23 @@ items of this kind that the filter is showing). Its images go in `assets/images/
 `/archive/` is built from `content/archive.json`, separate from the projects. Each entry is one
 image.
 
+**Since 2026-11-25 the map is a board of groups** (`ARCHIVE_MAP_BOARD` with
+`ARCHIVE_MAP_GROUPS`, the user's asks that day: the same field and the same project together,
+then, with a moodboard page of collages each under its handwritten title and circled in pencil,
+"more clearly and cleanly, like this"). A group a field, an image's `scale`, in site.json's
+`scales` order: each a section headed by the scale's name in the title's face, in italic, with
+its field beside it in the label style (Object, Industrial design), over a tight collage of its
+images; from 768px the groups in two columns (the second starting a little lower, each next
+group under the shorter column), on phones one under another. In a group, each project's images
+(their `project`) are in a row of their own, three at most to a row, circled by one loose 1px
+loop, drawn over the prints as a pencil would, their corners just crossing it, with the
+project's name and year on it (`EDITORIAL · 2024`); nothing else comes near a loop; images with
+no project go two to a row, each row a little up into the one before. No thread or numbers on
+it; the lightbox gives each image's caption, date and link. `build.py`'s `board_layout`,
+`BOARD_SHAPES` and `BOARD_ROWS` hold the drawing. `ARCHIVE_MAP_BOARD = False` brings back the
+groups as bands down the map with its thread and numbers (`ARCHIVE_MAP_GROUPS`), and
+`ARCHIVE_MAP_GROUPS = False` the map in time's order described next.
+
 **Since 2026-11-24 it's one map** (`ARCHIVE_MAP` in `build.py`, over the others; the user's
 asks: Archive shows their work and who they are in images more than words, one map rather than
 a list; that evening the images closer together and more joined, in time's order; that night
@@ -453,6 +470,8 @@ Each entry then names its scale:
 | `scale` | Required with the sequence, the binder and the plan (the map doesn't use it). One of site.json's `scales` (any case): its column. The build stops and names the entry if it isn't |
 | `caption` | Optional. On the map (since 2026-11-24) only in the lightbox (and for screen readers), with its date; in the sequence under its station's scale, in the text's italic; in the lightbox, on one line with the date; a caption too long for the screen is cut short with "…" (the date never is). Leave it `""` to show nothing |
 | `date` | Optional. Shown as you write it; on the map it also sets the image's place in time, so write the year first (`2019`, `2019-05`) |
+| `project` | Optional (since 2026-11-25). The work an image comes from, like `"Palette"`: on the map (`ARCHIVE_MAP_GROUPS`, the user's ask: the same field and the same project together) images are grouped by `scale`, in site.json's `scales` order (Object, Page, Screen, Space), a wider gap between fields, and a project's images side by side, its projects oldest first; an image with no `project` stands alone in its field. Still no lanes or names on the map. `ARCHIVE_MAP_GROUPS = False` goes back to time's order |
+| `link` | Optional (since 2026-11-25). `{ "label": "See full project", "url": "https://..." }`: a link after the date in the lightbox (and in the sequence and the gallery, after the date), never cut short, opening in a new tab; for work that's on Archive as images alone, its full project (Palette's and Lulu Walk's PDFs). Without a label it reads "See full project" |
 | `alt` | What the image shows, for screen readers. The build reminds you if a real image has none |
 
 - **Add an image:** save it in `assets/images/archive/` and add an entry. Any shape works: on

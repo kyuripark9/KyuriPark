@@ -631,6 +631,8 @@ button {
 .scale-bar,
 .seq-legend,
 .map-pin,
+.map-title-field,
+.map-tag,
 .globe-key-label,
 .globe-key-tag {
   font-family: var(--font-mono);
@@ -3775,6 +3777,89 @@ button.work-card .work-go::after {
   }
 }
 
+/* Archive as a board of groups (since 2026-11-25, ARCHIVE_MAP_BOARD in build.py, the user's ask
+   with a moodboard page: the same field and the same project together, clearly and cleanly).
+   The map's sheet and prints, laid out by board_layout (--x, --y from 768px; --tx, --ty on
+   phones): a group a field, each a tight collage under its title, the scale's name in the
+   title's face, in italic as if written on the sheet, its field beside it in the label style;
+   each project's images circled by one loose 1px loop drawn over the prints, as a pencil
+   would, with the project's name and year on it, the loop going under a thin edge of the
+   paper's color round them (as About's names on the globe). */
+.map-loops {
+  position: absolute;
+  inset: 0;
+  z-index: 2;  /* over the prints, under one hovered (it comes later, at the same level) */
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: var(--color-rule);
+  stroke-width: 1px;
+  pointer-events: none;
+}
+
+.map-loops ellipse {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.map-loops .is-wide {
+  display: none;
+}
+
+.map-title {
+  position: absolute;
+  z-index: 3;
+  left: var(--tx);
+  top: var(--ty);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: var(--step-2);
+  margin: 0;
+}
+
+.map-title-name {
+  font-family: var(--font-display);
+  font-size: var(--size-title);
+  font-style: italic;
+  font-weight: 300;
+  line-height: var(--leading-title);
+  letter-spacing: var(--tracking-title);
+}
+
+.map-title-field {
+  color: var(--color-subtle);
+}
+
+.map-tag {
+  position: absolute;
+  z-index: 3;
+  left: var(--tx);
+  top: var(--ty);
+  margin: 0;
+  padding: 0 4px;
+  background: var(--color-bg);
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+}
+
+@media (min-width: 768px) {
+  .map-title,
+  .map-tag {
+    left: var(--x);
+    top: var(--y);
+  }
+
+  .map-loops .is-wide {
+    display: inline;
+  }
+
+  .map-loops .is-tall {
+    display: none;
+  }
+}
+
 /* The lightbox (main.js opens it; Work's items with no page use it too): the item's images,
    scrolling if there are several, with Close above and the caption between Previous / Next
    below. Fades in and out. On a sheet of tracing paper laid over the page (since 2026-11-23,
@@ -3894,6 +3979,23 @@ button.work-card .work-go::after {
    readers, on an Archive image with no caption, is visually hidden, so it takes none either.) */
 .lightbox-meta:empty {
   display: none;
+}
+
+/* An Archive image with a link after its date (its full project, since 2026-11-25): on phones
+   the one line can't hold the name and the link, and would cut both short, so the name goes
+   over the date and link, each wrapping as it needs. */
+@media (max-width: 767px) {
+  .lightbox-caption:has(.lightbox-meta a) {
+    flex-direction: column;
+    align-items: center;
+    row-gap: var(--step-1);
+    text-align: center;
+  }
+
+  .lightbox-caption:has(.lightbox-meta a) :is(.lightbox-name, .lightbox-meta) {
+    max-width: 100%;
+    white-space: normal;
+  }
 }
 
 @media (min-width: 768px) {

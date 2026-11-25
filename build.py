@@ -184,6 +184,19 @@ SEQUENCE_SIZES = "(min-width: 1200px) 32vw, (min-width: 768px) 64vw, 90vw"
 # actually live"; that evening each scale had a lane at the right, Space's dashed.) Over
 # ARCHIVE_SEQUENCE, ARCHIVE_BINDER and ARCHIVE_PLAN when on. False: the sequence.
 ARCHIVE_MAP = True
+# The map's order (since 2026-11-25, the user's ask: "group the same field and the same project
+# together"): by field, in site.json's "scales" order (Object, Page, Screen, Space), and within a
+# field each project's images side by side (an image's "project" in archive.json; one without is
+# a project of its own), a field's projects oldest first; a wider gap between fields, and still
+# no lanes or names on the map (the user turned those down on 2026-11-24). False: time's order.
+ARCHIVE_MAP_GROUPS = True
+# The map as a board of groups (since 2026-11-25, the user's ask with a moodboard page: "group
+# them more clearly and cleanly, like this"): a group a field, each a tight collage under its
+# title (the scale's name, its field beside it), in two columns from 768px and one on phones;
+# a project's images in a row of their own, circled loosely by a 1px line with the project's
+# name and year on it; no thread or numbers. Needs ARCHIVE_MAP_GROUPS. False: the groups'
+# map above (bands, a thread through them, numbers).
+ARCHIVE_MAP_BOARD = True
 # How wide a map's image shows: up to about a third of the window from 768px (the biggest),
 # two thirds on phones.
 MAP_SIZES = "(min-width: 768px) 34vw, 66vw"
@@ -327,6 +340,17 @@ def inline(text):
 def figure(kind, inner, caption):
     cap = f'<figcaption class="caption">{inline(caption)}</figcaption>' if caption else ""
     return f'<figure class="media {kind}">{inner}{cap}</figure>'
+
+
+def archive_link(item, hidden=False):
+    """An Archive image's "link" ({"label", "url"}, optional; since 2026-11-25, the user's ask:
+    the full project's PDF for work that's on Archive as images alone), after its date in the
+    lightbox, where it's never cut short. hidden: in text only the lightbox shows (the map's),
+    so out of the page's Tab order; main.js puts it back in once it's in the lightbox."""
+    if not item.get("link"):
+        return ""
+    a = link(esc(item["link"]["url"]), esc(item["link"].get("label") or "See full project"))
+    return a.replace("<a ", '<a tabindex="-1" ', 1) if hidden else a
 
 
 def embed_url(url):
@@ -720,6 +744,15 @@ def validate_archive(images):
             raise BuildError(f'{where}: "src" "{src}" has the same name as item {j}\'s '
                              f'("{images[j - 1]["src"]}"). Give each image its own name.')
         names[name] = i
+        if not isinstance(image.get("project", ""), str):
+            raise BuildError(f'{where}: "project" should be a name in quotes, like "Palette".')
+        extra = image.get("link")
+        if extra is not None and not (
+                isinstance(extra, dict) and isinstance(extra.get("url"), str)
+                and extra["url"].startswith(("https://", "http://", "/"))
+                and isinstance(extra.get("label", ""), str)):
+            raise BuildError(f'{where}: "link" should be {{ "label": "See full project", '
+                             f'"url": "https://..." }}.')
 
 
 # ---------------------------------------------------------------------------
@@ -1663,7 +1696,7 @@ class Builder:
         shows in its place, in the shape of box."""
         number = esc(item["id"])
         rel = media_path(item["src"], ARCHIVE_FOLDER)
-        meta = " · ".join(x for x in (ref, inline(item.get("date") or "")) if x)
+        meta = " · ".join(x for x in (ref, inline(item.get("date") or ""), archive_link(item)) if x)
         alt, title = item.get("alt") or "", f"Archive {item['id']}"
         thumb = self.tile_image(rel, "archive", title, loading, alt=alt, sizes=ARCHIVE_SIZES)
         if thumb:
@@ -1855,7 +1888,8 @@ class Builder:
         else:  # names the lightbox for screen readers, with nothing on screen
             caption = (f'<span class="seq-caption visually-hidden" data-lightbox-name>'
                        f'Image {number}</span>')
-        meta = " · ".join(x for x in (name, inline(item.get("date") or "")) if x)
+        meta = " · ".join(x for x in (name, inline(item.get("date") or ""), archive_link(item))
+                          if x)
         return (f'          <li class="seq-station is-{side}" style="--r: {w} / {h}">\n'
                 f'            <a class="seq-figure" href="{href}" data-item aria-haspopup="dialog">\n'
                 f'              <span class="archive-media">{thumb}</span>\n'
@@ -1968,17 +2002,22 @@ class Builder:
     MAP_SHAPES = {
         "wide": {"sizes": (30, 22, 18, 26, 21, 32, 17, 24),
                  "spots": (19, 54, 86, 35, 80, 17, 52, 84),
-                 "step": (0.1, 0.22, 0.05, 0.18, 0.12, 0.04, 0.2, 0.08), "top": 4, "foot": 4},
+                 "step": (0.1, 0.22, 0.05, 0.18, 0.12, 0.04, 0.2, 0.08), "top": 4, "foot": 4,
+                 "near": 0.04, "gap": 11},
         "tall": {"sizes": (62, 44, 50, 40, 66, 46, 42, 56),
                  "spots": (24, 82, 30, 80, 22, 84, 28, 80),
-                 "step": (0.42, 0.55, 0.36, 0.6, 0.45, 0.4, 0.52, 0.46), "top": 5, "foot": 6},
+                 "step": (0.42, 0.55, 0.36, 0.6, 0.45, 0.4, 0.52, 0.46), "top": 5, "foot": 6,
+                 "near": 0.3, "gap": 22},
     }
     MAP_OVERLAP, MAP_TALLEST = 0.14, 1.3
 
     @classmethod
-    def map_layout(cls, ratios, shape):
+    def map_layout(cls, ratios, shape, groups=None):
         """Where a map's images go (archive_map). ratios: each image's shape, width / height,
-        in time's order. Returns {"ratio": the sheet's "width / height", "pieces": per image
+        in the map's order. groups (ARCHIVE_MAP_GROUPS): each image's (field, project); a new
+        field starts "gap" under everything above it, back at the first of "spots" and
+        "sizes", and the next image of the same project only "near" of the way down the one
+        before, so it sits beside it. Returns {"ratio": the sheet's "width / height", "pieces": per image
         (x, y, w), its top left corner and width, "pins": per image (x, y, side), where the
         thread meets it: the top corner facing the image before ("left" or "right")}; x and w
         in percent of the sheet's width, y of its height."""
@@ -1992,14 +2031,21 @@ class Builder:
                 return 0
             return ox * oy / min(a[2] * a[3], b[2] * b[3])
 
+        k = -1  # the image's place in its field (in the map, without groups)
         for i, r in enumerate(ratios):
-            size = s["sizes"][i % len(s["sizes"])]
+            here, before = (groups[i], groups[i - 1]) if groups and i else (None, None)
+            new_field = bool(here) and here[0] != before[0]
+            k = 0 if new_field else k + 1
+            size = s["sizes"][k % len(s["sizes"])]
             w = min(size, size * cls.MAP_TALLEST * r)
             h = w / r
-            x = max(0.0, min(s["spots"][i % len(s["spots"])] - w / 2, 100 - w))
+            x = max(0.0, min(s["spots"][k % len(s["spots"])] - w / 2, 100 - w))
             y = s["top"]
-            if rects:
-                y = rects[-1][1] + s["step"][i % len(s["step"])] * rects[-1][3]
+            if new_field:
+                y = max(ry + rh for _, ry, _, rh in rects) + s["gap"]
+            elif rects:
+                step = s["near"] if here and here == before else s["step"][k % len(s["step"])]
+                y = rects[-1][1] + step * rects[-1][3]
             while any(covered((x, y, w, h), q) > cls.MAP_OVERLAP for q in rects):
                 y += 0.5
             rects.append((x, y, w, h))
@@ -2028,6 +2074,256 @@ class Builder:
             enumerate(self.archive),
             key=lambda p: (0, str(p[1]["date"]), p[0]) if p[1].get("date") else (1, "", p[0]))]
 
+    # The board's drawing (board_layout), in percent of the sheet's width: from 768px ("wide")
+    # two columns, "width" wide, starting at "cols", the second "drop" lower; on phones ("tall")
+    # one. A group's title takes "title" over its images, and the next group in a column
+    # starts "gap" under the one before.
+    BOARD_SHAPES = {
+        "wide": {"cols": (0, 53), "width": 47, "drop": (0, 7), "title": 7, "gap": 9, "foot": 3},
+        "tall": {"cols": (0,), "width": 100, "drop": (0,), "title": 17, "gap": 14, "foot": 4},
+    }
+    # A row of a group, by how many images are in it: their widths, in percent of the group's
+    # width, where their middles go, and how far down each starts, in heights of the row's
+    # first; every other row mirrored, so rows don't line up. A project's images take a row of
+    # their own (three at most to a row), circled by its loop; the others go two to a row, a
+    # row starting BOARD_RISE of its shortest image's height up into the one before, as a
+    # collage, and lower if one would cover more than BOARD_OVERLAP of an image already down.
+    # A loop is an ellipse round its images' box, BOARD_LOOP (wider, taller) times its half
+    # width and height plus BOARD_PAD, so their corners just cross it, as a pencil loop does;
+    # nothing else comes within BOARD_CLEAR of it (all in percent of the group's width).
+    BOARD_ROWS = {
+        1: ((46,), (32,), (0,)),
+        2: ((50, 42), (28, 73), (0, 0.1)),
+        3: ((38, 32, 36), (21, 52, 80), (0, 0.14, 0.05)),
+    }
+    BOARD_OVERLAP, BOARD_RISE = 0.16, 0.1
+    BOARD_LOOP, BOARD_PAD, BOARD_CLEAR = (1.08, 1.16), 3, 4
+    BOARD_TURNS = (-3, 2.5, -2, 3.5)  # each loop's slant, in degrees, in turn
+
+    @classmethod
+    def board_group(cls, units):
+        """One group's images in rows (board_layout). units: (project or None, [ratios]) in
+        order. Returns the images' rects (x, y, w, h) and per unit with a project (project,
+        first, end, (cx, cy, rx, ry)), the rects that are its and its loop, all in percent of
+        the group's width."""
+        rects, spans, before, row = [], [], [], 0
+        floor = 0.0  # the lowest a loop above reaches, plus BOARD_CLEAR
+
+        def covered(a, b):
+            ox = min(a[0] + a[2], b[0] + b[2]) - max(a[0], b[0])
+            oy = min(a[1] + a[3], b[1] + b[3]) - max(a[1], b[1])
+            return 0 if ox <= 0 or oy <= 0 else ox * oy / min(a[2] * a[3], b[2] * b[3])
+
+        def loop(part):
+            bx, by = min(r[0] for r in part), min(r[1] for r in part)
+            bw = max(r[0] + r[2] for r in part) - bx
+            bh = max(r[1] + r[3] for r in part) - by
+            cx = bx + bw / 2
+            rx = min(bw / 2 * cls.BOARD_LOOP[0] + cls.BOARD_PAD, cx + 2, 102 - cx)
+            return cx, by + bh / 2, rx, bh / 2 * cls.BOARD_LOOP[1] + cls.BOARD_PAD
+
+        for project, ratios in units:
+            first = len(rects)
+            size = 3 if project else 2
+            for j, chunk in enumerate(ratios[i:i + size] for i in range(0, len(ratios), size)):
+                widths, spots, drops = cls.BOARD_ROWS[len(chunk)]
+                if row % 2:
+                    spots = [100 - s for s in spots]
+                if not rects:
+                    top = 0.0
+                elif j:  # the unit's next row: a little up into the one before, as a collage
+                    top = (max(y + h for _, y, _, h in before)
+                           - cls.BOARD_RISE * min(h for *_, h in before))
+                else:  # a unit's first row: under all above, loops included
+                    top = max(floor, max(y + h for _, y, _, h in rects) + cls.BOARD_CLEAR)
+                line = []
+                for i, r in enumerate(chunk):
+                    w = min(widths[i], widths[i] * cls.MAP_TALLEST * r)
+                    h = w / r
+                    x = max(0.0, min(spots[i] - w / 2, 100 - w))
+                    y = top + drops[i] * (line[0][3] if line else h)
+                    while any(covered((x, y, w, h), q) > cls.BOARD_OVERLAP for q in rects + line):
+                        y += 0.5
+                    line.append((x, y, w, h))
+                rects += line
+                before, row = line, row + 1
+            if project:
+                # its loop clear of all above: the unit moves down if its loop would reach up
+                cx, cy, rx, ry = loop(rects[first:])
+                above = max((y + h for _, y, _, h in rects[:first]), default=None)
+                if above is not None:
+                    shift = max(0.0, max(above, floor) + cls.BOARD_CLEAR - (cy - ry))
+                    rects[first:] = [(x, y + shift, w, h) for x, y, w, h in rects[first:]]
+                    cy += shift
+                spans.append((project, first, len(rects), (cx, cy, rx, ry)))
+                floor = cy + ry + cls.BOARD_CLEAR
+        return rects, spans
+
+    @classmethod
+    def board_layout(cls, groups, shape):
+        """Where the board's parts go (archive_board). groups: (field, units) in order, units
+        as board_group takes them. Returns {"ratio": the sheet's "width / height", "pieces":
+        per image (x, y, w), "titles": per group (x, y), its top left corner, "loops": per
+        project (cx, cy, rx, ry, turn), "tags": per project (x, y), where its name sits on its
+        loop}; x, w, cx and rx in percent of the sheet's width, y, cy and ry of its height."""
+        s = cls.BOARD_SHAPES[shape]
+        bottoms = list(s["drop"])
+        started = [False] * len(s["cols"])
+        rects, titles, loops = [], [], []
+        for n, (_, units) in enumerate(groups):
+            rel, spans = cls.board_group(units)
+            c = n if n < len(bottoms) else min(range(len(bottoms)), key=bottoms.__getitem__)
+            x0, k = s["cols"][c], s["width"] / 100
+            top = bottoms[c] + (s["gap"] if started[c] else 0)
+            started[c] = True
+            titles.append((x0, top))
+            y0 = top + s["title"]
+            mine = [(x0 + x * k, y0 + y * k, w * k, h * k) for x, y, w, h in rel]
+            ends = [y + h for _, y, _, h in mine]
+            for *_, (cx, cy, rx, ry) in spans:
+                loops.append((x0 + cx * k, y0 + cy * k, rx * k, ry * k))
+                ends.append(y0 + (cy + ry) * k)
+            rects += mine
+            bottoms[c] = max(ends) if ends else y0
+        tall_ = max(bottoms) + s["foot"]
+
+        def py(y):
+            return round(y / tall_ * 100, 2)
+
+        return {
+            "ratio": f"100 / {tall_:.2f}",
+            "pieces": [(round(x, 2), py(y), round(w, 2)) for x, y, w, _ in rects],
+            "titles": [(round(x, 2), py(y)) for x, y in titles],
+            "loops": [(round(cx, 2), py(cy), round(rx, 2), py(ry),
+                       cls.BOARD_TURNS[i % len(cls.BOARD_TURNS)])
+                      for i, (cx, cy, rx, ry) in enumerate(loops)],
+            "tags": [(round(cx + rx * 0.5, 2), py(cy - ry * 0.87)) for cx, cy, rx, ry in loops],
+        }
+
+    def archive_board(self):
+        """Archive as a board of groups (ARCHIVE_MAP_BOARD, since 2026-11-25, the user's ask,
+        from a moodboard page: the same field and the same project together, clearly and
+        cleanly). A group a field (an image's "scale"), in site.json's "scales" order, each a
+        section headed by the scale's name, its field beside it, over a tight collage of its
+        images (board_layout): each project's images in a row of their own, circled by one
+        loose 1px loop with the project's name and year on it, the others two to a row. Each
+        image opens the lightbox with its caption, date and link, as on the map."""
+        pairs = self.archive_in_groups()
+        items = [item for item, _ in pairs]
+        boxes, groups = [], []
+        for n, (item, (field, _)) in enumerate(pairs):
+            box = ARCHIVE_BOXES[n % len(ARCHIVE_BOXES)]
+            rel = media_path(item["src"], ARCHIVE_FOLDER)
+            real = os.path.exists(os.path.join(ROOT, rel)) and media_size(rel)
+            boxes.append((box, real or box))
+            project = item.get("project") or None
+            if not groups or groups[-1][0] != field:
+                groups.append((field, []))
+            units = groups[-1][1]
+            if units and units[-1][0] == project:
+                units[-1][1].append(n)
+            else:
+                units.append((project, [n]))
+        ratios = [w / h for _, (w, h) in boxes]
+        shaped = [(f, [(p, [ratios[n] for n in idx]) for p, idx in units]) for f, units in groups]
+        wide, tall = self.board_layout(shaped, "wide"), self.board_layout(shaped, "tall")
+        scales = {str(sc.get("name", "")).lower(): sc for sc in self.site.get("scales") or []}
+
+        def loops(lay):
+            return "".join(
+                f'<ellipse cx="{cx}%" cy="{cy}%" rx="{rx}%" ry="{ry}%" '
+                f'style="transform: rotate({turn}deg)"/>' for cx, cy, rx, ry, turn in lay["loops"])
+
+        sections, loop_no = [], 0
+        for g, (field, units) in enumerate(groups):
+            scale = scales.get(field) or {}
+            label = f"map-group-{g + 1}"
+            (x, y), (tx, ty) = wide["titles"][g], tall["titles"][g]
+            title = ""
+            if scale.get("name"):
+                kind = (f' <span class="map-title-field">{esc(scale["field"])}</span>'
+                        if scale.get("field") else "")
+                title = (f'      <h2 class="map-title" id="{label}" style="--x: {x}%; --y: {y}%; '
+                         f'--tx: {tx}%; --ty: {ty}%"><span class="map-title-name">'
+                         f'{esc(scale["name"])}</span>{kind}</h2>\n')
+            pieces, tags = [], []
+            for project, idx in units:
+                for n in idx:
+                    pieces.append(self.board_piece(items[n], n, boxes[n], wide, tall))
+                if project:
+                    years = sorted({str(items[n].get("date") or "")[:4] for n in idx} - {""})
+                    when = (f" · {years[0]}" + (f"–{years[-1]}" if len(years) > 1 else "")
+                            if years else "")
+                    (lx, ly), (tlx, tly) = wide["tags"][loop_no], tall["tags"][loop_no]
+                    tags.append(f'      <p class="map-tag" style="--x: {lx}%; --y: {ly}%; '
+                                f'--tx: {tlx}%; --ty: {tly}%" aria-hidden="true">'
+                                f'{esc(project)}{when}</p>\n')
+                    loop_no += 1
+            sections.append(
+                f'      <section class="map-group"'
+                + (f' aria-labelledby="{label}"' if title else "") + '>\n'
+                + title + '      <ol class="map-pieces">\n' + "\n".join(pieces)
+                + '\n      </ol>\n' + "".join(tags) + '      </section>\n')
+        return ('    <div class="atlas">\n'
+                f'      <div class="map is-board" style="--ratio: {wide["ratio"]}; '
+                f'--tall-ratio: {tall["ratio"]}">\n'
+                '        <svg class="map-loops" aria-hidden="true" focusable="false">'
+                f'<g class="is-wide">{loops(wide)}</g><g class="is-tall">{loops(tall)}</g>'
+                '</svg>\n' + "".join(sections) + '      </div>\n    </div>\n')
+
+    def board_piece(self, item, n, boxes, wide, tall):
+        """One image on the board (archive_board): as on the map, without its pin."""
+        box, (w, h) = boxes
+        number = esc(item["id"])
+        rel = media_path(item["src"], ARCHIVE_FOLDER)
+        alt, title = item.get("alt") or "", f"Archive {item['id']}"
+        thumb = self.tile_image(rel, "archive", title, "eager" if n < 3 else "lazy",
+                                alt=alt, sizes=MAP_SIZES)
+        if thumb:
+            href, large = url_for(rel), ""
+        else:
+            href = url_for(placeholder_rel(rel))
+            large = (f'          <template>'
+                     f'{self.img(rel, alt, "archive", title, "eager", decorative=True, box=box)}'
+                     f'</template>\n')
+        date = inline(item.get("date") or "")
+        meta = " · ".join(x for x in (date, archive_link(item, hidden=True)) if x)
+        caption = inline(item.get("caption") or "") or f"Image {number}"
+        (x, y, wd), (tx, ty, tw) = wide["pieces"][n], tall["pieces"][n]
+        return (f'        <li class="map-piece">\n'
+                f'          <a class="map-fig" href="{href}" style="--r: {w} / {h}; --x: {x}%; '
+                f'--y: {y}%; --w: {wd}%; --tx: {tx}%; --ty: {ty}%; --tw: {tw}%" data-item '
+                f'aria-haspopup="dialog">\n'
+                f'            <span class="archive-media">{thumb}</span>\n'
+                f'            <span class="visually-hidden">Image {number}</span>\n'
+                f'          </a>\n'
+                f'          <p class="visually-hidden"><span data-lightbox-name>{caption}</span> '
+                f'<span data-lightbox-meta>{meta}</span></p>\n'
+                f'{large}'
+                f'        </li>')
+
+    def archive_in_groups(self):
+        """content/archive.json's items by field and project (ARCHIVE_MAP_GROUPS), with each
+        one's (field, project) for map_layout: fields in site.json's "scales" order (an
+        unknown or missing "scale" after them); in a field, its projects by their oldest
+        date, those with none after them in the file's order; in a project, oldest first."""
+        order = [str(s.get("name", "")).lower() for s in self.site.get("scales") or []]
+
+        def when(p):  # (index, item) -> its place in time
+            return (0, str(p[1]["date"]), p[0]) if p[1].get("date") else (1, "", p[0])
+
+        groups = {}
+        for p in enumerate(self.archive):
+            field = str(p[1].get("scale") or "").lower()
+            project = p[1].get("project") or f'#{p[1]["id"]}'
+            groups.setdefault((field, project), []).append(p)
+        keys = sorted(groups, key=lambda g: (
+            order.index(g[0]) if g[0] in order else len(order), min(map(when, groups[g]))))
+        out = []
+        for g in keys:
+            out += [(it, g) for _, it in sorted(groups[g], key=when)]
+        return out
+
     def archive_map(self):
         """Archive as one map (ARCHIVE_MAP, since 2026-11-24, the user's asks: images rather
         than words, one map rather than a list; that evening closer together, more joined and
@@ -2038,8 +2334,14 @@ class Builder:
         them in that order, pin to pin, a small square where it meets each at a top corner and
         its number beside it, 01, 02, with its date when it has one. Its caption is the
         lightbox's, with its date ("Image 003" until it has one). Drawn twice, from 768px
-        wide and on phones tall; the CSS takes one. An image's "scale" isn't used here."""
-        items = self.archive_in_time()
+        wide and on phones tall; the CSS takes one. With ARCHIVE_MAP_GROUPS (since
+        2026-11-25) not in time's order but by field and project (archive_in_groups): an
+        image's "scale" and "project" set its place, and the thread runs through the groups;
+        without it, an image's "scale" isn't used here."""
+        if ARCHIVE_MAP_GROUPS:
+            items, groups = map(list, zip(*self.archive_in_groups())) if self.archive else ([], [])
+        else:
+            items, groups = self.archive_in_time(), None
         boxes = []
         for n, item in enumerate(items):
             box = ARCHIVE_BOXES[n % len(ARCHIVE_BOXES)]
@@ -2047,7 +2349,7 @@ class Builder:
             real = os.path.exists(os.path.join(ROOT, rel)) and media_size(rel)
             boxes.append((box, real or box))
         ratios = [w / h for _, (w, h) in boxes]
-        wide, tall = self.map_layout(ratios, "wide"), self.map_layout(ratios, "tall")
+        wide, tall = self.map_layout(ratios, "wide", groups), self.map_layout(ratios, "tall", groups)
 
         def lines(lay):
             pins = lay["pins"]
@@ -2073,6 +2375,7 @@ class Builder:
                          f'{self.img(rel, alt, "archive", title, "eager", decorative=True, box=box)}'
                          f'</template>\n')
             date = inline(item.get("date") or "")
+            meta = " · ".join(x for x in (date, archive_link(item, hidden=True)) if x)
             caption = inline(item.get("caption") or "") or f"Image {number}"
             (x, y, wd), (tx, ty, tw) = wide["pieces"][n], tall["pieces"][n]
             (px, py_, side), (tpx, tpy, tside) = wide["pins"][n], tall["pins"][n]
@@ -2088,7 +2391,7 @@ class Builder:
                 f'          <span class="map-pin is-{side} is-t{tside}" style="--x: {px}%; '
                 f'--y: {py_}%; --tx: {tpx}%; --ty: {tpy}%" aria-hidden="true">{index}{when}</span>\n'
                 f'          <p class="visually-hidden"><span data-lightbox-name>{caption}</span> '
-                f'<span data-lightbox-meta>{date}</span></p>\n'
+                f'<span data-lightbox-meta>{meta}</span></p>\n'
                 f'{large}'
                 f'        </li>')
         return ('    <div class="atlas">\n'
@@ -2107,7 +2410,8 @@ class Builder:
         opens the lightbox."""
         s = self.site
         lightbox = render("lightbox.html") if self.archive else ""
-        plan = (self.archive_map() if ARCHIVE_MAP
+        plan = (self.archive_board() if ARCHIVE_MAP and ARCHIVE_MAP_GROUPS and ARCHIVE_MAP_BOARD
+                else self.archive_map() if ARCHIVE_MAP
                 else self.archive_sequence() if ARCHIVE_SEQUENCE
                 else self.archive_binder() if ARCHIVE_BINDER
                 else self.archive_plan() if ARCHIVE_PLAN else None)

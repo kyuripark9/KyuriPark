@@ -7,12 +7,14 @@
 // words; this draws the rest as the globe stands each moment: the globe's lines on its near
 // side, each orbit (its far half faint, under the globe's lines), its dot, the dotted line out
 // to it, and its name beside the dot, outward from the middle, faint while round the back.
-// Beside the globe (under it on narrow screens) one scale's note shows at a time (build.py's
-// globe): the one chosen, by the pointer over its name or a click or tap on it (until another
-// click or tap), or while none is, the one in front, changing as the globe turns. While one is
-// chosen the globe slows to a stop and that orbit is drawn alone. Dragging sideways turns it by
-// hand; let go, it keeps going the way it was turned and settles back to its own pace. It turns
-// only while on screen. With reduced motion it stands still at REST, and only a drag turns it.
+// Beside the globe (under it on narrow screens) its key says what it means (build.py's
+// globe_key): the user's point of view (the middle), strengths (the solid orbits) and goal
+// (the dashed one). A part of the key, or a line of it, under the pointer or clicked or tapped
+// (until another click or tap) lights its part of the drawing, the rest going faint, and a
+// name on the globe lights its line in the key; while something is lit the globe slows to a
+// stop. Dragging sideways turns it by hand; let go, it keeps going the way it was turned and
+// settles back to its own pace. It turns only while on screen. With reduced motion it stands
+// still at REST, and only a drag turns it.
 (() => {
   const figure = document.querySelector(".orbits-figure.is-globe");
   if (!figure) return;
@@ -38,7 +40,8 @@
   const SWAY = 8;                   // ...rising and falling this much either way...
   const SWAY_TIME = 41;             // ...over this many seconds
   const REST = 30 * DEG;            // where it starts, and stands with reduced motion
-  const BEHIND = 0.4;               // how strongly a name shows while its dot is round the back
+  const BEHIND = 0.65;              // how strongly a name shows while its dot is round the back
+                                    // (ink at this is about 5.5:1 on the paper, still easy to read)
 
   const still = window.matchMedia("(prefers-reduced-motion: reduce)");
   const f = (v) => v.toFixed(1);
@@ -210,13 +213,13 @@
   }
   function settle(spots, snap) {
     const kept = bounds.under ? [bounds.under] : [];
-    spots.sort((a, b) => (b.it.n === chosen) - (a.it.n === chosen) || b.near - a.near);
+    spots.sort((a, b) => isLit(b.it) - isLit(a.it) || b.near - a.near);
     for (const { it, near, box: b } of spots) {
       const hit = kept.some((o) => b.left < o.right && b.right > o.left && b.top < o.bottom && b.bottom > o.top);
       if (!hit) kept.push(b);
       const clear = hit ? 0 : 1;
       it.clear = snap || it.clear === undefined ? clear : it.clear + (clear - it.clear) * 0.12;
-      const shown = (it.n === chosen ? 1 : BEHIND + (1 - BEHIND) * near) * it.clear;
+      const shown = (isLit(it) ? 1 : BEHIND + (1 - BEHIND) * near) * it.clear;
       it.label.style.setProperty("--near", shown.toFixed(2));
       it.label.style.visibility = shown < 0.02 ? "hidden" : "";
     }
@@ -252,34 +255,35 @@
       it.ray.setAttribute("d", `M${CX} ${CY}L${pt(p)}`);
       it.ray.style.opacity = fade;
       if (it.label) spots.push(place(it, p));
-      it.front = p[2] / it.r;
     }
-    // The one in front, for the note while none is chosen; it changes only once another is
-    // clearly nearer, so the note doesn't flicker between two side by side.
-    const now = orbits.find((it) => it.n === front);
-    const best = orbits.reduce((a, b) => (b.front > a.front ? b : a), orbits[0]);
-    if (best && (!now || best.front > now.front + 0.15)) front = best.n;
-    choose();
     settle(spots, snap);
   }
 
-  // Which scale's note shows: the one under the pointer, else the one clicked or tapped, else
-  // the one in front. Chosen by hand, the globe holds still and that orbit is drawn alone.
-  let hovered = null;
+  // What's lit: the parts of the drawing under the pointer (a name on the globe, or a part or
+  // line of the key, its data-lit: "view", the middle, or orbits by number), else the ones
+  // clicked or tapped. Lit by hand, the globe holds still and the rest goes faint (style.css,
+  // data-focus); in the key, what lights none of it goes faint too.
+  const sheet = figure.closest(".orbits") || figure.parentElement;
+  const key = sheet.querySelector(".globe-key");
+  const keyed = key ? [...key.querySelectorAll("[data-lit]")] : [];
+  let hovered = null;  // a data-lit value, or null
   let pinned = null;
-  let front = null;
-  let chosen = null;
-  const notes = [...figure.parentElement.querySelectorAll(".globe-note")];
+  let lit = null;      // what's lit, as a Set of its parts, or null
+  const isLit = (it) => (lit && lit.has(String(it.n)) ? 1 : 0);
   function choose() {
     const byHand = hovered ?? pinned;
-    const next = byHand ?? front;
     hold = byHand !== null;
-    if (byHand !== null) figure.dataset.focus = String(byHand);
-    else delete figure.dataset.focus;
-    if (next === chosen) return;
-    chosen = next;
-    for (const note of notes) note.classList.toggle("is-on", Number(note.dataset.orbit) === chosen);
-    for (const it of orbits) if (it.label) it.label.classList.toggle("is-on", it.n === chosen);
+    if ((lit ? [...lit].join(" ") : null) === byHand) return;
+    lit = byHand === null ? null : new Set(byHand.split(" "));
+    if (lit) sheet.dataset.focus = byHand;
+    else delete sheet.dataset.focus;
+    // A part of the key stays while it draws any of what's lit, a line only while it draws
+    // all of it.
+    for (const el of keyed) {
+      const own = el.dataset.lit.split(" ");
+      const on = !lit || (el.tagName === "LI" ? own.every((t) => lit.has(t)) : own.some((t) => lit.has(t)));
+      el.classList.toggle("is-dim", !on);
+    }
   }
 
   // Turning: at its own pace, slowing to a stop under the pointer, or by hand.
@@ -322,7 +326,7 @@
     if (e.pointerType !== "mouse" || (drag && drag.moved)) return;
     const word = e.target.closest(".orbit-label");
     if (!word) return;
-    hovered = Number(word.dataset.orbit);
+    hovered = word.dataset.orbit;
     choose();
     kick();
   });
@@ -335,13 +339,13 @@
   });
 
   // A drag across it: a point in front of the globe follows the pointer. A press that doesn't
-  // move is a click or tap: on a name it chooses that scale (again, lets it go), elsewhere it
-  // lets the chosen one go.
+  // move is a click or tap: on a name it lights that scale (again, lets it go), elsewhere it
+  // lets what's lit go.
   figure.addEventListener("pointerdown", (e) => {
     if (e.button !== 0) return;
     const word = e.target.closest(".orbit-label");
     drag = { id: e.pointerId, x: e.clientX, from: e.clientX, t: e.timeStamp, v: 0, moved: false,
-             on: word ? Number(word.dataset.orbit) : null };
+             on: word ? word.dataset.orbit : null };
   });
   figure.addEventListener("pointermove", (e) => {
     if (!drag || e.pointerId !== drag.id) return;
@@ -374,6 +378,30 @@
   };
   figure.addEventListener("pointerup", release);
   figure.addEventListener("pointercancel", release);
+
+  // The key: a part or line of it under the mouse lights its part of the drawing; a click or
+  // tap keeps it lit (again, lets it go).
+  if (key) {
+    key.addEventListener("pointerover", (e) => {
+      if (e.pointerType !== "mouse") return;
+      const el = e.target.closest("[data-lit]");
+      hovered = el ? el.dataset.lit : null;
+      choose();
+      kick();
+    });
+    key.addEventListener("pointerleave", () => {
+      hovered = null;
+      choose();
+      kick();
+    });
+    key.addEventListener("click", (e) => {
+      const el = e.target.closest("[data-lit]");
+      if (!el) return;
+      pinned = el.dataset.lit === pinned ? null : el.dataset.lit;
+      choose();
+      kick();
+    });
+  }
 
   new IntersectionObserver(([entry]) => {
     onScreen = entry.isIntersecting;

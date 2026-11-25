@@ -606,7 +606,9 @@ button {
 .scale-bar,
 .seq-legend,
 .map-name,
-.map-legend {
+.map-legend,
+.globe-key-label,
+.globe-key-tag {
   font-family: var(--font-mono);
   font-size: var(--size-label);
   font-weight: 400;
@@ -4648,40 +4650,34 @@ mark.placeholder {
 /* The user as a designer, drawn as a globe that turns (since 2026-11-24, ABOUT_GLOBE in build.py,
    the user's ask, from an orbit diagram turning in 3D on their Pinterest; then, the same day:
    the drawing and its words one picture, simple, showing who they are as a designer;
-   assets/js/globe.js turns it): the globe's rim in ink, a tick at each quarter, its lines
-   (meridians and parallels) on its near side as construction lines, dotted axes through its
-   middle; each orbit's far half faint, under the globe's lines; each scale's bubble and name in
-   the label style on the paper's color, kept beside its dot by globe.js: --ux and --uy the way
-   out from the middle, --ax and --ay the side or corner of the name that meets the dot (from
-   -1 to 1), --near how strongly it shows (faint round the back, gone while another is in its
-   place), data-align how its lines line up. Beside the globe from 1024px (under it before) the
-   chosen scale's note (.globe-note.is-on, globe.js): its bubble and name, its field in the
-   display face, for Space its words in the italic; the notes share one place, so the space
-   is the tallest's and one fades into the next. Chosen by hand, its orbit is drawn alone
-   (data-focus) and the globe holds still; a drag sideways turns it. The drawing is the whole
-   section, between two window-wide lines, at every width; the list after it says the same in
-   words, for screen readers only. Without JavaScript, which draws it, the drawing isn't shown
-   and the list is. */
-html:not(.js) .orbits.is-globe {
+   assets/js/globe.js turns it): over it its title, the user's name and role, in the corner;
+   the globe's rim in ink, a tick at each quarter, its lines (meridians and parallels) on its
+   near side as construction lines, dotted axes through its middle; each orbit's far half
+   faint, under the globe's lines; each scale's name alone in the label style, no bubble and no
+   box, as the example's are (the user's ask, the same day: easy to read, tidy), kept beside
+   its dot by globe.js: --ux and --uy the way out from the middle, --ax and --ay the side or
+   corner of the name that meets the dot (from -1 to 1), --near how strongly it shows (a little
+   lighter round the back, still easy to read; gone while another is in its place).
+   Beside the globe from 1024px, under it before, its key (.globe-key, the user's ask, the same
+   day: say what it means, their point of view, strengths and goal), a drawing's legend: each
+   part by a mark drawn as its part of the drawing is, its label, and the user's words, the
+   view and the goal in the display face, the strengths a line each, the scale's name in the
+   label style and its field. What a part of the key, or a name, lights (data-focus on
+   .orbits, globe.js) stays and the rest goes faint, in the drawing and in the key; lit by
+   hand, the globe holds still; a drag sideways turns it. The section is between two
+   window-wide lines at every width. Without JavaScript, which draws it, the drawing isn't
+   shown, and the title and the key are. */
+html:not(.js) .orbits-figure.is-globe {
   display: none;
 }
 
-.js .scales.has-orbits.has-globe {
+.scales.has-orbits.has-globe {
   display: block;
   border-block: var(--rule);
 }
 
-.js .scales.has-orbits.has-globe .orbits {
+.scales.has-orbits.has-globe .orbits {
   border: 0;
-}
-
-.js .scales.has-globe .scales-list {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
 }
 
 .orbits-figure.is-globe {
@@ -4726,13 +4722,16 @@ html:not(.js) .orbits.is-globe {
 }
 
 .is-globe .orbit-label {
-  --gap: 10px;
+  --gap: 8px;
   position: absolute;
-  display: grid;
-  justify-items: start;
-  gap: 2px;
-  padding: 1px 4px;
-  background: var(--color-bg);
+  display: block;
+  padding: 3px 4px;  /* a little more to point at than the word */
+  background: none;
+  letter-spacing: 0.04em;
+  /* No box: the lines run up to the letters and go under a thin edge of the paper's color
+     round each, so a line crossing a name doesn't cut it. */
+  text-shadow: 0 0 2px var(--color-bg), 0 0 2px var(--color-bg), 0 0 4px var(--color-bg),
+               0 0 6px var(--color-bg);
   opacity: var(--near, 1);
   transform: translate(calc((var(--ax, 1) - 1) * 50% + var(--ux, 1) * var(--gap) + var(--shift, 0px)),
                        calc((var(--ay, 0) - 1) * 50% + var(--uy, 0) * var(--gap)));
@@ -4750,110 +4749,155 @@ html:not(.js) .orbits.is-globe {
   text-transform: none;
 }
 
-.is-globe .orbit-name {
-  display: inline;  /* the flat drawing leaves it out on phones */
-}
-
 .is-globe [data-align="center"] {
-  justify-items: center;
   text-align: center;
 }
 
 .is-globe [data-align="end"] {
-  justify-items: end;
   text-align: right;
 }
 
-.orbit-key {
-  display: flex;
-  align-items: center;
-  gap: var(--step-1);
-}
-
-.globe-notes {
+/* The key: a part each (view, strengths, goal), a construction line between them; in each,
+   its mark and its label on one line, then the user's words under the label. */
+.globe-key {
   display: grid;
-  margin-top: var(--step-4);
-  justify-items: center;
-  text-align: center;
+  max-width: 34rem;
+  margin: var(--step-6) auto 0;
 }
 
-.globe-note {
-  grid-area: 1 / 1;
+.globe-key-part {
   display: grid;
-  justify-items: inherit;
-  align-content: start;
-  gap: var(--step-1);
-  opacity: 0;
-  transition: opacity 400ms ease;
+  grid-template-columns: 32px minmax(0, 1fr);
+  column-gap: var(--step-2);
+  row-gap: var(--step-1);
+  padding-block: var(--step-3);
+  border-top: 1px solid var(--color-trace);
+  transition: opacity var(--fade);
 }
 
-.globe-note.is-on {
-  opacity: 1;
+.globe-key-part:first-child {
+  padding-top: 0;
+  border-top: 0;
 }
 
-.globe-note-key {
-  display: flex;
-  align-items: center;
-  gap: var(--step-1);
-  font-family: var(--font-mono);
-  font-size: var(--size-label);
-  line-height: var(--leading-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
+.globe-key-part:last-child {
+  padding-bottom: 0;
 }
 
-.globe-note-field {
+.globe-key-mark {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: center;
+  width: 32px;
+  height: 16px;
+  overflow: visible;
+}
+
+.globe-key-mark :is(path, circle) {
+  fill: none;
+  stroke: var(--color-text);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.globe-key-mark .is-dot {
+  fill: var(--color-text);
+  stroke: none;
+}
+
+.globe-key-mark .is-open {
+  fill: var(--color-bg);
+}
+
+.globe-key-mark .is-dashed {
+  stroke-dasharray: 3 2.5;
+}
+
+.globe-key-label,
+.globe-key-text,
+.globe-key-rows {
+  grid-column: 2;
+}
+
+/* The view and the goal, in the display face as typed, as the line under the globe is. */
+.globe-key-text {
   font-family: var(--font-display);
-  font-size: 2rem;
-  font-weight: 300;
-  line-height: 1.15;
-  letter-spacing: -0.01em;
-}
-
-/* Space's words, in the display face's italic, as a note in a journal. */
-.globe-note-unreached {
-  color: var(--color-subtle);
-  font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-style: italic;
+  font-size: 1.625rem;
   font-weight: 300;
   line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
 }
 
-/* Under the globe, the note a step under the line it's about. */
-@media (max-width: 1023px) {
-  .globe-note-field {
-    font-size: 1.5rem;
+/* A strength a line: the scale's name in the label style (Shared text styles), its field in
+   the text's face; the goal's line under it the same, Space's words in the italic. */
+.globe-key-rows {
+  display: grid;
+  gap: 6px;
+}
+
+.globe-key-rows li {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  column-gap: var(--step-1);
+  align-items: baseline;
+  transition: opacity var(--fade);
+}
+
+.globe-key-unreached {
+  color: var(--color-subtle);
+  font-style: italic;
+}
+
+.globe-key .is-dim {
+  opacity: 0.3;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .globe-key [data-lit] {
+    cursor: default;
   }
 }
 
+@media (max-width: 1023px) {
+  .globe-key-text {
+    font-size: 1.375rem;
+  }
+}
+
+/* From 1024px the drawing and its key side by side, as a sheet's drawing and its notes: the
+   globe in what the key leaves, the key in a column at the right. */
 @media (min-width: 1024px) {
-  .orbits.is-globe {
+  .js .orbits.is-globe {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 860px) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(17rem, 23rem);
     align-items: center;
-    column-gap: var(--step-4);
+    column-gap: var(--step-6);
   }
 
   .orbits.is-globe .orbits-figure {
-    grid-column: 2;
+    grid-column: 1;
     width: 100%;
-    max-width: none;
+    max-width: 860px;
   }
 
-  .globe-notes {
-    grid-column: 3;
-    margin-top: 0;
-    justify-items: start;
-    text-align: left;
+  .js .globe-key {
+    grid-column: 2;
+    max-width: none;
+    margin: 0;
   }
 }
 
-.is-globe[data-focus="1"] :is(.orbit, .orbit-label):not([data-orbit="1"]),
-.is-globe[data-focus="2"] :is(.orbit, .orbit-label):not([data-orbit="2"]),
-.is-globe[data-focus="3"] :is(.orbit, .orbit-label):not([data-orbit="3"]),
-.is-globe[data-focus="4"] :is(.orbit, .orbit-label):not([data-orbit="4"]) {
+/* What's lit by hand (globe.js): the rest of the drawing faint. */
+.orbits.is-globe[data-focus] :is(.orbit, .orbit-label) {
   opacity: 0.15;
+}
+
+.orbits.is-globe[data-focus~="1"] [data-orbit="1"],
+.orbits.is-globe[data-focus~="2"] [data-orbit="2"],
+.orbits.is-globe[data-focus~="3"] [data-orbit="3"],
+.orbits.is-globe[data-focus~="4"] [data-orbit="4"] {
+  opacity: 1;
 }
 
 /* The words that end Space's story ("I never became one."), last in its cell, in the display
@@ -4872,7 +4916,7 @@ html:not(.js) .orbits.is-globe {
     --gap: 6px;
   }
 
-  .globe-note-field {
+  .globe-key-text {
     font-size: 1.25rem;
   }
 

@@ -2370,27 +2370,31 @@ class Builder:
         day: the drawing and its words one picture, simple, showing who they are as a designer
         rather than where they studied or worked): under it what their work is about ("How
         people actually live", "scalesDrawing" in content/site.json), and round its middle the
-        scales they design at, an orbit each, smallest in, its dot with its bubble and name (A
-        Object), a dotted line out to it from the middle. Space, what they wanted to be as a
+        scales they design at, an orbit each, smallest in, its dot with its name (OBJECT) in
+        the label style, no bubble or box (the user's ask, the same day, after the example: easy
+        to read and tidy), a dotted line out to it from the middle. Space, what they wanted to be as a
         kid, round the globe itself, dashed, its dot open. Object and Page lie on the globe's
         equator, Screen and Space tilt across it opposite ways. Nothing else on it: the work,
         the places and the touches were on it for a few hours the same day, and made it hard
-        to read. Beside it (under it on narrow screens) the chosen scale's note (the user's ask,
-        the same day: the names on the globe, the rest beside it): its bubble and name, its
-        field in the display face (Industrial design), and for Space "I never became one.";
-        the one chosen, or while none is, the one in front (globe.js).
+        to read. Over it, as a drawing's title, who it is: the user's name and role.
+        Beside it (under it on narrow screens) its key (globe_key), what it means: the user's
+        point of view, their strengths and their goal, each by the part of the drawing that
+        draws it (the user's ask, the same day: the picture was good but said nothing; a
+        visitor comes to About to learn who they are, so their view, goals and strengths have
+        to show). A part of the key under the pointer, or clicked, lights its part of the
+        drawing, and a name on the globe its line in the key (globe.js).
         Written here: the still parts (the globe's rim with a tick at each quarter, dotted
         axes through the middle, the middle's circle and cross, the line down to its words),
-        each orbit's parts, empty, the names, and the notes. assets/js/globe.js places and
-        turns it all.
-        Drawn only with JavaScript (style.css); the list after it (about_scales) says the same
-        in words, for screen readers, and is what shows without it."""
+        each orbit's parts, empty, the names, and the key. assets/js/globe.js places and turns
+        it all.
+        The drawing is drawn only with JavaScript (style.css); the key is words, and is what
+        shows without it."""
         w, h = self.GLOBE_BOX
         mx, my = self.GLOBE_MID
         r = self.GLOBE_R
         if not scales or len(scales) > 4:
             return ""
-        backs, fronts, words, notes = [], [], [], []
+        backs, fronts, words = [], [], []
         for i, scale in enumerate(scales):
             n = i + 1
             unreached = scale.get("unreached")
@@ -2399,16 +2403,10 @@ class Builder:
                          '<path class="orbit-line is-back"/></g>')
             fronts.append(f'<g class="orbit{dashed}" data-orbit="{n}"><path class="orbit-line"/>'
                           '<path class="orbit-ray"/><circle class="orbit-dot" r="4"/></g>')
-            key = (f'<span class="bubble">{AXIS_LETTERS[i]}</span>'
-                   f'<span class="orbit-name">{inline(scale["name"])}</span>')
+            # On the globe the name alone, in the label style, as the example's are (the
+            # user's ask, the same day: easy to read and tidy).
             words.append(f'<span class="orbit-label{dashed}" data-orbit="{n}">'
-                         f'<span class="orbit-key">{key}</span></span>')
-            field = (f'<p class="globe-note-field">{inline(scale["field"])}</p>'
-                     if scale.get("field") else "")
-            words_unreached = (f'<p class="globe-note-unreached">{inline(unreached)}</p>'
-                               if unreached else "")
-            notes.append(f'<div class="globe-note" data-orbit="{n}">'
-                         f'<p class="globe-note-key">{key}</p>{field}{words_unreached}</div>')
+                         f'{inline(scale["name"])}</span>')
         foot = my + r + 30
         out = 24  # how far the axes run past the rim
         rim = (f'<circle class="globe-rim" cx="{mx}" cy="{my}" r="{r}"/>'
@@ -2419,18 +2417,85 @@ class Builder:
         middle = (f'<g class="orbit-middle"><circle cx="{mx}" cy="{my}" r="7"/>'
                   f'<path d="M{mx - 12} {my}h24M{mx} {my - 12}v24"/>'
                   f'<path class="orbit-ray" d="M{mx} {my + 12}V{foot}"/></g>')
-        title, _, center = self.orbits_words(scales, h, foot)  # no legend: the note says it
-        return ('      <div class="orbits is-globe" aria-hidden="true">\n'
+        _, _, center = self.orbits_words(scales, h, foot)  # no legend: the key says it
+        site = self.site
+        who = ", ".join(inline(site[k]) for k in ("name", "role") if site.get(k))
+        title = f'        <h2 id="scales-heading" class="orbits-title">{who}</h2>\n'
+        return ('      <div class="orbits is-globe">\n'
                 f'{title}'
                 f'        <div class="orbits-figure is-globe" style="aspect-ratio: {w} / {h}" '
-                f'data-globe="{mx} {my} {r}">'
+                f'data-globe="{mx} {my} {r}" aria-hidden="true">'
                 f'<svg viewBox="0 0 {w} {h}" focusable="false">'
                 f'<g class="globe-back">{"".join(backs)}</g>'
                 '<path class="globe-lines"/>'
                 f'{rim}<g class="globe-front">{"".join(fronts)}</g>{middle}</svg>'
                 f'{"".join(words)}{center}</div>\n'
-                f'        <div class="globe-notes">{"".join(notes)}</div>\n'
+                f'{self.globe_key(scales)}'
                 '      </div>\n')
+
+    # The key's marks, each drawn as its part of the drawing is: the middle's circle and cross,
+    # an orbit with its dot, the dashed orbit with its open dot.
+    GLOBE_MARKS = {
+        "view": '<circle cx="16" cy="8" r="4.5"/><path d="M8 8h16M16 0v16"/>',
+        "strengths": '<path d="M0 8h32"/><circle class="is-dot" cx="16" cy="8" r="3.5"/>',
+        "goal": '<path class="is-dashed" d="M0 8h32"/><circle class="is-open" cx="16" cy="8" r="3.5"/>',
+    }
+
+    def globe_key(self, scales):
+        """What the globe means, beside it (the user's ask, 2026-11-24: a visitor comes to
+        About to learn who they are, so their view, goals and strengths have to show), from
+        "key" under "scalesDrawing" in content/site.json, in the user's own words (from their
+        Q&A and paragraph), each part by a mark drawn as its part of the drawing is:
+        their point of view, the middle (Different scales, same subject: how people actually
+        live); their strengths, the solid orbits, a line each, its scale and its field (Object,
+        Industrial design), then what goes with them ("more": research and storytelling, AI);
+        and their goal, the dashed orbit (work where digital meets real lives and real spaces),
+        with Space under it, what they wanted to be as a kid, and "I never became one.".
+        data-lit names the parts of the drawing each lights (globe.js): "view", the middle, or
+        the orbits by number. No "key", no key."""
+        key = (self.site.get("scalesDrawing") or {}).get("key") or {}
+        if not key:
+            return ""
+        reached = [(str(i + 1), sc) for i, sc in enumerate(scales) if not sc.get("unreached")]
+        unreached = [(str(i + 1), sc) for i, sc in enumerate(scales) if sc.get("unreached")]
+
+        def row(lit, tag, words):
+            return (f'<li data-lit="{lit}"><span class="globe-key-tag">{tag}</span>'
+                    f'<span class="globe-key-row">{words}</span></li>')
+
+        def part(kind, lit, body):
+            label = inline((key.get(kind) or {}).get("label") or kind.title())
+            return (f'          <div class="globe-key-part" data-lit="{lit}">'
+                    f'<svg class="globe-key-mark" viewBox="0 0 32 16" aria-hidden="true" '
+                    f'focusable="false">{self.GLOBE_MARKS[kind]}</svg>'
+                    f'<h3 class="globe-key-label">{label}</h3>{body}</div>\n')
+
+        parts = []
+        view = key.get("view") or {}
+        if view.get("text"):
+            parts.append(part("view", "view",
+                              f'<p class="globe-key-text">{inline(view["text"])}</p>'))
+        strengths = key.get("strengths") or {}
+        if reached:
+            lit = " ".join(n for n, _ in reached)
+            rows = [row(n, inline(sc["name"]), inline(sc.get("field") or ""))
+                    for n, sc in reached]
+            rows += [row(lit, "+", inline(more)) for more in strengths.get("more") or []]
+            parts.append(part("strengths", lit,
+                              f'<ul class="globe-key-rows">{"".join(rows)}</ul>'))
+        goal = key.get("goal") or {}
+        if goal.get("text"):
+            rows = []
+            for n, sc in unreached:
+                note = inline(goal.get("note") or sc.get("field") or "")
+                rows.append(row(n, inline(sc["name"]),
+                                f'{note} <em class="globe-key-unreached">'
+                                f'{inline(sc["unreached"])}</em>'))
+            lit = " ".join(n for n, _ in unreached) or "view"
+            rows_html = f'<ul class="globe-key-rows">{"".join(rows)}</ul>' if rows else ""
+            parts.append(part("goal", lit,
+                              f'<p class="globe-key-text">{inline(goal["text"])}</p>{rows_html}'))
+        return ('        <div class="globe-key">\n' + "".join(parts) + '        </div>\n')
 
     def about_scales(self):
         """About's scales (ABOUT_SCALES, since 2026-11-22): site.json's "scales" as a title
@@ -2455,13 +2520,6 @@ class Builder:
                      if scale.get("field") else "")
             note = (f'\n          <p class="scale-note">{inline(scale["note"])}</p>'
                     if scale.get("note") else "")
-            # With the globe the list is the drawing in words (for screen readers, and what
-            # shows without JavaScript, see globe), so it says what the drawing says: the
-            # scale, its field, and, for Space, "I never became one."; not the notes on where
-            # (the user's ask, 2026-11-24: who they are as a designer, not their schools).
-            if globe:
-                note = (f'\n          <p class="scale-unreached">{inline(scale["unreached"])}</p>'
-                        if scale.get("unreached") else "")
             cells.append(
                 f'        <li class="scale" data-orbit="{c + 1}">\n'
                 f'          <p class="scale-name"><span class="bubble" aria-hidden="true">'
@@ -2469,6 +2527,11 @@ class Builder:
                 '        </li>')
         drawing = self.orbits(scales) if ABOUT_ORBITS else ""
         kind = " has-orbits has-globe" if globe and drawing else " has-orbits" if drawing else ""
+        if globe and drawing:
+            # The globe's title is the heading, and its key says in words what the cells did
+            # (globe_key), so there are no cells.
+            return (f'    <section class="scales{kind}" aria-labelledby="scales-heading">\n'
+                    f'{drawing}    </section>\n')
         return (f'    <section class="scales{kind}" '
                 'aria-labelledby="scales-heading">\n'
                 '      <h2 id="scales-heading" class="visually-hidden">Scales</h2>\n'

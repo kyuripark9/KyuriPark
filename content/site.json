@@ -84,7 +84,22 @@
   "scalesDrawing": {
     "title": "Different scales, same subject",
     "center": "How people actually live",
-    "legend": ["Studied, worked", "Wanted to be"]
+    "legend": ["Studied, worked", "Wanted to be"],
+    "key": {
+      "view": {
+        "label": "Point of view",
+        "text": "Different scales, same subject: how people actually live."
+      },
+      "strengths": {
+        "label": "Strengths",
+        "more": ["Research and storytelling", "AI, to rework the design process itself"]
+      },
+      "goal": {
+        "label": "Goal",
+        "text": "Work where digital meets real lives and real spaces.",
+        "note": "Architecture, what I wanted to be as a kid."
+      }
+    }
   },
   "archive": {
     "statement": "*Different scales,* same subject: how people actually live."

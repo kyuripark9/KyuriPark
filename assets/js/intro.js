@@ -72,7 +72,12 @@
   const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   // Each line's letters, every one laid out from the start (style.css hides them until typed),
-  // so a line doesn't move as it's typed.
+  // so a line doesn't move as it's typed. Each struck a little differently, as on a typewriter
+  // (since 2026-11-24 night, the user's ask: type printed and typed on tracing paper): its line
+  // a fraction of a pixel up or down (--strike-shift, up to STRIKE_SHIFT px either way), all in
+  // one even black (the user's ask, 2026-11-25: a letter now and then lighter, toward a gray,
+  // mixed gray and black awkwardly).
+  const STRIKE_SHIFT = 0.35;
   const fonts = lines.map((line) => {
     const style = getComputedStyle(line);
     return document.fonts
@@ -85,6 +90,8 @@
       const span = document.createElement("span");
       span.className = "intro-char";
       span.textContent = c;
+      span.style.setProperty("--strike-shift",
+                             `${((Math.random() * 2 - 1) * STRIKE_SHIFT).toFixed(2)}px`);
       return span;
     });
     line.replaceChildren(...chars);

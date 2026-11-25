@@ -201,6 +201,25 @@ ABOUT_ORBITS = True
 # about, the cells kept for screen readers (build.py's globe, assets/js/globe.js). False: the
 # orbits flat, still, beside the cells. Needs ABOUT_ORBITS.
 ABOUT_GLOBE = True
+# The opening's words take on the tracing paper as ink does (since 2026-11-24 night, the user's
+# ask, from a photocopied sheet of heavy type and a typewriter's mono printed over a photo): one
+# SVG filter, #intro-ink, on the words (style.css, "Home intro"), in CSS pixels at the opening's
+# 12 to 14px: how far the paper's fibers pull the letters' edges (fiber, the noise's fineness;
+# ragged, how far, in px); how much the ink pools (pool, a blur, and spread, where the blurred
+# ink's edge is cut: lower, heavier strokes and more of the narrowest gaps filled); how unevenly
+# it takes (blotch, the blotches' size as a noise's fineness, across and down; faint, how much
+# lighter the lightest is; specks, how many specks where none took, as the level of a noise
+# (about 0.2 to 0.8) under which none did: 0 for none); how far it bleeds into the
+# paper round each letter (bleed, a blur, and bleed_ink, how strong); and how soft the whole
+# print is (soft). The noise is fixed to the words, so a letter's texture holds as it's typed.
+# (That night at first heavier: ragged 1.6, pool 0.7, spread 0.12, faint 0.3, specks 0.28; the
+# user found it too much and untidy, too bold, round and full of holes.)
+# (Until 2026-11-25 faint 0.25 and specks 0.2: the user asked for one even black, the gray in
+# the blotches and specks mixed with the black looking awkward; then ragged 1.2, pool 0.5 and
+# soft 0.3, until the user asked for the letters less rounded, the same day.)
+INTRO_INK = {"fiber": 0.75, "ragged": 0.8, "pool": 0.3, "spread": 0.22,
+             "blotch": "0.045 0.09", "faint": 0, "specks": 0,
+             "bleed": 1.6, "bleed_ink": 0.4, "soft": 0.25}
 LOADING_ATTRS = {"lazy": 'loading="lazy"', "eager": "", "high": 'fetchpriority="high"'}
 # Old addresses that now live elsewhere: /contact/ was a menu item and is now About's Contact
 # label, with the footer's links under it.
@@ -349,6 +368,63 @@ def placeholder_svg(width, height, title, label, dark=False):
         f'fill="{note}">{esc(label)}</text>\n'
         '</g>\n</svg>\n'
     )
+
+
+def intro_ink(ink=INTRO_INK):
+    """The opening's ink filter, #intro-ink (INTRO_INK has its numbers), in an SVG of its own
+    with nothing to see, for style.css's url("#intro-ink"). In order: the letters' edges pulled
+    ragged by a fine noise; the ink pooled, a blur cut back to a crisp edge further out, so the
+    strokes come out heavier and the narrowest gaps fill; then, if faint or specks is on, taken
+    unevenly, faint in blotches and missing in specks, two noises multiplied into it (both off
+    since 2026-11-25: one even black); a soft bleed of it under the letters; and the whole a
+    touch soft."""
+    pool_slope = 4  # how sharply the pooled ink's edge is cut: full ink a quarter further in
+    n = lambda v: f"{v:.4g}"
+    uneven = ""
+    printed = "inked"
+    if ink["faint"] or ink["specks"]:
+        faint = ink["faint"]
+        # Where the blotches' noise (about 0.2 to 0.8) is 0.35 or less, the ink is faint less
+        # strong; at 0.6 or more, full; between, in proportion.
+        blotch_slope = faint / 0.25
+        blotch_at = 1 - faint - blotch_slope * 0.35
+        # Where the specks' noise (about 0.2 to 0.8) is under specks, no ink took; full ink
+        # 0.1 over that.
+        speck_at = ink["specks"]
+        uneven = (
+            f'<feTurbulence type="fractalNoise" baseFrequency="{ink["blotch"]}" numOctaves="2"'
+            ' seed="3" result="blotchNoise"/>'
+            '<feColorMatrix in="blotchNoise" type="matrix"'
+            f' values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 {n(blotch_slope)} 0 0 0 {n(blotch_at)}"'
+            ' result="blotch"/>'
+            '<feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="1" seed="11"'
+            ' result="speckNoise"/>'
+            '<feColorMatrix in="speckNoise" type="matrix"'
+            f' values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 10 0 0 0 {n(-10 * speck_at)}"'
+            ' result="speck"/>'
+            '<feComposite in="blotch" in2="speck" operator="in" result="took"/>'
+            '<feComposite in="inked" in2="took" operator="in" result="printed"/>')
+        printed = "printed"
+    return (
+        '      <svg class="intro-ink-defs" aria-hidden="true" focusable="false">'
+        '<filter id="intro-ink" x="-4%" y="-20%" width="108%" height="140%"'
+        ' color-interpolation-filters="sRGB">'
+        f'<feTurbulence type="fractalNoise" baseFrequency="{n(ink["fiber"])}" numOctaves="2"'
+        ' seed="7" result="fiber"/>'
+        f'<feDisplacementMap in="SourceGraphic" in2="fiber" scale="{n(ink["ragged"])}"'
+        ' xChannelSelector="R" yChannelSelector="G" result="ragged"/>'
+        f'<feGaussianBlur in="ragged" stdDeviation="{n(ink["pool"])}" result="pooled"/>'
+        '<feComponentTransfer in="pooled" result="inked">'
+        f'<feFuncA type="linear" slope="{pool_slope}" intercept="{n(-pool_slope * ink["spread"])}"/>'
+        '</feComponentTransfer>'
+        f'{uneven}'
+        f'<feGaussianBlur in="{printed}" stdDeviation="{n(ink["bleed"])}" result="wide"/>'
+        '<feComponentTransfer in="wide" result="bleed">'
+        f'<feFuncA type="linear" slope="{n(ink["bleed_ink"])}"/>'
+        '</feComponentTransfer>'
+        f'<feMerge result="wet"><feMergeNode in="bleed"/><feMergeNode in="{printed}"/></feMerge>'
+        f'<feGaussianBlur in="wet" stdDeviation="{n(ink["soft"])}"/>'
+        '</filter></svg>\n')
 
 
 def render(name, **values):
@@ -1309,6 +1385,7 @@ class Builder:
         photo = self.img(photo_rel, "", "opening", "Opening", loading="high", decorative=True)
         line = s.get("opening") or s["role"]
         return ('    <div class="intro" aria-hidden="true">\n'
+                f'{intro_ink()}'
                 f'      <div class="intro-photo">{photo}</div>\n'
                 '      <div class="intro-sheet">\n'
                 '        <div class="intro-text">\n'

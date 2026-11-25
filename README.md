@@ -668,7 +668,7 @@ tokens named after it, each set once, under "Shared text styles":
 | title | Source Serif Display 300, as typed | 18px, 23px from 768px, 29px from 1200px, 36px from 1440px | 1, -0.01em | impact numbers, Previous / Next titles, the titles on Work's cards (since 2026-11-24) |
 | lead | Source Serif Text 400, as typed | 20px, growing with the window to 28px | 1.35, 0 | a project's statement |
 | body | Source Serif Text 400, as typed; links 500 | 16px | 1.5, 0 | text, About's Q&A answers and the scales' lines |
-| name | IBM Plex Mono 400, capitals | 12px; the opening's words 14 to 18px (`--size-opening`) | 1.5, 0 | the header's links, the footer, project names (Archive, the lightbox; Work's until 2026-11-24), the lightbox's Close, the opening's words |
+| name | IBM Plex Mono 400, capitals | 12px; the opening's words 12 to 14px (`--size-opening`) | 1.5, 0 | the header's links, the footer, project names (Archive, the lightbox; Work's until 2026-11-24), the lightbox's Close, the opening's words |
 | label | IBM Plex Mono 400, capitals | 12px; Work's counts 10px | 16px, 0 | captions, a project's facts and section headings, the drawing system's words |
 
 Set where they are, in the display face: About's questions (20 to
@@ -1019,18 +1019,32 @@ shape, 3:4, as tall as the window, and the words were hard to read on it; a piec
 paper under the words alone was tried and the user didn't like it; they asked for the photo
 larger, in landscape; then for an hour the paper was at 22% and not diffused, and the user
 found it no longer read as tracing paper laid over it and asked for it back, the portrait kept
-about as clear.) The words are printed on the sheet (the same evening, the user's ask): the
-ink a dark gray, part see-through (`--intro-ink`, 86%), multiplied into the paper and what shows
-through it, spreading a little at its edges (`--intro-ink-spread`, 0.8px), and uneven in
-strength, a fine noise between about 75% and 100% (`--intro-ink-texture`), as a print's ink
-sits on a smooth sheet; the caret is in the same ink. First the sheet alone (0.2 s); then the
+about as clear.) The words are printed on the sheet (the same evening, the user's ask), and
+typed onto it as ink takes on tracing paper (since that night, the user's ask, from a
+photocopied sheet of heavy type and a typewriter's mono printed over a photo): one SVG filter,
+`#intro-ink`, written into the page by `build.py` (`INTRO_INK`, its numbers, in CSS pixels at
+the opening's size): the paper's fibers pull the letters' edges a little ragged; the ink pools
+a little, so the strokes come out a touch heavier (heavier, rounder and full of specks at
+first that night, like a photocopy; the user found it too much and untidy); it bleeds a little
+way into the paper round each letter; and the whole is a touch soft. The letters keep the
+mono's own corners (since 2026-11-25, the user's ask: less rounded; the ink pooled more and
+the edges wavered more before). Its noise is fixed to the
+words, so a letter keeps its texture as the rest are typed. One even black (since 2026-11-25,
+the user's ask: the night before, the ink took unevenly, lighter in blotches and specks,
+`faint` and `specks` in `INTRO_INK`, now 0, and a letter now and then struck lighter, toward a
+gray, and the gray mixed with the black looked awkward), multiplied into the paper and what
+shows through it. Each letter is struck a little differently, as on a typewriter (`intro.js`):
+its line up to 0.35px up or down (`STRIKE_SHIFT`), new each time it plays. (Before that night: a dark gray at 86%, a 0.8px
+shadow round it, and a fine noise in a mask for its strength.) The caret is in the same ink. First the sheet alone (0.2 s); then the
 portrait comes up through it (1.4 s, quick and then a long settle), its blur settling from 20px
 more as it does, as if pressed closer to the paper, and 0.3 s in, the sentence that says who
 this is is typed on the sheet in its middle (since that afternoon, the user's ask; a 0.6 s fade
 before), a letter at a time, both in the mono in capitals (since that afternoon, the user's
 ask: one face; the name in the display face before) and at one size, as two lines of one
 typed note (the user's ask, that evening; the name at 24px over the sentence's 12px before):
-`--size-opening`, 14px on phones growing with the window to 18px, a line's height apart: the
+`--size-opening`, the label's 12px on phones growing with the window to 14px (about 13px at
+1440px; since 2026-11-25, the user's ask: a little smaller, in the label's mono, picked over
+the display serif as typed; 14 to 18px before), a line's height apart: the
 name, and under it the line that finishes it ("DESIGNS WHERE DIGITAL MEETS EVERYDAY LIFE", `"opening"`; the role
 without it). A caret, a thin upright in ink 1em tall, shows a little before the name's first
 letter (0.45 s), the name is typed, the caret goes to the sentence's first letter (0.35 s),
@@ -1052,7 +1066,7 @@ it: the numbers at the top of `assets/js/intro.js` (`DELAY`, `PHOTO_IN`, `TYPE_A
 `KEY`, `BREAK`, `BLINKS`, `SINK`, `OUT`, `CUT`, `FAR`); "Home intro" in
 `assets/css/style.css` has the paper (`--intro-vellum`, `--intro-diffuse`, `--intro-grain-strength`), the print
 (`--intro-inset`, `--intro-frost`, `--intro-contrast`, `--intro-zoom`, its shape and crop), and
-the letters, their ink (`--intro-ink`, `--intro-ink-spread`, `--intro-ink-texture`) and the caret (`--intro-blink`); `build.py`'s `home_intro` writes it. Without
+the letters, their ink (`--intro-ink`; how it takes on the paper is `INTRO_INK` in `build.py`, each letter's strike `STRIKE_SHIFT` in `intro.js`) and the caret (`--intro-blink`); `build.py`'s `home_intro` writes it. Without
 `assets/images/opening.jpg`, a deep gray stand-in shows in its place.
 
 Before, that morning: the portrait filled the window first, sharp, and a sheet of tracing paper

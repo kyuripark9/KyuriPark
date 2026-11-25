@@ -209,9 +209,12 @@
   --size-identity: var(--size-name);  /* 14px, the name in the header (since 2026-11-13 only in
                                          the logo's place, while its file is missing) */
   --size-menu: var(--size-label);     /* 12px, the header's links */
-  --size-opening: clamp(0.875rem, 0.7rem + 0.45vw, 1.125rem);  /* 14px to 18px (about 16px at
-                                       1024px), Home's opening's words, the name and the
-                                       sentence alike (24px, the name alone, before) */
+  --size-opening: clamp(0.75rem, 0.6rem + 0.25vw, 0.875rem);  /* 12px, the label's, to 14px
+                                       (about 13px at 1440px), Home's opening's words, the
+                                       name and the sentence alike (since 2026-11-25, the
+                                       user's ask: a little smaller, the label's mono, picked
+                                       over Source Serif Display at 17-21px; 14px to 18px
+                                       before, and 24px, the name alone, before that) */
 
   --leading-display: 1.02;
   /* Over the display style's capitals, inside its line: Inter Display's ascent less its cap
@@ -1804,13 +1807,11 @@ mark.placeholder {
   --intro-contrast: 1.45;
   --intro-zoom: 1;
   --intro-grain-strength: 0.5;
-  /* The words' ink: how dark (part see-through, as ink on vellum), how far it spreads into the
-     paper, and its texture, a fine noise in the ink's own strength (between about 0.75 and 1),
-     as a print's ink sits unevenly on a smooth sheet. */
-  --intro-ink: rgb(22 22 22 / 0.86);
-  --intro-ink-spread: 0.8px;
+  /* The words' ink, one even black (since 2026-11-25, the user's ask: gray and black mixed
+     looked awkward); how it takes on the paper is the ink filter's (#intro-ink, build.py's
+     INTRO_INK: see the words, below). */
+  --intro-ink: rgb(20 20 19);
   --intro-blink: 1060ms;  /* the caret's blink, on and then off, in ms (intro.js reads it) */
-  --intro-ink-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='i'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.9 0 0 0 0.45'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23i)'/%3E%3C/svg%3E");
 }
 
 /* The portrait, under the sheet: a landscape print (3:2, the user's ask; their photo's own
@@ -1880,10 +1881,11 @@ mark.placeholder {
   position: relative;  /* over the grain, and the caret's frame */
   display: grid;
   justify-items: center;
-  /* Room for the caret past the longest line's ends: the ink's mask (below) shows nothing
-     outside this box, so the caret after the sentence's last letter, blinking at the end, and
-     before its first was cut off without it. */
-  padding-inline: calc(0.25 * var(--size-opening));
+  /* Room for the caret past the longest line's ends, and for the ink's bleed: the ink's filter
+     (below) shows nothing far outside this box (a mask did until 2026-11-24 night, and the
+     caret after the sentence's last letter, blinking at the end, and before its first was cut
+     off without it). */
+  padding: calc(0.25 * var(--size-opening));
 }
 
 .intro-line {
@@ -1895,18 +1897,40 @@ mark.placeholder {
   visibility: hidden;  /* until typed, and the plain text before intro.js splits it */
 }
 
-/* Printed on the sheet: the ink a dark gray, part see-through and multiplied into the paper and
-   what shows through it, spreading a little at its edges, uneven in strength (--intro-ink-*). */
+/* Typed onto the tracing paper, as in the user's pictures (2026-11-24 night: a photocopied
+   sheet of heavy type, a typewriter's mono printed over a photo): the ink takes on the paper
+   as ink does, not as a screen's crisp type, through one SVG filter, #intro-ink (build.py's
+   INTRO_INK writes it into the page, its numbers there): the paper's fibers pull the letters'
+   edges a little ragged; the ink pools a little, so the strokes come out a touch heavier; it
+   bleeds a little way into the paper round each letter; and the whole is a touch soft,
+   printed. One even black (since 2026-11-25, the user's ask: the night before, the ink took
+   unevenly, lighter in blotches and specks, and a letter now and then struck lighter, and the
+   gray mixed with the black looked awkward). Multiplied into the paper and what shows
+   through it. Each letter is struck a little differently, as on a typewriter (intro.js): its
+   line a fraction of a pixel up or down (--strike-shift). (Before, that evening: a dark gray
+   at 86%, a 0.8px shadow round it, and a fine noise in a mask for its strength; the user
+   asked for the texture and the bleed of type printed and typed on tracing paper.) */
 .intro-text {
   color: var(--intro-ink);
-  text-shadow: 0 0 var(--intro-ink-spread) var(--intro-ink);
   mix-blend-mode: multiply;
-  -webkit-mask-image: var(--intro-ink-texture);
-  mask-image: var(--intro-ink-texture);
+  filter: url("#intro-ink");
+}
+
+.intro-char {
+  position: relative;  /* --strike-shift moves it without moving the line */
+  top: var(--strike-shift, 0);
 }
 
 .intro-char.is-typed {
   visibility: visible;
+}
+
+/* The filter's own SVG, nothing to see. */
+.intro-ink-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
 }
 
 /* The caret: a thin upright in ink, its place and size set by intro.js from the letters'. */

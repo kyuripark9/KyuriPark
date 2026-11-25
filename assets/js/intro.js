@@ -4,9 +4,10 @@
 // covers the whole window from the start, smooth and milky with a fine grain, the user's
 // portrait under it as a print. The portrait comes up through the paper, only soft grays, its
 // blur settling as if pressed closer to the sheet, and the sentence that says who this is is
-// typed on the sheet, a letter at a time, the name and then the sentence under it, a caret at
-// the next letter; then the portrait sinks back under the paper, the words fading, and the page
-// is that paper: the work comes up on it. A click or tap, a key, or the wheel cuts it short.
+// typed on the sheet, a letter at a time at one steady beat, the name and then the sentence
+// under it, a caret at the next letter; then the portrait sinks back under the paper, the words
+// fading, and the page is that paper: the work comes up on it. A click or tap, a key, or the
+// wheel cuts it short.
 // Later arrivals at Home come with the 300 ms fade between pages, as every page does; with
 // reduced motion, or with storage blocked, there's no opening.
 // (That morning: the portrait first, filling the window, then an A4 sheet sliding up over it
@@ -27,16 +28,20 @@
   const PHOTO_IN = 1400;  // ms: the portrait comes up through the paper, its blur settling
   const TYPE_AT = 300;    // ms into that, the caret shows at the name's first letter
   const LEAD = 450;       // ms it waits there before the name is typed
-  const NAME_KEY = 75;    // ms a letter of the name, on average (each 0.7 to 1.3 times that)
-  const LINE_KEY = 30;    // ms a letter of the sentence, smaller type, so typed quicker
+  const KEY = 50;         // ms a letter, every letter of both lines alike, a steady beat: 3
+                          // frames at 60 Hz, 6 at 120, so each letter waits as long as the last
+  const SLACK = 4;        // ms: a letter due this close to a frame shows on that frame, so the
+                          // frames' own jitter doesn't push one a frame late
   const BREAK = 350;      // ms between the two, the caret at the sentence's first letter
-  const READ = 1400;      // ms from the last letter, the caret blinking after it, to be read
+  const BLINKS = 2;       // times the caret blinks after the last letter, the words held, before
+                          // the portrait sinks; it's on again as they fade (a blink, on and then
+                          // off, is --intro-blink in style.css, 1060 ms)
   const SINK = 900;       // ms: the portrait sinks back under the paper, the words fading
   const OUT = 450;        // ms: then the page comes up on the paper, from 200 ms before the
-                          // portrait is gone (about 5.7 s in all)
+                          // portrait is gone (about 7.1 s in all)
   const CUT = 300;        // ms it takes when the opening is cut short (it just fades)
   const FONT_WAIT = 2000; // ms at most to wait for the fonts and the portrait
-  const FAR = 1.8;        // the portrait's blur, coming up and sinking back, as a multiple of its
+  const FAR = 20;         // px more blur the portrait comes up from and sinks back to, than its
                           // blur under the sheet (--intro-frost)
   const EASE_UP = "cubic-bezier(0.22, 1, 0.36, 1)";     // quick, then a long settle
   const EASE_SINK = "cubic-bezier(0.65, 0, 0.35, 1)";   // slow, quicker, slow
@@ -111,16 +116,25 @@
     at = [chars, i];
     place();
   };
-  // Typing a line: steady, a letter at a time, the caret moving on; false if cut short.
-  const type = async (chars, key) => {
-    for (let i = 0; i < chars.length; i++) {
-      await wait(key * (0.7 + 0.6 * Math.random()));
-      if (state !== "on") return false;
-      chars[i].classList.add("is-typed");
-      moveTo(chars, i + 1);
-    }
-    return true;
-  };
+  // Typing a line: a letter every KEY ms, the caret moving on; false if cut short. Kept to the
+  // clock from the line's first frame, not one timer after another, so a late frame or timer
+  // doesn't stretch one gap and squeeze the next: each letter shows on the frame it's due.
+  const type = (chars) => new Promise((resolve) => {
+    let start = null;
+    let i = 0;
+    const tick = (now) => {
+      if (state !== "on") return resolve(false);
+      if (start === null) start = now;
+      const due = Math.min(chars.length, Math.floor((now - start + SLACK) / KEY));
+      if (due > i) {
+        while (i < due) chars[i++].classList.add("is-typed");
+        moveTo(chars, i);
+      }
+      if (i === chars.length) return resolve(true);
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
   // Waiting, the caret blinking; false if cut short.
   const pause = async (ms) => {
     caret.classList.add("is-idle");
@@ -149,10 +163,11 @@
     return true;
   };
 
-  // The portrait's blur under the sheet, and farther under it (FAR), as filter values.
+  // The portrait's filter under the sheet, and farther under it (FAR more blur), as values.
   const near = getComputedStyle(img).filter;
-  const frost = parseFloat(/blur\(([\d.]+)px\)/.exec(near)?.[1]) || 40;
-  const far = `blur(${(frost * FAR).toFixed(1)}px)`;
+  const blur = /blur\(([\d.]+)px\)/;
+  const frost = parseFloat(blur.exec(near)?.[1]) || 0;
+  const far = blur.test(near) ? near.replace(blur, `blur(${frost + FAR}px)`) : `blur(${FAR}px)`;
 
   // The portrait sinks back under the paper, the words fading; then the page comes up on it.
   const sink = () => {
@@ -194,10 +209,11 @@
     const [name, sentence] = letters;
     moveTo(name, 0);
     caret.classList.add("is-on");
-    if (!(await pause(LEAD)) || !(await type(name, NAME_KEY))) return;
+    if (!(await pause(LEAD)) || !(await type(name))) return;
     moveTo(sentence, 0);
-    if (!(await pause(BREAK)) || !(await type(sentence, LINE_KEY))) return;
-    if (!(await pause(READ))) return;
+    if (!(await pause(BREAK)) || !(await type(sentence))) return;
+    const blink = parseFloat(getComputedStyle(intro).getPropertyValue("--intro-blink")) || 1060;
+    if (!(await pause(BLINKS * blink))) return;
     caret.classList.add("is-idle");  // blinking still as it fades
     sink();
   })();

@@ -6,10 +6,13 @@
 // as they go round. build.py writes the still parts (the rim, the axes, the middle) and the
 // words; this draws the rest as the globe stands each moment: the globe's lines on its near
 // side, each orbit (its far half faint, under the globe's lines), its dot, the dotted line out
-// to it, and its name beside the dot, outward from the middle, faint while round the back.
-// Beside the globe (under it on narrow screens) its key says what it means (build.py's
-// globe_key): the user's point of view (the middle), strengths (the solid orbits) and goal
-// (the dashed one). A part of the key, or a line of it, under the pointer or clicked or tapped
+// to it, and its name beside the dot, outward from the middle, faint while round the back;
+// and the user's work going across the scales (since 2026-11-24 night, build.py's globe_ways),
+// an arrow each from one scale's dot to another's, its name by it: Light Life, Object to
+// Screen; the Clayco rebrand, Space to Page. Beside the globe (under it on narrow screens) its
+// key says what it means (build.py's globe_key): the fields (the solid orbits), connecting
+// them (the ways), AI in the process, and the goal (the dashed orbit). A part of the key, or a
+// line of it, under the pointer or clicked or tapped
 // (until another click or tap) lights its part of the drawing, the rest going faint, and a
 // name on the globe lights its line in the key; while something is lit the globe slows to a
 // stop. Dragging sideways turns it by hand; let go, it keeps going the way it was turned and
@@ -66,7 +69,11 @@
   // A line through points on the globe as two paths, its near part and its far part, split
   // where it goes round the edge.
   function trace(points, closed) {
-    const p = points.map(view);
+    return split(points.map(view), closed);
+  }
+
+  // The same for points already placed in the drawing (from view).
+  function split(p, closed) {
     let near = "";
     let far = "";
     let nearEnd = null;
@@ -152,10 +159,122 @@
     };
   });
 
+  // The ways (build.py's globe_ways, a group each: data-from and data-to, the orbits it goes
+  // from and to, by number; data-stops, where each year between falls along it, 0 to 1): from
+  // the first's dot to the second's, turning round the middle as it widens or narrows from one
+  // orbit's size to the other's, so it reads as a move, not a cut across. It starts a little
+  // clear of its first dot, its head stops a little short of its last; a dot for each year
+  // between.
+  const ways = [...svg.querySelectorAll(".globe-front > .globe-path")].map((group) => {
+    const n = group.dataset.way;
+    const a = orbits[Number(group.dataset.from) - 1];
+    const b = orbits[Number(group.dataset.to) - 1];
+    if (!a || !b) return null;
+    const label = figure.querySelector(`.globe-path-label[data-way="${n}"]`);
+    const ua = a.point.map((v) => v / a.r);
+    const ub = b.point.map((v) => v / b.r);
+    const cos = Math.min(Math.max(ua[0] * ub[0] + ua[1] * ub[1] + ua[2] * ub[2], -1), 1);
+    const omega = Math.acos(cos);
+    const at = (t) => {
+      const s = Math.sin(omega);
+      const wa = s < 0.01 ? 1 - t : Math.sin((1 - t) * omega) / s;
+      const wb = s < 0.01 ? t : Math.sin(t * omega) / s;
+      const r = a.r + (b.r - a.r) * t;
+      return [0, 1, 2].map((k) => (wa * ua[k] + wb * ub[k]) * r);
+    };
+    const samples = Array.from({ length: 65 }, (_, i) => at(i / 64));
+    const stops = (group.dataset.stops || "").split(" ").filter(Boolean).map(Number);
+    return {
+      from: a.n,
+      to: b.n,
+      samples,
+      stops: stops.map(at),
+      rEnd: b.r,
+      line: group.querySelector(".globe-path-line"),
+      back: svg.querySelector(`.globe-back > .globe-path[data-way="${n}"] .globe-path-line`),
+      head: group.querySelector(".globe-path-head"),
+      dots: [...group.querySelectorAll(".globe-path-stop")],
+      // Its name, kept beside its middle as a scale's name is beside its dot.
+      item: label ? { n: `w${n}`, r: (a.r + b.r) / 2, label } : null,
+    };
+  }).filter(Boolean);
+  const CLEAR = 8;  // how far its ends stay from the dots, in the drawing's units...
+  const HEAD = 8;   // ...how long its head is...
+  const WING = 3.2; // ...and half as wide
+  const fadeAt = (z, r) => (0.3 + 0.7 * smooth((z / r + 0.2) / 0.4)).toFixed(2);
+
+  // Draws a way as the globe stands, and returns the steps its ends leave its two dots by
+  // (avoid, by orbit number, so their names keep off it; none while it's too short to draw)
+  // and where its name would sit (spot, for settle): beside its middle, off to the side of it,
+  // the side away from the globe's middle.
+  const unit = (u, v) => {
+    const l = Math.hypot(v[0] - u[0], v[1] - u[1]);
+    return l < 0.01 ? null : [(v[0] - u[0]) / l, (v[1] - u[1]) / l];
+  };
+  function drawWay(way) {
+    const p = way.samples.map(view);
+    const gap = (u, v) => Math.hypot(u[0] - v[0], u[1] - v[1]);
+    let i = 0;
+    while (i < p.length - 1 && gap(p[i], p[0]) < CLEAR) i++;
+    let j = p.length - 1;
+    while (j > i && gap(p[j], p[p.length - 1]) < CLEAR) j--;
+    const avoid = {};
+    let spot = null;
+    // Seen end on, too short to draw: only the dots of the scales show.
+    if (j - i < 3 || gap(p[i], p[j]) < CLEAR + HEAD) {
+      way.line.setAttribute("d", "");
+      if (way.back) way.back.setAttribute("d", "");
+      way.head.setAttribute("d", "");
+      if (way.item) way.item.label.style.visibility = "hidden";
+    } else {
+      // Each end's step out, taken a little way along, so a bend at the dot doesn't sway it.
+      const out = (from, step) => {
+        let k = from;
+        while (k + step >= 0 && k + step < p.length && gap(p[k], p[from]) < 24) k += step;
+        return unit(p[from], p[k]);
+      };
+      avoid[way.from] = out(0, 1);
+      avoid[way.to] = out(p.length - 1, -1);
+      if (way.item) {
+        const mid = Math.floor(p.length / 2);
+        let t = unit(p[mid - 3], p[mid + 3]);
+        const r = unit([CX, CY], p[mid]);
+        if (t && r && t[0] * r[0] + t[1] * r[1] < 0) t = [-t[0], -t[1]];
+        spot = place(way.item, p[mid], t);
+      }
+      const q = p.slice(i, j + 1);
+      const tip = q[q.length - 1];
+      const from = q[Math.max(0, q.length - 4)];
+      const len = Math.hypot(tip[0] - from[0], tip[1] - from[1]) || 1;
+      const dx = (tip[0] - from[0]) / len;
+      const dy = (tip[1] - from[1]) / len;
+      const base = [tip[0] - dx * HEAD, tip[1] - dy * HEAD];
+      q[q.length - 1] = [base[0] + dx, base[1] + dy, tip[2]];  // under the head, not past its point
+      const [near, far] = split(q, false);
+      way.line.setAttribute("d", near);
+      if (way.back) way.back.setAttribute("d", far);
+      way.head.setAttribute("d", `M${pt(tip)}L${f(base[0] - dy * WING)} ${f(base[1] + dx * WING)}` +
+        `L${f(base[0] + dy * WING)} ${f(base[1] - dx * WING)}Z`);
+      way.head.style.opacity = fadeAt(tip[2], way.rEnd);
+    }
+    way.stops.forEach((s, k) => {
+      const d = way.dots[k];
+      if (!d) return;
+      const v = view(s);
+      d.setAttribute("cx", f(v[0]));
+      d.setAttribute("cy", f(v[1]));
+      d.style.opacity = fadeAt(v[2], Math.hypot(...s));
+    });
+    return { avoid, spot };
+  }
+
   // A name beside its dot, outward from the middle: the way out (ux, uy) as a unit step, and
   // which side or corner of the name meets the dot (ax, ay, from -1 to 1), which style.css
-  // turns into where it sits. Returns where it would sit, for keeping names apart (settle).
-  function place(it, p) {
+  // turns into where it sits. Given a line leaving the dot (avoid, a unit step in the
+  // drawing: Light Life's way), a name that would lie along it turns off to the side of it it
+  // was nearer, and stays on that side until it's clearly nearer the other (it.side). Returns
+  // where it would sit, for keeping names apart (settle).
+  function place(it, p, avoid) {
     const el = it.label;
     let ux = p[0] - CX;
     let uy = p[1] - CY;
@@ -166,6 +285,21 @@
     } else {
       ux /= len;
       uy /= len;
+    }
+    if (avoid) {
+      const along = ux * avoid[0] + uy * avoid[1];
+      const across = ux * -avoid[1] + uy * avoid[0];
+      if (!it.side || across * it.side < -0.25) it.side = across < 0 ? -1 : 1;
+      const w = smooth((along - 0.2) / 0.5);  // how far round to the side
+      if (w > 0) {
+        const sx = -avoid[1] * it.side;
+        const sy = avoid[0] * it.side;
+        ux = ux * (1 - w) + sx * w;
+        uy = uy * (1 - w) + sy * w;
+        const l = Math.hypot(ux, uy) || 1;
+        ux /= l;
+        uy /= l;
+      }
     }
     const m = Math.max(Math.abs(ux), Math.abs(uy));
     const ax = ux / m;
@@ -203,8 +337,8 @@
       const u = under.getBoundingClientRect();
       bounds.under = { left: u.left - fig.left, top: u.top - fig.top, right: u.right - fig.left, bottom: u.bottom - fig.top };
     }
-    for (const it of orbits) {
-      if (!it.label) continue;
+    for (const it of [...orbits, ...ways.map((way) => way.item)]) {
+      if (!it || !it.label) continue;
       it.label.wordW = it.label.offsetWidth;
       it.label.wordH = it.label.offsetHeight;
     }
@@ -232,6 +366,12 @@
     sP = Math.sin(phi);
     if (gridPath) gridPath.setAttribute("d", grid.map((line) => trace(line, false)[0]).join(""));
     const spots = [];
+    const avoid = {};
+    for (const way of ways) {
+      const drawn = drawWay(way);
+      Object.assign(avoid, drawn.avoid);
+      if (drawn.spot) spots.push(drawn.spot);
+    }
     for (const it of orbits) {
       let near = "";
       let far = "";
@@ -254,7 +394,7 @@
       it.dot.style.opacity = fade;
       it.ray.setAttribute("d", `M${CX} ${CY}L${pt(p)}`);
       it.ray.style.opacity = fade;
-      if (it.label) spots.push(place(it, p));
+      if (it.label) spots.push(place(it, p, avoid[it.n]));
     }
     settle(spots, snap);
   }
@@ -326,7 +466,7 @@
     if (e.pointerType !== "mouse" || (drag && drag.moved)) return;
     const word = e.target.closest(".orbit-label");
     if (!word) return;
-    hovered = word.dataset.orbit;
+    hovered = word.dataset.lit || word.dataset.orbit;
     choose();
     kick();
   });
@@ -345,7 +485,7 @@
     if (e.button !== 0) return;
     const word = e.target.closest(".orbit-label");
     drag = { id: e.pointerId, x: e.clientX, from: e.clientX, t: e.timeStamp, v: 0, moved: false,
-             on: word ? word.dataset.orbit : null };
+             on: word ? word.dataset.lit || word.dataset.orbit : null };
   });
   figure.addEventListener("pointermove", (e) => {
     if (!drag || e.pointerId !== drag.id) return;

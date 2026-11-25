@@ -191,7 +191,9 @@
   --size-identity: var(--size-name);  /* 14px, the name in the header (since 2026-11-13 only in
                                          the logo's place, while its file is missing) */
   --size-menu: var(--size-label);     /* 12px, the header's links */
-  --size-opening: 1.5rem;             /* 24px, the name in Home's opening, in the mono */
+  --size-opening: clamp(0.875rem, 0.7rem + 0.45vw, 1.125rem);  /* 14px to 18px (about 16px at
+                                       1024px), Home's opening's words, the name and the
+                                       sentence alike (24px, the name alone, before) */
 
   --leading-display: 1.02;
   /* Over the display style's capitals, inside its line: Inter Display's ascent less its cap
@@ -1752,41 +1754,68 @@ mark.placeholder {
   background: var(--color-bg);
 }
 
-/* The sheet's paper, as in the user's pictures: smooth and milky, the picture under it a soft
-   gray with no detail, a fine grain over it. Its color, part see-through (--intro-vellum); how
-   far it diffuses what's under it (--intro-diffuse, so the print's edge goes soft); the paper's
-   margin round the print (--intro-inset); how soft the portrait is under it (--intro-frost,
-   growing with the window); and its grain, the paper's own (--grain, as over every page) laid
+/* The sheet's paper, as in the user's pictures (a vellum card over a gray print, the print's
+   edges going soft through it): smooth and milky over the whole window, diffusing what's under
+   it so the print's edges go soft, a fine grain over it; and still the portrait under it reads
+   as a person, head and shoulders, its darks and lights apart. (That evening, the user's ask:
+   keep it as sharp as it was but bring the tracing paper back over it all, as at 22% and not
+   diffused, for an hour, it no longer read as paper; at 50%, 6px and a 22-52px blur that
+   morning, the portrait couldn't be told for a person.) Its color, part see-through
+   (--intro-vellum); how far it diffuses what's under it (--intro-diffuse); the paper's margin
+   round the print (--intro-inset); how soft the portrait is under it (--intro-frost, a little,
+   as the photo is blurred already and the paper diffuses it, growing with the window) and how
+   far its darks and lights are kept apart (--intro-contrast, as the paper brings them
+   together); and its grain, the paper's own (--grain, as over every page) laid
    once more on the sheet at --intro-grain-strength (0 for none), so it shows as a film's grain
    does in the user's pictures. */
 .intro {
-  --intro-vellum: rgb(238 237 232 / 0.5);
-  --intro-diffuse: 6px;
+  --intro-vellum: rgb(238 237 232 / 0.42);
+  --intro-diffuse: 5px;
   --intro-inset: clamp(16px, 5vmin, 56px);
-  --intro-frost: clamp(22px, 3vmax, 52px);
+  --intro-frost: clamp(2px, 0.25vmax, 5px);
+  --intro-contrast: 1.45;
+  --intro-zoom: 1;
   --intro-grain-strength: 0.5;
+  /* The words' ink: how dark (part see-through, as ink on vellum), how far it spreads into the
+     paper, and its texture, a fine noise in the ink's own strength (between about 0.75 and 1),
+     as a print's ink sits unevenly on a smooth sheet. */
+  --intro-ink: rgb(22 22 22 / 0.86);
+  --intro-ink-spread: 0.8px;
+  --intro-blink: 1060ms;  /* the caret's blink, on and then off, in ms (intro.js reads it) */
+  --intro-ink-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='i'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.9 0 0 0 0.45'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23i)'/%3E%3C/svg%3E");
 }
 
-/* The portrait, under the sheet: a print, the paper's margin round it, its head a little over
-   the middle, soft all through; its own edges kept (the picture is drawn past them, so its
-   blur doesn't fade at them) and softened only by the paper. intro.js brings it up. */
+/* The portrait, under the sheet: a landscape print (3:2, the user's ask; their photo's own
+   3:4 for an hour before), as wide as the window but for the paper's margin, or as tall on a
+   wider window, in its middle; the photo cropped to the head and the top of the shoulders, the
+   whole head in (--intro-zoom to come in closer), so the words fall on the face's lighter
+   middle. Its own edges kept (the picture is drawn past them, so its blur doesn't fade at
+   them). intro.js brings it up. */
 .intro-photo {
   position: absolute;
-  inset: var(--intro-inset);
+  top: 50%;
+  left: 50%;
+  width: calc(100% - 2 * var(--intro-inset));
+  max-height: calc(100% - 2 * var(--intro-inset));
+  aspect-ratio: 3 / 2;
+  translate: -50% -50%;
   overflow: hidden;
   opacity: 0;
 }
 
 .intro-photo img {
   position: absolute;
-  top: calc(-2 * var(--intro-frost));
-  left: calc(-2 * var(--intro-frost));
+  top: calc(-3 * var(--intro-frost));
+  left: calc(-3 * var(--intro-frost));
   display: block;
-  width: calc(100% + 4 * var(--intro-frost));
-  height: calc(100% + 4 * var(--intro-frost));
+  width: calc(100% + 6 * var(--intro-frost));
+  max-width: none;  /* past the print's edges, as the site's images are kept inside their box */
+  height: calc(100% + 6 * var(--intro-frost));
   object-fit: cover;
-  object-position: 50% 42%;
-  filter: blur(var(--intro-frost));
+  object-position: 50% 38%;
+  transform: scale(var(--intro-zoom));
+  transform-origin: 50% 38%;
+  filter: blur(var(--intro-frost)) contrast(var(--intro-contrast));
 }
 
 /* The sheet, over the whole window, the words printed on it, in the middle. */
@@ -1810,11 +1839,11 @@ mark.placeholder {
   pointer-events: none;
 }
 
-/* The words, both in the mono in capitals (since 2026-11-24, the user's ask: one face; the name
-   in the display face, as typed, before): the name in the name's style at --size-opening, as a
-   sheet's title is lettered; the sentence in the label style under it, as a drawing's note,
-   smaller. On phones the sentence can wrap:
-   it breaks in even lines, centered. They're typed out (since 2026-11-24, the user's ask; a
+/* The words, both in the mono in capitals, at one size (since 2026-11-24, the user's asks: one
+   face, then one size; the name in the display face, as typed, and then at 24px over the
+   sentence's 12px, before): the name and then the sentence as two lines of one typed note,
+   at --size-opening, a line's height apart. On a narrow window the sentence can wrap: it
+   breaks in even lines, centered. They're typed out (since 2026-11-24, the user's ask; a
    plain fade before): intro.js splits each line into its letters (.intro-char), all laid out
    from the start, so the line doesn't move as it's typed, and shows each as it's typed
    (.is-typed), with a caret (.intro-caret) at the next letter, steady while typing and
@@ -1823,18 +1852,29 @@ mark.placeholder {
   position: relative;  /* over the grain, and the caret's frame */
   display: grid;
   justify-items: center;
-  row-gap: var(--step-1);
+  /* Room for the caret past the longest line's ends: the ink's mask (below) shows nothing
+     outside this box, so the caret after the sentence's last letter, blinking at the end, and
+     before its first was cut off without it. */
+  padding-inline: calc(0.25 * var(--size-opening));
 }
 
 .intro-line {
   margin: 0;
+  font-size: var(--size-opening);  /* the name's and the label's styles otherwise */
+  line-height: 1.5;
   text-align: center;
   text-wrap: balance;
   visibility: hidden;  /* until typed, and the plain text before intro.js splits it */
 }
 
-.intro-name {
-  font-size: var(--size-opening);
+/* Printed on the sheet: the ink a dark gray, part see-through and multiplied into the paper and
+   what shows through it, spreading a little at its edges, uneven in strength (--intro-ink-*). */
+.intro-text {
+  color: var(--intro-ink);
+  text-shadow: 0 0 var(--intro-ink-spread) var(--intro-ink);
+  mix-blend-mode: multiply;
+  -webkit-mask-image: var(--intro-ink-texture);
+  mask-image: var(--intro-ink-texture);
 }
 
 .intro-char.is-typed {
@@ -1846,7 +1886,7 @@ mark.placeholder {
   position: absolute;
   top: 0;
   left: 0;
-  background: var(--color-text);
+  background: var(--intro-ink);
   opacity: 0;
   pointer-events: none;
 }
@@ -1856,7 +1896,7 @@ mark.placeholder {
 }
 
 .intro-caret.is-on.is-idle {
-  animation: intro-blink 1060ms steps(1, end) infinite;
+  animation: intro-blink var(--intro-blink) steps(1, end) infinite;
 }
 
 @keyframes intro-blink {
@@ -4542,11 +4582,13 @@ mark.placeholder {
    its dot by globe.js: --ux and --uy the way out from the middle, --ax and --ay the side or
    corner of the name that meets the dot (from -1 to 1), --near how strongly it shows (a little
    lighter round the back, still easy to read; gone while another is in its place).
-   Beside the globe from 1024px, under it before, its key (.globe-key, the user's ask, the same
-   day: say what it means, their point of view, strengths and goal), a drawing's legend: each
-   part by a mark drawn as its part of the drawing is, its label, and the user's words, the
-   view and the goal in the display face, the strengths a line each, the scale's name in the
-   label style and its field. What a part of the key, or a name, lights (data-focus on
+   Beside the globe from 1200px, under it before, its key (.globe-key, the user's ask, the same
+   day: say what it means; that night, the user's asks: so a visitor feels their range, that
+   they connect fields, and that they use AI in the process, then not scattered, where they're
+   going clear: fields, connecting fields, direction), a drawing's legend: each part by
+   a mark drawn as its part of the drawing is, its label, and the user's words, a part's lead
+   line in the display face, then a line each, its tag in the label style (a scale's name, a
+   work's) and the words in the text's face. What a part of the key, or a name, lights (data-focus on
    .orbits, globe.js) stays and the rest goes faint, in the drawing and in the key; lit by
    hand, the globe holds still; a drag sideways turns it. The section is between two
    window-wide lines at every width. Without JavaScript, which draws it, the drawing isn't
@@ -4565,6 +4607,8 @@ html:not(.js) .orbits-figure.is-globe {
 }
 
 .orbits-figure.is-globe {
+  isolation: isolate;  /* the names' depth (z-index, globe.js) stays inside the drawing, under
+                          the header (20) as the page scrolls */
   max-width: 1080px;
   touch-action: pan-y;  /* a sideways drag turns it, an upright one scrolls the page */
   -webkit-user-select: none;
@@ -4605,6 +4649,39 @@ html:not(.js) .orbits-figure.is-globe {
   opacity: 0.25;
 }
 
+/* The user's work going across the scales, a way each (since 2026-11-24 night, build.py's
+   globe_ways: Light Life, Object to Screen; the Clayco rebrand, Page to Space; and, dashed,
+   where they're going, Next, Screen to Space, so every way heads for Space): a little
+   heavier than the orbits, so they read as the things moving on them, their heads and any
+   year's dot in ink, their far parts faint as the orbits' are. */
+.globe-path-line {
+  fill: none;
+  stroke: var(--color-text);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.globe-path-line.is-back {
+  opacity: 0.25;
+}
+
+/* Where the user is going (Next, the key's direction), dashed as Space's orbit is: not there
+   yet. */
+.globe-path.is-next .globe-path-line {
+  stroke-dasharray: 6 5;
+}
+
+.globe-path-head,
+.globe-path-stop {
+  fill: var(--color-text);
+}
+
+.globe-path {
+  transition: opacity var(--fade);
+}
+
 .is-globe .orbit-label {
   --gap: 8px;
   position: absolute;
@@ -4641,8 +4718,9 @@ html:not(.js) .orbits-figure.is-globe {
   text-align: right;
 }
 
-/* The key: a part each (view, strengths, goal), a construction line between them; in each,
-   its mark and its label on one line, then the user's words under the label. */
+/* The key: a part each (fields, connecting fields, direction), a construction line between
+   them; in each, its mark and its label on one line, then the user's words under
+   the label. */
 .globe-key {
   display: grid;
   max-width: 34rem;
@@ -4697,6 +4775,31 @@ html:not(.js) .orbits-figure.is-globe {
   stroke-dasharray: 3 2.5;
 }
 
+.globe-key-mark .is-way {
+  stroke-width: 1.5;
+}
+
+.globe-key-mark .is-head {
+  fill: var(--color-text);
+  stroke: none;
+}
+
+/* A work's name in the key is a link to its page (Light Life's, TypeLab's, Clack's): the
+   color changes on hover, as the site's links do. */
+.globe-key a {
+  transition: color var(--fade);
+}
+
+.globe-key a:hover {
+  color: var(--color-muted);
+}
+
+.globe-key-row a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
 .globe-key-label,
 .globe-key-text,
 .globe-key-rows {
@@ -4722,7 +4825,7 @@ html:not(.js) .orbits-figure.is-globe {
 
 .globe-key-rows li {
   display: grid;
-  grid-template-columns: 4.5rem minmax(0, 1fr);
+  grid-template-columns: 5.5rem minmax(0, 1fr);  /* room for LIGHT LIFE */
   column-gap: var(--step-1);
   align-items: baseline;
   transition: opacity var(--fade);
@@ -4731,6 +4834,13 @@ html:not(.js) .orbits-figure.is-globe {
 .globe-key-unreached {
   color: var(--color-subtle);
   font-style: italic;
+}
+
+/* A line's second line, quieter: what they made in a field (3D products, mobility, and home
+   goods), the scales a work goes across (Object to Screen). */
+.globe-key-under {
+  display: block;
+  color: var(--color-muted);
 }
 
 .globe-key .is-dim {
@@ -4743,18 +4853,23 @@ html:not(.js) .orbits-figure.is-globe {
   }
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 1199px) {
   .globe-key-text {
     font-size: 1.375rem;
   }
 }
 
-/* From 1024px the drawing and its key side by side, as a sheet's drawing and its notes: the
-   globe in what the key leaves, the key in a column at the right. */
-@media (min-width: 1024px) {
+/* From 1200px the drawing and its key side by side, as a sheet's drawing and its notes: the
+   globe in what the key leaves, the key in a column at the right, its four parts a little
+   closer, so it stands about as tall as the globe: both in the window at once, a line of the
+   key lighting its part of the drawing beside it. From 1024px before 2026-11-24 night, when
+   the key grew to four parts (fields, connecting fields, AI in the process, goal) and stood
+   two and a half times the globe's height there (three parts since that night); under
+   1200px it's under the globe. */
+@media (min-width: 1200px) {
   .js .orbits.is-globe {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(17rem, 23rem);
+    grid-template-columns: minmax(0, 1fr) minmax(20rem, 28rem);
     align-items: center;
     column-gap: var(--step-6);
   }
@@ -4770,6 +4885,10 @@ html:not(.js) .orbits-figure.is-globe {
     max-width: none;
     margin: 0;
   }
+
+  .globe-key-part {
+    padding-block: var(--step-2);
+  }
 }
 
 /* What's lit by hand (globe.js): the rest of the drawing faint. */
@@ -4781,6 +4900,16 @@ html:not(.js) .orbits-figure.is-globe {
 .orbits.is-globe[data-focus~="2"] [data-orbit="2"],
 .orbits.is-globe[data-focus~="3"] [data-orbit="3"],
 .orbits.is-globe[data-focus~="4"] [data-orbit="4"] {
+  opacity: 1;
+}
+
+.orbits.is-globe[data-focus] .globe-path {
+  opacity: 0.15;
+}
+
+.orbits.is-globe[data-focus~="w1"] [data-way="1"],
+.orbits.is-globe[data-focus~="w2"] [data-way="2"],
+.orbits.is-globe[data-focus~="w3"] [data-way="3"] {
   opacity: 1;
 }
 

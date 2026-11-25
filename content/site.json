@@ -32,8 +32,8 @@
       "everyday life"
     ],
     "paragraphs": [
-      "With a background in Industrial, Graphic, and UX Design, I create brand and digital experiences.",
-      "I play with AI to make something new, anywhere."
+      "Industrial, graphic, and UX design: different scales, same subject.",
+      "I connect them, and use AI to rework the design process itself."
     ],
     "qa": [
       {
@@ -86,18 +86,41 @@
     "center": "How people actually live",
     "legend": ["Studied, worked", "Wanted to be"],
     "key": {
-      "view": {
-        "label": "Point of view",
-        "text": "Different scales, same subject: how people actually live."
+      "fields": {
+        "label": "Fields",
+        "text": "Different scales, same subject: how people actually live.",
+        "more": ["Research and storytelling"]
       },
-      "strengths": {
-        "label": "Strengths",
-        "more": ["Research and storytelling", "AI, to rework the design process itself"]
+      "ways": {
+        "label": "Connecting fields",
+        "items": [
+          {
+            "name": "Light Life",
+            "href": "/work/light-life/",
+            "from": "Object",
+            "to": "Screen",
+            "text": "From an object to a screen, it has grown the way I have."
+          },
+          {
+            "name": "Clayco",
+            "from": "Page",
+            "to": "Space",
+            "text": "The rebrand of an architecture and construction company."
+          }
+        ]
       },
-      "goal": {
-        "label": "Goal",
+      "direction": {
+        "label": "Direction",
         "text": "Work where digital meets real lives and real spaces.",
-        "note": "Architecture, what I wanted to be as a kid."
+        "way": { "name": "Next", "from": "Screen", "to": "Space" },
+        "note": "Architecture, what I wanted to be as a kid.",
+        "rows": [
+          {
+            "tag": "AI",
+            "text": "To rework the design process itself.",
+            "under": "At Clayco, we used AI and new tools to make the early stages of a rebrand faster and cleverer."
+          }
+        ]
       }
     }
   },

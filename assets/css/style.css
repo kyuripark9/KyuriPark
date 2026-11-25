@@ -3634,10 +3634,10 @@ button.work-card .work-go::after {
      the thread   one dashed line through them in time's order, pin to pin, a small square
                   where it meets each, at the top corner facing the one before
      the pins     beside each square its number, 01, 02, and its date when it has one
-   The thread is drawn under the images, and the images are prints on the paper, in grays and
-   multiplied into it, so the thread, the grain and each other show through where they
-   overlap; hovered, one comes in its own colors over the others and the others go under
-   tracing paper, as on Work.
+   The thread is drawn under the images. The images are in their own colors, laid on the paper
+   (since 2026-11-25, the user's ask, as Work's: in grays multiplied into the paper before, so
+   the thread, the grain and each other showed through, which left the page one washed-out
+   tone); hovered, one comes over the others and the others go under tracing paper, as on Work.
    No sentence over it since 2026-11-24 (the user's ask: the images say it), so it starts right
    under the header's line; with one (archive.statement in site.json), an ink line between. */
 .atlas {
@@ -3688,7 +3688,6 @@ button.work-card .work-go::after {
   top: var(--ty);
   display: block;
   width: var(--tw);
-  mix-blend-mode: multiply;  /* on the image, so it blends with the page, the thread, the others */
 }
 
 .map-fig .archive-media {
@@ -3697,8 +3696,7 @@ button.work-card .work-go::after {
 }
 
 .map-fig img {
-  filter: grayscale(1);
-  transition: filter var(--grow), transform var(--grow);
+  transition: transform var(--grow);
 }
 
 /* A pin's number (and date), over its square, on the outer side of the corner: at a top left
@@ -3755,15 +3753,11 @@ button.work-card .work-go::after {
   }
 }
 
-/* Hovered, an image comes in its own colors over the others, grows a little in its frame, and
-   the others go under tracing paper, as on Work. */
+/* Hovered, an image comes over the others, grows a little in its frame, and the others go
+   under tracing paper, as on Work. */
 @media (hover: hover) {
   .map-fig:hover {
     z-index: 2;
-  }
-
-  .map-fig:hover img {
-    filter: none;
   }
 
   .map:has(.map-fig:hover) .map-fig:not(:hover) .archive-media::after {
@@ -3782,13 +3776,15 @@ button.work-card .work-go::after {
    The map's sheet and prints, laid out by board_layout (--x, --y from 768px; --tx, --ty on
    phones): a group a field, each a tight collage under its title, the scale's name in the
    title's face, in italic as if written on the sheet, its field beside it in the label style;
-   each project's images circled by one loose 1px loop drawn over the prints, as a pencil
-   would, with the project's name and year on it, the loop going under a thin edge of the
-   paper's color round them (as About's names on the globe). */
+   each project's images circled by one loose 1px loop, as a pencil would, with the project's
+   name and year on it, the loop going under a thin edge of the paper's color round them (as
+   About's names on the globe). No image covers another, and the loop is drawn under the
+   images, their corners lying over it (since 2026-11-25, the user's ask, once the images were
+   in their own colors: the loop was drawn over them and crossed the posters). */
 .map-loops {
   position: absolute;
   inset: 0;
-  z-index: 2;  /* over the prints, under one hovered (it comes later, at the same level) */
+  z-index: 0;  /* under the images (1) */
   width: 100%;
   height: 100%;
   overflow: visible;

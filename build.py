@@ -2087,32 +2087,62 @@ class Builder:
     # first; every other row mirrored, so rows don't line up. A project's images take a row of
     # their own (three at most to a row), circled by its loop; the others go two to a row, a
     # row starting BOARD_RISE of its shortest image's height up into the one before, as a
-    # collage, and lower if one would cover more than BOARD_OVERLAP of an image already down.
+    # collage. No image covers another (since 2026-11-25, the user's ask, once they were in
+    # their own colors and an overlap hid a poster's name): a row's images are pushed apart
+    # sideways to BOARD_GAP between them, and one comes lower until it's BOARD_GAP clear of
+    # every image already down (they overlapped up to 16% of the smaller one before).
     # A loop is an ellipse round its images' box, BOARD_LOOP (wider, taller) times its half
-    # width and height plus BOARD_PAD, so their corners just cross it, as a pencil loop does;
-    # nothing else comes within BOARD_CLEAR of it (all in percent of the group's width).
+    # width and height plus BOARD_PAD, so their corners just cross it, as a pencil loop does,
+    # and it's drawn under them; nothing else comes within BOARD_CLEAR of it (all in percent of
+    # the group's width).
     BOARD_ROWS = {
         1: ((46,), (32,), (0,)),
         2: ((50, 42), (28, 73), (0, 0.1)),
-        3: ((38, 32, 36), (21, 52, 80), (0, 0.14, 0.05)),
+        3: ((34, 28, 32), (18, 51, 83), (0, 0.14, 0.05)),
     }
-    BOARD_OVERLAP, BOARD_RISE = 0.16, 0.1
+    BOARD_GAP, BOARD_RISE = 2.5, 0.1
     BOARD_LOOP, BOARD_PAD, BOARD_CLEAR = (1.08, 1.16), 3, 4
+    # A group's lead (an image with "lead": true in archive.json, one a scale; since
+    # 2026-11-25, the user's ask: a way in, big against the others) comes first in its group,
+    # with its project first, at the group's left, BOARD_LEAD (its widest, its tallest) of the
+    # group's width; when the room beside it is BOARD_BESIDE wide or more, the next images of
+    # its project (or, with none, the next loose ones) stack there as long as they fit by its
+    # side, and the rest go in rows under it.
+    BOARD_LEAD, BOARD_BESIDE = (82, 90), 22
     BOARD_TURNS = (-3, 2.5, -2, 3.5)  # each loop's slant, in degrees, in turn
 
     @classmethod
-    def board_group(cls, units):
+    def board_lead(cls, ratios):
+        """A group's lead and the images by its side (board_group): ratios, its unit's, the
+        lead's first. Returns their rects (x, y, w, h), in percent of the group's width."""
+        widest, tallest = cls.BOARD_LEAD
+        w = min(widest, tallest * ratios[0])
+        h = w / ratios[0]
+        rects, x = [(0.0, 0.0, w, h)], w + cls.BOARD_GAP
+        room, y = 100 - x, 0.0
+        if room >= cls.BOARD_BESIDE:
+            for r in ratios[1:]:
+                bw = min(room, room * cls.MAP_TALLEST * r)
+                if y + bw / r > h + cls.BOARD_GAP:
+                    break
+                rects.append((x, y, bw, bw / r))
+                y += bw / r + cls.BOARD_GAP
+        return rects
+
+    @classmethod
+    def board_group(cls, units, lead=False):
         """One group's images in rows (board_layout). units: (project or None, [ratios]) in
-        order. Returns the images' rects (x, y, w, h) and per unit with a project (project,
-        first, end, (cx, cy, rx, ry)), the rects that are its and its loop, all in percent of
-        the group's width."""
+        order; lead: the first unit's first image is the group's lead (board_lead). Returns
+        the images' rects (x, y, w, h) and per unit with a project (project, first, end, (cx,
+        cy, rx, ry)), the rects that are its and its loop, all in percent of the group's
+        width."""
         rects, spans, before, row = [], [], [], 0
         floor = 0.0  # the lowest a loop above reaches, plus BOARD_CLEAR
 
-        def covered(a, b):
-            ox = min(a[0] + a[2], b[0] + b[2]) - max(a[0], b[0])
-            oy = min(a[1] + a[3], b[1] + b[3]) - max(a[1], b[1])
-            return 0 if ox <= 0 or oy <= 0 else ox * oy / min(a[2] * a[3], b[2] * b[3])
+        def near(a, b):  # less than BOARD_GAP apart both ways: overlapping, or nearly
+            ox = min(a[0] + a[2], b[0] + b[2]) - max(a[0], b[0]) + cls.BOARD_GAP
+            oy = min(a[1] + a[3], b[1] + b[3]) - max(a[1], b[1]) + cls.BOARD_GAP
+            return ox > 1e-6 and oy > 1e-6
 
         def loop(part):
             bx, by = min(r[0] for r in part), min(r[1] for r in part)
@@ -2122,10 +2152,17 @@ class Builder:
             rx = min(bw / 2 * cls.BOARD_LOOP[0] + cls.BOARD_PAD, cx + 2, 102 - cx)
             return cx, by + bh / 2, rx, bh / 2 * cls.BOARD_LOOP[1] + cls.BOARD_PAD
 
-        for project, ratios in units:
+        for u, (project, ratios) in enumerate(units):
             first = len(rects)
             size = 3 if project else 2
-            for j, chunk in enumerate(ratios[i:i + size] for i in range(0, len(ratios), size)):
+            j = 0
+            if lead and u == 0 and ratios:  # the lead and those by its side, at the top
+                line = cls.board_lead(ratios)
+                rects += line
+                before, row, j = line, row + 1, 1
+                ratios = ratios[len(line):]
+            for j, chunk in enumerate((ratios[i:i + size] for i in range(0, len(ratios), size)),
+                                      start=j):
                 widths, spots, drops = cls.BOARD_ROWS[len(chunk)]
                 if row % 2:
                     spots = [100 - s for s in spots]
@@ -2136,13 +2173,22 @@ class Builder:
                            - cls.BOARD_RISE * min(h for *_, h in before))
                 else:  # a unit's first row: under all above, loops included
                     top = max(floor, max(y + h for _, y, _, h in rects) + cls.BOARD_CLEAR)
+                sizes = [(w, w / r) for w, r in
+                         ((min(widths[i], widths[i] * cls.MAP_TALLEST * r), r)
+                          for i, r in enumerate(chunk))]
+                # across: each at its spot, then, from the left, pushed apart to BOARD_GAP
+                # between them, the row kept on the sheet (its widths add up to less than it)
+                xs = [max(0.0, min(spots[i] - w / 2, 100 - w)) for i, (w, _) in enumerate(sizes)]
+                by_x = sorted(range(len(xs)), key=xs.__getitem__)
+                for lo, hi in zip(by_x, by_x[1:]):
+                    xs[hi] = max(xs[hi], xs[lo] + sizes[lo][0] + cls.BOARD_GAP)
+                spill = max(x + w for x, (w, _) in zip(xs, sizes)) - 100
+                xs = [max(0.0, x - max(0.0, spill)) for x in xs]
                 line = []
-                for i, r in enumerate(chunk):
-                    w = min(widths[i], widths[i] * cls.MAP_TALLEST * r)
-                    h = w / r
-                    x = max(0.0, min(spots[i] - w / 2, 100 - w))
+                for i, (w, h) in enumerate(sizes):
+                    x = xs[i]
                     y = top + drops[i] * (line[0][3] if line else h)
-                    while any(covered((x, y, w, h), q) > cls.BOARD_OVERLAP for q in rects + line):
+                    while any(near((x, y, w, h), q) for q in rects + line):
                         y += 0.5
                     line.append((x, y, w, h))
                 rects += line
@@ -2161,8 +2207,8 @@ class Builder:
 
     @classmethod
     def board_layout(cls, groups, shape):
-        """Where the board's parts go (archive_board). groups: (field, units) in order, units
-        as board_group takes them. Returns {"ratio": the sheet's "width / height", "pieces":
+        """Where the board's parts go (archive_board). groups: (field, units, lead) in order,
+        units and lead as board_group takes them. Returns {"ratio": the sheet's "width / height", "pieces":
         per image (x, y, w), "titles": per group (x, y), its top left corner, "loops": per
         project (cx, cy, rx, ry, turn), "tags": per project (x, y), where its name sits on its
         loop}; x, w, cx and rx in percent of the sheet's width, y, cy and ry of its height."""
@@ -2170,8 +2216,8 @@ class Builder:
         bottoms = list(s["drop"])
         started = [False] * len(s["cols"])
         rects, titles, loops = [], [], []
-        for n, (_, units) in enumerate(groups):
-            rel, spans = cls.board_group(units)
+        for n, (_, units, lead) in enumerate(groups):
+            rel, spans = cls.board_group(units, lead)
             c = n if n < len(bottoms) else min(range(len(bottoms)), key=bottoms.__getitem__)
             x0, k = s["cols"][c], s["width"] / 100
             top = bottoms[c] + (s["gap"] if started[c] else 0)
@@ -2208,7 +2254,7 @@ class Builder:
         images (board_layout): each project's images in a row of their own, circled by one
         loose 1px loop with the project's name and year on it, the others two to a row. Each
         image opens the lightbox with its caption, date and link, as on the map."""
-        pairs = self.archive_in_groups()
+        pairs = self.archive_in_groups(leads_first=True)
         items = [item for item, _ in pairs]
         boxes, groups = [], []
         for n, (item, (field, _)) in enumerate(pairs):
@@ -2225,7 +2271,8 @@ class Builder:
             else:
                 units.append((project, [n]))
         ratios = [w / h for _, (w, h) in boxes]
-        shaped = [(f, [(p, [ratios[n] for n in idx]) for p, idx in units]) for f, units in groups]
+        shaped = [(f, [(p, [ratios[n] for n in idx]) for p, idx in units],
+                   bool(items[units[0][1][0]].get("lead"))) for f, units in groups]
         wide, tall = self.board_layout(shaped, "wide"), self.board_layout(shaped, "tall")
         scales = {str(sc.get("name", "")).lower(): sc for sc in self.site.get("scales") or []}
 
@@ -2302,15 +2349,20 @@ class Builder:
                 f'{large}'
                 f'        </li>')
 
-    def archive_in_groups(self):
+    def archive_in_groups(self, leads_first=False):
         """content/archive.json's items by field and project (ARCHIVE_MAP_GROUPS), with each
         one's (field, project) for map_layout: fields in site.json's "scales" order (an
         unknown or missing "scale" after them); in a field, its projects by their oldest
-        date, those with none after them in the file's order; in a project, oldest first."""
+        date, those with none after them in the file's order; in a project, oldest first.
+        leads_first (the board's): in a field, the project with its lead (an image with
+        "lead": true) first, and in it the lead first."""
         order = [str(s.get("name", "")).lower() for s in self.site.get("scales") or []]
 
-        def when(p):  # (index, item) -> its place in time
-            return (0, str(p[1]["date"]), p[0]) if p[1].get("date") else (1, "", p[0])
+        def when(p):  # (index, item) -> its place in time, the lead before all if leads_first
+            first = 0 if leads_first and p[1].get("lead") else 1
+            if p[1].get("date"):
+                return (first, 0, str(p[1]["date"]), p[0])
+            return (first, 1, "", p[0])
 
         groups = {}
         for p in enumerate(self.archive):

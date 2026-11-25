@@ -316,10 +316,18 @@ its field beside it in the label style (Object, Industrial design), over a tight
 images; from 768px the groups in two columns (the second starting a little lower, each next
 group under the shorter column), on phones one under another. In a group, each project's images
 (their `project`) are in a row of their own, three at most to a row, circled by one loose 1px
-loop, drawn over the prints as a pencil would, their corners just crossing it, with the
-project's name and year on it (`EDITORIAL · 2024`); nothing else comes near a loop; images with
-no project go two to a row, each row a little up into the one before. No thread or numbers on
-it; the lightbox gives each image's caption, date and link. `build.py`'s `board_layout`,
+loop, as a pencil would, their corners just crossing it, with the project's name and year on
+it (`EDITORIAL · 2024`); nothing else comes near a loop; images with no project go two to a
+row, each row a little up into the one before. No image covers another (since 2026-11-25, the
+user's ask, once the images were in their own colors and an overlap hid a poster's name):
+`BOARD_GAP` (2.5% of the group's width) between any two, and the loops are drawn under the
+images, their corners lying over the line (the loops were drawn over them, and images
+overlapped up to 16% of the smaller one, before). Each group opens with its lead (since
+2026-11-25, the user's ask: a way in, big against the others; an image's `lead`): its project
+first and it first in it, big at the group's left, the next of its project stacked beside it
+where they fit (Editorial's two posters beside the festival poster), the rest under it. The images are in their
+own colors (since later on 2026-11-25, the user's ask, as Work's; in grays multiplied into the
+paper before, the page one washed-out tone). No thread or numbers on it; the lightbox gives each image's caption, date and link. `build.py`'s `board_layout`,
 `BOARD_SHAPES` and `BOARD_ROWS` hold the drawing. `ARCHIVE_MAP_BOARD = False` brings back the
 groups as bands down the map with its thread and numbers (`ARCHIVE_MAP_GROUPS`), and
 `ARCHIVE_MAP_GROUPS = False` the map in time's order described next.
@@ -337,9 +345,10 @@ over an ink line):
   `2019`, `2019-05`), those without one after them in the file's order. Each keeps its own
   shape (read from the file; the gray box's until it exists), big and small, left and right
   as on a pinboard, starting a little way down the one before, so they sit side by side and
-  overlap a little, none covering much of another. They're prints on the paper, in grays and
-  multiplied into it, so the thread, the grain and each other show through; hovered, one
-  comes in its own colors over the others and the others go under tracing paper, as on Work.
+  overlap a little, none covering much of another. They're in their own colors, laid on the
+  paper (since 2026-11-25, the user's ask, as Work's: in grays multiplied into the paper
+  before, which left the page one washed-out tone); hovered, one comes over the others and
+  the others go under tracing paper, as on Work.
   Clicked, the lightbox: its caption (or "Image 003") and its date. With JavaScript, those
   below the window fade up as they come on screen.
 - **The thread**, one dashed line through them in time's order, pin to pin: a small square
@@ -471,6 +480,7 @@ Each entry then names its scale:
 | `caption` | Optional. On the map (since 2026-11-24) only in the lightbox (and for screen readers), with its date; in the sequence under its station's scale, in the text's italic; in the lightbox, on one line with the date; a caption too long for the screen is cut short with "…" (the date never is). Leave it `""` to show nothing |
 | `date` | Optional. Shown as you write it; on the map it also sets the image's place in time, so write the year first (`2019`, `2019-05`) |
 | `project` | Optional (since 2026-11-25). The work an image comes from, like `"Palette"`: on the map (`ARCHIVE_MAP_GROUPS`, the user's ask: the same field and the same project together) images are grouped by `scale`, in site.json's `scales` order (Object, Page, Screen, Space), a wider gap between fields, and a project's images side by side, its projects oldest first; an image with no `project` stands alone in its field. Still no lanes or names on the map. `ARCHIVE_MAP_GROUPS = False` goes back to time's order |
+| `lead` | Optional (since 2026-11-25), `true` on one image a scale. On the board (`ARCHIVE_MAP_BOARD`) it leads its group: first, with its project first, big at the group's left (`BOARD_LEAD`: up to 82% of the group's width and 90% tall), the next images of its project stacked beside it when there's room, the rest in rows under it. Now 015 (RO+A), 012 (the dance festival poster), 010 (Palette) and 003 (the pavilion model); move it to change a group's lead, or leave it out for none |
 | `link` | Optional (since 2026-11-25). `{ "label": "See full project", "url": "https://..." }`: a link after the date in the lightbox (and in the sequence and the gallery, after the date), never cut short, opening in a new tab; for work that's on Archive as images alone, its full project (Palette's and Lulu Walk's PDFs). Without a label it reads "See full project" |
 | `alt` | What the image shows, for screen readers. The build reminds you if a real image has none |
 
@@ -819,7 +829,7 @@ In `assets/css/style.css` the tokens are under Tokens (`--axis-d`, `--callout-d`
 | --- | --- | --- |
 | Paper and grain (`--color-bg`, `--grain`) | the page, a light warm gray, and a fine still grain over the whole window, images too | every page |
 | Tracing paper (`--vellum`) | the paper's color, part see-through, frosted: what's under it goes soft. Thick (`--vellum-thick-blur`, 24px) over the whole window, thin (`--vellum-thin`, 50%, 5px) over a tile; a card's (`--vellum-card`, 60%, 3px, since 2026-11-25) thin enough that the image under it still shows, milky, its dots and edges a little soft | the header (as the page scrolls under it), the opening (since 2026-11-24 a sheet over the whole window, smooth and milky, the user's portrait under it as a print), the lightbox, Work's and Archive's tiles not hovered while one is, Work's cards |
-| Prints (`--print`) | an image as a copy prints it on the paper: in grays, a little flat (contrast 94%) and soft (0.3px), multiplied into the paper so its grain shows through; in its own colors while hovered (with a mouse; on phones they stay in grays) | none now: Work's tiles on 2026-11-24, each set in its tile with paper round it (`--gutter`), in their own colors and filling their tiles since 2026-11-25 (the user's ask); Archive's map in grays alone |
+| Prints (`--print`) | an image as a copy prints it on the paper: in grays, a little flat (contrast 94%) and soft (0.3px), multiplied into the paper so its grain shows through; in its own colors while hovered (with a mouse; on phones they stay in grays) | none now: Work's tiles on 2026-11-24, each set in its tile with paper round it (`--gutter`), in their own colors and filling their tiles since 2026-11-25 (the user's ask); Archive's map in grays (no `--print`, grays alone, multiplied in) until later on 2026-11-25, in their own colors since (the user's ask) |
 | Ink (`--ink`, `--ink-texture`) | type printed on the paper: a dark gray, part see-through, multiplied in, uneven in strength (a fine noise as its mask) | Work's sentence and its cards' words (the opening's words have their own ink, `#intro-ink`) |
 | Spec cards (`.work-caption`) | a box of tracing paper (`--vellum-card`, thin, since 2026-11-25: frosted `--vellum` before) in 1px ink lines over an image's foot, 24px in from its sides and foot (8px on phones; on 2026-11-24 over a print's foot, the rest on the paper under it), the image showing through it; ruled in two rows: the item's number in the label style and, in a cell at the right, its mark (→ a project's page, + an item the lightbox opens), over its title in the title style | Work's tiles (since 2026-11-24; a bar under the image, 001 at the left and the title at the right, before) |
 | Lines | 1px, in ink (the text color), from the window's left edge to its right | the header, a project's facts, About's scales, the footer |

@@ -605,8 +605,8 @@ button {
 .seq-at,
 .scale-bar,
 .seq-legend,
-.map-name,
-.map-legend,
+.map-lane,
+.map-key,
 .globe-key-label,
 .globe-key-tag {
   font-family: var(--font-mono);
@@ -3448,33 +3448,122 @@ mark.placeholder {
 }
 
 /* Archive as one map (since 2026-11-24, ARCHIVE_MAP in build.py, the user's ask: Archive shows
-   their work and who they are in images more than words, one map rather than a list, after an
-   architecture student's narrative sheet: pieces of work collaged across one sheet, thin lines
-   from them meeting at a few points, a legend in the corner). One sheet under an ink line from
-   the window's left edge to its right, drawn on the paper itself:
-     the images     each in its own shape (--r), where build.py's map_layout puts it (--x, --y,
-                    --w from 768px; --tx, --ty, --tw on phones, in percent of the sheet),
-                    gathered by scale, overlapping a little, each scale's a little bigger
-     the lines      1px in ink, from a small square on each image to its scale's bubble, and
-                    from each bubble to the subject; Space's dashed (one svg a scale, its
-                    drawing from 768px and its drawing on phones, one shown)
-     a scale        its bubble and name on the paper, where its images' lines meet; Space's
-                    with the user's words under it, "I never became one."
-     the subject    a dot where the bubbles' lines meet, "How people actually live" under it
-     the legend     under the sheet at its right: solid, dashed
-   The images are prints on the paper, in grays and multiplied into it, so the lines, the grain
-   and each other show through where they overlap; hovered, one comes in its own colors, its
-   scale's lines stay and the rest go under tracing paper, as on Work. */
+   their work and who they are in images more than words, one map rather than a list; that
+   evening closer together, more joined, and in time's order, after the masterplan sequence on
+   their moodboard, "Across the Arid Landscape"). One sheet under an ink line from the window's
+   left edge to its right, drawn on the paper itself, where build.py's map_layout puts each part
+   (--x, --y, --w from 768px; --tx, --ty, --tw on phones; in percent of the sheet):
+     the time axis  a center line (long dash, short dash) down the sheet, oldest at the top
+     the images     each in its own shape (--r), across the axis, left and right of it in
+                    turn, each starting partway down the one before, so they overlap as
+                    fragments laid down a sheet; each scale's a little bigger
+     the lanes      at the right, a scale each, A Object to D Space, its bubble and name over
+                    it (the bubble alone on phones), a construction line down to its first
+                    image's number and ink from there to its last; Space's dashed
+     the numbers    I, II, III in time's order, each in a filled bubble on its scale's lane
+                    (open on Space's), at the end of a dashed line from its image's top edge,
+                    a small square where that leaves the image; under Space's last, the
+                    user's words, "I never became one."
+     the date       beside an image's top left corner, when it has one (from 768px)
+     the key        under the sheet at its right: the scales' names on phones, and the legend
+   The lines are drawn under the images, and the images are prints on the paper, in grays and
+   multiplied into it, so the lines, the grain and each other show through where they overlap;
+   hovered, one comes in its own colors over the others and the others go under tracing paper,
+   as on Work.
+   No sentence over it since 2026-11-24 (the user's ask: the images say it), so it starts right
+   under the header's line; with one (archive.statement in site.json), an ink line between. */
 .atlas {
-  --sq: 5px;
-  margin-top: var(--step-6);
   padding: var(--step-6) var(--gutter);
+}
+
+.work-head + .atlas {
+  margin-top: var(--step-6);
   border-top: var(--rule);
+}
+
+/* The lanes' heads: a bubble over each lane, and a construction line from it down to the
+   sheet, where the lane goes on. */
+.map-heads {
+  position: relative;
+  height: calc(var(--axis-d) + var(--step-2));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.map-heads li {
+  position: absolute;
+  bottom: var(--step-2);
+  left: var(--tx);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transform: translateX(-50%);
+  scroll-margin-top: calc(var(--header-h) + var(--step-6));
+}
+
+.map-heads li::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: calc(50% - 0.5px);
+  height: var(--step-2);
+  border-left: var(--trace-rule);
+}
+
+.map-heads li.is-unreached .bubble {
+  border-style: dashed;
+}
+
+.map-heads li:target .bubble {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+.map-lane {
+  display: none;
 }
 
 .map {
   position: relative;
   aspect-ratio: var(--tall-ratio);
+}
+
+.map-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: var(--color-rule);
+  stroke: var(--color-rule);
+  stroke-width: 1px;
+  pointer-events: none;
+}
+
+.map-lines rect {
+  stroke: none;
+}
+
+.map-lines .is-axis {
+  stroke-dasharray: 24 4 4 4;
+}
+
+.map-lines .is-lead {
+  stroke: var(--color-trace);
+}
+
+.map-lines .is-unreached {
+  stroke-dasharray: 6 5;
+}
+
+.map-lines .is-row {
+  stroke-dasharray: 3 3;
+}
+
+.map-lines .is-wide {
+  display: none;
 }
 
 .map-pieces {
@@ -3483,17 +3572,14 @@ mark.placeholder {
   list-style: none;
 }
 
-.map-piece {
+.map-fig {
   position: absolute;
   z-index: 1;
   left: var(--tx);
   top: var(--ty);
-  width: var(--tw);
-  mix-blend-mode: multiply;  /* on the piece, so it blends with the page and the others */
-}
-
-.map-fig {
   display: block;
+  width: var(--tw);
+  mix-blend-mode: multiply;  /* on the image, so it blends with the page, the lines, the others */
 }
 
 .map-fig .archive-media {
@@ -3506,156 +3592,116 @@ mark.placeholder {
   transition: filter var(--grow), transform var(--grow);
 }
 
-.map-lines {
+/* An image's number, on its scale's lane, level with its top edge. */
+.map-station {
   position: absolute;
   z-index: 3;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  fill: var(--color-rule);
-  stroke: var(--color-rule);
-  stroke-width: 1px;
-  pointer-events: none;
-  transition: opacity var(--grow);
+  left: var(--tx);
+  top: var(--ty);
+  display: grid;
+  place-items: center;
+  width: var(--axis-d);
+  height: var(--axis-d);
+  border: 1px solid var(--color-text);
+  border-radius: 50%;
+  background: var(--color-text);
+  color: var(--color-bg);
+  font-family: var(--font-mono);
+  font-size: var(--size-count);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  transform: translate(-50%, -50%);
 }
 
-.map-lines rect {
-  stroke: none;
+.map-piece.is-unreached .map-station {
+  border-style: dashed;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
-.map-lines .is-wide {
+.map-date {
   display: none;
 }
 
-.map-group.is-unreached .map-lines line {
-  stroke-dasharray: 6 5;
-}
-
-/* A scale: its bubble where its lines meet, its name beside it (at its left far right). */
-.map-node {
-  position: absolute;
-  z-index: 4;
-  left: var(--tx);
-  top: var(--ty);
-  display: flex;
-  align-items: center;
-  gap: var(--step-1);
-  margin: 0;
-  font: inherit;
-  white-space: nowrap;
-  transform: translate(calc(var(--axis-d) / -2), -50%);
-  scroll-margin-top: calc(var(--header-h) + var(--step-8));
-}
-
-.map-node .bubble {
-  background: var(--color-bg);
-}
-
-.map-node:target .bubble {
-  background: var(--color-text);
-  color: var(--color-bg);
-}
-
-.map-name {
-  padding: 0 4px;
-  background: var(--color-bg);
-}
-
+/* Under Space's last number, ending where it ends. */
 .map-unreached {
   position: absolute;
-  top: calc(100% + 2px);
-  left: calc(var(--axis-d) + var(--step-1));
+  z-index: 3;
+  left: var(--tx);
+  top: var(--ty);
+  margin: 0;
   padding: 0 4px;
   background: var(--color-bg);
   font-family: var(--font-display);
   font-size: 1.125rem;
   font-style: italic;
   line-height: 1.3;
-}
-
-.map-node.is-tall-flip {
-  flex-direction: row-reverse;
-  transform: translate(calc(-100% + var(--axis-d) / 2), -50%);
-}
-
-.map-node.is-tall-flip .map-unreached {
-  left: auto;
-  right: calc(var(--axis-d) + var(--step-1));
-}
-
-/* What they share: a dot where the scales' lines meet, its words under it. */
-.map-subject {
-  position: absolute;
-  z-index: 4;
-  left: var(--tx);
-  top: var(--ty);
-  margin: 0;
-  padding-top: var(--step-2);
-  font-family: var(--font-display);
-  font-size: 1.25rem;
-  line-height: 1.1;
   white-space: nowrap;
-  transform: translateX(-50%);
+  transform: translate(calc(-100% + var(--axis-d) / 2), calc(var(--axis-d) / 2 + 6px));
 }
 
-.map-subject::before {
-  content: "";
-  position: absolute;
-  top: -5px;
-  left: calc(50% - 5px);
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--color-text);
-}
-
-.map-subject span {
-  padding: 0 4px;
-  background: var(--color-bg);
-}
-
-.map-legend {
+.map-key {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: var(--step-1) var(--step-4);
+  gap: var(--step-2) var(--step-4);
   margin: var(--step-4) 0 0;
   padding: 0;
   list-style: none;
   color: var(--color-subtle);
 }
 
-.map-legend li {
+.map-key li {
   display: flex;
   align-items: center;
   gap: var(--step-1);
 }
 
-.map-legend li::before {
+.map-key .bubble {
+  --axis-d: 20px;
+  color: var(--color-text);
+  font-size: var(--size-count);
+}
+
+.map-key li.is-solid::before,
+.map-key li.is-dashed::before {
   content: "";
   width: var(--step-4);
   border-top: 1px solid var(--color-rule);
 }
 
-.map-legend li.is-dashed::before {
+.map-key li.is-dashed::before {
   border-top-style: dashed;
 }
 
 @media (min-width: 768px) {
-  .map {
-    aspect-ratio: var(--ratio);
+  .map-heads {
+    height: calc(var(--axis-d) + var(--step-2) + 6px + var(--leading-label) * var(--size-label));
   }
 
-  .map-piece,
-  .map-node,
-  .map-subject {
+  .map-heads li,
+  .map-fig,
+  .map-station,
+  .map-unreached {
     left: var(--x);
+  }
+
+  .map-fig,
+  .map-station,
+  .map-unreached {
     top: var(--y);
   }
 
-  .map-piece {
+  .map-fig {
     width: var(--w);
+  }
+
+  .map-lane {
+    display: block;
+  }
+
+  .map {
+    aspect-ratio: var(--ratio);
   }
 
   .map-lines .is-wide {
@@ -3666,35 +3712,32 @@ mark.placeholder {
     display: none;
   }
 
-  .map-node.is-tall-flip {
-    flex-direction: row;
-    transform: translate(calc(var(--axis-d) / -2), -50%);
+  .map-date {
+    position: absolute;
+    z-index: 3;
+    left: var(--x);
+    top: var(--y);
+    display: block;
+    padding: 0 4px;
+    background: var(--color-bg);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-style: italic;
+    line-height: 1.2;
+    white-space: nowrap;
+    transform: translate(calc(-100% - 6px), -50%);
   }
 
-  .map-node.is-tall-flip .map-unreached {
-    left: calc(var(--axis-d) + var(--step-1));
-    right: auto;
-  }
-
-  .map-node.is-flip {
-    flex-direction: row-reverse;
-    transform: translate(calc(-100% + var(--axis-d) / 2), -50%);
-  }
-
-  .map-node.is-flip .map-unreached {
-    left: auto;
-    right: calc(var(--axis-d) + var(--step-1));
-  }
-
-  .map-subject {
-    font-size: 1.5rem;
+  /* The names are over the lanes here. */
+  .map-key .map-key-scale {
+    display: none;
   }
 }
 
 /* Hovered, an image comes in its own colors over the others, grows a little in its frame, and
-   the others go under tracing paper, as on Work; its scale's lines stay, the others' go pale. */
+   the others go under tracing paper, as on Work. */
 @media (hover: hover) {
-  .map-piece:has(.map-fig:hover) {
+  .map-fig:hover {
     z-index: 2;
   }
 
@@ -3704,10 +3747,6 @@ mark.placeholder {
 
   .map:has(.map-fig:hover) .map-fig:not(:hover) .archive-media::after {
     opacity: 1;
-  }
-
-  .map:has(.map-fig:hover) .map-group:not(:has(.map-fig:hover)) .map-lines {
-    opacity: 0.25;
   }
 }
 

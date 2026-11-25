@@ -174,18 +174,22 @@ ARCHIVE_SEQUENCE = True
 SEQUENCE_SIZES = "(min-width: 1200px) 32vw, (min-width: 768px) 64vw, 90vw"
 # Archive as one map (since 2026-11-24, the user's ask: Archive shows their work and who they
 # are in images more than words, as one map rather than a list, after an architecture
-# student's narrative sheet: pieces of work collaged across one sheet, overlapping, thin lines
-# from them meeting at a few points, a legend in the corner): every image on one sheet,
-# gathered by scale round what they share, site.json's scalesDrawing "center" ("How people
-# actually live"), a line from each image to its scale's bubble and one from each bubble to
-# that; Space's lines dashed, "I never became one." at its bubble; no words beside the images
-# (their captions are in the lightbox). From 768px the scales fan out over it, smallest at the
-# left, as the sheet reads; on phones two over it and two under (archive_map, map_layout).
-# Over ARCHIVE_SEQUENCE, ARCHIVE_BINDER and ARCHIVE_PLAN when on. False: the sequence.
+# student's narrative sheet; that evening, after the masterplan sequence on their moodboard,
+# "Across the Arid Landscape", closer together, more joined, and in time's order): every image
+# on one sheet, oldest first down a time axis (a center line), each across it, left and right
+# in turn, starting partway down the one before, so they overlap as fragments laid down a
+# sheet; at the right a lane a scale, A Object to D Space, its bubble and name over it, and
+# from each image's top edge a dashed line out to its number, I, II, III, on its scale's lane,
+# the lane drawn in ink from its first image to its last (dashed for Space, the architect the
+# user wanted to be, its numbers open, "I never became one." where it ends); no words beside
+# the images but their date (captions are in the lightbox). Drawn twice, from 768px and on
+# phones (archive_map, map_layout). (For a few hours that afternoon the scales fanned over
+# "How people actually live", their images gathered round each.) Over ARCHIVE_SEQUENCE,
+# ARCHIVE_BINDER and ARCHIVE_PLAN when on. False: the sequence.
 ARCHIVE_MAP = True
 # How wide a map's image shows: up to about a quarter of the window from 768px (Space's
-# biggest), about half on phones.
-MAP_SIZES = "(min-width: 768px) 26vw, 56vw"
+# biggest), under half on phones.
+MAP_SIZES = "(min-width: 768px) 26vw, 44vw"
 # About's scales (since 2026-11-22, the user's ask: About carrying the drawing system and their
 # story): under the paragraph, site.json's "scales" as a title block, a cell each, A to D, its
 # bubble and name, the field it comes from and a line of the user's own account, and a link to
@@ -1872,217 +1876,190 @@ class Builder:
             cols.setdefault(keys.index(sc), []).append(item)
         return cols
 
-    # The map's drawing (map_layout), in image widths round the subject at (0, 0), y down. From
-    # 768px the scales fan over it, from its left to its right: their angles (degrees,
-    # counterclockwise from its right) and how far out, across and up. On phones they go down
-    # the sheet, in turn left and right of its middle (MAP_TALL_X), the subject after the
-    # first half (MAP_TALL_GAP clear of them). An image's width is its scale's (each a little
-    # bigger than the one before, MAP_GROW) by the next of MAP_JITTER; a scale's images lie
-    # round its first in a sunflower's spiral, MAP_SPREAD apart, overlapping as prints laid on
-    # a sheet do.
-    MAP_FAN = (180, 0, 2.0, 1.45)
-    MAP_TALL_X, MAP_TALL_GAP, MAP_TALL_STEP = 0.38, (0.4, 0.8), 0.34
-    MAP_GROW, MAP_SPREAD = 0.16, 0.55
-    MAP_JITTER = (1.08, 0.84, 0.97, 0.8, 0.92, 0.76, 0.88)
+    # The map's drawing (map_layout), in percent of the sheet's width, from 768px ("wide") and
+    # on phones ("tall"): where the time axis runs (axis), the first scale's lane and the gap
+    # to the next (lane, gap), an image's width (Object's, and how much wider each scale after
+    # is, grow), and room over the first image and under the last (top, foot). Each image
+    # reaches MAP_CROSS of its width across the axis (more or less, in turn), starts MAP_STEP
+    # of the way down the one before, and its width is its scale's by the next of MAP_JITTER,
+    # narrower if that would make it more than MAP_TALLEST times its scale's width tall (a 3:5
+    # image would stretch the sheet).
+    MAP_SHAPES = {
+        "wide": {"axis": 38, "lane": 68, "gap": 9, "w": 19, "grow": 2.2, "top": 3, "foot": 4},
+        "tall": {"axis": 33, "lane": 66, "gap": 10, "w": 34, "grow": 2, "top": 9, "foot": 16},
+    }
+    MAP_CROSS, MAP_STEP, MAP_TALLEST = 0.16, 0.42, 1.25
+    MAP_JITTER = (1.0, 0.9, 1.1, 0.86, 1.04, 0.94, 1.12, 0.88)
 
     @classmethod
-    def map_layout(cls, groups, tall=False):
-        """Where a map's images, bubbles and subject go (archive_map). groups: for each scale,
-        its images' shapes (width / height). Returns {"ratio": the sheet's "width / height",
-        "pieces": per scale, per image (x, y, w, ax, ay): its top left corner and width and
-        where its line ends, "nodes": per scale its bubble (x, y, flip: its name at its left),
-        "subject": (x, y)}, x and w in percent of the sheet's width, y of its height."""
-        sizes = [1 + cls.MAP_GROW * k for k in range(len(groups))]
-        local = []  # each scale's images round (0, 0): (x, y, w, h)
-        for k, shapes in enumerate(groups):
-            rects = []
-            for i, r in enumerate(shapes):
-                w = sizes[k] * cls.MAP_JITTER[(i + 2 * k) % len(cls.MAP_JITTER)]
-                a = math.radians(i * 137.5 + 50 * k)
-                d = cls.MAP_SPREAD * sizes[k] * math.sqrt(i)
-                rects.append((d * math.cos(a) - w / 2, d * math.sin(a) - w / r / 2, w, w / r))
-            local.append(rects or [(-0.3, -0.3, 0.6, 0.6)])
-        centers, subject = [], (0.0, 0.0)
-        if tall:
-            half, y = (len(groups) + 1) // 2, 0.0
-            for k, rects in enumerate(local):
-                if k == half:  # the subject, a bubble's room over it and its words' under it
-                    subject = (0.0, y + cls.MAP_TALL_GAP[0])
-                    y = subject[1] + cls.MAP_TALL_GAP[1]
-                elif k:
-                    y += cls.MAP_TALL_STEP  # a bubble's room between two scales
-                cy = y - min(r[1] for r in rects)
-                centers.append((cls.MAP_TALL_X * (-1 if k % 2 == 0 else 1), cy))
-                y = cy + max(r[1] + r[3] for r in rects)
-        else:
-            a0, a1, rx, ry = cls.MAP_FAN
-            for k in range(len(groups)):
-                t = k / (len(groups) - 1) if len(groups) > 1 else 0.5
-                a = math.radians(a0 + (a1 - a0) * t)
-                centers.append((rx * math.cos(a), -ry * math.sin(a)))
-        rects, nodes, anchors = [], [], []
-        for (cx, cy), loc in zip(centers, local):
-            rs = [(cx + x, cy + y, w, h) for x, y, w, h in loc]
-            dx, dy = subject[0] - cx, subject[1] - cy
-            dist = math.hypot(dx, dy) or 1.0
-            ux, uy = dx / dist, dy / dist
-            # The bubble just past its images' edge on the subject's side.
-            reach = max(max((x - cx) * ux + (y - cy) * uy for x in (rx_, rx_ + w)
-                            for y in (ry_, ry_ + h)) for rx_, ry_, w, h in rs) + 0.15
-            reach = min(reach, dist - 0.45)
-            nx, ny = cx + ux * reach, cy + uy * reach
-            ends = []
-            for x, y, w, h in rs:  # each image's line ends inside it, on the bubble's side
-                mx, my = x + w / 2, y + h / 2
-                ex, ey = nx - mx, ny - my
-                el = math.hypot(ex, ey) or 1.0
-                ex, ey = ex / el, ey / el
-                edge = min(w / 2 / abs(ex) if ex else 1e9, h / 2 / abs(ey) if ey else 1e9)
-                ends.append((mx + ex * edge * 0.4, my + ey * edge * 0.4))
-            rects.append(rs)
-            nodes.append((nx, ny))
-            anchors.append(ends)
-        # The sheet: everything, the bubbles' names and the subject's words a little round them.
-        # (On phones a bubble's name is on the middle's side of it, so the bubble's enough.)
-        reach = (-0.2, 0.2) if tall else (-0.75, 0.75)
-        xs = ([x for rs in rects for x, _, w, _ in rs] + [x + w for rs in rects for x, _, w, _ in rs]
-              + [x + d for x, _ in nodes for d in reach]
-              + [subject[0] + d for d in (-0.95, 0.95)])
-        ys = ([y for rs in rects for _, y, _, _ in rs]
-              + [y + h for rs in rects for _, y, _, h in rs]
-              + [y + d for _, y in nodes for d in (-0.2, 0.2)] + [subject[1] + 0.4])
-        pad = 0.08
-        x0, x1, y0, y1 = min(xs) - pad, max(xs) + pad, min(ys) - pad, max(ys) + pad
-        k = 100 / (x1 - x0)  # an image width, in percent of the sheet's width
-        tall_ = (y1 - y0) * k  # the sheet's height, in the same
-
-        def px(x):
-            return round((x - x0) * k, 2)
+    def map_layout(cls, pieces, count, shape):
+        """Where a map's images, numbers and lanes go (archive_map). pieces: each image in
+        time's order, (its scale's index, its shape: width / height); count: how many scales.
+        Returns {"ratio": the sheet's "width / height", "axis": its x, "pieces": per image
+        (x, y, w): its top left corner and width, "lanes": per scale its x, "stations": per
+        image its number's (x, y), on its scale's lane level with its top edge}; x and w in
+        percent of the sheet's width, y of its height."""
+        s = cls.MAP_SHAPES[shape]
+        lanes = [s["lane"] + s["gap"] * k for k in range(count)]
+        room = s["lane"] - 3  # an image's right edge stays this side of the first lane
+        rects = []
+        for i, (k, r) in enumerate(pieces):
+            base = s["w"] + s["grow"] * k
+            w = min(base * cls.MAP_JITTER[i % len(cls.MAP_JITTER)], base * cls.MAP_TALLEST * r)
+            h = w / r
+            cross = cls.MAP_CROSS * (1 + 0.5 * math.sin(i * 2.3))
+            x = s["axis"] - w * (1 - cross) if i % 2 == 0 else s["axis"] - w * cross
+            x = max(0.0, min(x, room - w))
+            y = s["top"]
+            if i:  # partway down the one before, and clear of the one before that
+                y = max(y, rects[-1][1] + cls.MAP_STEP * rects[-1][3])
+            if i > 1:
+                y = max(y, rects[-2][1] + rects[-2][3] + 0.5)
+            rects.append((x, y, w, h))
+        tall_ = max((y + h for _, y, _, h in rects), default=s["top"]) + s["foot"]
 
         def py(y):
-            return round((y - y0) * k / tall_ * 100, 2)
-
-        def flip(x):  # its name at its left: on phones right of the middle, else far right
-            return x > 0.05 if tall else px(x) > 72
+            return round(y / tall_ * 100, 2)
 
         return {
             "ratio": f"100 / {tall_:.2f}",
-            "pieces": [[(px(x), py(y), round(w * k, 2), px(ax), py(ay))
-                        for (x, y, w, _), (ax, ay) in zip(rs, ends)]
-                       for rs, ends in zip(rects, anchors)],
-            "nodes": [(px(x), py(y), flip(x)) for x, y in nodes],
-            "subject": (px(subject[0]), py(subject[1])),
+            "axis": s["axis"],
+            "pieces": [(round(x, 2), py(y), round(w, 2)) for x, y, w, _ in rects],
+            "lanes": lanes,
+            "stations": [(lanes[k], py(y)) for (k, _), (_, y, _, _) in zip(pieces, rects)],
         }
+
+    def archive_in_time(self):
+        """content/archive.json's items in time's order, oldest first: by "date" as written
+        (2019, 2019-05: so the year first), those without one after them in the file's
+        order."""
+        return [it for _, it in sorted(
+            enumerate(self.archive),
+            key=lambda p: (0, str(p[1]["date"]), p[0]) if p[1].get("date") else (1, "", p[0]))]
 
     def archive_map(self):
         """Archive as one map (ARCHIVE_MAP, since 2026-11-24, the user's ask: images rather than
-        words, one map rather than a list, after an architecture student's narrative sheet).
-        Every image in archive.json on one sheet, in its own shape (from the file, or the gray
-        box's until it exists), gathered by its "scale" round what the scales share
-        (scalesDrawing's "center", "How people actually live", a dot and the words), a thin
-        line from each image, ending in a small square on it, to its scale's bubble and name,
-        and one from each bubble to the subject; a scale with "unreached" (Space, the
-        architect the user wanted to be) has its lines dashed and those words at its bubble,
-        "I never became one.". The images have nothing beside them: their scale, date and
-        caption are the lightbox's (as on Archive's tiles; for screen readers too). Where
-        everything goes is drawn twice (map_layout), from 768px wide and on phones tall; the
-        CSS takes one. The legend (scalesDrawing's "legend": solid, dashed) under it. Each
-        bubble is a target, /archive/#space. Returns None when there are no scales."""
+        words, one map rather than a list; that evening closer together, more joined and in
+        time's order, after the masterplan sequence on their moodboard). Every image in
+        archive.json on one sheet, in its own shape (from the file, or the gray box's until it
+        exists), oldest first (archive_in_time) down a time axis drawn as a center line, each
+        across it, left and right in turn, starting partway down the one before (map_layout).
+        At the right, a lane a scale (site.json's "scales"), its bubble and name over it, and
+        from each image's top edge a dashed line, a small square at its corner, out to its
+        number, I, II, III, in a filled bubble on its scale's lane; the lane a construction
+        line down to its scale's first image and ink from there to its last. A scale with
+        "unreached" (Space, the architect the user wanted to be) has its lane dashed, its
+        numbers open, and its words under its last, "I never became one.". Beside each image
+        its date, if it has one; its caption is the lightbox's, whose line starts with its
+        number and scale ("III · Page · 2025"). Drawn twice, from 768px wide and on phones
+        tall; the CSS takes one. On phones the lanes' names are in the key under the sheet,
+        with the legend (scalesDrawing's "legend": solid, dashed). Each lane's head is a
+        target, /archive/#space. Returns None when there are no scales."""
         scales = self.scales()
         if not scales:
             return None
-        cols = self.archive_by_scale(scales)
+        self.archive_by_scale(scales)  # every image's "scale" is one of them, or the build stops
+        keys = [x["name"].lower() for x in scales]
+        items = self.archive_in_time()
         drawing = self.site.get("scalesDrawing") or {}
-        boxes, n = {}, 0
-        for c in range(len(scales)):
-            for item in cols.get(c, []):
-                box = ARCHIVE_BOXES[n % len(ARCHIVE_BOXES)]
-                rel = media_path(item["src"], ARCHIVE_FOLDER)
-                real = os.path.exists(os.path.join(ROOT, rel)) and media_size(rel)
-                boxes[id(item)] = (box, real or box)
-                n += 1
-        shapes = [[boxes[id(it)][1][0] / boxes[id(it)][1][1] for it in cols.get(c, [])]
-                  for c in range(len(scales))]
-        wide, tall = self.map_layout(shapes), self.map_layout(shapes, tall=True)
-        center = drawing.get("center")
+        shapes, boxes = [], []
+        for n, item in enumerate(items):
+            box = ARCHIVE_BOXES[n % len(ARCHIVE_BOXES)]
+            rel = media_path(item["src"], ARCHIVE_FOLDER)
+            real = os.path.exists(os.path.join(ROOT, rel)) and media_size(rel)
+            boxes.append((box, real or box))
+            shapes.append((keys.index(item["scale"].lower()), (real or box)[0] / (real or box)[1]))
+        wide = self.map_layout(shapes, len(scales), "wide")
+        tall = self.map_layout(shapes, len(scales), "tall")
+        unreached = [bool(x.get("unreached")) for x in scales]
 
-        def lines(lay, c):
-            nx, ny, _ = lay["nodes"][c]
-            out = []
-            if center:
-                sx, sy = lay["subject"]
-                out.append(f'<line x1="{nx}%" y1="{ny}%" x2="{sx}%" y2="{sy}%"/>')
-            for _, _, _, ax, ay in lay["pieces"][c]:
-                out.append(f'<line x1="{nx}%" y1="{ny}%" x2="{ax}%" y2="{ay}%"/>'
-                           f'<rect x="{ax}%" y="{ay}%" width="5" height="5" '
+        def lines(lay):
+            out = [f'<line class="is-axis" x1="{lay["axis"]}%" y1="0" x2="{lay["axis"]}%" '
+                   f'y2="100%"/>']
+            for k, lx in enumerate(lay["lanes"]):
+                ys = [y for (c, _), (_, y) in zip(shapes, lay["stations"]) if c == k]
+                kind = "is-lane is-unreached" if unreached[k] else "is-lane"
+                if not ys:
+                    out.append(f'<line class="is-lead" x1="{lx}%" y1="0" x2="{lx}%" y2="100%"/>')
+                    continue
+                out.append(f'<line class="is-lead" x1="{lx}%" y1="0" x2="{lx}%" y2="{ys[0]}%"/>')
+                if len(ys) > 1:
+                    out.append(f'<line class="{kind}" x1="{lx}%" y1="{ys[0]}%" x2="{lx}%" '
+                               f'y2="{ys[-1]}%"/>')
+            for (x, y, _), (sx, sy) in zip(lay["pieces"], lay["stations"]):
+                out.append(f'<line class="is-row" x1="{x}%" y1="{y}%" x2="{sx}%" y2="{sy}%"/>'
+                           f'<rect x="{x}%" y="{y}%" width="5" height="5" '
                            f'transform="translate(-2.5 -2.5)"/>')
             return "".join(out)
 
-        groups, n = [], 0
-        for c, scale in enumerate(scales):
-            letter, name, sid = AXIS_LETTERS[c], inline(scale["name"]), self.scale_id(scale)
-            pieces = []
-            for i, item in enumerate(cols.get(c, [])):
-                (box, (w, h)), n = boxes[id(item)], n + 1
-                number = esc(item["id"])
-                rel = media_path(item["src"], ARCHIVE_FOLDER)
-                alt, title = item.get("alt") or "", f"Archive {item['id']}"
-                thumb = self.tile_image(rel, "archive", title, "eager" if n <= 4 else "lazy",
-                                        alt=alt, sizes=MAP_SIZES)
-                if thumb:
-                    href, large = url_for(rel), ""
-                else:
-                    href = url_for(placeholder_rel(rel))
-                    large = (f'            <template>'
-                             f'{self.img(rel, alt, "archive", title, "eager", decorative=True, box=box)}'
-                             f'</template>\n')
-                caption = inline(item.get("caption") or "") or f"Image {number}"
-                meta = " · ".join(x for x in (name, inline(item.get("date") or "")) if x)
-                x, y, wd = wide["pieces"][c][i][:3]
-                tx, ty, tw = tall["pieces"][c][i][:3]
-                pieces.append(
-                    f'          <li class="map-piece" style="--r: {w} / {h}; --x: {x}%; '
-                    f'--y: {y}%; --w: {wd}%; --tx: {tx}%; --ty: {ty}%; --tw: {tw}%">\n'
-                    f'            <a class="map-fig" href="{href}" data-item aria-haspopup="dialog">\n'
-                    f'              <span class="archive-media">{thumb}</span>\n'
-                    f'              <span class="visually-hidden">Image {number}</span>\n'
-                    f'            </a>\n'
-                    f'            <p class="visually-hidden"><span data-lightbox-name>{caption}'
-                    f'</span> <span data-lightbox-meta>{meta}</span></p>\n'
-                    f'{large}'
-                    f'          </li>')
-            unreached = scale.get("unreached")
-            (x, y, flip), (tx, ty, tflip) = wide["nodes"][c], tall["nodes"][c]
-            kinds = "".join((" is-flip" if flip else "", " is-tall-flip" if tflip else ""))
-            words = (f'<span class="map-unreached">{inline(unreached)}</span>'
-                     if unreached else "")
-            body = ('        <ol class="map-pieces">\n' + "\n".join(pieces)
-                    + '\n        </ol>\n') if pieces else ""
-            groups.append(
-                f'      <section class="map-group{" is-unreached" if unreached else ""}" '
-                f'aria-labelledby="{sid}">\n'
-                f'        <h2 class="map-node{kinds}" id="{sid}" style="--x: {x}%; --y: {y}%; '
-                f'--tx: {tx}%; --ty: {ty}%"><span class="bubble" aria-hidden="true">{letter}'
-                f'</span><span class="map-name">{name}</span>{words}</h2>\n'
-                '        <svg class="map-lines" aria-hidden="true" focusable="false">'
-                f'<g class="is-wide">{lines(wide, c)}</g>'
-                f'<g class="is-tall">{lines(tall, c)}</g></svg>\n'
-                f'{body}'
-                '      </section>')
-        subject = ""
-        if center:
-            (x, y), (tx, ty) = wide["subject"], tall["subject"]
-            subject = (f'      <p class="map-subject" style="--x: {x}%; --y: {y}%; --tx: {tx}%; '
-                       f'--ty: {ty}%"><span>{inline(center)}</span></p>\n')
-        legend = "".join(f'<li class="is-{kind}">{inline(words)}</li>'
-                         for kind, words in zip(("solid", "dashed"), drawing.get("legend") or []))
-        legend = (f'      <ul class="map-legend" aria-hidden="true">{legend}</ul>\n'
-                  if legend else "")
-        return (f'    <div class="atlas">\n'
+        pieces = []
+        for n, item in enumerate(items):
+            k = keys.index(item["scale"].lower())
+            numeral, name = self.roman(n + 1), inline(scales[k]["name"])
+            box, (w, h) = boxes[n]
+            number = esc(item["id"])
+            rel = media_path(item["src"], ARCHIVE_FOLDER)
+            alt, title = item.get("alt") or "", f"Archive {item['id']}"
+            thumb = self.tile_image(rel, "archive", title, "eager" if n < 3 else "lazy",
+                                    alt=alt, sizes=MAP_SIZES)
+            if thumb:
+                href, large = url_for(rel), ""
+            else:
+                href = url_for(placeholder_rel(rel))
+                large = (f'          <template>'
+                         f'{self.img(rel, alt, "archive", title, "eager", decorative=True, box=box)}'
+                         f'</template>\n')
+            date = inline(item.get("date") or "")
+            caption = inline(item.get("caption") or "") or f"Image {number}"
+            meta = " · ".join(x for x in (numeral, name, date) if x)
+            (x, y, wd), (tx, ty, tw) = wide["pieces"][n], tall["pieces"][n]
+            (sx, sy), (stx, sty) = wide["stations"][n], tall["stations"][n]
+            open_ = " is-unreached" if unreached[k] else ""
+            when = (f'          <span class="map-date" style="--x: {x}%; --y: {y}%" '
+                    f'aria-hidden="true">{date}</span>\n') if date else ""
+            pieces.append(
+                f'        <li class="map-piece{open_}">\n'
+                f'          <a class="map-fig" href="{href}" style="--r: {w} / {h}; --x: {x}%; '
+                f'--y: {y}%; --w: {wd}%; --tx: {tx}%; --ty: {ty}%; --tw: {tw}%" data-item '
+                f'aria-haspopup="dialog">\n'
+                f'            <span class="archive-media">{thumb}</span>\n'
+                f'            <span class="visually-hidden">Image {number}, {name}</span>\n'
+                f'          </a>\n'
+                f'          <span class="map-station" style="--x: {sx}%; --y: {sy}%; '
+                f'--tx: {stx}%; --ty: {sty}%" aria-hidden="true">{numeral}</span>\n'
+                f'{when}'
+                f'          <p class="visually-hidden"><span data-lightbox-name>{caption}</span> '
+                f'<span data-lightbox-meta>{meta}</span></p>\n'
+                f'{large}'
+                f'        </li>')
+        heads, key, words = [], [], ""
+        for k, scale in enumerate(scales):
+            letter, name = AXIS_LETTERS[k], inline(scale["name"])
+            open_ = ' class="is-unreached"' if unreached[k] else ""
+            heads.append(f'        <li{open_} id="{self.scale_id(scale)}" style="--x: '
+                         f'{wide["lanes"][k]}%; --tx: {tall["lanes"][k]}%"><span class="map-lane">'
+                         f'{name}</span><span class="bubble">{letter}</span></li>')
+            key.append(f'<li class="map-key-scale"><span class="bubble">{letter}</span>{name}</li>')
+            last = [n for n, (c, _) in enumerate(shapes) if c == k]
+            if scale.get("unreached") and last:
+                (sx, sy), (stx, sty) = wide["stations"][last[-1]], tall["stations"][last[-1]]
+                words = (f'      <p class="map-unreached" style="--x: {sx}%; --y: {sy}%; '
+                         f'--tx: {stx}%; --ty: {sty}%">{inline(scale["unreached"])}</p>\n')
+        legend = "".join(f'<li class="is-{kind}">{inline(text)}</li>'
+                         for kind, text in zip(("solid", "dashed"), drawing.get("legend") or []))
+        return ('    <div class="atlas">\n'
+                '      <ol class="map-heads" aria-hidden="true">\n' + "\n".join(heads) +
+                '\n      </ol>\n'
                 f'      <div class="map" style="--ratio: {wide["ratio"]}; '
                 f'--tall-ratio: {tall["ratio"]}">\n'
-                + "\n".join(groups) + "\n" + subject +
-                '      </div>\n' + legend + '    </div>\n')
+                '        <svg class="map-lines" aria-hidden="true" focusable="false">'
+                f'<g class="is-wide">{lines(wide)}</g><g class="is-tall">{lines(tall)}</g>'
+                '</svg>\n'
+                '        <ol class="map-pieces">\n' + "\n".join(pieces) + '\n        </ol>\n'
+                f'{words}'
+                '      </div>\n'
+                f'      <ul class="map-key" aria-hidden="true">{"".join(key)}{legend}</ul>\n'
+                '    </div>\n')
 
     def build_archive(self):
         """Every image in content/archive.json, in the file's order, left to right and down, edge

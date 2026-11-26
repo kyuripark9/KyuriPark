@@ -2027,9 +2027,10 @@ mark.placeholder {
   text-wrap: pretty;
 }
 
-/* Printed on the sheet (since 2026-11-24, the user's moodboard: an archive's photocopied page):
-   the sentence in ink, part see-through, uneven in strength, multiplied into the paper
-   (--ink, --ink-texture), as Work's tiles' numbers and titles are. The mask shows nothing outside the
+/* Solid black since 2026-11-26 (the user's pick, after gougoucore.com's: the ink read gray and
+   soft). From 2026-11-24 printed on the sheet (the user's moodboard: an archive's photocopied
+   page): the sentence in ink, part see-through, uneven in strength, multiplied into the paper
+   (--ink, --ink-texture), as Work's tiles' numbers and titles were. The mask showed nothing outside the
    sentence's box, so the box reaches past the letters, for the descenders and the italic's
    overhang (padding), and gives that back (margins), so the lines don't move. Under the last
    line, 0.3em more (since 2026-11-25, the axis bubbles off): the serif's descenders, g and y,
@@ -2039,10 +2040,7 @@ mark.placeholder {
   margin: 0 -0.15em -0.3em;
   padding-inline: 0.15em;
   padding-bottom: calc(var(--step-1) + 0.6em);
-  color: var(--ink);
-  mix-blend-mode: multiply;
-  -webkit-mask-image: var(--ink-texture);
-  mask-image: var(--ink-texture);
+  color: var(--color-text);
 }
 
 /* (2026-11-24 to 2026-11-25 Work was punched as About is, three holes down the window's left
@@ -2758,8 +2756,11 @@ mark.placeholder {
    right, both in the label style, each --gutter in from the tile's side (so the first column's
    number stands under the header's WORK), on one line, about 30px tall as gougoucore.com's
    bar is at 1440px. Neither wraps, so every tile is the same height; a title too long for the
-   bar is cut short with "…". No mark: the whole tile is the link. The words are printed in ink
-   (--ink, --ink-texture), as Work's sentence is. A project's one-liner is on Home, an item's
+   bar is cut short with "…". No mark: the whole tile is the link. The words solid black (since
+   2026-11-26, the user's pick, after gougoucore.com's: crisp; from 2026-11-24 printed in ink,
+   --ink and --ink-texture, part see-through and uneven, which read gray and soft). (The same
+   day, for an hour, the number in Kalnia Bold and the title in Inter capitals, as gougoucore's:
+   they didn't fit the site's type, the user said.) A project's one-liner is on Home, an item's
    type in the lightbox. */
 .work-caption {
   order: 1;
@@ -2773,16 +2774,12 @@ mark.placeholder {
 
 .work-number,
 .work-name {
-  color: var(--ink);
-  mix-blend-mode: multiply;
-  -webkit-mask-image: var(--ink-texture);
-  mask-image: var(--ink-texture);
+  color: var(--color-text);
 }
 
 .work-number {
   flex: none;
 }
-
 
 .work-name {
   min-width: 0;
@@ -2859,6 +2856,20 @@ mark.placeholder {
   }
 }
 
+/* Work's and Archive's grid lines solid black hairlines, 1px in the text color, with no + marks
+   (since 2026-11-26, the user's asks, after gougoucore.com/13/: "thicker and sharper", Archive's
+   first, then Work's, "the same lines"; 2px for an hour, too heavy: "the lines look awkward",
+   while gougoucore's are 1px of solid black); construction lines, lighter than ink
+   (--color-trace at 30%), with a registration mark in ink where they crossed, from 2026-11-23
+   (see Drawing system). The tiles' lines, the line over Work's bars, its grid's top line and the
+   empty cells closing a short row all take these. */
+.work-grid,
+.archive-grid.is-flow {
+  --trace-rule: 1px solid var(--color-text);
+  --color-trace: var(--color-text);
+  --mark-cross: none;
+}
+
 /* A filter with nothing in it yet. */
 .work-empty {
   color: var(--color-subtle);
@@ -2904,6 +2915,82 @@ mark.placeholder {
 
 .js .archive-text {
   display: none;
+}
+
+/* Archive as one grid with no gaps (since 2026-11-26, ARCHIVE_GRID in build.py, the user's asks:
+   a clean grid, then "with no gaps, like gougoucore.com/13/"): Work's grid, 2 across on phones
+   and 3 from 768px, edge to edge right under the header, lines between the images (below),
+   nothing under them. Each image fills its cell, cropped round its --focus; a row's cells
+   are as tall as its shape says (--row-phone, --row-desktop: width over height, from build.py's
+   ARCHIVE_ROW_RATIOS), since later that day every row Work's tiles' 18:25 (the user's ask: one
+   height; for an hour a row of landscapes low and a row of posters tall). Where the
+   last row wouldn't be full, build.py has one image span two columns (.is-wide-phone,
+   .is-wide-desktop) and marks the cells ending a row (.row-end-phone, .row-end-desktop), so the
+   lines and marks follow the cells, not the count; .rest-phone-1 / .rest-desktop-1 or -2 close
+   a row nothing could fill with empty cells.
+   Its lines solid black hairlines, with no + marks, as Work's (see Work's tiles); the header's
+   line is its top. */
+.archive-grid.is-flow > li:nth-child(n) {
+  border-right: var(--trace-rule);
+}
+
+.archive-grid.is-flow > li:nth-child(n)::before,
+.archive-grid.is-flow > li:nth-child(n)::after {
+  content: none;
+}
+
+.archive-grid.is-flow::after {
+  content: none !important;
+}
+
+.archive-grid.is-flow .archive-media {
+  height: calc(100cqw / var(--cols) / var(--row-phone, 1));
+}
+
+.archive-grid.is-flow .archive-media img {
+  object-position: var(--focus, 50% 50%);
+}
+
+@media (max-width: 767px) {
+  .archive-grid.is-flow > li.is-wide-phone {
+    grid-column: span 2;
+  }
+
+  .archive-grid.is-flow > li.row-end-phone {
+    border-right: 0;
+  }
+
+  .archive-grid.is-flow.rest-phone-1::after {
+    --rest: 1;
+    --rest-line: 0;
+    content: "" !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .archive-grid.is-flow .archive-media {
+    height: calc(100cqw / var(--cols) / var(--row-desktop, 1));
+  }
+
+  .archive-grid.is-flow > li.is-wide-desktop {
+    grid-column: span 2;
+  }
+
+  .archive-grid.is-flow > li.row-end-desktop {
+    border-right: 0;
+  }
+
+  .archive-grid.is-flow.rest-desktop-1::after {
+    --rest: 1;
+    --rest-line: 0;
+    content: "" !important;
+  }
+
+  .archive-grid.is-flow.rest-desktop-2::after {
+    --rest: 2;
+    --rest-line: 1px;
+    content: "" !important;
+  }
 }
 
 /* Archive as a plan (since 2026-11-22, ARCHIVE_PLAN in build.py, the user's ask: the drawing

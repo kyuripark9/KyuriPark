@@ -212,6 +212,25 @@ ARCHIVE_MAP_BOARD = True
 # How wide a map's image shows: up to about a third of the window from 768px (the biggest),
 # two thirds on phones.
 MAP_SIZES = "(min-width: 768px) 34vw, 66vw"
+# Archive as one grid with no gaps (since 2026-11-26, the user's asks, after the expressive
+# layouts were hard to make both theirs and good-looking: a clean grid, the drawing system in its
+# details; then "with no gaps, like gougoucore.com/13/", its Lab): every image, by field and
+# project, edge to edge right under the header, Work's columns, solid black 1px lines between
+# them (construction lines and + marks for an hour, then, at the user's ask, as gougoucore's),
+# nothing under the images (the lightbox has the captions); every cell Work's tiles' height
+# (ARCHIVE_ROW_RATIOS), and where the last row wouldn't be full, a landscape image spans two
+# columns (archive_grid, flow_rows). Over every layout above when on. (The same morning, for an
+# hour, a section a field under its name, a bar with a number and the project under each image.)
+# False: the board.
+ARCHIVE_GRID = True
+ARCHIVE_GRID_COLS = (2, 3)  # on phones, from 768px (as in style.css: Work's)
+# The shapes a row of Archive's grid can take, a cell's width over its height, each row taking
+# the one that crops its images least. One since later on 2026-11-26 (the user's ask: every cell
+# one height): Work's tiles' 18:25, so the two pages share one rhythm (18:25 to 5:4 crop about
+# as much, a quarter of each image on average). For an hour before, three, tall as Work's, square
+# or low (18 / 25, 1, 5 / 4), as gougoucore.com's Lab's rows are tall or low.
+ARCHIVE_ROW_RATIOS = (18 / 25,)
+WIDE_MIN_PX = 1200  # an image narrower than this is a poor pick to span two columns (blurred)
 # About's scales (since 2026-11-22, the user's ask: About carrying the drawing system and their
 # story): under the paragraph, site.json's "scales" as a title block, a cell each, A to D, its
 # bubble and name, the field it comes from and a line of the user's own account, and a link to
@@ -2844,6 +2863,126 @@ class Builder:
             out += [(it, g) for _, it in sorted(groups[g], key=when)]
         return out
 
+    @staticmethod
+    def flow_rows(sizes, leads, cols):
+        """How Archive's images run with `cols` across (ARCHIVE_GRID): in order, left to right
+        and down with no gaps, as few spanning two columns as close the last row (none
+        starting in the last column), and each row as tall as suits its images, one of
+        ARCHIVE_ROW_RATIOS (a cell's width over its height), the one that crops them least.
+        Of the ways that close the rows, the one that crops least over all, a wide image
+        narrower than WIDE_MIN_PX counting against it and one with "lead" in archive.json
+        for it. sizes: each image's (width, height). Returns, for each image, whether it's
+        wide, whether it ends a row and its row's ratio; and the empty cells closing the last
+        row when no way works."""
+        from itertools import combinations
+        n, need = len(sizes), (-len(sizes)) % cols
+
+        def loss(ratio, cell):  # the share of the image cropped away in a cell of that shape
+            return 1 - min(ratio, cell) / max(ratio, cell)
+
+        def lay(wide):
+            col, rows, row = 0, [], []
+            for i in range(n):
+                span = 2 if i in wide else 1
+                if col + span > cols:
+                    return None
+                row.append(i)
+                col = (col + span) % cols
+                if col == 0:
+                    rows.append(row)
+                    row = []
+            if row:
+                rows.append(row)
+            total, shapes = 0.0, {}
+            for row in rows:
+                cost, cell = min(
+                    (sum(loss(sizes[i][0] / sizes[i][1], c * (2 if i in wide else 1))
+                         for i in row), c) for c in ARCHIVE_ROW_RATIOS)
+                total += cost
+                shapes.update((i, cell) for i in row)
+            for i in wide:
+                total += max(0, WIDE_MIN_PX - sizes[i][0]) / WIDE_MIN_PX - 0.3 * leads[i]
+            return total, shapes, col
+
+        best = None
+        for wide in combinations(range(n), need):
+            laid = lay(set(wide))
+            if laid and laid[2] == 0 and (best is None or laid[0] < best[0]):
+                best = (laid[0], set(wide), laid[1])
+        wide, shapes = (best[1], best[2]) if best else (set(), lay(set())[1])
+        flags, ends, col = [], [], 0
+        for i in range(n):
+            col = (col + (2 if i in wide else 1)) % cols
+            flags.append(i in wide)
+            ends.append(col == 0)
+        return flags, ends, [shapes[i] for i in range(n)], 0 if best else (-n) % cols
+
+    def archive_grid(self):
+        """Archive as one grid with no gaps (ARCHIVE_GRID, since 2026-11-26, the user's asks: a
+        clean grid, then "with no gaps, like gougoucore.com/13/", its Lab): every image, by
+        field and project as on the board (archive_in_groups), from the window's edge to its
+        edge right under the header, 2 across on phones and 3 from 768px, Work's construction
+        lines between them and + marks where they cross, nothing under them (captions are in
+        the lightbox). Each fills its cell; a row is as tall as suits its images, and where the
+        last row wouldn't be full, one spans two columns (flow_rows)."""
+        items = [item for item, _ in self.archive_in_groups(leads_first=True)]
+        sizes = []
+        for item in items:
+            rel = media_path(item["src"], ARCHIVE_FOLDER)
+            sizes.append(os.path.exists(os.path.join(ROOT, rel)) and media_size(rel)
+                         or ARCHIVE_BOXES[0])
+        leads = [bool(item.get("lead")) for item in items]
+        (p_wide, p_ends, p_cell, p_rest), (d_wide, d_ends, d_cell, d_rest) = (
+            self.flow_rows(sizes, leads, cols) for cols in ARCHIVE_GRID_COLS)
+        cells = [self.grid_cell(item, n + 1, (p_wide[n], d_wide[n]), (p_ends[n], d_ends[n]),
+                                (p_cell[n], d_cell[n]),
+                                "eager" if n < ARCHIVE_GRID_COLS[-1] else "lazy")
+                 for n, item in enumerate(items)]
+        rest = "".join(f" rest-{name}-{k}" for name, k in (("phone", p_rest),
+                                                           ("desktop", d_rest)) if k)
+        return (f'    <ol class="archive-grid is-flow{rest}">\n' + "\n".join(cells)
+                + '\n    </ol>\n')
+
+    def grid_cell(self, item, number, wide, ends, cell, loading):
+        """One image on Archive's grid (archive_grid): a link opening the lightbox, as on the
+        board, the image filling its cell, cropped round its "focus" in archive.json (a CSS
+        position, "90% 50%") when its subject is off its middle. wide, ends and cell: whether
+        it spans two columns, whether it ends a row, and its row's shape (--row), on phones
+        and from 768px."""
+        rel = media_path(item["src"], ARCHIVE_FOLDER)
+        alt, title = item.get("alt") or "", f"Archive {item['id']}"
+        sizes = (f"(min-width: 768px) {67 if wide[1] else 33}vw, {100 if wide[0] else 50}vw")
+        thumb = self.tile_image(rel, "archive", title, loading, alt=alt, sizes=sizes)
+        large = ""
+        if thumb:
+            href = url_for(rel)
+        else:
+            href = url_for(placeholder_rel(rel))
+            box = ARCHIVE_BOXES[(number - 1) % len(ARCHIVE_BOXES)]
+            large = (f'          <template>'
+                     f'{self.img(rel, alt, "archive", title, "eager", decorative=True, box=box)}'
+                     f'</template>\n')
+        caption = inline(item.get("caption") or "")
+        name_cls = "archive-name" if caption else "archive-name visually-hidden"
+        caption = caption or f"Image {esc(item['id'])}"  # names the lightbox for screen readers
+        meta = " · ".join(x for x in (inline(item.get("date") or ""), archive_link(item)) if x)
+        classes = [name for name, on in (("is-wide-phone", wide[0]), ("is-wide-desktop", wide[1]),
+                                         ("row-end-phone", ends[0]), ("row-end-desktop", ends[1]))
+                   if on]
+        cls = f' class="{" ".join(classes)}"' if classes else ""
+        style = f"--row-phone: {cell[0]:.4g}; --row-desktop: {cell[1]:.4g}"
+        if item.get("focus"):
+            style += f'; --focus: {esc(item["focus"])}'
+        return (f'      <li{cls} style="{style}">\n'
+                f'        <a class="archive-tile" href="{href}" data-item aria-haspopup="dialog">\n'
+                f'          <span class="archive-media">{thumb}</span>\n'
+                f'          <span class="visually-hidden">Image {number:03d}</span>\n'
+                f'        </a>\n'
+                f'        <p class="archive-text"><span class="{name_cls}" data-lightbox-name>'
+                f'{caption}</span> <span class="archive-date" data-lightbox-meta>{meta}</span></p>\n'
+                f'{large}'
+                f'      </li>')
+
     def archive_map(self):
         """Archive as one map (ARCHIVE_MAP, since 2026-11-24, the user's asks: images rather
         than words, one map rather than a list; that evening closer together, more joined and
@@ -2930,7 +3069,8 @@ class Builder:
         opens the lightbox."""
         s = self.site
         lightbox = render("lightbox.html") if self.archive else ""
-        plan = (self.archive_board() if ARCHIVE_MAP and ARCHIVE_MAP_GROUPS and ARCHIVE_MAP_BOARD
+        plan = (self.archive_grid() if ARCHIVE_GRID
+                else self.archive_board() if ARCHIVE_MAP and ARCHIVE_MAP_GROUPS and ARCHIVE_MAP_BOARD
                 else self.archive_map() if ARCHIVE_MAP
                 else self.archive_sequence() if ARCHIVE_SEQUENCE
                 else self.archive_binder() if ARCHIVE_BINDER

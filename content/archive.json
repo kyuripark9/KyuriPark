@@ -13,7 +13,7 @@
   { "id": "012", "lead": true, "src": "012.webp", "project": "Editorial", "scale": "page", "caption": "Editorial design: a dance festival poster", "date": "2024", "alt": "A festival poster in red over blue, with large Chinese characters across it" },
   { "id": "013", "src": "013.webp", "project": "Editorial", "scale": "page", "caption": "Editorial design: an exhibition poster", "date": "2024", "alt": "An exhibition poster for Regine Schumann at MMCA Seoul, glowing pink and red" },
   { "id": "014", "src": "014.webp", "project": "Editorial", "scale": "page", "caption": "Editorial design: a typeface", "date": "2024", "alt": "Letters of a typeface in thin, squared strokes, in rows on white" },
-  { "id": "015", "lead": true, "src": "015.webp", "project": "3D Products", "scale": "object", "caption": "3D product design: RO+A, a mobility vehicle", "date": "2025", "alt": "A render of RO+A, a small blue mobility vehicle, with a smaller view of it above" },
+  { "id": "015", "lead": true, "src": "015.webp", "focus": "90% 50%", "project": "3D Products", "scale": "object", "caption": "3D product design: RO+A, a mobility vehicle", "date": "2025", "alt": "A render of RO+A, a small blue mobility vehicle, with a smaller view of it above" },
   { "id": "016", "src": "016.webp", "project": "3D Products", "scale": "object", "caption": "3D product design: a skeleton watch, exploded", "date": "2025", "alt": "An exploded render of a skeleton watch, its parts spread out in a line" },
   { "id": "017", "src": "017.webp", "project": "3D Products", "scale": "object", "caption": "3D product design: vehicle sketches", "date": "2025", "alt": "Pencil sketches of a small, rounded vehicle from several sides, with rows of tiny thumbnail sketches" }
 ]

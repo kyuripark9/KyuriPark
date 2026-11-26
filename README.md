@@ -336,8 +336,10 @@ image.
 False brings back the board). The user's asks that day: the expressive layouts were hard to make
 both theirs and good-looking, so a clean grid with the drawing system in its details; then "with
 no gaps, like gougoucore.com/13/" (its Lab); then every cell one height; then the lines "thicker
-and sharper", as gougoucore's. Every image, in the board's order (by field in `site.json`'s
-"scales" order, each field's lead first, a project's images together: `archive_in_groups`), runs
+and sharper", as gougoucore's. Every image, in `content/archive.json`'s order (since later that
+day, the user's ask: to set it themselves, which they did in Figma, the Archive file's page
+"Archive — order"; `ARCHIVE_FILE_ORDER`, False for the board's order: by field in `site.json`'s
+"scales" order, each field's lead first, a project's images together, `archive_in_groups`), runs
 from the window's edge to its edge right under the header, 3 across from 768px and 2 on phones
 (`ARCHIVE_GRID_COLS`, Work's columns), with solid black 1px lines between them and no marks, and
 nothing under them: a click opens the lightbox with the caption, date and link. Every cell is
@@ -348,7 +350,14 @@ of each image on average). Where the last row wouldn't be full, one image spans 
 (`flow_rows`: as few as close the rows, none starting in the last column, the one that crops
 least, an image under `WIDE_MIN_PX` wide counting against it and a lead for it): Palette (010)
 from 768px, RO+A (015) on phones. An image whose subject is off its middle is cropped round its
-`"focus"` (a CSS position, `"90% 50%"` for RO+A). For an hour that morning each field was a
+`"focus"` (a CSS position, `"90% 50%"` for RO+A). Since the user's order, the images marked
+`"wide": true` in archive.json span two columns instead, at both widths (`placed_rows`): from
+768px each row one wide image and one not, the wide one at the left, then the right, down the
+page, as the user laid them out; on phones a wide one is a row to itself, the others two to a
+row. Lay them out so no wide image finds one cell left in its row (it would start the next,
+leaving a hole). An image shown whole, not cropped, takes `"fit": "contain"` and its
+`"background"`, the color round it (Palette's screens, 011, on `#323232`). With no `"wide"` in
+archive.json, `flow_rows` picks them. For an hour that morning each field was a
 section under its name, a bar under each image with its number and its project.
 
 **Since 2026-11-25 the map is a board of groups** (`ARCHIVE_MAP_BOARD` with

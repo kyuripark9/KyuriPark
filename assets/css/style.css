@@ -2968,9 +2968,13 @@ mark.placeholder {
 
 .archive-grid.is-flow .archive-media {
   height: calc(100cqw / var(--cols) / var(--row-phone, 1));
+  background: var(--backdrop, var(--color-fill));
 }
 
+/* An image shown whole in its cell ("fit": "contain" in archive.json) sits on its "background"
+   (--backdrop), since 2026-11-26 (the user's pick in Figma: Palette's screens on #323232). */
 .archive-grid.is-flow .archive-media img {
+  object-fit: var(--fit, cover);
   object-position: var(--focus, 50% 50%);
 }
 

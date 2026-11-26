@@ -243,6 +243,12 @@ ARCHIVE_GRID_COLS = (2, 3)  # on phones, from 768px (as in style.css: Work's)
 # or low (18 / 25, 1, 5 / 4), as gougoucore.com's Lab's rows are tall or low.
 ARCHIVE_ROW_RATIOS = (18 / 25,)
 WIDE_MIN_PX = 1200  # an image narrower than this is a poor pick to span two columns (blurred)
+# Archive's grid in content/archive.json's order (since 2026-11-26, the user's ask: to set the
+# order themselves, which they did in Figma, the Archive file's page "Archive — order"), its
+# images marked "wide": true there two columns wide, at both widths (placed_rows). False: by
+# field and project as on the board (archive_in_groups), the wide ones picked by flow_rows, as
+# they are, in either order, when archive.json marks none.
+ARCHIVE_FILE_ORDER = True
 # About's scales (since 2026-11-22, the user's ask: About carrying the drawing system and their
 # story): under the paragraph, site.json's "scales" as a title block, a cell each, A to D, its
 # bubble and name, the field it comes from and a line of the user's own account, and a link to
@@ -3024,6 +3030,37 @@ class Builder:
             ends.append(col == 0)
         return flags, ends, [shapes[i] for i in range(n)], 0 if best else (-n) % cols
 
+    @staticmethod
+    def placed_rows(sizes, wide, cols):
+        """flow_rows' answer for wide images chosen in archive.json ("wide": true, with
+        ARCHIVE_FILE_ORDER): the images placed as the browser places them, in order, left to
+        right and down, a wide one spanning two columns, so on phones a row to itself; one that
+        finds a single cell left in its row starts the next, leaving a hole (lay them out so
+        none does). Each row the shape of ARCHIVE_ROW_RATIOS that crops its images least."""
+        def loss(ratio, cell):
+            return 1 - min(ratio, cell) / max(ratio, cell)
+
+        n, col, rows, row, ends = len(sizes), 0, [], [], [False] * len(sizes)
+        for i in range(n):
+            span = min(2 if wide[i] else 1, cols)
+            if col + span > cols:
+                rows.append(row)
+                row, col = [], 0
+            row.append(i)
+            col += span
+            if col == cols:
+                ends[i] = True
+                rows.append(row)
+                row, col = [], 0
+        if row:
+            rows.append(row)
+        shapes = {}
+        for r in rows:
+            cell = min(ARCHIVE_ROW_RATIOS, key=lambda c: sum(
+                loss(sizes[i][0] / sizes[i][1], c * (2 if wide[i] else 1)) for i in r))
+            shapes.update((i, cell) for i in r)
+        return [bool(w) for w in wide], ends, [shapes[i] for i in range(n)], (cols - col) % cols
+
     def archive_grid(self):
         """Archive as one grid with no gaps (ARCHIVE_GRID, since 2026-11-26, the user's asks: a
         clean grid, then "with no gaps, like gougoucore.com/13/", its Lab): every image, by
@@ -3031,16 +3068,22 @@ class Builder:
         edge right under the header, 2 across on phones and 3 from 768px, Work's construction
         lines between them and + marks where they cross, nothing under them (captions are in
         the lightbox). Each fills its cell; a row is as tall as suits its images, and where the
-        last row wouldn't be full, one spans two columns (flow_rows)."""
-        items = [item for item, _ in self.archive_in_groups(leads_first=True)]
+        last row wouldn't be full, one spans two columns (flow_rows). With ARCHIVE_FILE_ORDER,
+        in archive.json's order, the ones it marks "wide" spanning two (placed_rows)."""
+        items = (list(self.archive) if ARCHIVE_FILE_ORDER
+                 else [item for item, _ in self.archive_in_groups(leads_first=True)])
         sizes = []
         for item in items:
             rel = media_path(item["src"], ARCHIVE_FOLDER)
             sizes.append(os.path.exists(os.path.join(ROOT, rel)) and media_size(rel)
                          or ARCHIVE_BOXES[0])
         leads = [bool(item.get("lead")) for item in items]
-        (p_wide, p_ends, p_cell, p_rest), (d_wide, d_ends, d_cell, d_rest) = (
-            self.flow_rows(sizes, leads, cols) for cols in ARCHIVE_GRID_COLS)
+        chosen = [bool(item.get("wide")) for item in items]
+        if ARCHIVE_FILE_ORDER and any(chosen):
+            layouts = (self.placed_rows(sizes, chosen, cols) for cols in ARCHIVE_GRID_COLS)
+        else:
+            layouts = (self.flow_rows(sizes, leads, cols) for cols in ARCHIVE_GRID_COLS)
+        (p_wide, p_ends, p_cell, p_rest), (d_wide, d_ends, d_cell, d_rest) = layouts
         cells = [self.grid_cell(item, n + 1, (p_wide[n], d_wide[n]), (p_ends[n], d_ends[n]),
                                 (p_cell[n], d_cell[n]),
                                 "eager" if n < ARCHIVE_GRID_COLS[-1] else "lazy")
@@ -3053,7 +3096,9 @@ class Builder:
     def grid_cell(self, item, number, wide, ends, cell, loading):
         """One image on Archive's grid (archive_grid): a link opening the lightbox, as on the
         board, the image filling its cell, cropped round its "focus" in archive.json (a CSS
-        position, "90% 50%") when its subject is off its middle. wide, ends and cell: whether
+        position, "90% 50%") when its subject is off its middle, or whole with "fit": "contain"
+        on its "background" color (since 2026-11-26, the user's pick in Figma: Palette's
+        screens, 011, on #323232). wide, ends and cell: whether
         it spans two columns, whether it ends a row, and its row's shape (--row), on phones
         and from 768px."""
         rel = media_path(item["src"], ARCHIVE_FOLDER)
@@ -3080,6 +3125,10 @@ class Builder:
         style = f"--row-phone: {cell[0]:.4g}; --row-desktop: {cell[1]:.4g}"
         if item.get("focus"):
             style += f'; --focus: {esc(item["focus"])}'
+        if item.get("fit"):
+            style += f'; --fit: {esc(item["fit"])}'
+        if item.get("background"):
+            style += f'; --backdrop: {esc(item["background"])}'
         return (f'      <li{cls} style="{style}">\n'
                 f'        <a class="archive-tile" href="{href}" data-item aria-haspopup="dialog">\n'
                 f'          <span class="archive-media">{thumb}</span>\n'

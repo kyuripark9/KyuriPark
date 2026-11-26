@@ -633,8 +633,8 @@ button {
 .map-pin,
 .map-title-field,
 .map-tag,
-.globe-key-label,
-.globe-key-tag {
+.globe-key-tag,
+.globe-key-under {
   font-family: var(--font-mono);
   font-size: var(--size-label);
   font-weight: 400;
@@ -4817,10 +4817,11 @@ button.work-card .work-go::after {
    Beside the globe from 1200px, under it before, its key (.globe-key, the user's ask, the same
    day: say what it means; that night, the user's asks: so a visitor feels their range, that
    they connect fields, and that they use AI in the process, then not scattered, where they're
-   going clear: fields, connecting fields, direction), a drawing's legend: each part by
-   a mark drawn as its part of the drawing is, its label, and the user's words, a part's lead
-   line in the display face, then a line each, its tag in the label style (a scale's name, a
-   work's) and the words in the text's face. What a part of the key, or a name, lights (data-focus on
+   going clear: fields, connecting fields, direction, each by a mark; since 2026-11-25, the
+   user's ask, as that was hard to understand: each word on the globe said in plain words, in
+   four groups, each headed by a visitor's question in the display face), a line a word, the
+   word in the label style and the user's line in the text's face, the work that shows it
+   under it. What a part of the key, or a name, lights (data-focus on
    .orbits, globe.js) stays and the rest goes faint, in the drawing and in the key; lit by
    hand, the globe holds still; a drag sideways turns it. The section is between two
    window-wide lines at every width. Without JavaScript, which draws it, the drawing isn't
@@ -4869,7 +4870,7 @@ html:not(.js) .orbits-figure.is-globe {
 
 .globe-lines {
   stroke: var(--color-trace);
-  opacity: 0.5;  /* fainter than the orbits' far halves, so the orbits lead */
+  opacity: 0.35;  /* faint, as the diagram's: the orbits lead (0.5 until 2026-11-25) */
 }
 
 .globe-axis {
@@ -4877,32 +4878,33 @@ html:not(.js) .orbits-figure.is-globe {
   stroke-dasharray: 1 3;
 }
 
-.orbit-line.is-back {
-  opacity: 0.25;
-}
+/* The orbits' far halves in ink as their near halves are, as the diagram's are (since
+   2026-11-25, the user's ask: its great circles black lines; a quarter strength before). */
 
 /* The user's work going across the scales, a way each (since 2026-11-24 night, build.py's
-   globe_ways: Light Life, Object to Screen; the Clayco rebrand, Page to Space; and, dashed,
-   where they're going, Next, Screen to Space, so every way heads for Space): a little
-   heavier than the orbits, so they read as the things moving on them, their heads and any
-   year's dot in ink, their far parts faint as the orbits' are. */
+   globe_ways: EXPERIENCE, Object to Digital; AI, Branding to Space; and, dashed, the way
+   ahead, Digital to Space, so every way heads for Space): straight, in the orbits' 1px since
+   2026-11-25 (the user's ask: cleaner, as the diagram's lines; 1.5px and curved before),
+   their heads and any year's dot in ink, their far parts too (faint until later that day).
+   EXPERIENCE and AI dotted, the diagram's cross through the middle (globe.js; the user's
+   ask, later that day: "the diagonals crossing it dotted"), in ink, the axes' dots. */
 .globe-path-line {
   fill: none;
   stroke: var(--color-text);
-  stroke-width: 1.5;
+  stroke-width: 1;
   stroke-linecap: round;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
 }
 
-.globe-path-line.is-back {
-  opacity: 0.25;
+.globe-path:not(.is-next) .globe-path-line {
+  stroke-dasharray: 1 3;
+  stroke-linecap: butt;
 }
 
-/* Where the user is going (Next, the key's direction), dashed as Space's orbit is: not there
-   yet. */
+/* Where the user is going (Next, the key's direction), dashed: not there yet. */
 .globe-path.is-next .globe-path-line {
-  stroke-dasharray: 6 5;
+  stroke-dasharray: 6 6;
 }
 
 .globe-path-head,
@@ -4930,6 +4932,12 @@ html:not(.js) .orbits-figure.is-globe {
                        calc((var(--ay, 0) - 1) * 50% + var(--uy, 0) * var(--gap)));
 }
 
+/* The word by the middle (Living, since 2026-11-25): still, over and right of the cross, clear
+   of its arms and of the axis going up from it. */
+.is-globe .orbit-label.is-middle {
+  transform: translate(12px, calc(-100% - 8px));
+}
+
 /* What their work is about, under the globe, in the display face as typed: the line the
    drawing is about, so it reads first. */
 .is-globe .orbit-center {
@@ -4950,75 +4958,29 @@ html:not(.js) .orbits-figure.is-globe {
   text-align: right;
 }
 
-/* The key: a part each (fields, connecting fields, direction), a construction line between
-   them; in each, its mark and its label on one line, then the user's words under
-   the label. */
+/* The key: what the globe means, a group each (how I see the world, what I design, how I
+   connect them, where I'm going), headed by the question a visitor comes with, in the display
+   face as typed, as the line under the globe is. Since 2026-11-25 evening (the user's ask:
+   cleaner, without the boxes) each group's lines are one paragraph in the text's face, a
+   sentence a line, nothing beside them, the groups a little apart (GLOBE_KEY_PROSE in
+   build.py). Off, a box in ink lines, ruled as a spec sheet, as Work's cards are (that evening
+   before, the user's ask, from a shop's ruled box over its photo; before it a word column beside
+   the lines, which broke every few words in the narrow column and ran into each other): a cell
+   a word, the word in the label style over its line and, at its right, quieter, the work that
+   shows it. */
 .globe-key {
   display: grid;
   max-width: 34rem;
   margin: var(--step-6) auto 0;
 }
 
-.globe-key-part {
-  display: grid;
-  grid-template-columns: 32px minmax(0, 1fr);
-  column-gap: var(--step-2);
-  row-gap: var(--step-1);
-  padding-block: var(--step-3);
-  border-top: 1px solid var(--color-trace);
-  transition: opacity var(--fade);
-}
-
-.globe-key-part:first-child {
-  padding-top: 0;
-  border-top: 0;
-}
-
-.globe-key-part:last-child {
-  padding-bottom: 0;
-}
-
-.globe-key-mark {
-  grid-column: 1;
-  grid-row: 1;
-  align-self: center;
-  width: 32px;
-  height: 16px;
-  overflow: visible;
-}
-
-.globe-key-mark :is(path, circle) {
-  fill: none;
-  stroke: var(--color-text);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-
-.globe-key-mark .is-dot {
-  fill: var(--color-text);
-  stroke: none;
-}
-
-.globe-key-mark .is-open {
-  fill: var(--color-bg);
-}
-
-.globe-key-mark .is-dashed {
-  stroke-dasharray: 3 2.5;
-}
-
-.globe-key-mark .is-way {
-  stroke-width: 1.5;
-}
-
-.globe-key-mark .is-head {
-  fill: var(--color-text);
-  stroke: none;
-}
-
-/* A work's name in the key is a link to its page (Light Life's, TypeLab's, Clack's): the
-   color changes on hover, as the site's links do. */
+/* A work's name in the key is a link to its page (Light Life's, TypeLab's, Clack's,
+   NBCUniversal's), underlined: the color changes on hover, as the site's links do. */
 .globe-key a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  white-space: nowrap;  /* a name kept whole: Light Life, not Light / Life */
   transition: color var(--fade);
 }
 
@@ -5026,56 +4988,84 @@ html:not(.js) .orbits-figure.is-globe {
   color: var(--color-muted);
 }
 
-.globe-key-row a {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
-}
-
-.globe-key-label,
-.globe-key-text,
-.globe-key-rows {
-  grid-column: 2;
-}
-
-/* The view and the goal, in the display face as typed, as the line under the globe is. */
-.globe-key-text {
+.globe-key-label {
   font-family: var(--font-display);
-  font-size: 1.625rem;
+  font-size: 1.375rem;
   font-weight: 300;
   line-height: 1.2;
   letter-spacing: -0.01em;
   text-wrap: pretty;
 }
 
-/* A strength a line: the scale's name in the label style (Shared text styles), its field in
-   the text's face; the goal's line under it the same, Space's words in the italic. */
-.globe-key-rows {
-  display: grid;
-  gap: 6px;
+/* Paragraphs: the heading, then its paragraph close under it. */
+.globe-key.is-prose {
+  row-gap: var(--step-4);
 }
 
+.is-prose .globe-key-label {
+  margin-bottom: var(--step-1);
+}
+
+.globe-key-text {
+  text-wrap: pretty;
+}
+
+/* The box: ruled round and between its groups, a heading in a row of its own. */
+.globe-key.is-box {
+  border: var(--rule);
+}
+
+.is-box .globe-key-part + .globe-key-part {
+  border-top: var(--rule);
+}
+
+.is-box .globe-key-label {
+  padding: 10px 12px 11px;
+  border-bottom: var(--rule);
+}
+
+/* A cell a word: the word and its work over, the line under, the cells ruled apart. */
 .globe-key-rows li {
   display: grid;
-  grid-template-columns: 5.5rem minmax(0, 1fr);  /* room for LIGHT LIFE */
-  column-gap: var(--step-1);
-  align-items: baseline;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: var(--step-2);
+  row-gap: 6px;
+  padding: 10px 12px 13px;
+}
+
+.globe-key-rows li + li {
+  border-top: var(--rule);
+}
+
+.globe-key-tag {
+  grid-area: 1 / 1;
+}
+
+.globe-key-row {
+  grid-area: 2 / 1 / 3 / -1;
+  text-wrap: pretty;
+}
+
+/* Quieter, at the word's right: the work that shows it (Light Life), or a line of its own. */
+.globe-key-under {
+  grid-area: 1 / 2;
+  justify-self: end;
+  color: var(--color-muted);
+  text-align: right;
+}
+
+.globe-key-under a:hover {
+  color: var(--color-text);
+}
+
+/* What lights none of what's lit goes faint (globe.js): the words, not the box's lines. */
+.globe-key :is(.globe-key-label, span.globe-key-line, .globe-key-rows li > *) {
   transition: opacity var(--fade);
 }
 
-.globe-key-unreached {
-  color: var(--color-subtle);
-  font-style: italic;
-}
-
-/* A line's second line, quieter: what they made in a field (3D products, mobility, and home
-   goods), the scales a work goes across (Object to Screen). */
-.globe-key-under {
-  display: block;
-  color: var(--color-muted);
-}
-
-.globe-key .is-dim {
+.globe-key-part.is-dim > .globe-key-label,
+.globe-key span.globe-key-line.is-dim,
+.globe-key li.is-dim > * {
   opacity: 0.3;
 }
 
@@ -5085,15 +5075,9 @@ html:not(.js) .orbits-figure.is-globe {
   }
 }
 
-@media (max-width: 1199px) {
-  .globe-key-text {
-    font-size: 1.375rem;
-  }
-}
-
 /* From 1200px the drawing and its key side by side, as a sheet's drawing and its notes: the
-   globe in what the key leaves, the key in a column at the right, its four parts a little
-   closer, so it stands about as tall as the globe: both in the window at once, a line of the
+   globe in what the key leaves, the key in a column at the right, about as tall as the globe:
+   both in the window at once, a line of the
    key lighting its part of the drawing beside it. From 1024px before 2026-11-24 night, when
    the key grew to four parts (fields, connecting fields, AI in the process, goal) and stood
    two and a half times the globe's height there (three parts since that night); under
@@ -5117,10 +5101,6 @@ html:not(.js) .orbits-figure.is-globe {
     max-width: none;
     margin: 0;
   }
-
-  .globe-key-part {
-    padding-block: var(--step-2);
-  }
 }
 
 /* What's lit by hand (globe.js): the rest of the drawing faint. */
@@ -5131,7 +5111,8 @@ html:not(.js) .orbits-figure.is-globe {
 .orbits.is-globe[data-focus~="1"] [data-orbit="1"],
 .orbits.is-globe[data-focus~="2"] [data-orbit="2"],
 .orbits.is-globe[data-focus~="3"] [data-orbit="3"],
-.orbits.is-globe[data-focus~="4"] [data-orbit="4"] {
+.orbits.is-globe[data-focus~="4"] [data-orbit="4"],
+.orbits.is-globe[data-focus~="view"] .orbit-label.is-middle {
   opacity: 1;
 }
 
@@ -5161,7 +5142,7 @@ html:not(.js) .orbits-figure.is-globe {
     --gap: 6px;
   }
 
-  .globe-key-text {
+  .globe-key-label {
     font-size: 1.25rem;
   }
 

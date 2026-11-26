@@ -70,8 +70,8 @@
   },
   "scales": [
     { "name": "Object", "field": "Industrial design", "note": "3D products, mobility, and home goods, in Korea." },
-    { "name": "Page", "field": "Graphic design", "note": "Posters and books, in Korea." },
-    { "name": "Screen", "field": "UX design", "note": "Apps in Korea, then an M.S. in HCI at DePaul." },
+    { "name": "Page", "aboutName": "Branding", "field": "Graphic design", "note": "Posters and books, in Korea." },
+    { "name": "Screen", "aboutName": "Digital", "field": "UX design", "note": "Apps in Korea, then an M.S. in HCI at DePaul." },
     { "name": "Space", "field": "Architecture", "note": "What I wanted to be as a kid: classes at Temple, spatial UX at Philly Fashion Week, the Clayco rebrand.",
       "unreached": "I never became one.",
       "touches": [
@@ -84,45 +84,42 @@
   "scalesDrawing": {
     "title": "Different scales, same subject",
     "center": "How I see the world",
+    "middle": "Living",
     "legend": ["Studied, worked", "Wanted to be"],
-    "key": {
-      "fields": {
-        "label": "Fields",
-        "text": "Different scales, same subject: how people actually live.",
-        "more": ["Research and storytelling"]
-      },
-      "ways": {
-        "label": "Connecting fields",
-        "items": [
-          {
-            "name": "Light Life",
-            "href": "/work/light-life/",
-            "from": "Object",
-            "to": "Screen",
-            "text": "From an object to a screen, it has grown the way I have."
-          },
-          {
-            "name": "Clayco",
-            "from": "Page",
-            "to": "Space",
-            "text": "The rebrand of an architecture and construction company."
-          }
+    "ways": [
+      { "word": "Experience", "from": "Object", "to": "Digital" },
+      { "word": "AI", "from": "Branding", "to": "Space" },
+      { "from": "Digital", "to": "Space", "next": true }
+    ],
+    "key": [
+      {
+        "label": "How I see the world",
+        "rows": [
+          { "word": "Living", "text": "Everything I've lived feeds the next thing I design." }
         ]
       },
-      "direction": {
-        "label": "Direction",
-        "text": "Work where digital meets real lives and real spaces.",
-        "way": { "name": "Next", "from": "Screen", "to": "Space" },
-        "note": "Architecture, what I wanted to be as a kid.",
+      {
+        "label": "What I design",
         "rows": [
-          {
-            "tag": "AI",
-            "text": "To rework the design process itself.",
-            "under": "At Clayco, we used AI and new tools to make the early stages of a rebrand faster and cleverer."
-          }
+          { "word": "Object", "text": "I design objects: 3D products, mobility, and home goods.", "works": ["Light Life"] },
+          { "word": "Branding", "text": "I design brands, posters, and books, like the Clayco rebrand.", "works": ["NBCUniversal"] },
+          { "word": "Digital", "text": "I design apps and web tools, and grad school in HCI at DePaul added research and storytelling.", "works": ["TypeLab", "Clack"] }
+        ]
+      },
+      {
+        "label": "How I connect them",
+        "rows": [
+          { "word": "Experience", "text": "I design one experience across an object and a screen: [Light Life](/work/light-life/)'s app suggests the light you need, and its lamp gives it.", "works": ["Light Life"] },
+          { "word": "AI", "text": "I use AI to rework the design process itself, at Clayco and in my own projects.", "works": ["Clayco", "TypeLab", "Clack"] }
+        ]
+      },
+      {
+        "label": "Where I'm going",
+        "rows": [
+          { "word": "Space", "text": "I want to work where digital meets real lives and real spaces.", "next": true }
         ]
       }
-    }
+    ]
   },
   "archive": {
     "statement": ""

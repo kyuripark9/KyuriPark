@@ -214,6 +214,10 @@ ABOUT_ORBITS = True
 # about, the cells kept for screen readers (build.py's globe, assets/js/globe.js). False: the
 # orbits flat, still, beside the cells. Needs ABOUT_ORBITS.
 ABOUT_GLOBE = True
+# The globe's key as paragraphs (since 2026-11-25 evening, the user's ask: cleaner, without the
+# boxes): each group's heading, then its lines as one paragraph, no words or works beside them
+# (globe_key). False: a box ruled in ink lines, a cell a word, its work at its right.
+GLOBE_KEY_PROSE = True
 # The opening's words take on the tracing paper as ink does (since 2026-11-24 night, the user's
 # ask, from a photocopied sheet of heavy type and a typewriter's mono printed over a photo): one
 # SVG filter, #intro-ink, on the words (style.css, "Home intro"), in CSS pixels at the opening's
@@ -1731,6 +1735,13 @@ class Builder:
         return rows
 
     @staticmethod
+    def about_name(scale):
+        """A scale's name on About's globe and its key: its "aboutName" if it has one, else its
+        name (since 2026-11-25, the user's ask: the words on About to be ones that say who they
+        are, Object, Branding, Digital, Space, while Archive keeps Page and Screen)."""
+        return scale.get("aboutName") or scale["name"]
+
+    @staticmethod
     def scale_id(scale):
         return re.sub(r"[^a-z0-9]+", "-", scale["name"].lower()).strip("-")
 
@@ -2733,9 +2744,11 @@ class Builder:
     # the globe's middle and radius in it. Where each orbit lies in 3D, where each thing sits on
     # it, and how the globe turns are in assets/js/globe.js, which draws them; it has room for
     # four orbits.
-    GLOBE_BOX = (680, 520)
-    GLOBE_MID = (340, 248)
-    GLOBE_R = 210
+    # Bigger since 2026-11-25 (the user's ask): the globe 500 of the box's 640 across, where
+    # it was 420 of 680.
+    GLOBE_BOX = (640, 610)
+    GLOBE_MID = (320, 284)
+    GLOBE_R = 250
 
     def globe(self, scales):
         """The user as a designer, drawn as a globe that turns (ABOUT_GLOBE, since 2026-11-24,
@@ -2746,13 +2759,19 @@ class Builder:
         scales they design at, an orbit each, smallest in, its dot with its name (OBJECT) in
         the label style, no bubble or box (the user's ask, the same day, after the example: easy
         to read and tidy), a dotted line out to it from the middle. Space, what they wanted to be as a
-        kid, round the globe itself, dashed, its dot open. Object and Page lie on the globe's
-        equator, Screen and Space tilt across it opposite ways. On it besides, the user's work
+        kid, round the globe itself, its dot open (dashed until 2026-11-25, when the user asked
+        for the example's shape: its great circles black lines). Object and Page lie on the
+        globe's equator, Screen and Space tilt across it opposite ways (since 2026-11-25 each
+        along a diagonal, as the example's two; globe.js says how). On it besides, the user's work
         going across the scales, a way each (globe_ways, since 2026-11-24 night: the drawing
         showed a taxonomy, not the user; their work going across the scales shows that they
         connect fields; and all of it heading one way, the user's ask the same night): Light
         Life from Object's dot to Screen's, the Clayco rebrand from Page's to Space's, each an
-        arrow and its name, and, dashed, where they're going, Next, from Screen's to Space's. Nothing else: all the work, the places
+        arrow and its name, and, dashed, where they're going, Next, from Screen's to Space's.
+        Since 2026-11-25 (the user's ask: those words didn't say who they are) the same drawing
+        in the user's seven words: LIVING by the middle, OBJECT, BRANDING (Page's "aboutName"),
+        DIGITAL (Screen's), SPACE, and the ways EXPERIENCE (Light Life) and AI (Clayco), each by
+        its "word"; the way ahead unnamed. Nothing else: all the work, the places
         and the touches were on it for a few hours the same day, and made it hard to read.
         Over it, as a drawing's title, who it is: the user's name and role.
         Beside it (under it on narrow screens) its key (globe_key), what it means: the fields
@@ -2784,7 +2803,7 @@ class Builder:
             # On the globe the name alone, in the label style, as the example's are (the
             # user's ask, the same day: easy to read and tidy).
             words.append(f'<span class="orbit-label{dashed}" data-orbit="{n}">'
-                         f'{inline(scale["name"])}</span>')
+                         f'{inline(self.about_name(scale))}</span>')
         # Each work's way from one scale to another (globe_ways): its far part under the
         # globe's lines with the orbits' far halves, its near part over the orbits, with its
         # head and a dot for each year between, and its name in the label style. data-way is
@@ -2801,18 +2820,32 @@ class Builder:
                           f'data-to="{way["to"]}" data-stops="{times}">'
                           '<path class="globe-path-line"/>'
                           f'<path class="globe-path-head"/>{stops}</g>')
-            words.append(f'<span class="orbit-label globe-path-label{nxt}" data-way="{k}" '
-                         f'data-lit="{way["lit"]}">{inline(way["label"])}</span>')
+            if way["label"]:  # the way ahead has none since 2026-11-25 (was NEXT)
+                words.append(f'<span class="orbit-label globe-path-label{nxt}" data-way="{k}" '
+                             f'data-lit="{way["lit"]}">{inline(way["label"])}</span>')
+        # What all of it goes round, by the middle ("middle" under "scalesDrawing": Living,
+        # since 2026-11-25, the user's word), over and right of its cross; it lights the fields'
+        # point of view (globe_key's "view").
+        drawing = self.site.get("scalesDrawing") or {}
+        if drawing.get("middle"):
+            words.append(f'<span class="orbit-label is-middle" data-lit="view" '
+                         f'style="left: {100 * mx / w:.2f}%; top: {100 * my / h:.2f}%">'
+                         f'{inline(drawing["middle"])}</span>')
         foot = my + r + 30
         out = 24  # how far the axes run past the rim
+        # The middle's circle and cross as the diagram's (since 2026-11-25, the user's ask: its
+        # shape): the circle 0.036 of the globe across, the cross's arms 0.107 out to the sides
+        # and 0.13 up and down, as far as the outer ring's far and near sides (7, 12 and 12
+        # before).
+        dot, arm, stem = round(r * 0.036), round(r * 0.107), round(r * 0.13)
         rim = (f'<circle class="globe-rim" cx="{mx}" cy="{my}" r="{r}"/>'
                f'<path class="globe-rim" d="M{mx} {my - r - 7}v14M{mx} {my + r - 7}v14'
                f'M{mx - r - 7} {my}h14M{mx + r - 7} {my}h14"/>'
                f'<path class="globe-axis" d="M{mx - r - out} {my}H{mx + r + out}'
-               f'M{mx} {my - r - out}V{my - 12}"/>')
-        middle = (f'<g class="orbit-middle"><circle cx="{mx}" cy="{my}" r="7"/>'
-                  f'<path d="M{mx - 12} {my}h24M{mx} {my - 12}v24"/>'
-                  f'<path class="orbit-ray" d="M{mx} {my + 12}V{foot}"/></g>')
+               f'M{mx} {my - r - out}V{my - stem}"/>')
+        middle = (f'<g class="orbit-middle"><circle cx="{mx}" cy="{my}" r="{dot}"/>'
+                  f'<path d="M{mx - arm} {my}h{2 * arm}M{mx} {my - stem}v{2 * stem}"/>'
+                  f'<path class="orbit-ray" d="M{mx} {my + stem}V{foot}"/></g>')
         _, _, center = self.orbits_words(scales, h, foot)  # no legend: the key says it
         site = self.site
         who = ", ".join(inline(site[k]) for k in ("name", "role") if site.get(k))
@@ -2836,29 +2869,28 @@ class Builder:
         "different scales, same subject" hidden in the Q&A; then, the user's ask the same
         night, for a visitor to feel that they connect fields: the Clayco rebrand too; then,
         the user's ask the same night, the many fields not scattered and where they're going
-        clear: every way heads for Space, the dashed orbit, Clayco from Page, a brand, to
-        Space, the architecture they wanted, and their direction, Next, dashed, from Screen to
-        Space: digital meeting real spaces). From "items" under "ways" under "key" under
-        "scalesDrawing" in content/site.json, then "way" under "direction" (the last, "next"),
-        each with its "name", the scale it began at ("from") and the one it goes to ("to"), by
-        name, and, if it's to show its years on the way, "stops" (each "at" and "what"). One
-        whose scales aren't on the globe is left out. A list of {"n": its number, from 1,
-        "from", "to": its orbits' numbers, "times": where each stop between the first and last
-        falls along it, 0 to 1, by its year, "label", "lit": what it lights (globe.js,
-        data-focus: "w" and its number, and its two orbits), "item": its entry, "next":
-        whether it's the direction's}."""
-        key = (self.site.get("scalesDrawing") or {}).get("key") or {}
-        names = [str(sc["name"]).lower() for sc in scales]
-        items = list((key.get("ways") or {}).get("items") or [])
-        ahead = (key.get("direction") or {}).get("way")
-        if ahead:
-            items.append({**ahead, "next": True})
+        clear: every way heads for Space, the dashed orbit, and the way ahead, dashed, from
+        Screen to Space: digital meeting real spaces). Since 2026-11-25 each is named by the
+        user's word for it (EXPERIENCE, Object to Digital; AI, Branding to Space; the way
+        ahead, Digital to Space, unnamed; it was NEXT, and the first two LIGHT LIFE and
+        CLAYCO). From "ways" under "scalesDrawing" in content/site.json, each with its
+        "word", the scale it begins at ("from") and the one it goes to ("to"), by either of
+        its names (Page or Branding), "next" on the way ahead, and, if it's to show its years
+        on the way, "stops" (each "at" and "what"). One whose scales aren't on the globe is
+        left out. A list of {"n": its number, from 1, "from", "to": its orbits' numbers,
+        "times": where each stop between the first and last falls along it, 0 to 1, by its
+        year, "label", "lit": what it lights (globe.js, data-focus: "w" and its number, and
+        its two orbits), "item": its entry, "next": whether it's the way ahead}."""
+        by_name = {}
+        for i, sc in enumerate(scales):
+            for name in (sc["name"], self.about_name(sc)):
+                by_name[str(name).lower()] = i + 1
         ways = []
-        for item in items:
-            ends = [str(item.get(k) or "").lower() for k in ("from", "to")]
-            if ends[0] not in names or ends[1] not in names or ends[0] == ends[1]:
+        for item in (self.site.get("scalesDrawing") or {}).get("ways") or []:
+            ends = [by_name.get(str(item.get(k) or "").lower()) for k in ("from", "to")]
+            if None in ends or ends[0] == ends[1]:
                 continue
-            a, b = (names.index(e) + 1 for e in ends)
+            a, b = ends
             stops = item.get("stops") or []
             years = []
             for stop in stops:
@@ -2870,118 +2902,91 @@ class Builder:
                 times = [i / (len(stops) - 1) for i in range(1, len(stops) - 1)]
             n = len(ways) + 1
             ways.append({"n": n, "from": a, "to": b, "times": times,
-                         "label": item.get("name") or "", "lit": f"w{n} {a} {b}", "item": item,
-                         "next": bool(item.get("next"))})
+                         "label": item.get("word") or "", "lit": f"w{n} {a} {b}",
+                         "item": item, "next": bool(item.get("next"))})
         return ways
 
-    # The key's marks, each drawn as its part of the drawing is: an orbit with its dot (the
-    # fields), a way from one dot to another with its head (connecting them), the dashed way
-    # (the direction).
-    GLOBE_MARKS = {
-        "fields": '<path d="M0 8h32"/><circle class="is-dot" cx="16" cy="8" r="3.5"/>',
-        "ways": ('<path class="is-way" d="M3 8H25"/><circle class="is-dot" cx="3" cy="8" r="3"/>'
-                 '<path class="is-head" d="M32 8L24 4.5V11.5Z"/>'),
-        "direction": ('<path class="is-way is-dashed" d="M3 8H25"/>'
-                      '<circle class="is-dot" cx="3" cy="8" r="3"/>'
-                      '<path class="is-head" d="M32 8L24 4.5V11.5Z"/>'),
-    }
-
     def globe_key(self, scales):
-        """What the globe means, beside it, from "key" under "scalesDrawing" in
-        content/site.json, in the user's own words (from their Q&A, paragraph and work), each
-        part by a mark drawn as its part of the drawing is. Since 2026-11-24 night (the user's
-        asks: a visitor should feel their range across fields, that they connect them, and
-        that they use AI in the process; then, the same night, the many fields not scattered,
-        and where they're going clear: digital meeting real spaces, with technology) it reads
-        as one line, where they come from, how they've joined it up, where they're going:
-        Fields ("fields"), the solid orbits: what joins them (the point of view, Different
-        scales, same subject: how people actually live), then a line a scale, its field
-        (Object, Industrial design; with what they made in it under, if the scale has
-        "made"), then what goes with them ("more": research and storytelling).
-        Connecting fields ("ways"), the solid ways on the globe (globe_ways): a line a way,
-        its name (a link to its page if it has "href"), the user's line ("text") and the
-        scales it goes across: Light Life, Object to Screen; Clayco, Page to Space.
-        Direction ("direction"), the dashed way, Next, from Screen to Space, and the dashed
-        orbit: where they're going (Work where digital meets real lives and real spaces.),
-        then Space, what they wanted to be as a kid, "I never became one.", and how
-        ("rows", each a "tag", its "text" and a quieter line "under" it): AI, to rework the
-        design process itself, as at Clayco.
-        (Earlier the same evening: fields, connecting fields, AI in the process and goal as
-        four parts; before that, point of view, Light Life, strengths and goal.)
-        data-lit names the parts of the drawing each lights (globe.js): the orbits by number,
-        the ways by "w" and number, or "view", the middle; "next" marks the direction's
-        lines, so they stay lit only with it. No "key", no key."""
-        key = (self.site.get("scalesDrawing") or {}).get("key") or {}
-        if not key:
+        """What the globe means, beside it (under it on narrow screens): each of its words
+        said in plain words, in four groups, each headed by the question a visitor comes with
+        (since 2026-11-25, the user's ask: the key, Fields, Connecting fields and Direction,
+        each by a mark drawn as its part of the drawing is, was hard to understand: two sets
+        of words to match up (BRANDING, Graphic design), a legend's labels to decode, a word,
+        a line and a gray line to put together, and LIVING not in it at all). From "key"
+        under "scalesDrawing" in content/site.json, a list of groups, each its "label" (At the
+        center until the user's ask the same day, then How I see the world; What I
+        design, How I connect them, Where I'm going), in the display face as
+        typed, then its "rows": a line a word ("word", as on the globe, in the label style),
+        the user's own line for it ("text", from their Q&A and paragraph), and, quieter, the
+        work that shows it ("works": names, each a link to its page if it's a project with one:
+        Light Life, TypeLab, Clack, NBCUniversal; Clayco has none) or a line of its own
+        ("under"), after the line in the page, at the word's right in the box (style.css; since
+        2026-11-25 evening, the user's ask: the key ruled as a shop's spec box, as Work's cards
+        are; under the line before). Since later that evening (GLOBE_KEY_PROSE, the user's ask:
+        cleaner, without the boxes) a group's lines are one paragraph, a sentence each, with
+        no word or works beside them; a work named in a line can be a link in its text. (Space's line was "Architecture, what I wanted to be as a kid.
+        I never became one." until the user's ask the same day; now where they're going.)
+        data-lit names the parts of the drawing each lights (globe.js): the word's own part
+        (the middle's word, "view"; a scale, its orbit's number; a way, "w", its number and
+        its two orbits), and, on a line with "next", the way ahead too; a group lights all its
+        lines'. A word not on the globe lights nothing. No "key", no key."""
+        drawing = self.site.get("scalesDrawing") or {}
+        groups = drawing.get("key") or []
+        if not isinstance(groups, list) or not groups:
             return ""
-        reached = [(str(i + 1), sc) for i, sc in enumerate(scales) if not sc.get("unreached")]
-        unreached = [(str(i + 1), sc) for i, sc in enumerate(scales) if sc.get("unreached")]
-        names = [str(sc["name"]).lower() for sc in scales]
+        ways = self.globe_ways(scales)
+        lits = {}
+        if drawing.get("middle"):
+            lits[str(drawing["middle"]).lower()] = ["view"]
+        for i, sc in enumerate(scales):
+            for name in (sc["name"], self.about_name(sc)):
+                lits[str(name).lower()] = [str(i + 1)]
+        for way in ways:
+            if way["label"]:
+                lits[str(way["label"]).lower()] = way["lit"].split()
+        ahead = next((way for way in ways if way["next"]), None)
+        pages = {str(p.get("title") or "").lower(): f"/work/{p['slug']}/" for p in self.projects}
 
-        def row(lit, tag, words):
-            return (f'<li data-lit="{lit}"><span class="globe-key-tag">{tag}</span>'
-                    f'<span class="globe-key-row">{words}</span></li>')
-
-        def rows_html(rows):
-            return f'<ul class="globe-key-rows">{"".join(rows)}</ul>' if rows else ""
-
-        def text(entry):
-            words = entry.get("text")
-            return f'<p class="globe-key-text">{inline(words)}</p>' if words else ""
-
-        def under(words):  # a row's second line, quieter
-            return f'<span class="globe-key-under">{words}</span>' if words else ""
-
-        def part(kind, lit, body):
-            label = inline((key.get(kind) or {}).get("label") or kind.title())
-            return (f'          <div class="globe-key-part" data-lit="{lit}">'
-                    f'<svg class="globe-key-mark" viewBox="0 0 32 16" aria-hidden="true" '
-                    f'focusable="false">{self.GLOBE_MARKS[kind]}</svg>'
-                    f'<h3 class="globe-key-label">{label}</h3>{body}</div>\n')
+        def work(name):
+            href = pages.get(str(name).lower())
+            return f'<a href="{esc(href)}">{inline(name)}</a>' if href else inline(name)
 
         parts = []
-        fields = key.get("fields") or {}
-        if reached:
-            lit = " ".join(n for n, _ in reached)
-            rows = [row(n, inline(sc["name"]),
-                        inline(sc.get("field") or "") + under(inline(sc.get("made") or "")))
-                    for n, sc in reached]
-            rows += [row(lit, "+", inline(more)) for more in fields.get("more") or []]
-            parts.append(part("fields", f"view {lit}", text(fields) + rows_html(rows)))
-        ways = self.globe_ways(scales)
-        done = [way for way in ways if not way["next"]]
-        if done:
-            rows = []
-            for way in done:
-                item = way["item"]
-                name = inline(item.get("name") or "")
-                if item.get("href"):
-                    name = f'<a href="{esc(item["href"])}">{name}</a>'
-                across = (f'{inline(scales[way["from"] - 1]["name"])} \u2192 '
-                          f'{inline(scales[way["to"] - 1]["name"])}')
-                rows.append(row(way["lit"], name,
-                                inline(item.get("text") or "") + under(across)))
-            lit = " ".join(f"w{way['n']}" for way in done)
-            parts.append(part("ways", lit, text(key.get("ways") or {}) + rows_html(rows)))
-        direction = key.get("direction") or {}
-        if direction.get("text"):
-            ahead = next((way for way in ways if way["next"]), None)
-            # What it lights: the way ahead and its scales, and Space; "next" too, so its
-            # lines stay lit only with it, not with every other line that lights Space.
-            base = (ahead["lit"].split() if ahead else []) + [n for n, _ in unreached]
-            lit = " ".join(dict.fromkeys(base + ["next"]))
-            rows = []
-            for n, sc in unreached:
-                note = inline(direction.get("note") or sc.get("field") or "")
-                rows.append(row(n, inline(sc["name"]),
-                                f'{note} <em class="globe-key-unreached">'
-                                f'{inline(sc["unreached"])}</em>'))
-            for entry in direction.get("rows") or []:
-                rows.append(row(lit, inline(entry.get("tag") or "+"),
-                                inline(entry.get("text") or "")
-                                + under(inline(entry.get("under") or ""))))
-            parts.append(part("direction", lit, text(direction) + rows_html(rows)))
-        return ('        <div class="globe-key">\n' + "".join(parts) + '        </div>\n')
+        for g, group in enumerate(groups):
+            rows, group_lit = [], []
+            for r, entry in enumerate(group.get("rows") or []):
+                need(entry, "word", f"content/site.json: scalesDrawing.key[{g}].rows[{r}]")
+                word = str(entry["word"])
+                lit = list(lits.get(word.lower(), []))
+                if entry.get("next") and ahead:
+                    lit += ahead["lit"].split()
+                lit = list(dict.fromkeys(lit))
+                group_lit += lit
+                at = f' data-lit="{" ".join(lit)}"' if lit else ""
+                text = inline(entry.get("text") or "")
+                if GLOBE_KEY_PROSE:
+                    # A line a sentence in its group's paragraph, lighting its word's part; its
+                    # first word held to the next, so no "I" is left alone at a line's end.
+                    text = re.sub(r"^(\S{1,2}) ", "\\1&nbsp;", text)
+                    rows.append(f'<span class="globe-key-line"{at}>{text}</span>')
+                    continue
+                below = " \u00b7 ".join(work(w) for w in entry.get("works") or [])
+                if entry.get("under"):
+                    below = inline(entry["under"])
+                below = f'<span class="globe-key-under">{below}</span>' if below else ""
+                rows.append(f'<li class="globe-key-line"{at}>'
+                            f'<span class="globe-key-tag">{inline(word)}</span>'
+                            f'<span class="globe-key-row">{text}</span>{below}</li>')
+            group_lit = list(dict.fromkeys(group_lit))
+            at = f' data-lit="{" ".join(group_lit)}"' if group_lit else ""
+            label = (f'<h3 class="globe-key-label">{inline(group["label"])}</h3>'
+                     if group.get("label") else "")
+            body = (f'<p class="globe-key-text">{" ".join(rows)}</p>' if GLOBE_KEY_PROSE
+                    else f'<ul class="globe-key-rows">{"".join(rows)}</ul>')
+            parts.append(f'          <div class="globe-key-part"{at}>{label}{body}</div>\n')
+        kind = "is-prose" if GLOBE_KEY_PROSE else "is-box"
+        return (f'        <div class="globe-key {kind}">\n' + "".join(parts)
+                + '        </div>\n')
 
     def about_scales(self):
         """About's scales (ABOUT_SCALES, since 2026-11-22): site.json's "scales" as a title

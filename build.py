@@ -121,21 +121,13 @@ RING_SHAPES = 8  # the stand-in shapes in templates/ring.html, #ring-shape-1 to 
 # Drawing sheets (a mock since 2026-11-22, the user's ask: a visual identity from their own story,
 # the architect they wanted to be as a kid, in About's Q&A): a project's page drawn as an
 # architect's drawing sheet. Its facts become a title block, cells in 1px lines in Work's columns:
-# Role, Team, its scale ("scale" in content/projects.json, else from its categories by SCALES,
-# after the Q&A's "different scales, same subject"), its timeline as a dimension line
-# ("milestones": a year and a note each, spaced by the years between them), and the sheet's
-# number (its Work number) beside the logo as a stamp, with its two suns called out as digital
-# and everyday life and the place they cross as where they meet (Work's sentence). Each section's
+# Role, Team, and its timeline as a line of events ("milestones": a year and a note each; see
+# sheet_meta for the Scale cell and the logo's stamp, there until 2026-11-26). Each section's
 # heading is a detail callout: a circle split by a line, the section's number over the sheet's.
 # Previous / Next show the sheets' numbers. On Light Life alone first (the mock), on every project
 # page since the same day (the user liked it). True: every project page; or a tuple of slugs, like
 # ("light-life",); False or (): none, the facts as a row as before.
 SHEET_PROJECTS = True
-SCALES = {"physical": "Object", "brand": "Page", "digital": "Screen"}  # smallest to largest
-# How far the logo's key (logo_key: its suns called out DIGITAL, EVERYDAY LIFE, WHERE THEY MEET)
-# reaches over and under the logo, as parts of its height: the drawing sheet's stamp makes room
-# for it, and so does the footer (style.css, .footer-logo.has-key).
-KEY_OVER, KEY_UNDER = 80 / 208, 74 / 208
 # The footer's logo with its key (since 2026-11-22, the user's ask: the logo's story, as on a
 # drawing sheet's stamp), from 768px; on phones the logo alone (the words wouldn't fit beside
 # each other at its size). False: the logo alone everywhere.
@@ -1599,42 +1591,64 @@ class Builder:
         return (f'<span class="callout" aria-hidden="true"><span>{top}</span>'
                 f'<span>{bottom}</span></span>')
 
-    def sheet_meta(self, p, number):
-        """A drawing sheet's title block (SHEET_PROJECTS): Role, Team, Scale, the timeline as a
-        dimension line, and the sheet's number with the logo's stamp. Every cell shows, a dash
-        standing in for a missing value, so the block's lines stay whole."""
-        roles, team = p.get("roles"), p.get("team")
-        if isinstance(roles, list):
-            roles = ", ".join(roles)
-        if isinstance(team, list):  # a list, as meta_rows takes it (Light Life's printed as
-            team = ", ".join(team)  # ['…', '…'] until 2026-11-25)
-        scale = p.get("scale") or " / ".join(SCALES[c] for c in SCALES if c in p["category"])
-        cells = (("role", "Role", inline(roles) if roles else "—"),
-                 ("team", "Team", inline(team) if team else "—"),
-                 ("scale", "Scale", inline(scale)),
-                 ("time", "Timeline", self.dimension(p)),
-                 ("stamp", "Sheet", f'<span class="sheet-no">{number} / {len(self.items):03d}</span>'
-                                    f'{self.stamp()}'))
+    def sheet_meta(self, p):
+        """A drawing sheet's title block (SHEET_PROJECTS): Role, Team, and the timeline, what a
+        recruiter reads it for, as meta_rows has them. The labels in the label style, the values
+        in the text face at the body size, as written (style.css), so the two read apart; Role and
+        Team one to a line (sheet_list), the timeline a line of events (timeline). Every cell
+        shows, a dash standing in for a missing value, so the block's lines stay whole.
+        (2026-11-22 to 2026-11-26 also Scale, like "Object → Screen", and Sheet, the sheet's
+        number beside the logo as a stamp, its suns called out DIGITAL, EVERYDAY LIFE, WHERE THEY
+        MEET. The user's ask, 2026-11-26, after asking why the block didn't read: Scale and
+        Sheet were words a visitor had to decode, and the stamp, the biggest, darkest thing in
+        it, drew the eye from the facts. "scale" in content/projects.json is no longer shown.)"""
+        cells = (("role", "Role", self.sheet_list(p.get("roles"))),
+                 ("team", "Team", self.sheet_list(p.get("team"), people=True)),
+                 ("time", "Timeline", self.timeline(p)))
         return "\n".join(f'          <div class="sheet-{c}"><dt>{k}</dt><dd>{v}</dd></div>'
                          for c, k, v in cells)
 
-    def dimension(self, p):
-        """The timeline as a dimension line: a tick at each milestone, spaced by the years between
-        them, the year over the line and the note under it. The last one's words end at its tick,
-        in the column the one before it starts. Fewer than two milestones: the timeline's words."""
+    @staticmethod
+    def sheet_list(value, people=False):
+        """A title block's value: a list one to a line, a string as it is, a dash for nothing.
+        With people, "Kyuri Park, CDO" shows the name, then the title after its last comma in
+        --color-subtle, the comma there for screen readers alone, so a team doesn't run name,
+        title, name, title on one line of commas (as it did until 2026-11-26)."""
+        if not value:
+            return "—"
+        if not isinstance(value, list):
+            return inline(value)
+
+        def item(v):
+            name, comma, title = v.rpartition(", ") if people else ("", "", v)
+            if not (comma and name):
+                return inline(v)
+            return (f'{inline(name)}<span class="visually-hidden">,</span> '
+                    f'<span class="sheet-sub">{inline(title)}</span>')
+        return '<ul class="sheet-list">' + "".join(f"<li>{item(v)}</li>" for v in value) + "</ul>"
+
+    def timeline(self, p):
+        """The timeline as a line of events (since 2026-11-26): a dot at each milestone, oldest
+        first, a column each, the year over the line and the note under it, all starting at their
+        dots, the line from the first dot to the last; upright in a narrow cell (style.css). A
+        note's "what · where" ("Lamp · business competition win, Temple University") shows the
+        what, then the where under it, in --color-subtle, from a capital. Fewer than two
+        milestones: the timeline's words. (2026-11-22 to 2026-11-26 a dimension line: a slash
+        at each mark, spaced by the years between, the notes between the marks and the last one
+        ending at its mark; it read as lengths of time, not as events, and its words started on
+        both sides of their marks.)"""
         ms = p.get("milestones") or []
         if len(ms) < 2:
             return inline(p.get("timeline") or "—")
-        years = [int(m["year"]) for m in ms]
-        cols = " ".join(f"minmax(0, {max(b - a, 1)}fr)" for a, b in zip(years, years[1:]))
-        end = ' class="is-end"'
-        items = "".join(
-            f'<li{end if i == len(ms) - 1 else ""} '
-            f'style="grid-column: {min(i, len(ms) - 2) + 1}">'
-            f'<span class="dim-year">{m["year"]}</span>'
-            f'<span class="dim-note">{inline(m.get("note", ""))}</span></li>'
-            for i, m in enumerate(ms))
-        return f'<ol class="dimension" style="grid-template-columns: {cols}">{items}</ol>'
+
+        def note(text):
+            what, dot, where = text.partition(" · ")
+            sub = (f'<span class="sheet-sub">{inline(where[:1].upper() + where[1:])}</span>'
+                   if dot else "")
+            return f'<span class="timeline-what">{inline(what)}</span>{sub}'
+        items = "".join(f'<li><span class="timeline-year">{m["year"]}</span>'
+                        f'{note(m.get("note", ""))}</li>' for m in ms)
+        return f'<ol class="timeline" style="--events: {len(ms)}">{items}</ol>'
 
     def logo_parts(self, rel):
         """A logo file as (x, y, width, height) of its viewBox and its shapes, painted as
@@ -1654,8 +1668,9 @@ class Builder:
         a line out between two rays (25° from upright) and a shoulder under its word, DIGITAL
         over the left sun and EVERYDAY LIFE over the right, and from the place their rays
         cross, straight down, WHERE THEY MEET (Work's sentence: "where digital meets everyday
-        life"). In the logo's own units, outside its box: it reaches KEY_OVER over it and
-        KEY_UNDER under it (as parts of its height). The words take the svg's font size, so the
+        life"). In the logo's own units, outside its box: it reaches 80/208 of its height over
+        it and 74/208 under it (style.css's .footer-logo.has-key makes room). The words take the
+        svg's font size, so the
         page sets it for 12px. Assumes the logo's two suns side by side, each as tall as the
         file."""
         x0, y0, w, h = box
@@ -1678,21 +1693,6 @@ class Builder:
                  f'<text x="{f(mx)}" y="{f(foot + 10 * k)}" dy="0.72em" text-anchor="middle">'
                  'WHERE THEY MEET</text>')
         return f'<g class="logo-key" fill="currentColor">{lines}{dots}{words}</g>'
-
-    def stamp(self):
-        """The logo as a drawing sheet's stamp (SHEET_PROJECTS): assets/logo/logo.svg (the
-        footer's cut) with its key (logo_key), at 0.6px a unit, so the words are 12px."""
-        parts = self.logo_parts(FOOTER_LOGO)
-        if parts is None:
-            return ""
-        (x0, y0, w, h), shapes = parts
-        k = h / 208
-        top, tall = y0 - KEY_OVER * h, (1 + KEY_OVER + KEY_UNDER) * h
-        return (f'<figure class="stamp"><svg viewBox="{x0:.1f} {top:.1f} {w:.1f} {tall:.1f}" '
-                f'width="{w * 0.6 / k:.1f}" height="{tall * 0.6 / k:.1f}" font-size="{20 * k:.1f}" '
-                f'aria-hidden="true" focusable="false">{shapes}{self.logo_key(parts[0])}</svg>'
-                '<figcaption class="visually-hidden">The logo, two suns: digital and everyday '
-                'life, and where they meet.</figcaption></figure>')
 
     # Pages ------------------------------------------------------------------
 
@@ -2890,7 +2890,7 @@ class Builder:
         self.sheet = f"{self.items.index(p) + 1:03d}" if sheet else None
         self.section_no = 0
         blocks = self.sections(p.get("blocks") or [], p, folder)
-        meta = self.sheet_meta(p, self.sheet) if sheet else self.meta_rows(p)
+        meta = self.sheet_meta(p) if sheet else self.meta_rows(p)
         self.sheet = None
         content = render(
             "project.html",

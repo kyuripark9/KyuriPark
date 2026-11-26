@@ -101,16 +101,16 @@
       {
         "label": "What I design",
         "rows": [
-          { "word": "Object", "text": "I design objects: 3D products, mobility, and home goods.", "works": ["Light Life"] },
-          { "word": "Branding", "text": "I design brands, posters, and books, like the Clayco rebrand.", "works": ["NBCUniversal"] },
-          { "word": "Digital", "text": "I design apps and web tools, and grad school in HCI at DePaul added research and storytelling.", "works": ["TypeLab", "Clack"] }
+          { "word": "Object", "text": "I design objects: 3D products, mobility, and home goods, like the [Light Life](/work/light-life/) lamp.", "works": ["Light Life"] },
+          { "word": "Branding", "text": "I design brands, posters, and books, like the Clayco rebrand and IP product concepts for [NBCUniversal](/work/nbcuniversal/).", "works": ["NBCUniversal"] },
+          { "word": "Digital", "text": "I design apps and web tools, like [TypeLab](/work/typelab/), a font design playground, and [Clack](/work/clack/), a browser extension. Grad school in HCI at DePaul added research and storytelling.", "works": ["TypeLab", "Clack"] }
         ]
       },
       {
         "label": "How I connect them",
         "rows": [
           { "word": "Experience", "text": "I design one experience across an object and a screen: [Light Life](/work/light-life/)'s app suggests the light you need, and its lamp gives it.", "works": ["Light Life"] },
-          { "word": "AI", "text": "I use AI to rework the design process itself, at Clayco and in my own projects.", "works": ["Clayco", "TypeLab", "Clack"] }
+          { "word": "AI", "text": "I use AI to rework the design process itself, at Clayco and in my own projects, like [TypeLab](/work/typelab/) and [Clack](/work/clack/).", "works": ["Clayco", "TypeLab", "Clack"] }
         ]
       },
       {

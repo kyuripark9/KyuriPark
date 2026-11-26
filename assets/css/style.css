@@ -130,9 +130,9 @@
   --vellum-thick-blur: 24px;   /* a sheet over the whole window, so the page is only shapes: the
                                   opening's and the lightbox's */
   --vellum-thin-blur: 5px;
-  --vellum-card: rgb(238 237 232 / 0.6);  /* Work's cards, a thin sheet the image shows
-                                             through (since 2026-11-25), milky enough for their
-                                             words over a black image */
+  --vellum-card: rgb(238 237 232 / 0.6);  /* Work's cards (2026-11-25; none now, kept to bring
+                                             them back), a thin sheet the image shows through,
+                                             milky enough for their words over a black image */
   --vellum-card-blur: 3px;                /* the image's dots and edges a little soft under it,
                                              still there */
   /* The paper's grain: fine noise, dark specks at a few percent, one 180px tile repeated over
@@ -146,14 +146,15 @@
      in their own colors since 2026-11-25, the user's ask; --print is kept to bring it back);
      type in ink, a dark gray, part see-through (--ink), uneven in strength as a print's ink
      sits on a smooth sheet (--ink-texture, a fine noise as a mask, the ink between about 0.75
-     and 1 strong). Work's cards and sentence (the opening has its own ink). */
+     and 1 strong). Work's sentence and its tiles' words (the opening has its own ink). */
   --print: grayscale(1) contrast(0.94) brightness(1.04) blur(0.3px);
   --ink: rgb(22 22 22 / 0.88);
   --ink-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='i'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.9 0 0 0 0.45'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23i)'/%3E%3C/svg%3E");
 
   /* ↗ after a link that opens a new tab, as a mask (only its shape counts, not its color). */
   --icon-arrow-out: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='%23000' stroke-width='1.5'%3E%3Cpath d='M1 9 8.25 1.75M3 1.75h5.25V7'/%3E%3C/svg%3E");
-  /* → and +, the marks on Work's cards: a project's page, an item the lightbox opens. */
+  /* → and +, the marks on Work's cards (2026-11-24 to 2026-11-25; none now): a project's page,
+     an item the lightbox opens. */
   --icon-arrow-right: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23000' stroke-width='1.2'%3E%3Cpath d='M0.5 6h10.5M6.75 1.75 11 6l-4.25 4.25'/%3E%3C/svg%3E");
   --icon-plus: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23000' stroke-width='1.2'%3E%3Cpath d='M6 0.5v11M0.5 6h11'/%3E%3C/svg%3E");
 
@@ -179,7 +180,7 @@
 
        display  project titles, the 404, Work's and Archive's sentences, About's paragraph;
                 the words they lean on (*...*) in its italic
-       title    impact numbers, Previous / Next titles, the titles on Work's cards
+       title    impact numbers, Previous / Next titles
        lead     Home's sentence, a project's statement
        body     text, a project's Visit link, the 404's link, About's Q&A
        name     the header's links and the footer, project names (Archive, the
@@ -574,11 +575,10 @@ button {
   text-wrap: balance;
 }
 
-/* Title: impact numbers, a project page's Previous / Next titles, and the titles on Work's
-   cards (since 2026-11-24; in the name style before). Source Serif Display. */
+/* Title: impact numbers and a project page's Previous / Next titles (and the titles on Work's
+   tiles from 2026-11-24 to 2026-11-25; in the label style since). Source Serif Display. */
 .impact-value,
-.project-nav-title,
-.work-name {
+.project-nav-title {
   font-family: var(--font-display);
   font-size: var(--size-title);
   font-weight: 300;
@@ -817,16 +817,16 @@ mark.placeholder {
      tracing paper  --vellum: the paper's color, part see-through, frosted (backdrop blur):
                     what's under it shows soft. The header (a strip), the opening (a sheet over
                     the work that lifts), the lightbox, Work's and Archive's tiles not hovered
-                    while one is (--vellum-thin), Work's cards
+                    while one is (--vellum-thin)
      prints         --print: an image as a copy prints it on the paper, in grays, a little
                     flat and soft, multiplied in, in its own colors when hovered: none now
                     (Work's tiles on 2026-11-24, in their own colors since 2026-11-25);
                     Archive's map in grays alone
      ink            --ink, --ink-texture: type printed on the paper, part see-through, uneven
-                    in strength: Work's sentence and cards (the opening has its own ink)
+                    in strength: Work's sentence and its tiles' words (the opening has its own ink)
      spec cards     a box of tracing paper in ink lines over an image's foot, ruled in rows and
-                    cells, as a shop's ruled box over its photo: Work's tiles (number and mark
-                    over the title)
+                    cells, as a shop's ruled box over its photo: none now (Work's tiles from
+                    2026-11-24 to 2026-11-25, a bar under the image since)
      lines          --rule, window-wide, in ink: the header, a project's facts, About's
                     scales, the footer (from before 2026-11-22: the grid the drawings are on)
      construction   --trace-rule, lighter than ink: Work's and Archive's grids (2026-11-23),
@@ -2007,7 +2007,7 @@ mark.placeholder {
 
 /* Printed on the sheet (since 2026-11-24, the user's moodboard: an archive's photocopied page):
    the sentence in ink, part see-through, uneven in strength, multiplied into the paper
-   (--ink, --ink-texture), as Work's cards' words are. The mask shows nothing outside the
+   (--ink, --ink-texture), as Work's tiles' numbers and titles are. The mask shows nothing outside the
    sentence's box, so the box reaches past the letters, for the descenders and the italic's
    overhang (padding), and gives that back (margins), so the lines don't move. */
 .work-statement {
@@ -2574,9 +2574,9 @@ mark.placeholder {
 
 /* The rest of a row that isn't full (since 2026-11-14, the user's ask): an empty cell, drawn
    with the grid's lines, so the grid closes in a rectangle, as gougoucore.com's always-full
-   grid does, and the page doesn't end on a hole. Nothing is in it (on Work the line under the
-   images ran on through it until 2026-11-24, when the bar under them became a card on the
-   print, and there was no such line any more). It's the grid's ::after, a grid item after
+   grid does, and the page doesn't end on a hole. Nothing is in it; on Work the line over the
+   bars under the images runs on through it, as across a full row (not from 2026-11-24 to
+   2026-11-25, when a card on the image stood in for the bar). It's the grid's ::after, a grid item after
    the last tile, there only when a row has room left: on phones after a tile at 2n+1; from
    768px one cell after a tile at 3n+2, two (with the column line between them) after 3n+1.
    It counts every tile, so it assumes none is hidden (Work's filters, which hide tiles, are
@@ -2585,6 +2585,15 @@ mark.placeholder {
   grid-column: span var(--rest, 1);
   border-bottom: var(--trace-rule);
   background:
+    linear-gradient(var(--color-trace), var(--color-trace))
+      calc(50% - 0.5px) 0 / var(--rest-line, 0) 100% no-repeat;
+}
+
+/* Work's line over the bars, at the images' height (see Work's tiles). */
+.work-grid::after {
+  background:
+    linear-gradient(var(--color-trace), var(--color-trace))
+      0 calc(100cqw / var(--cols) / (var(--tile-ratio))) / 100% 1px no-repeat,
     linear-gradient(var(--color-trace), var(--color-trace))
       calc(50% - 0.5px) 0 / var(--rest-line, 0) 100% no-repeat;
 }
@@ -2607,49 +2616,36 @@ mark.placeholder {
   }
 }
 
-/* Each tile's image fills it from line to line (since 2026-11-25, the user's ask, after
-   gougoucore.com's Work: "the image full inside its cell"), with a card of tracing paper over its
-   foot (since 2026-11-24, the user's moodboard: a shop's ruled box of vellum over its photo, the
-   photo soft through it). (2026-11-24: a print --gutter in from the tile's lines, paper round
-   it, the card lying over its foot and onto the paper under it; from 2026-11-13 to 2026-11-24
-   the image filled the tile from line to line, with a bar under it.) */
+/* Each tile: its image filling it from line to line (since 2026-11-25, the user's ask, after
+   gougoucore.com's Work: "the image full inside its cell"), and under it a bar with the item's
+   number and title (since 2026-11-25 evening, the user's ask: its words shown cleanly, as
+   gougoucore.com's are). (2026-11-24 to 2026-11-25: a card of thin tracing paper over the
+   image's foot, after the user's moodboard of a shop's ruled box of vellum over its photo, the
+   number and a mark, → or +, over the title in Source Serif Display; on 2026-11-24 the image a
+   print --gutter in from the tile's lines; from 2026-11-13 to 2026-11-24 this bar, as now.) */
 .work-card {
-  --card-in: var(--step-3);     /* how far in from the image's sides and foot the card lies: 24px,
-                                   8px on phones */
-  --card-go: 40px;              /* the mark's cell, at the label row's right: 40px, 28px on phones */
-  --card-row: 28px;             /* the label row: its line and 6px over and under, 4px on phones */
-  position: relative;
-  display: block;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   text-align: left;
 }
 
-/* The card, under the image in the page (it comes first, for screen readers), laid over the
-   image's foot, --card-in from its sides and foot: a box of tracing paper in ink lines, ruled as
-   a spec sheet, two rows. Over, the item's number, "001", in the label style, and in a cell at
-   the right, the mark: an arrow for a project's page, a plus for an item the lightbox opens.
-   Under, its title, in the title style (see Shared text styles), on one line, cut short with "…"
-   if too long, so every card is the same height. The paper is thin (--vellum-card, since
-   2026-11-25, the user's ask: not opaque, a tracing paper's look; --vellum, frosted 16px,
-   before), so the image shows through it milky, its colors and dots only a little soft. Its
-   words are printed in ink (--ink, --ink-texture). A project's one-liner is on Home, an item's
+/* The bar, under the image (it comes first in the page, for screen readers), a construction line
+   over it as between the tiles: the item's number, "001", at the left and its title at the
+   right, both in the label style, each --gutter in from the tile's side (so the first column's
+   number stands under the header's WORK), on one line, about 30px tall as gougoucore.com's
+   bar is at 1440px. Neither wraps, so every tile is the same height; a title too long for the
+   bar is cut short with "…". No mark: the whole tile is the link. The words are printed in ink
+   (--ink, --ink-texture), as Work's sentence is. A project's one-liner is on Home, an item's
    type in the lightbox. */
 .work-caption {
-  position: absolute;
-  right: var(--card-in);
-  bottom: var(--card-in);
-  left: var(--card-in);
-  z-index: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) var(--card-go);
-  border: var(--rule);
-  /* The rule between the rows is the card's own, under the label row (--card-row tall), not the
-     title's border, so the ink's texture (below) stays in the words. */
-  background:
-    linear-gradient(var(--color-rule), var(--color-rule)) 0 var(--card-row) / 100% 1px no-repeat,
-    var(--vellum-card);
-  -webkit-backdrop-filter: blur(var(--vellum-card-blur)) saturate(0.85);
-  backdrop-filter: blur(var(--vellum-card-blur)) saturate(0.85);
+  order: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--step-2);
+  padding: 7px var(--gutter);
+  border-top: var(--trace-rule);
 }
 
 .work-number,
@@ -2661,54 +2657,14 @@ mark.placeholder {
 }
 
 .work-number {
-  padding: calc((var(--card-row) - 16px) / 2) 12px;
-}
-
-/* The mark, drawn (the fonts' latin files have no arrows): a mask filled in ink, on the cell's
-   ::after, so the mask doesn't take the cell's line with it. */
-.work-go {
-  position: relative;
-  border-left: var(--rule);
-}
-
-.work-go::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: var(--ink);
-  -webkit-mask: var(--icon-arrow-right) center / 12px 12px no-repeat;
-  mask: var(--icon-arrow-right) center / 12px 12px no-repeat;
-}
-
-button.work-card .work-go::after {
-  -webkit-mask-image: var(--icon-plus);
-  mask-image: var(--icon-plus);
+  flex: none;
 }
 
 .work-name {
-  grid-column: 1 / -1;
   min-width: 0;
-  padding: 11px 12px 12px;
-  text-transform: none;  /* as typed: the card round it is in the label style's capitals */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-@media (max-width: 767px) {
-  .work-card {
-    --card-in: var(--step-1);
-    --card-go: 28px;
-    --card-row: 24px;
-  }
-
-  .work-number {
-    padding-inline: 8px;
-  }
-
-  .work-name {
-    padding: 9px 8px 9px;
-  }
 }
 
 /* The image fills the tile, at --tile-ratio (a plain gray block until it exists), its height
@@ -4963,7 +4919,7 @@ html:not(.js) .orbits-figure.is-globe {
    face as typed, as the line under the globe is. Since 2026-11-25 evening (the user's ask:
    cleaner, without the boxes) each group's lines are one paragraph in the text's face, a
    sentence a line, nothing beside them, the groups a little apart (GLOBE_KEY_PROSE in
-   build.py). Off, a box in ink lines, ruled as a spec sheet, as Work's cards are (that evening
+   build.py). Off, a box in ink lines, ruled as a spec sheet, as Work's cards were (that evening
    before, the user's ask, from a shop's ruled box over its photo; before it a word column beside
    the lines, which broke every few words in the narrow column and ran into each other): a cell
    a word, the word in the label style over its line and, at its right, quieter, the work that

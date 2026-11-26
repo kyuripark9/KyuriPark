@@ -143,8 +143,9 @@ FOOTER_KEY = True
 # Work's and Archive's grids with an architect's axis bubbles over them (axes; Work's since
 # 2026-11-22, the user's ask, with the drawing sheets; Archive's the same day, the drawing system
 # taken across the site): a circle over the middle of each column, A, B (and C from 768px), a
-# center line down from it to the grid's top line. False: none.
-GRID_AXES = True
+# center line down from it to the grid's top line. False: none (since 2026-11-25, the user's
+# ask: on Work they named nothing, the columns mean nothing, and the user couldn't read them).
+GRID_AXES = False
 # Archive drawn as a plan (since 2026-11-22, the user's ask: the drawing system and their story
 # in one page): content/site.json's "scales" are its columns, named axis bubbles A, B, C, D
 # (Object, Page, Screen, Space); each image in archive.json says its "scale" and stands in that

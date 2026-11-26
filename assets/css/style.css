@@ -2020,11 +2020,14 @@ mark.placeholder {
    the sentence in ink, part see-through, uneven in strength, multiplied into the paper
    (--ink, --ink-texture), as Work's tiles' numbers and titles are. The mask shows nothing outside the
    sentence's box, so the box reaches past the letters, for the descenders and the italic's
-   overhang (padding), and gives that back (margins), so the lines don't move. */
+   overhang (padding), and gives that back (margins), so the lines don't move. Under the last
+   line, 0.3em more (since 2026-11-25, the axis bubbles off): the serif's descenders, g and y,
+   reached the grid's top line once the bubbles no longer stood between; now they stop about
+   as far over it as the capitals stand under the header's (24px at 1440px, phones too). */
 .work-statement {
   margin: 0 -0.15em -0.3em;
   padding-inline: 0.15em;
-  padding-bottom: calc(var(--step-1) + 0.3em);
+  padding-bottom: calc(var(--step-1) + 0.6em);
   color: var(--ink);
   mix-blend-mode: multiply;
   -webkit-mask-image: var(--ink-texture);

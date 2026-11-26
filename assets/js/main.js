@@ -341,15 +341,20 @@
   if (reduceMotion.matches || !("IntersectionObserver" in window)) return;
 
   // Project pages, and Archive's images (since 2026-11-24, its sequence's stations or its map's
-  // images): images below the fold fade up as they come on screen.
+  // images): images below the fold fade up as they come on screen. On About (since 2026-11-26,
+  // the user's go-ahead: nothing happened as the page scrolled) the globe key's parts and the
+  // Q&A's questions too, the ones that come on screen together one after another, 90 ms apart.
+  const STAGGER = ".globe-key-part, .qa-item";
   const revealer = new IntersectionObserver((entries) => {
+    let n = 0;
     entries.forEach(({ target, isIntersecting }) => {
       if (!isIntersecting) return;
+      if (target.matches(STAGGER)) target.style.setProperty("--reveal-delay", `${90 * n++}ms`);
       target.classList.add("is-visible");
       revealer.unobserve(target);
     });
   }, { rootMargin: "0px 0px -10% 0px" });
-  document.querySelectorAll(".project-blocks .media, .seq-figure, .map-fig").forEach((figure) => {
+  document.querySelectorAll(`.project-blocks .media, .seq-figure, .map-fig, ${STAGGER}`).forEach((figure) => {
     if (figure.getBoundingClientRect().top < window.innerHeight) return;  // already on screen
     figure.classList.add("reveal");
     revealer.observe(figure);
@@ -394,12 +399,13 @@
     looper.observe(video);
   });
 
-  // Archive's sheets (since 2026-11-23; style.css's Archive as a binder): each stays as the page
-  // scrolls on, so the next is laid over it. A sheet shorter than the window under the header
-  // stops under the header; a taller one stops once its foot reaches the window's foot, so all
-  // of it has been seen before the next covers it. Set again when the window or a sheet changes
-  // size.
-  const sheets = [...document.querySelectorAll(".sheet")];
+  // Archive's sheets (since 2026-11-23; style.css's Archive as a binder), and About's parts
+  // (since 2026-11-26, ABOUT_SHEETS): each stays as the page scrolls on, so the next is laid
+  // over it. A sheet shorter than the window under the header stops under the header; a taller
+  // one stops once its foot reaches the window's foot, so all of it has been seen before the
+  // next covers it. Set again when the window or a sheet changes size.
+  const sheets = [...document.querySelectorAll(
+    ".sheet, .about-sheets > :is(.wrap, .scales, .about-list)")];
   if (sheets.length) {
     const header = document.querySelector(".site-header");
     const place = () => {

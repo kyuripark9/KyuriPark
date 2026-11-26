@@ -249,6 +249,22 @@ ABOUT_GLOBE = True
 # boxes): each group's heading, then its lines as one paragraph, no words or works beside them
 # (globe_key). False: a box ruled in ink lines, a cell a word, its work at its right.
 GLOBE_KEY_PROSE = True
+# The globe and its key held in the window while the page scrolls on (since 2026-11-26, the
+# user's go-ahead: nothing happened as the page scrolled, and the globe was gone before its
+# key's last part was read; the key's parts spread out beside a held globe left too much empty
+# paper, the user's ask the same day): from 1200px the section a window's height under the
+# header, the globe sized to fit, stuck there while the page scrolls a further 120% of the
+# window, over which the key's parts light their parts of the drawing in turn, a third each
+# (globe.js read(), style.css .is-scrolly). False: side by side, scrolling as one. (Off since
+# later that day, the user's ask: About's parts laid over one another instead, ABOUT_SHEETS.)
+GLOBE_SCROLL = False
+# About's parts as a binder's sheets, as Archive's are (since 2026-11-26, the user's ask: rather
+# the sections stacking up as the page scrolls): the paragraph, the globe and the Q&A each
+# stays as the page scrolls on, under the header or, if taller than the window, where its foot
+# meets the window's foot, and the next is laid over it on tracing paper, the one under showing
+# through, soft (main.js sets --sheet-top; style.css .about-sheets). From 1200px the globe's
+# sheet is a window tall, the globe as big as fits. False: they scroll by one after another.
+ABOUT_SHEETS = True
 # About's identity sheet (since 2026-11-25 night, the user's ask, from a moodboard poster: a
 # collage on tracing paper, prints under the sheet, construction lines and + marks in ink over
 # them, numbered parts in a mono, big type): the site's own identity drawn on one sheet after
@@ -3181,7 +3197,10 @@ class Builder:
         paragraph). Each question opens its answer when clicked (<details>, so it works without
         JavaScript and from the keyboard), and closes the one that was open (since 2026-11-14,
         the user's ask: one answer at a time; the details share a name, so the browser does
-        it). [label](/work/slug/) in an answer links a project.
+        it). [label](/work/slug/) in an answer links a project. An item with "open": true
+        starts open (since 2026-11-26, the user's go-ahead: with every answer shut, the section
+        was six lines alike, the user's story behind clicks; the first, the architect they
+        wanted to be, open since).
         No "qa", no row."""
         items = about.get("qa") or []
         if not isinstance(items, list) or not all(
@@ -3194,8 +3213,9 @@ class Builder:
         for item in items:
             lines = item["a"] if isinstance(item["a"], list) else [item["a"]]
             answer = "".join(f"<p>{inline(t.strip())}</p>" for t in lines if t.strip())
+            opened = " open" if item.get("open") is True else ""
             rows.append(
-                '        <details class="qa-item" name="qa">\n'
+                f'        <details class="qa-item" name="qa"{opened}>\n'
                 f'          <summary class="qa-q">{inline(item["q"].strip())}</summary>\n'
                 f'          <div class="qa-a">{answer}</div>\n'
                 '        </details>')
@@ -3399,7 +3419,7 @@ class Builder:
             backs.append(f'<g class="orbit{dashed}" data-orbit="{n}">'
                          '<path class="orbit-line is-back"/></g>')
             fronts.append(f'<g class="orbit{dashed}" data-orbit="{n}"><path class="orbit-line"/>'
-                          '<path class="orbit-ray"/><circle class="orbit-dot" r="4"/></g>')
+                          '<path class="orbit-ray"/><circle class="orbit-dot" r="5.5"/></g>')
             # On the globe the name alone, in the label style, as the example's are (the
             # user's ask, the same day: easy to read and tidy).
             words.append(f'<span class="orbit-label{dashed}" data-orbit="{n}">'
@@ -3450,9 +3470,11 @@ class Builder:
         site = self.site
         who = ", ".join(inline(site[k]) for k in ("name", "role") if site.get(k))
         title = f'        <h2 id="scales-heading" class="orbits-title">{who}</h2>\n'
-        return ('      <div class="orbits is-globe">\n'
+        scrolly = " is-scrolly" if GLOBE_SCROLL else ""
+        return (f'      <div class="orbits is-globe{scrolly}">\n'
                 f'{title}'
-                f'        <div class="orbits-figure is-globe" style="aspect-ratio: {w} / {h}" '
+                f'        <div class="orbits-figure is-globe" '
+                f'style="aspect-ratio: {w} / {h}; --globe-w: {w}; --globe-h: {h}" '
                 f'data-globe="{mx} {my} {r}" aria-hidden="true">'
                 f'<svg viewBox="0 0 {w} {h}" focusable="false">'
                 f'<g class="globe-back">{"".join(backs)}</g>'
@@ -4156,6 +4178,8 @@ class Builder:
                          scales=scales, experience=experience,
                          qa=self.about_qa(about), identity=self.about_identity(),
                          poster=self.about_poster())
+        if ABOUT_SHEETS:
+            content = f'    <div class="about-sheets">\n{content}    </div>\n'
         self.page("about/index.html", "about", "/about/", f"About — {s['name']}",
                   s["description"], content, "page-about", current="about",
                   image=self.og_image())

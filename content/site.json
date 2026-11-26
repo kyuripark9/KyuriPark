@@ -38,6 +38,7 @@
     "qa": [
       {
         "q": "What did you want to be as a kid?",
+        "open": true,
         "a": "An architect. I grew up poring over buildings in magazines, and at Temple University I took architecture classes and interned in spatial UX at Philly Fashion Week. I never became one. Instead, I ended up working on the rebrand of Clayco, an architecture and construction company."
       },
       {
@@ -105,13 +106,13 @@
         "label": "How I connect them",
         "rows": [
           { "word": "Experience", "text": "Because I work at every scale, I can design one experience across them: [Light Life](/work/light-life/)'s app suggests the light you need, and its lamp gives it.", "works": ["Light Life"] },
-          { "word": "AI", "text": "I use AI to rework the design process itself, at Clayco and in my own projects, like [TypeLab](/work/typelab/) and [Clack](/work/clack/).", "works": ["Clayco", "TypeLab", "Clack"] }
+          { "word": "AI", "text": "I use AI at Clayco and in my own projects, like [TypeLab](/work/typelab/) and [Clack](/work/clack/).", "works": ["Clayco", "TypeLab", "Clack"] }
         ]
       },
       {
         "label": "Where I'm going",
         "rows": [
-          { "word": "Space", "text": "I want to work where digital meets real lives and real spaces.", "next": true }
+          { "word": "Space", "text": "I want to work where digital meets real spaces.", "next": true }
         ]
       }
     ]

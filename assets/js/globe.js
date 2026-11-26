@@ -23,8 +23,10 @@
 // (until another click or tap) lights its part of the drawing, the rest going faint, and a
 // name on the globe lights its line in the key; while something is lit the globe slows to a
 // stop. Dragging sideways turns it by hand; let go, it keeps going the way it was turned and
-// settles back to its own pace. It turns only while on screen. With reduced motion it stands
-// still at REST, and only a drag turns it.
+// settles back to its own pace. Since 2026-11-26 the page's scroll pushes it round too (and,
+// held in the window with its key, GLOBE_SCROLL, the key's parts light their parts of the
+// drawing in turn, read()). It turns only while on screen. With reduced motion it stands still at REST, and
+// only a drag turns it.
 (() => {
   const figure = document.querySelector(".orbits-figure.is-globe");
   if (!figure) return;
@@ -492,26 +494,36 @@
   // line of the key, its data-lit: "view", the middle, or orbits by number), else the ones
   // clicked or tapped. Lit by hand, the globe holds still and the rest goes faint (style.css,
   // data-focus); in the key, what lights none of it goes faint too.
+  // Scrolled to, a part of the key lights its part of the drawing too (since 2026-11-26, the
+  // user's go-ahead: nothing happened as the page scrolled; read()), under what's lit by hand,
+  // and the globe keeps turning.
   const sheet = figure.closest(".orbits") || figure.parentElement;
   const key = sheet.querySelector(".globe-key");
   const keyed = key ? [...key.querySelectorAll("[data-lit]")] : [];
+  const parts = key ? [...key.querySelectorAll(".globe-key-part[data-lit]")] : [];
   let hovered = null;  // a data-lit value, or null
   let pinned = null;
+  let reading = null;  // the part of the key being read (read()), or null
+  let chosen = null;   // what's lit and by what, so nothing's redone
   let lit = null;      // what's lit, as a Set of its parts, or null
   const isLit = (it) => (lit && lit.has(String(it.n)) ? 1 : 0);
   function choose() {
     const byHand = hovered ?? pinned;
     hold = byHand !== null;
-    if ((lit ? [...lit].join(" ") : null) === byHand) return;
-    lit = byHand === null ? null : new Set(byHand.split(" "));
-    if (lit) sheet.dataset.focus = byHand;
+    const now = byHand ?? (reading ? reading.dataset.lit : null);
+    const mark = byHand !== null ? `hand ${byHand}` : reading ? `read ${parts.indexOf(reading)}` : null;
+    if (mark === chosen) return;
+    chosen = mark;
+    lit = now === null ? null : new Set(now.split(" "));
+    if (lit) sheet.dataset.focus = now;
     else delete sheet.dataset.focus;
-    // A part of the key stays while it draws any of what's lit, a line only while it draws
-    // all of it.
+    // Lit by hand, a part of the key stays while it draws any of what's lit, a line only while
+    // it draws all of it; scrolled to, the part being read stays, the others go faint.
     for (const el of keyed) {
       const own = el.dataset.lit.split(" ");
       const line = el.classList.contains("globe-key-line");  // a sentence, or a box's cell
-      const on = !lit || (line ? own.every((t) => lit.has(t)) : own.some((t) => lit.has(t)));
+      const on = !lit || (byHand === null ? reading.contains(el)
+        : line ? own.every((t) => lit.has(t)) : own.some((t) => lit.has(t)));
       el.classList.toggle("is-dim", !on);
     }
   }
@@ -632,6 +644,53 @@
     });
   }
 
+  // Scrolling (since 2026-11-26, the user's go-ahead: nothing happened as the page scrolled).
+  // Held in the window with its key (GLOBE_SCROLL, from 1200px; style.css .is-scrolly; off
+  // since the same day), the part of the key being read lights its part of the drawing, by how
+  // far the page has scrolled through the hold, a third a part, nothing before or after it:
+  // What I design its fields and LIVING, How I connect them its ways, Where I'm going the way
+  // ahead to SPACE. Not otherwise (a part at the window's middle lit it until About's parts
+  // became sheets, ABOUT_SHEETS: the globe's sheet held still, the part there stayed lit).
+  function read() {
+    let now = null;
+    const held = getComputedStyle(sheet);
+    if (parts.length && held.position === "sticky") {
+      const track = sheet.parentElement.getBoundingClientRect();
+      const travel = track.height - sheet.offsetHeight;
+      const p = (parseFloat(held.top) - track.top) / travel;
+      if (travel > 0 && p >= 0 && p <= 1) {
+        now = parts[Math.min(parts.length - 1, Math.floor(p * parts.length))];
+      }
+    }
+    if (now === reading) return;
+    reading = now;
+    choose();
+    kick();
+  }
+  // And the page's scroll gives the globe a push its way, as a hand on a dial does (back up,
+  // back round), from which it settles to its own pace as after a throw (frame()). A window's
+  // height scrolled in a second adds about a turn every five seconds. Not with reduced motion,
+  // nor while it's held, lit by hand, or dragged.
+  const PUSH = 0.0015;  // radians a second, a pixel scrolled
+  let scrolledTo = window.scrollY;
+  let reads = 0;
+  window.addEventListener("scroll", () => {
+    const y = window.scrollY;
+    const dy = y - scrolledTo;
+    scrolledTo = y;
+    if (onScreen && !still.matches && !hold && !drag) {
+      speed = Math.max(-4, Math.min(4, speed + dy * PUSH));
+      kick();
+    }
+    if (!reads) {
+      reads = requestAnimationFrame(() => {
+        reads = 0;
+        read();
+      });
+    }
+  }, { passive: true });
+  window.addEventListener("resize", read);
+
   new IntersectionObserver(([entry]) => {
     onScreen = entry.isIntersecting;
     if (onScreen) kick();
@@ -651,4 +710,5 @@
 
   measure();
   draw(true);
+  read();
 })();

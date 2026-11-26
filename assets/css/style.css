@@ -4436,11 +4436,14 @@ mark.placeholder {
   color: var(--color-subtle);
 }
 
-/* Images fade up as they come on screen (main.js adds these classes). */
+/* Images fade up as they come on screen (main.js adds these classes); on About (since
+   2026-11-26) the globe's key and the Q&A's questions too, ones arriving together one after
+   another (--reveal-delay, main.js). */
 .reveal {
   opacity: 0;
   transform: translateY(var(--step-3));
-  transition: opacity 700ms var(--ease-out), transform 700ms var(--ease-out);
+  transition: opacity 700ms var(--ease-out) var(--reveal-delay, 0ms),
+              transform 700ms var(--ease-out) var(--reveal-delay, 0ms);
 }
 
 .reveal.is-visible {
@@ -5046,6 +5049,33 @@ html:not(.js) .orbits-figure.is-globe {
   stroke-dasharray: 1 3;
 }
 
+/* The globe a step heavier than the page's other lines (since 2026-11-26, the user's go-ahead:
+   drawn in the same 1px as the window-wide lines between the sections and the Q&A's lines, the
+   page's middle didn't stand out): from 768px its orbits' near halves 2px, its rim and ticks,
+   the middle's circle and cross and the ways' near parts 1.5px; the orbits' far halves, the
+   globe's lines and the axes stay 1px, so its near side comes forward. Under 768px, where the
+   globe is a phone's width, 1.5px and 1.25px. Its dots bigger too (build.py's globe, r 5.5,
+   4 before). */
+.is-globe .orbit-line:not(.is-back) {
+  stroke-width: 1.5;
+}
+
+.is-globe :is(.globe-rim, .orbit-middle circle, .orbit-middle path:not(.orbit-ray),
+              .globe-path-line:not(.is-back), .orbit.is-dashed .orbit-dot) {
+  stroke-width: 1.25;
+}
+
+@media (min-width: 768px) {
+  .is-globe .orbit-line:not(.is-back) {
+    stroke-width: 2;
+  }
+
+  .is-globe :is(.globe-rim, .orbit-middle circle, .orbit-middle path:not(.orbit-ray),
+                .globe-path-line:not(.is-back), .orbit.is-dashed .orbit-dot) {
+    stroke-width: 1.5;
+  }
+}
+
 /* The orbits' far halves in ink as their near halves are, as the diagram's are (since
    2026-11-25, the user's ask: its great circles black lines; a quarter strength before). */
 
@@ -5268,6 +5298,110 @@ html:not(.js) .orbits-figure.is-globe {
     grid-column: 2;
     max-width: none;
     margin: 0;
+  }
+}
+
+/* The globe and its key held in the window while the page scrolls on (GLOBE_SCROLL in
+   build.py, since 2026-11-26, the user's go-ahead: nothing happened as the page scrolled, and
+   by the key's last part the globe had gone up out of the window; then, the same day, the
+   user's ask: not the key's parts spread a quarter of the window apart, which left too much
+   empty paper): from 1200px, in a window at least 600px tall, the section is a window's height
+   under the header, the globe as big as fits in it (860px across at most, as before), the key
+   beside it as before; it stays put under the header while the page scrolls a further
+   STAGE_TRAVEL, and over that the key's parts light in turn, a third each (globe.js read()).
+   Then it goes on up. */
+@media (min-width: 1200px) and (min-height: 600px) {
+  .js .scales.has-globe:has(> .orbits.is-scrolly) {
+    --stage-travel: 120vh;
+    height: calc(100vh - var(--header-h) + 2px + var(--stage-travel));  /* 2px: its lines */
+  }
+
+  @supports (height: 100dvh) {
+    .js .scales.has-globe:has(> .orbits.is-scrolly) {
+      --stage-travel: 120dvh;
+      height: calc(100dvh - var(--header-h) + 2px + var(--stage-travel));
+    }
+  }
+
+  .js .orbits.is-globe.is-scrolly {
+    position: sticky;
+    top: var(--header-h);
+    height: calc(100vh - var(--header-h));
+    height: calc(100dvh - var(--header-h));
+  }
+
+  .orbits.is-globe.is-scrolly .orbits-figure {
+    justify-self: center;
+    width: min(100%, 860px, calc((100vh - var(--header-h) - var(--step-8) - var(--step-6))
+                                 * var(--globe-w) / var(--globe-h)));
+    width: min(100%, 860px, calc((100dvh - var(--header-h) - var(--step-8) - var(--step-6))
+                                 * var(--globe-w) / var(--globe-h)));
+  }
+}
+
+/* About's parts as a binder's sheets, as Archive's are (ABOUT_SHEETS in build.py, since
+   2026-11-26, the user's ask: rather the sections stacking up as the page scrolls, after the
+   globe held with its key lit part by part): the paragraph, the globe and the Q&A each stays
+   as the page scrolls on, under the header or, if taller than the window, where its foot meets
+   the window's foot (main.js sets --sheet-top), and the next is laid over it: tracing paper
+   (Archive's --sheet-paper, frosted), so the one under shows through it, soft, a soft shadow
+   at its top edge and the window-wide line along it. The paragraph, at the bottom of the
+   stack, is the page itself, unpainted. The Q&A starts at its line (its gap over it moved
+   inside, so no strip of the globe shows over its edge), and the globe's sheet loses its
+   bottom line to it. The binder's holes stay over all of them. From 1200px, in a window at
+   least 600px tall, the globe's sheet is a window tall under the header, the globe as big as
+   fits, held whole for a beat, then the Q&A comes over it. With reduced motion they scroll by
+   one after another. */
+@media (prefers-reduced-motion: no-preference) {
+  .js .about-sheets > :is(.wrap, .scales, .about-list) {
+    position: sticky;
+    top: var(--sheet-top, var(--header-h));
+  }
+
+  .js .about-sheets > :is(.scales, .about-list) {
+    background: rgb(238 237 232 / 0.86);
+    -webkit-backdrop-filter: blur(var(--vellum-blur));
+    backdrop-filter: blur(var(--vellum-blur));
+    box-shadow: 0 -14px 28px -22px rgb(22 22 22 / 0.45);
+  }
+
+  .js .about-sheets > .scales.has-globe {
+    border-bottom: 0;
+  }
+
+  .js .about-sheets > .about-list {
+    margin-top: 0;
+    padding-top: calc(var(--step-6) + var(--step-6));
+    border-top: var(--rule);
+  }
+
+  @media (min-width: 768px) {
+    .js .about-sheets > .about-list {
+      padding-top: calc(var(--step-8) + var(--step-6));
+    }
+  }
+
+  @media (min-width: 1200px) and (min-height: 600px) {
+    /* A beat with all of it in the window before the Q&A comes over it (the page's scroll
+       turning the globe meanwhile), so the key's last part is read before it's covered: the
+       Q&A's gap over its line, nothing painted there, the globe's sheet showing through. */
+    .js .about-sheets > .about-list {
+      margin-top: 35vh;
+      margin-top: 35dvh;
+    }
+
+    .js .about-sheets > .scales .orbits.is-globe {
+      height: calc(100vh - var(--header-h));
+      height: calc(100dvh - var(--header-h));
+    }
+
+    .js .about-sheets > .scales .orbits-figure.is-globe {
+      justify-self: center;
+      width: min(100%, 860px, calc((100vh - var(--header-h) - var(--step-8) - var(--step-6))
+                                   * var(--globe-w) / var(--globe-h)));
+      width: min(100%, 860px, calc((100dvh - var(--header-h) - var(--step-8) - var(--step-6))
+                                   * var(--globe-w) / var(--globe-h)));
+    }
   }
 }
 

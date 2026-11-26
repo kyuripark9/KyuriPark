@@ -139,18 +139,24 @@ FOOTER_KEY = True
 # center line down from it to the grid's top line. False: none (since 2026-11-25, the user's
 # ask: on Work they named nothing, the columns mean nothing, and the user couldn't read them).
 GRID_AXES = False
-# The project whose tile on Work is two columns wide, by its slug (since 2026-11-26, the user's
-# pick, to close the last row: with 5 items it was a hole; a tile leading on to the Archive was
-# tried there the same morning, the bare paper with words, then nine of its images, and dropped,
-# unfinished, then dated). Light Life, first until the same day, then second, after TypeLab
-# (the user's ask: the two swapped, Light Life still the bigger), so from 768px the first row is
-# TypeLab, then Light Life across the other two columns; style.css's .has-lead expects it in the
-# first row, first or second. On phones it comes first, a row to itself (two columns wide, it
-# can't follow one tile there without a hole), then 2, 2. The grid's cells number one more than
-# its items, so 5 fill it at 3 across (1 + 2 or 2 + 1, then 3) and at 2. Its image is the
-# project's "coverWide" in content/projects.json if given, else its cover, cropped wider.
-# None: every tile one column.
-WORK_LEAD = "light-life"
+# Work's tile two columns wide (since 2026-11-26, the user's pick, to close the last row: with 5
+# items it was a hole; a tile leading on to the Archive was tried there the same morning, the bare
+# paper with words, then nine of its images, and dropped, unfinished, then dated): the item marked
+# "wide": true in content/projects.json. Editorial Collection, the last, since later that day (the
+# user's ask: the big box for the item that holds many works, its title saying so), so from 768px
+# NBCUniversal and it are the second row, and on phones it's the last row to itself. Before that,
+# the same day, Light Life: first, then second after TypeLab (on phones the row under TypeLab and
+# Clack, numbered in that order). It can stand anywhere: the grid fills a hole the wide tile
+# leaves with a later tile (dense), work_layout finds where each tile stands at 3 across and at 2,
+# and from that its number as seen (counting down the page at both widths) and the lines. Its
+# image is a project's "coverWide" if given, else its cover, cropped wider; an item with no page
+# shows its first two images side by side (WIDE_PAIR). False: every tile one column.
+WORK_LEAD = True
+# The wide tile of an item with no page (WORK_LEAD): its first two images side by side, each the
+# shape of one tile, so it looks like more than one work (since 2026-11-26, Editorial Collection's
+# two posters, the user's ask that it feel like a place holding many works). False: its first
+# image alone, cropped wider.
+WIDE_PAIR = True
 # Archive drawn as a plan (since 2026-11-22, the user's ask: the drawing system and their story
 # in one page): content/site.json's "scales" are its columns, named axis bubbles A, B, C, D
 # (Object, Page, Screen, Space); each image in archive.json says its "scale" and stands in that
@@ -1018,6 +1024,8 @@ def validate(site, items):
                              'like ["digital", "brand"].')
         if not isinstance(p.get("featured", False), bool):
             raise BuildError(f'{where}: "featured" should be true or false.')
+        if not isinstance(p.get("wide", False), bool):
+            raise BuildError(f'{where}: "wide" should be true or false.')
         order = p.get("order")
         if isinstance(order, bool) or not isinstance(order, (int, float)):
             raise BuildError(f'{where}: "order" should be a number (lower numbers show first).')
@@ -1837,7 +1845,35 @@ class Builder:
         self.missing_media.add(rel)
         return ""
 
-    def work_card(self, p, index):
+    @staticmethod
+    def is_lead(p):
+        """Whether an item is Work's tile two columns wide (WORK_LEAD, "wide" in projects.json)."""
+        return WORK_LEAD and p.get("wide") is True
+
+    @classmethod
+    def work_layout(cls, items, cols):
+        """Where Work's tiles stand with `cols` across, as the browser places them: each in the
+        first cells it fits, so a later tile fills a hole the wide tile left (grid-auto-flow:
+        dense on .has-lead in style.css). For each item: its number as seen, row by row, and
+        whether it ends a row (no line at its right); and how many empty cells close the last
+        row (the grid's ::after)."""
+        taken, cells = set(), []
+        for p in items:
+            span = 2 if cls.is_lead(p) else 1
+            cell = 0
+            while cell % cols + span > cols or any(c in taken for c in range(cell, cell + span)):
+                cell += 1
+            taken.update(range(cell, cell + span))
+            cells.append((cell, span))
+        numbers = [0] * len(items)
+        for n, i in enumerate(sorted(range(len(items)), key=lambda i: cells[i][0]), 1):
+            numbers[i] = n
+        ends = [(cell + span) % cols == 0 for cell, span in cells]
+        last_row = max(taken, default=0) // cols * cols
+        rest = sum(1 for c in range(last_row, last_row + cols) if c not in taken)
+        return numbers, ends, rest
+
+    def work_card(self, p, index, place=None):
         """One item's tile: its image filling the cell, and under it a bar, '001' at the left
         and 'TypeLab' at the right on one line, after gougoucore.com's Work (since 2026-11-25
         evening, the user's ask: its words shown cleanly, as gougoucore's are; so from
@@ -1850,9 +1886,12 @@ class Builder:
         filters the tiles on data-categories. A
         project's tile links to its page, and if the cover has a video next to it, main.js
         plays it while the tile is hovered. An item with no page opens the lightbox, which shows
-        its 'Type · Year' from a hidden span in the tile."""
+        its 'Type · Year' from a hidden span in the tile, and the bar the number of its images
+        after its name, as the header's ARCHIVE (17). On a grid with a wide tile (WORK_LEAD),
+        `place` is its number and whether it ends a row, from 768px and on phones (work_layout):
+        a tile whose number differs between them has both."""
         loading = "eager" if index < 3 else "lazy"
-        lead = bool(WORK_LEAD) and p.get("slug") == WORK_LEAD
+        lead = self.is_lead(p)
         sizes = LEAD_SIZES if lead else WORK_SIZES
         if "slug" in p:
             rel, video = self.cover(p)
@@ -1863,18 +1902,38 @@ class Builder:
             tag, attrs = "a", f'href="/work/{p["slug"]}/"'
             meta, extra = "", ""
         else:
-            rel = media_path(p["images"][0], PIECE_FOLDER)
-            img = self.tile_image(rel, "piece", p["title"], loading, sizes=sizes)
-            data = ""
+            rels = [media_path(src, PIECE_FOLDER) for src in p["images"]]
+            if lead and WIDE_PAIR and len(rels) > 1:
+                img = "".join(
+                    f'<span>{self.tile_image(rel, "piece", p["title"], loading, sizes=WORK_SIZES)}'
+                    '</span>' for rel in rels[:2])
+                data = ' data-pair'
+            else:
+                img = self.tile_image(rels[0], "piece", p["title"], loading, sizes=sizes)
+                data = ""
             tag, attrs = "button", 'type="button" data-item aria-haspopup="dialog"'
             meta = f'<span hidden data-lightbox-meta>{self.piece_meta(p)}</span>'
             extra = f'            {self.piece_images(p)}\n'
-        cls = ' class="is-lead"' if lead else ""
+        number, classes = f"{index + 1:03d}", ["is-lead"] if lead else []
+        if place:
+            (desktop, phone), ends = place
+            if desktop != phone:
+                number = (f'<span class="number-desktop">{desktop:03d}</span>'
+                          f'<span class="number-phone">{phone:03d}</span>')
+            classes += [name for name, end in zip(("row-end-desktop", "row-end-phone"), ends)
+                        if end]
+        cls = f' class="{" ".join(classes)}"' if classes else ""
+        count = ""
+        if "slug" not in p and len(p["images"]) > 1:
+            n = len(p["images"])
+            count = (f'<span class="menu-count" aria-hidden="true">({n})</span>'
+                     f'<span class="visually-hidden">, {n} images</span>')
         return (f'          <li{cls} data-categories="{" ".join(p["category"])}">\n'
                 f'            <{tag} class="work-card" {attrs}>\n'
                 f'              <span class="work-caption">'
-                f'<span class="work-number" aria-hidden="true">{index + 1:03d}</span>'
-                f'<span class="work-name" data-lightbox-name>{inline(p["title"])}</span>'
+                f'<span class="work-number" aria-hidden="true">{number}</span>'
+                f'<span class="work-name"><span data-lightbox-name>{inline(p["title"])}</span>'
+                f'{count}</span>'
                 f'{meta}</span>\n'
                 f'              <span class="work-media"{data}>{img}</span>\n'
                 f'            </{tag}>\n'
@@ -2051,7 +2110,15 @@ class Builder:
         so main has no .wrap here."""
         s = self.site
         tabs = "\n".join(self.work_tab(name) for name in ("all", *CATEGORIES))
-        cards = "\n".join(self.work_card(p, i) for i, p in enumerate(self.items))
+        has_lead = any(self.is_lead(p) for p in self.items)
+        places, grid_class = [None] * len(self.items), ""
+        if has_lead:
+            (desktop, desktop_ends, desktop_rest), (phone, phone_ends, phone_rest) = (
+                self.work_layout(self.items, cols) for cols in (3, 2))
+            places = [((d, ph), (de, pe)) for d, ph, de, pe
+                      in zip(desktop, phone, desktop_ends, phone_ends)]
+            grid_class = f" has-lead rest-desktop-{desktop_rest} rest-phone-{phone_rest}"
+        cards = "\n".join(self.work_card(p, i, places[i]) for i, p in enumerate(self.items))
         lightbox = render("lightbox.html") if len(self.items) > len(self.projects) else ""
         opening = "" if HOME_TRACK else (
             f'{self.home_intro()}    <script src="/assets/js/intro.js'
@@ -2069,10 +2136,9 @@ class Builder:
                 + (render("work-tabs.html", tabs=tabs) if WORK_FILTERS else "") + views)
         if head:
             head = f'    <div class="work-head wrap">\n{head}    </div>\n'
-        has_lead = any(p.get("slug") == WORK_LEAD for p in self.items)
         content = render("work.html", cards=cards, lightbox=lightbox, opening=opening,
                          head=head, slider=slider, ring=ring, axes=self.axes("      "),
-                         grid_class=" has-lead" if has_lead else "")
+                         grid_class=grid_class)
         rel, path, title = (("work/index.html", "/work/", f"Work — {s['name']}") if HOME_TRACK
                             else ("index.html", "/", s["title"]))
         self.page(rel, "work", path, title, s["description"], content, "page-work",

@@ -2641,18 +2641,21 @@ mark.placeholder {
   }
 }
 
-/* Work's tile two columns wide (.is-lead: WORK_LEAD in build.py names it; .has-lead on the grid;
-   since 2026-11-26, the user's pick to close the last row: 5 items left a hole at 3 across and
-   at 2). It is as tall as the others, its image cropped wider. It must be in the first row, first
-   or second: Light Life, second since the same day (after TypeLab, the user's ask), so from 768px
-   the first row is TypeLab, then Light Life across the other two columns. On phones it comes
-   first, a row to itself (order: -1; two columns wide, it can't follow one tile there without a
-   hole), the others after it two by two in their order. The grid then has one cell more than
-   tiles, so the lines at the right and the marks where they cross follow the cells, not the
-   tiles' count: from 768px no line after tiles 2, 5, 8... (the third column, whether the wide
-   tile is first or second), on phones none after the wide tile and the other odd ones from 3 (the
-   second column); and the empty cell closing a short row (above) comes after a tile at 3n+1 (one
-   cell) or 3n (two) from 768px, and after an even one on phones. */
+/* Work's tile two columns wide (.is-lead: the item marked "wide" in content/projects.json,
+   WORK_LEAD in build.py; .has-lead on the grid; since 2026-11-26, the user's pick to close the last
+   row: 5 items left a hole at 3 across and at 2). It is as tall as the others. Editorial
+   Collection, the last, since later that day (the user's ask: the big box for the item holding
+   many works), so from 768px NBCUniversal and it are the second row, and on phones the last row
+   is it alone; Light Life before, first, then second. It can stand anywhere: a hole it leaves is
+   filled with a later tile (dense), and build.py works out where each tile stands at both widths
+   (work_layout): a tile ending a row there is .row-end-desktop / .row-end-phone, with no line at
+   its right and no marks; a tile whose number differs between the widths has both
+   (.number-desktop, .number-phone), so the numbers count down the page; and the empty cells
+   closing the last row (above) are .rest-desktop-1 or -2 and .rest-phone-1 on the grid. */
+.work-grid.has-lead {
+  grid-auto-flow: row dense;
+}
+
 .work-grid.has-lead > li.is-lead {
   grid-column: span 2;
 }
@@ -2666,63 +2669,74 @@ mark.placeholder {
   content: "";
 }
 
-@media (max-width: 767px) {
-  .work-grid.has-lead > li.is-lead {
-    order: -1;
-  }
-
-  .work-grid.has-lead > li.is-lead,
-  .work-grid.has-lead > li:nth-child(2n + 1):not(:first-child) {
-    border-right: 0;
-  }
-
-  .work-grid.has-lead > li.is-lead::before,
-  .work-grid.has-lead > li.is-lead::after,
-  .work-grid.has-lead > li:nth-child(2n + 1):not(:first-child)::before,
-  .work-grid.has-lead > li:nth-child(2n + 1):not(:first-child)::after {
-    content: none;
-  }
-}
-
-@media (min-width: 768px) {
-  .work-grid.has-lead > li:nth-child(3n + 2) {
-    border-right: 0;
-  }
-
-  .work-grid.has-lead > li:nth-child(3n + 2)::before,
-  .work-grid.has-lead > li:nth-child(3n + 2)::after {
-    content: none;
-  }
+.work-grid.has-lead::after {
+  content: none !important;
 }
 
 @media (max-width: 767px) {
-  .work-grid.has-lead::after {
-    content: none !important;
+  .work-grid.has-lead > li.row-end-phone {
+    border-right: 0;
   }
 
-  .work-grid.has-lead:has(> li:last-child:nth-child(2n + 2))::after {
-    content: "" !important;
-  }
-}
-
-@media (min-width: 768px) {
-  .work-grid.has-lead::after {
-    --rest: 1;
-    --rest-line: 0;
-    content: none !important;
+  .work-grid.has-lead > li.row-end-phone::before,
+  .work-grid.has-lead > li.row-end-phone::after {
+    content: none;
   }
 
-  .work-grid.has-lead:has(> li:last-child:nth-child(3n + 1))::after {
+  .work-grid.has-lead.rest-phone-1::after {
     --rest: 1;
     --rest-line: 0;
     content: "" !important;
   }
 
-  .work-grid.has-lead:has(> li:last-child:nth-child(3n + 3))::after {
+  .number-desktop {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .work-grid.has-lead > li.row-end-desktop {
+    border-right: 0;
+  }
+
+  .work-grid.has-lead > li.row-end-desktop::before,
+  .work-grid.has-lead > li.row-end-desktop::after {
+    content: none;
+  }
+
+  .work-grid.has-lead.rest-desktop-1::after {
+    --rest: 1;
+    --rest-line: 0;
+    content: "" !important;
+  }
+
+  .work-grid.has-lead.rest-desktop-2::after {
     --rest: 2;
     --rest-line: 1px;
     content: "" !important;
   }
+
+  .number-phone {
+    display: none;
+  }
+}
+
+/* The wide tile of an item with no page: its first two images side by side, each the shape of
+   one tile and growing inside its own half on hover (WIDE_PAIR in build.py; Editorial
+   Collection's two posters, so it reads as more than one work). */
+.work-media[data-pair] {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.work-media[data-pair] > span {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* The number of an item's images after its name in the bar, as the header's ARCHIVE (17). */
+.work-name .menu-count {
+  display: inline;
 }
 
 /* Each tile: its image filling it from line to line (since 2026-11-25, the user's ask, after
@@ -2768,6 +2782,7 @@ mark.placeholder {
 .work-number {
   flex: none;
 }
+
 
 .work-name {
   min-width: 0;

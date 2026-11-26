@@ -415,7 +415,8 @@
   {
     "order": 5,
     "category": ["brand"],
-    "title": "Editorial",
+    "wide": true,
+    "title": "Editorial Collection",
     "type": "Editorial design",
     "year": "2024",
     "images": [

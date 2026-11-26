@@ -8,9 +8,9 @@
     "oneLiner": "Font design playground",
     "type": "Font design tool",
     "roles": [
-      "[PLACEHOLDER]"
+      "Design and build, with Claude Code"
     ],
-    "team": "[PLACEHOLDER]",
+    "team": "Personal project",
     "timeline": "Since September 2026",
     "statement": "Don't edit numbers. Design letters.",
     "cover": {
@@ -24,46 +24,135 @@
       }
     },
     "hero": {
-      "type": "image",
-      "src": "hero.jpg",
-      "alt": "TypeLab's Style page: starting styles as cards that read Design everything, with filters by category and feeling beside them"
+      "type": "video",
+      "src": "demo.mp4",
+      "poster": "demo-cover.jpg",
+      "alt": "A one-minute screen recording: one font made in TypeLab, from picking a starting style to installing it on a laptop",
+      "caption": "I couldn't find the font in my head, so I built a tool to make it. In the video, I make one font, from picking a starting style to installing it on my laptop."
     },
     "blocks": [
       {
-        "type": "text",
-        "heading": "Context",
+        "type": "row",
+        "label": "The problem",
+        "heading": "Exploring type for a brand was painfully slow.",
         "body": [
-          "TypeLab is an interactive font design playground: start from a style, reshape its proportions, shapes and details with plain-language controls, watch every letter update live, save designs to your library, and export a real .otf font."
+          "As a junior graphic designer on Clayco's Branding Experience team, I had a project that needed new letterforms. Drawing every idea by hand took days, and the fonts I downloaded only showed me what already existed."
+        ],
+        "image": {
+          "src": "problem.jpg",
+          "alt": "1, Draw every idea by hand, days for each one: Illustrator at 734 percent on the lowercase g of my Didone specimen sheet, its 65 anchor points selected, beside the whole sheet with the g marked. 2, Collect fonts that exist, never the one in my head: six real typefaces printed as specimens and marked up by hand: Helvetica Neue Bold, too stiff; Didot, close, not quite; Impact, too loud; Snell Roundhand, too formal; Copperplate, almost?; Baskerville, seen it before"
+        }
+      },
+      {
+        "type": "row",
+        "label": "The idea",
+        "heading": "Stack a few controls. Get a font no one else has.",
+        "body": [
+          "TypeLab is an interactive font design playground: start from a style, reshape its proportions, shapes and details with plain-language controls, watch every letter update live, save designs to your library, and export a real .otf font.",
+          "55 controls in all, and every step redraws all 127 characters at once."
+        ],
+        "image": {
+          "src": "idea.jpg",
+          "alt": "TypeLab's editor, step by step on the word Galaxy in its Didone: 1, Weight from 64 to 90, Make strokes thicker; 2, Slant from 0 to 30, Tilt the letters; 3, x-height from 75 to 100, Make lowercase letters taller, with TypeLab's own x-height guides; 4, Stroke ends from Ball to Droplet, Choose how strokes end, the a's end magnified before and after. Each step shows the slider or tile changed and, marked with the same number, the part of the letters it changed, the step before faintly under the slant and the height"
+        }
+      },
+      {
+        "type": "row",
+        "label": "What you can do",
+        "heading": "Experiment with type.",
+        "body": [
+          "Every design starts from one of TypeLab's own fonts. Every setting reshapes their letters, and Points redraws any of them."
         ]
       },
       {
-        "type": "text",
-        "heading": "Build",
-        "body": [
-          "Every design starts from one of TypeLab's own fonts, free to change, use and share under the Open Font License. Every setting reshapes their letters, and Points redraws any of them.",
-          "The settings come in three groups: proportions (weight, size and slant, heights, inner space, spacing), shapes (build and curves, corners, stroke ends) and details (letters, handwriting, effects)."
+        "type": "grid",
+        "items": [
+          {
+            "src": "styles.jpg",
+            "title": "Start from 22 original typefaces.",
+            "caption": "Free to change, use and share under the Open Font License, with filters by category and feeling.",
+            "alt": "The Style page: starting typefaces as cards that read Design everything, under Sans Serif, with filters by category and feeling, each chip in its own typeface, and Customize at the foot"
+          },
+          {
+            "src": "controls.jpg",
+            "title": "Reshape every letter with 55 controls.",
+            "caption": "In three groups, proportions, shapes and details, each page named for what it does, like Make strokes thicker.",
+            "alt": "The Weight page: Design letters in a Didone beside the panel Make strokes thicker, with Weight from Thin to Bold, and Verticals and Horizontals from Lighter to Heavier"
+          },
+          {
+            "src": "redraw.jpg",
+            "title": "Redraw any letter point by point.",
+            "caption": "Its points (1); Only R (2), so an edit stays in this letter, where All letters sends it to every letter shaped the same there; and the construction grid it's drawn on (3), shared with its group.",
+            "alt": "Points mode on the R of Headline Serif, with Only R and the construction grid on: the R's 35 points, the grid's lines and circles, those shared with its group in blue and its own in pink, under the note Only R changes here, weight, width and heights still move it; callout 1 on a point, 2 on Only R, 3 on the Construction grid switch"
+          },
+          {
+            "src": "effects.jpg",
+            "title": "Add effects like halftone, pixels and rough print edges.",
+            "caption": "Twelve fills, from wireframe to shadow, a slice, and rough edges.",
+            "alt": "The Effects page: Change what fills the letters, with twelve fills, Solid, Wireframe, Pixels, Hexagons, Dots, Blobs, Liquid, Halftone, Lines, Inline, Outline and Shadow, then Slice and Rough edges"
+          }
         ]
       },
       {
-        "type": "image",
-        "src": "stroke-ends.jpg",
-        "alt": "Choosing how strokes end: flat, flared, round, pointed and brush ends in a grid, over the preview text Design letters"
-      },
-      {
-        "type": "image",
-        "src": "points.jpg",
-        "alt": "Points mode: the R's outline with its points, where an edit goes to every letter shaped the same there"
-      },
-      {
-        "type": "text",
-        "heading": "Usability test",
+        "type": "row",
+        "label": "My designs",
+        "heading": "One tool, a whole type library.",
         "body": [
-          "I worked through eight tasks as a first-time user would, in real Chrome, at 1440, 1024 and 390 pixels wide. The test found 13 problems: 3 high, 6 medium and 4 low.",
-          "TypeLab's core loop works: picking a style, changing it with sliders, saving and exporting a real font all succeeded. The biggest problems were about where things are, not whether they work."
-        ]
+          "Keep your fonts in one library, and choose the weights and italics for each family."
+        ],
+        "notes": [
+          "Every font I save, shown in its own letters",
+          "Download any of them as a font in one click",
+          "Search and sort the whole library"
+        ],
+        "image": {
+          "src": "library.jpg",
+          "alt": "The My designs page with twelve saved fonts, Amibes Display, Extended, Ink Trap Display, Octagon, Halftone Blackletter, Pixels, Hand Hex, Vogue, Nodes, Groovy, My Chunky Rounded and Poster, each shown in its own letters; pin 1 on a card, 2 on its download button, 3 on the search box"
+        }
       },
       {
-        "type": "imagePair",
+        "type": "row",
+        "label": "A real font",
+        "heading": "Export a real font you can install.",
+        "body": [
+          "Export .otf fonts, SVG letters or design files."
+        ],
+        "notes": [
+          "Pick weights and italics",
+          "Name the font",
+          "Download .otf files",
+          "Install it, use it anywhere"
+        ],
+        "image": {
+          "src": "export.jpg",
+          "alt": "TypeLab's Export window with five styles of Amibes Display picked, upright and italic, its font name and Download 5 fonts, and the same font open in macOS Font Book, ready to install; pins 1 to 4"
+        }
+      },
+      {
+        "type": "row",
+        "label": "How I built it",
+        "heading": "Built with AI in a month. The hard part: making it never break.",
+        "body": [
+          "Most of the month was fixing things. Letters broke in ways I didn't see coming, so I had TypeLab test itself with 5,000 random setting mixes per round. I'd fix what broke and run it again. The first round found 149 broken designs. Now it's down to a handful.",
+          "Building with AI felt a lot like working with a developer. I learned to brief it clearly, give it specific feedback, and check every result with a designer's eye. That eye caught a lot of what the tests missed."
+        ],
+        "image": {
+          "src": "built.jpg",
+          "alt": "A bar chart of broken designs found in each test round: 149 in round 1, then 19, 9, 2, 8, 1, 7, 4, 0, 1, 4 and 1 in round 12, and a handwritten note: …then I still checked every letter by eye"
+        }
+      },
+      {
+        "type": "row",
+        "label": "Usability test",
+        "heading": "13 problems found. 12 fixed two days later.",
+        "body": [
+          "I worked through eight tasks as a first-time user would, in real Chrome, at 1440, 1024 and 390 pixels wide. Picking a style, changing it with sliders, saving and exporting a real font all worked. The biggest problems were about where things are, not whether they work. The three that blocked a task or lost work:"
+        ],
+        "notes": [
+          "The editor didn't fit screens narrower than about 1280 pixels, so Export was cut off on a laptop. Now the page list folds into a drawer below 1180 pixels, and Save and Export always show.",
+          "A name change was lost if you left without pressing Save. Now a rename takes effect at once, and leaving asks: Save and leave, Leave without saving, or Stay.",
+          "Everyone on the server shared one My designs list. Now each browser keeps its own, and an account keeps them on any computer."
+        ],
         "images": [
           {
             "src": "test-summary.jpg",
@@ -73,21 +162,14 @@
             "src": "test-layout.jpg",
             "alt": "Problem 1 in the report: the editor doesn't fit screens narrower than about 1280 pixels"
           }
-        ]
-      },
-      {
-        "type": "text",
-        "heading": "What broke",
-        "body": [
-          "The editor didn't fit screens narrower than about 1280 pixels, so Export was cut off on a 1024-pixel laptop and phones couldn't use it. A name change was lost if you left without pressing Save. And after you picked a style, nothing pointed to what to do next."
         ],
-        "variant": "note"
+        "caption": "From the test report, 2 October 2026: the 13 problems by severity, and problem 1 in detail."
       },
       {
-        "type": "text",
-        "heading": "Next",
+        "type": "row",
+        "label": "Next",
         "body": [
-          "No real participants took part: the findings come from an expert walkthrough, so they show where people are likely to struggle. The next step is to confirm the high-severity problems with three to five real users, such as typography students or designers new to type design."
+          "No real participants took part: the findings come from an expert walkthrough, so they show where people are likely to struggle. The next step is to test with three to five real users, such as typography students or designers new to type design."
         ]
       }
     ]

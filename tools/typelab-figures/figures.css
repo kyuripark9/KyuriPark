@@ -1,0 +1,137 @@
+/* TypeLab's page figures as drawing sheets in the portfolio's system (2026-11-26, the user's
+   ask: the slides' taped, tilted cards and round knobs read as playful; after their moodboard, a
+   technical poster under tracing paper). The site's paper and ink, Source Serif and IBM Plex
+   Mono, 1px ink frames, construction lines in --trace with a + where they cross, numbered labels
+   (01°, [01]), outline callouts with leaders, screenshots printed in grays on the paper.
+   Sizes are CSS pixels on a 1080-wide sheet, shown at about 0.9 on the page. */
+@font-face { font-family: "SS Display"; src: url("FONTS/source-serif-display-300.woff2") format("woff2"); font-weight: 300; }
+@font-face { font-family: "SS Text"; src: url("FONTS/source-serif-text-400.woff2") format("woff2"); font-weight: 400; }
+@font-face { font-family: "SS Text"; src: url("FONTS/source-serif-text-500.woff2") format("woff2"); font-weight: 500; }
+@font-face { font-family: "Plex Mono"; src: url("FONTS/ibm-plex-mono-latin.woff2") format("woff2"); font-weight: 400; }
+
+:root {
+  --paper: #eeede8;
+  --ink: #161616;
+  --subtle: #666561;
+  --trace: rgba(22, 22, 22, 0.24);
+  --hair: 1.1px;
+  --mono: "Plex Mono", ui-monospace, monospace;
+  --text: "SS Text", Georgia, serif;
+  --display: "SS Display", Georgia, serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--paper); }
+body { color: var(--ink); font: 400 18px/1.45 var(--text); -webkit-font-smoothing: antialiased; }
+
+.fig { display: none; position: relative; width: 1080px; padding: 18px 36px 40px; background: var(--paper); }
+.fig.on { display: block; }
+.fig > *:not(svg):not(.bub):not(.bnote) { position: relative; z-index: 1; }
+svg.under, svg.over { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+svg.under { z-index: 0; }
+svg.over { z-index: 2; }
+
+/* labels: the mono's capitals, 13.5px (12px on the page); a section's with a small ink square */
+.head, .tag, .idx, .why, .note, .k, .v, .axis, .chead, .bub, .val, .ruler span, .step, .layers {
+  font-family: var(--mono); font-size: 13.5px; line-height: 1.3; letter-spacing: 0;
+  text-transform: uppercase; font-weight: 400;
+}
+.head { display: flex; align-items: center; gap: 12px; margin: 0 0 18px; }
+.head .sq { width: 8px; height: 8px; background: var(--ink); flex: none; }
+.head .dim, .tag, .idx, .why, .note, .axis, .k { color: var(--subtle); }
+.band + .head { margin-top: 44px; }
+
+/* a frame: 1px ink */
+.frame { box-shadow: 0 0 0 var(--hair) var(--ink); background: var(--paper); }
+/* a print: a screenshot or a sheet in grays, multiplied into the paper */
+.print img { display: block; width: 100%; }
+
+/* callouts: an outline circle, its number in the mono; a leader to a dot on what it marks */
+.bub { position: absolute; z-index: 3; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%;
+  display: grid; place-items: center; background: var(--paper); box-shadow: 0 0 0 var(--hair) var(--ink);
+  font-size: 13px; color: var(--ink); }
+
+/* 01: the problem: the Illustrator capture beside its sheet; the moodboard */
+.f1a { display: grid; grid-template-columns: 590px 1fr; gap: 0 30px; align-items: start; }
+.shot img { display: block; width: 100%; }
+.side { display: grid; gap: 10px; }
+.board { position: relative; height: 470px; margin-top: 8px; }
+.card { position: absolute; background: #fbfbf8; box-shadow: 0 0 0 var(--hair) rgba(22,22,22,.18);
+  display: grid; grid-template-rows: auto 1fr auto auto; padding: 10px 14px 10px; overflow: hidden; }
+.cno { font-family: var(--mono); font-size: 12px; color: var(--subtle); }
+.spec { align-self: center; justify-self: center; line-height: 1; color: #111; white-space: nowrap; }
+.abc { font-size: 10px; line-height: 1.3; color: #333; white-space: nowrap; overflow: hidden; }
+.fname { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; color: var(--subtle); margin-top: 6px; }
+.mnote { position: absolute; z-index: 2; font-family: var(--mono); font-size: 13.5px; text-transform: uppercase; color: var(--ink); white-space: nowrap; }
+svg.hand { position: absolute; left: 0; top: 0; width: 1008px; height: 470px; overflow: visible; z-index: 2; }
+.bnote { position: absolute; z-index: 3; font-family: var(--mono); font-size: 13.5px; line-height: 1.35; text-transform: uppercase; white-space: pre-line; }
+
+/* 02: the idea */
+.f2 { display: grid; grid-template-columns: 92px 318px 1fr; padding: 0 24px; }
+.f2 .row { display: contents; }
+.f2 .row > * { height: 124px; display: flex; flex-direction: column; justify-content: center; }
+.f2 .row + .row > * { border-top: var(--hair) solid var(--trace); }
+.step { position: relative; padding-left: 26px; }
+.step::before { content: ""; position: absolute; left: 4px; top: 50%; width: 9px; height: 9px; margin-top: -4.5px; border-radius: 50%; background: var(--ink); z-index: 1; }
+.step::after { content: ""; position: absolute; left: 8px; top: 0; bottom: 0; border-left: var(--hair) solid var(--ink); }
+.row:first-child .step::after { top: 50%; }
+.row:last-child .step::after { bottom: 50%; }
+.ctl { gap: 14px; padding-right: 40px; }
+.ctl .name { display: flex; justify-content: space-between; align-items: baseline; font: 500 21px/1 var(--text); }
+.ctl .val { font-size: 15px; }
+.ruler { position: relative; height: 26px; }
+.ruler::before { content: ""; position: absolute; left: 0; right: 0; top: 8px; height: 7px;
+  background: repeating-linear-gradient(to right, var(--ink) 0 var(--hair), transparent var(--hair) 10%) 0 0 / calc(100% + var(--hair)) 100% no-repeat;
+  border-top: var(--hair) solid var(--ink); }
+.ruler b { position: absolute; left: 0; top: 7px; height: 3px; width: calc(var(--v) * 1%); background: var(--ink); }
+.ruler i { position: absolute; left: calc(var(--v) * 1%); top: -3px; width: 0; height: 0; margin-left: -6px;
+  border: 6px solid transparent; border-top: 9px solid var(--ink); border-bottom: 0; }
+.ruler span { position: absolute; top: 18px; font-size: 11px; color: var(--subtle); transform: translateX(-50%); }
+.ruler span:nth-of-type(1) { left: 0; transform: none; }
+.ruler span:nth-of-type(2) { left: 50%; }
+.ruler span:nth-of-type(3) { right: 0; left: auto; transform: none; }
+.word { padding-left: 40px; }
+.word svg { height: 92px; width: auto; align-self: flex-start; color: var(--ink); overflow: visible; }
+
+/* 03, 04: prints with callouts */
+.f3 { margin-top: 44px; }
+.f4 { position: relative; height: 600px; }
+.f4 #dlg { position: absolute; left: 72px; top: 0; width: 640px; }
+.f4 #fb { position: absolute; right: 18px; top: 318px; width: 460px; }
+
+/* 05: the chart */
+.chart { padding: 18px 24px 16px; }
+.chead { display: flex; justify-content: space-between; padding-bottom: 12px; border-bottom: var(--hair) solid var(--ink); }
+.plot { position: relative; height: 330px; margin: 22px 0 0 44px; }
+.grid { position: absolute; left: 0; right: 0; border-top: var(--hair) solid var(--trace); }
+.grid .axis { position: absolute; right: calc(100% + 10px); top: -9px; font-size: 11px; }
+.bars { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; align-items: end; }
+.bar { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+.bar i { display: block; width: 100%; background: var(--ink); }
+.bar .v { margin-bottom: 8px; }
+.bar.zero i { height: 4px !important; background: var(--paper); box-shadow: 0 0 0 var(--hair) var(--ink); }
+.xl { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; margin: 0 0 0 44px; padding-top: 10px; border-top: var(--hair) solid var(--ink); }
+.xl .k { text-align: center; font-size: 12px; }
+#fig5 > .note { margin-top: 14px; text-align: right; }
+.note::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 10px; background: var(--subtle); }
+
+/* 02, the real UI: a row a step */
+.f2b { display: grid; }
+.srow2 { position: relative; display: grid; grid-template-columns: 150px 484px 308px; gap: 0 30px; align-items: center; padding: 30px 0; }
+.srow2 + .srow2 { border-top: var(--hair) solid var(--trace); }
+.lab { display: grid; gap: 6px; align-self: start; padding-top: 4px; }
+.lab .no, .lab .nm, .lab .chg { font-family: var(--mono); font-size: 13.5px; line-height: 1.3; text-transform: uppercase; }
+.lab .no { color: var(--subtle); }
+.lab .chg { font-size: 15px; }
+.lab .ttl { font: 400 16px/1.35 var(--text); color: var(--subtle); margin-top: 4px; }
+.ui { position: relative; overflow: hidden; }
+.ui img { position: absolute; max-width: none; display: block; }
+.ui img.ghost { opacity: 0.3; mix-blend-mode: multiply; }
+
+.ctlcol { display: grid; gap: 14px; align-self: center; }
+.zooms { display: flex; gap: 14px; }
+.zoom { display: grid; gap: 6px; }
+.zoom span { font-family: var(--mono); font-size: 12px; text-transform: uppercase; color: var(--subtle); }
+
+/* a screen alone, edge to edge, its callouts on it (the grid's Points screen) */
+.fig.flush { padding: 0; }

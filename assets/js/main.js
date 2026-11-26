@@ -340,7 +340,7 @@
 
   if (reduceMotion.matches || !("IntersectionObserver" in window)) return;
 
-  // Project pages, and Archive's images (since 2026-11-24, its sequence's stations or its map's
+  // Project pages (a row's image too, since 2026-11-26), and Archive's images (since 2026-11-24, its sequence's stations or its map's
   // images): images below the fold fade up as they come on screen. On About (since 2026-11-26,
   // the user's go-ahead: nothing happened as the page scrolled) the globe key's parts and the
   // Q&A's questions too, the ones that come on screen together one after another, 90 ms apart.
@@ -354,7 +354,7 @@
       revealer.unobserve(target);
     });
   }, { rootMargin: "0px 0px -10% 0px" });
-  document.querySelectorAll(`.project-blocks .media, .seq-figure, .map-fig, ${STAGGER}`).forEach((figure) => {
+  document.querySelectorAll(`.project-blocks .media, .row-media, .seq-figure, .map-fig, ${STAGGER}`).forEach((figure) => {
     if (figure.getBoundingClientRect().top < window.innerHeight) return;  // already on screen
     figure.classList.add("reveal");
     revealer.observe(figure);

@@ -71,6 +71,11 @@ WORK_SIZES = "(min-width: 768px) 33vw, 50vw"
 LEAD_SIZES = "(min-width: 768px) 67vw, 100vw"  # Work's tile two columns wide (WORK_LEAD)
 WIDE_SIZES = "100vw"
 PAIR_SIZES = "(min-width: 768px) 50vw, 100vw"
+# A "row" block's image across two of Work's three columns from 768px (two images: a column
+# each), and a "grid" block's images, two across (since 2026-11-26).
+ROW_SIZES = "(min-width: 768px) 67vw, 100vw"
+ROW_PAIR_SIZES = "(min-width: 768px) 33vw, 100vw"
+GRID_SIZES = PAIR_SIZES
 SMALL_SUFFIX = "-small"
 # `python3 build.py images` makes the smaller copies: 1200px wide (enough for a phone at 3x and
 # half a laptop's screen at 2x), or for Archive 800px on the long side, as its README part says;
@@ -129,6 +134,13 @@ RING_SHAPES = 8  # the stand-in shapes in templates/ring.html, #ring-shape-1 to 
 # page since the same day (the user liked it). True: every project page; or a tuple of slugs, like
 # ("light-life",); False or (): none, the facts as a row as before.
 SHEET_PROJECTS = True
+# A project's section headings as detail callouts, the section's number over the sheet's, a
+# circle split by a line, the heading in 12px mono capitals on the line running on from it
+# (2026-11-22 to 2026-11-26). Off since 2026-11-26 (the user's ask: the page's body didn't read,
+# nothing told a visitor at a glance what a section was about): each section opens on a line
+# across the window, its heading in the title style, its number (01) before it in the label
+# style (text_block). True brings the callouts back.
+SECTION_CALLOUTS = False
 # The footer's logo with its key (since 2026-11-22, the user's ask: the logo's story, as on a
 # drawing sheet's stamp), from 768px; on phones the logo alone (the words wouldn't fit beside
 # each other at its size). False: the logo alone everywhere.
@@ -1532,8 +1544,78 @@ class Builder:
             return self.impact_block(b, where)
         if kind == "prototype":
             return figure("media-full", self.prototype(b, where), b.get("caption"))
+        if kind == "row":
+            return self.row_block(b, p, folder, where)
+        if kind == "grid":
+            return self.grid_block(b, p, folder, where)
         raise BuildError(f'{where}: unknown block type "{kind}". '
-                         'Use text, image, imagePair, video, impact, or prototype.')
+                         'Use text, row, image, imagePair, grid, video, impact, or prototype.')
+
+    def row_block(self, b, p, folder, where):
+        """A section told as one row (a "row" block, since 2026-11-26, the user's ask: a recruiter
+        won't read a page through, and nothing explained the work part by part): its number and
+        "label" in the label style (01 THE PROBLEM), its point in a line in the title style
+        ("heading"), a few sentences ("body"), numbered "notes" (matching the numbered pins in
+        its image, when it has them), and its "image" (or two side by side, "images"; "caption"
+        under them; "print": true prints them in grays into the paper, as a grid's are). From 768px
+        in Work's columns: the words in the first, the image across the
+        other two, out to the window's edge; with no image, the body across those two. On phones
+        the words over the image. It opens on a line across the window, as a section does."""
+        label, heading = b.get("label"), b.get("heading")
+        if not (label or heading):
+            raise BuildError(f'{where}: a "row" block needs a "label" or a "heading".')
+        no = ""
+        if self.sheet:
+            self.section_no += 1
+            no = f'<span class="section-no" aria-hidden="true">{self.section_no:02d}</span>'
+        parts = []
+        if label:
+            parts.append(f'<span class="row-label">{no}<span>{inline(label)}</span></span>')
+        if label and heading:
+            parts.append('<span class="visually-hidden">: </span>')
+        if heading:
+            parts.append(f'<span class="row-title">{inline(heading)}</span>')
+        body = b.get("body") or []
+        if isinstance(body, str):
+            body = [body]
+        text = "".join(f"<p>{inline(t)}</p>" for t in body)
+        notes = "".join(f"<li>{inline(n)}</li>" for n in b.get("notes") or [])
+        if notes:
+            text += f'<ol class="row-notes">{notes}</ol>'
+        out = [f'<h2 class="row-heading">{"".join(parts)}</h2>']
+        if text:
+            out.append(f'<div class="row-body text-body">{text}</div>')
+        images = b.get("images") or ([b["image"]] if b.get("image") else [])
+        if images:
+            sizes = ROW_SIZES if len(images) == 1 else ROW_PAIR_SIZES
+            imgs = "".join(self.img(media_path(need(i, "src", where), folder), i.get("alt"),
+                                    "wide", p["title"], "lazy", sizes=sizes) for i in images)
+            cls = "row-media is-pair" if len(images) > 1 else "row-media"
+            if b.get("print"):  # screenshots or pages, printed in grays into the paper
+                cls += " is-print"
+            cap = (f'<figcaption class="caption">{inline(b["caption"])}</figcaption>'
+                   if b.get("caption") else "")
+            out.append(f'<figure class="{cls}"><div class="row-images">{imgs}</div>{cap}</figure>')
+        return f'<div class="row">{"".join(out)}</div>'
+
+    def grid_block(self, b, p, folder, where):
+        """Images in a grid, each with its own words under it (a "grid" block, since 2026-11-26,
+        the user's ask: the work explained part by part): two across from 768px, from the
+        window's edge to its edge, a 1px line between them as Work's tiles have; one under
+        another on phones. Each item's "title" in the text color, then its "caption" in gray."""
+        items = b.get("items") or []
+        if not items:
+            raise BuildError(f'{where}: a "grid" block needs a list of "items".')
+        cells = []
+        for i in items:
+            img = self.img(media_path(need(i, "src", where), folder), i.get("alt"), "wide",
+                           p["title"], "lazy", sizes=GRID_SIZES)
+            title = (f'<span class="grid-title">{inline(i["title"])}</span> '
+                     if i.get("title") else "")
+            words = title + inline(i.get("caption") or "")
+            cap = f'<figcaption class="caption">{words}</figcaption>' if words else ""
+            cells.append(f'<figure class="grid-cell">{img}{cap}</figure>')
+        return f'<div class="media media-grid">{"".join(cells)}</div>'
 
     def prototype(self, b, where):
         """A working prototype: a folder in assets/prototypes/ with its own index.html, shown in
@@ -1582,29 +1664,38 @@ class Builder:
         if b.get("variant") == "note":
             h = f'<h3 class="note-heading">{inline(heading)}</h3>' if heading else ""
             return f'<aside class="text-block is-note"><div class="text-body">{h}{paras}</div></aside>'
-        h = f'<h2 class="section-heading">{inline(heading)}</h2>' if heading else ""
-        if heading and self.sheet:  # a drawing sheet's detail callout (SHEET_PROJECTS)
+        h = ""
+        if heading and self.sheet and SECTION_CALLOUTS:  # a drawing sheet's detail callout
             self.section_no += 1
             h = (f'<h2 class="section-heading">{self.callout(self.section_no, self.sheet)}'
                  f'<span class="section-name">{inline(heading)}</span></h2>')
+        elif heading:  # the title style, numbered on a drawing sheet (SECTION_CALLOUTS)
+            no = ""
+            if self.sheet:
+                self.section_no += 1
+                no = f'<span class="section-no" aria-hidden="true">{self.section_no:02d}</span>'
+            h = f'<h2 class="section-heading is-title">{no}<span>{inline(heading)}</span></h2>'
         return f'<div class="text-block">{h}<div class="text-body">{paras}</div></div>'
 
     def sections(self, blocks, p, folder):
         """Group blocks into sections: each text block with a heading starts a new one."""
         groups = []
         for b in blocks:
-            starts = b.get("type") == "text" and b.get("heading") and b.get("variant") != "note"
+            row = b.get("type") == "row"
+            starts = row or (b.get("type") == "text" and b.get("heading")
+                             and b.get("variant") != "note")
             rendered = self.block(b, p, folder)
             if not rendered:  # an impact block with no real numbers
                 continue
             if starts or not groups:
-                groups.append((bool(starts), []))
-            groups[-1][1].append(rendered)
+                groups.append((bool(starts), row, []))
+            groups[-1][2].append(rendered)
         out = []
-        for headed, items in groups:
+        for headed, row, items in groups:
             tag = "section" if headed else "div"
+            cls = "project-section is-row" if row else "project-section"
             body = "\n          ".join(items)
-            out.append(f'        <{tag} class="project-section">\n          {body}\n        </{tag}>')
+            out.append(f'        <{tag} class="{cls}">\n          {body}\n        </{tag}>')
         return "\n".join(out)
 
     def meta_rows(self, p):

@@ -180,12 +180,12 @@
 
        display  project titles, the 404, Work's and Archive's sentences, About's paragraph;
                 the words they lean on (*...*) in its italic
-       title    impact numbers, Previous / Next titles
+       title    impact numbers, Previous / Next titles, a project's section headings
        lead     Home's sentence, a project's statement
-       body     text, a project's Visit link, the 404's link, About's Q&A
+       body     text, a project's Visit link and captions, the 404's link, About's Q&A
        name     the header's links and the footer, project names (Archive, the
                 lightbox), the lightbox's Close
-       label    captions, a project's facts and section headings, the prototype's Open link,
+       label    a project's facts and section numbers, the prototype's Open link,
                 the lightbox's type and year, the drawing system's words
 
      The serif for what's read, as a journal's; the mono for what names, numbers, and leads
@@ -575,10 +575,15 @@ button {
   text-wrap: balance;
 }
 
-/* Title: impact numbers and a project page's Previous / Next titles (and the titles on Work's
-   tiles from 2026-11-24 to 2026-11-25; in the label style since). Source Serif Display. */
+/* Title: impact numbers, a project page's Previous / Next titles, and its section headings
+   (since 2026-11-26, the user's ask: in the label style, 12px mono capitals beside a callout,
+   nothing told a visitor at a glance what a section was about; build.py's SECTION_CALLOUTS),
+   as typed, their numbers in the label style (and the titles on Work's tiles from 2026-11-24
+   to 2026-11-25; in the label style since). Source Serif Display. */
 .impact-value,
-.project-nav-title {
+.project-nav-title,
+.text-block > .section-heading.is-title,
+.row-title {
   font-family: var(--font-display);
   font-size: var(--size-title);
   font-weight: 300;
@@ -602,9 +607,10 @@ button {
 .work-caption,
 .card-caption,
 .track-caption,
-.caption,
 .archive-text,
 .text-block > .section-heading,
+.section-no,
+.row-label,
 .note-heading,
 .project-meta,
 .impact-label,
@@ -689,9 +695,25 @@ button {
    display style before), where gougoucore's "ALSO" is in its text color. */
 .project-meta dt,
 .text-block > .section-heading,
+.section-no,
+.row-label,
 .about-label,
 .note-heading {
   color: var(--color-subtle);
+}
+
+/* A project's section heading in the title style (since 2026-11-26) is as typed and in the
+   text color; its number stays a gray label. */
+.text-block > .section-heading.is-title {
+  text-transform: none;
+  color: var(--color-text);
+}
+
+/* A caption under a project's image in the body text's face and size, as typed, in gray
+   (since 2026-11-26, the user's ask: the page didn't read; a sentence in mono capitals reads a
+   letter at a time; in the label style before). */
+.caption {
+  text-wrap: pretty;
 }
 
 /* An email address stays as typed, even in capitals (in capitals it reads as a shout). The
@@ -855,7 +877,8 @@ mark.placeholder {
                     from it down to the grid (Work); named, its name beside it (.is-named:
                     Archive's plan); .bubble, one alone (About's scales)
      detail callout .callout: a circle split by a line, a number over it and one under
-                    (a project's sections: section over sheet; About's Q&A: Q over A; the 404)
+                    (About's Q&A: Q over A; the 404; a project's sections, section over
+                    sheet, until 2026-11-26: SECTION_CALLOUTS in build.py)
      title block    a project's facts as cells in the lines (Project page: Drawing sheet)
      timeline       .timeline: events on a line, a dot at each (a project's title block; a
                     dimension line, .dimension, a measured length, until 2026-11-26)
@@ -4268,12 +4291,51 @@ mark.placeholder {
   padding-inline: var(--gutter);
 }
 
+/* From 768px a caption under an image across the window starts where the text does, a third
+   of the way across plus --gutter (since 2026-11-26), so the words down the page read on from
+   the text over the image. */
+@media (min-width: 768px) {
+  .project-hero .caption,
+  .project-blocks .media-full > .caption,
+  .project-blocks .media-pair > .caption {
+    padding-left: calc(100% / 3 + var(--gutter));
+  }
+}
+
 .project-blocks {
   margin-top: var(--section-gap);
 }
 
 .project-section + .project-section {
   margin-top: var(--section-gap);
+}
+
+/* A section with a heading opens on a line in the text color across the window, as the facts
+   do, its heading --step-3 under it (since 2026-11-26, the user's ask: the body didn't read at
+   a glance; build.py's SECTION_CALLOUTS). The heading in the title style, its number (01)
+   before it in the label style, on one baseline. From 768px the text's first line sits on the
+   heading's baseline. */
+section.project-section:has(> .text-block > .is-title),
+section.project-section.is-row {
+  padding-top: var(--step-3);
+  border-top: var(--rule);
+  border-image: linear-gradient(var(--color-rule), var(--color-rule)) 1 / 1px 0 0 / 0 100vw;
+}
+
+.text-block > .section-heading.is-title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--step-2);
+}
+
+.section-no {
+  flex: none;
+}
+
+@media (min-width: 768px) {
+  .text-block:has(> .is-title) {
+    align-items: baseline;
+  }
 }
 
 .project-section > * + * {
@@ -4319,13 +4381,14 @@ mark.placeholder {
   border-left: var(--rule);
 }
 
-/* From 768px the heading and the text take the window's halves, each --gutter in (since
-   2026-11-14; the page's width, --col-gap apart, before), so the text starts on the
-   window's middle line plus --gutter, a line About's and the footer's eighths share. A
-   note's line is where the text above it starts. */
+/* From 768px the heading and the text in Work's columns, each --gutter in: the heading in the
+   first, the text across the other two (since 2026-11-26, with the "row" blocks, whose images
+   start there too; the window's halves from 2026-11-14, the text on the window's middle line
+   plus --gutter; the page's width, --col-gap apart, before). A note's line is where the text
+   above it starts. */
 @media (min-width: 768px) {
   .text-block {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     column-gap: 0;
     margin-inline: calc(-1 * var(--gutter));
   }
@@ -4335,13 +4398,183 @@ mark.placeholder {
   }
 
   .text-block .text-body {
-    grid-column: 2;
+    grid-column: 2 / 4;
     max-width: calc(40rem + 2 * var(--gutter));
   }
 
   .is-note .text-body {
     margin-left: var(--gutter);
     padding-left: var(--step-3);
+  }
+}
+
+/* A section told as one row (build.py's "row" block, since 2026-11-26, the user's ask: a
+   recruiter won't read a page through, and nothing explained the work part by part): its number
+   and label in the label style, its point in the title style under them, a few sentences, then
+   its notes, numbered as the callouts in its image are (an outline circle, --pin-d across, its
+   number in the mono, as the site's drawing bubbles), and its image. On phones one under another, the image edge to edge. From 768px in
+   Work's columns, each --gutter in: the words in the first, the image across the other two,
+   out to the window's edge, both from the row's top; with no image, the words across those
+   two, as a text block's are. */
+.row {
+  --pin-d: 22px;
+  display: grid;
+  gap: var(--step-3);
+}
+
+.row-heading {
+  display: grid;
+  gap: var(--step-2);
+  margin: 0;
+}
+
+.row-label {
+  display: flex;
+  gap: var(--step-2);
+}
+
+/* A row's point runs to two or three lines, so its lines are set a little apart (the title
+   style's 1 lets one line's descenders meet the next one's capitals). */
+.row-title {
+  line-height: 1.12;
+}
+
+/* A section's point, and a section's heading, never under 24px: at the title style's 18px on
+   phones, in its light cut, it read weaker than the text under it. */
+.row-title,
+.text-block > .section-heading.is-title {
+  font-size: max(var(--size-title), 1.5rem);
+}
+
+.row-body {
+  max-width: 40rem;
+}
+
+.row-notes {
+  display: grid;
+  gap: var(--step-1);
+  margin-inline: 0;
+  margin-bottom: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: note;
+}
+
+.row-notes > li {
+  display: grid;
+  grid-template-columns: var(--pin-d) minmax(0, 1fr);
+  column-gap: var(--step-2);
+  counter-increment: note;
+}
+
+.row-notes > li::before {
+  content: counter(note);
+  display: grid;
+  place-items: center;
+  width: var(--pin-d);
+  height: var(--pin-d);
+  margin-top: calc((var(--leading-body) * 1em - var(--pin-d)) / 2);
+  border: var(--rule);
+  border-radius: 50%;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1;
+}
+
+.row-media {
+  margin: var(--step-2) calc(-1 * var(--gutter)) 0;
+}
+
+.row-media img {
+  width: 100%;
+  background: var(--color-fill);
+}
+
+.row-media.is-pair .row-images {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 1px;
+  background: linear-gradient(var(--color-rule), var(--color-rule)) 50% 0 / 1px 100% no-repeat;
+}
+
+.row-media .caption {
+  margin-top: var(--space-1);
+  padding-inline: var(--gutter);
+}
+
+@media (min-width: 768px) {
+  .row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: auto 1fr;
+    column-gap: 0;
+    align-items: start;
+    margin-inline: calc(-1 * var(--gutter));
+  }
+
+  .row > .row-heading,
+  .row > .row-body {
+    grid-column: 1;
+    padding-inline: var(--gutter);
+  }
+
+  .row > .row-media {
+    grid-column: 2 / 4;
+    grid-row: 1 / 3;
+    margin: 0;
+  }
+
+  .row:not(:has(> .row-media)) > .row-body {
+    grid-column: 2 / 4;
+    grid-row: 1;
+    max-width: calc(40rem + 2 * var(--gutter));
+  }
+}
+
+/* Images in a grid, each with its words under it (build.py's "grid" block, since 2026-11-26):
+   one under another on phones, a 1px line between; two across from 768px, edge to edge, the
+   lines the grid's color showing through the 1px between the cells, as Work's tiles have. An
+   item's title in the text color, its caption after it in gray. */
+.media-grid {
+  display: grid;
+}
+
+.media-grid > * + * {
+  border-top: var(--rule);
+}
+
+.grid-cell {
+  margin: 0;
+  padding-bottom: var(--step-4);
+  background: var(--color-bg);
+}
+
+.grid-cell .caption {
+  max-width: calc(32rem + 2 * var(--gutter));
+}
+
+.grid-title {
+  color: var(--color-text);
+}
+
+/* A row's images printed in grays into the paper ("print": true, build.py's row_block). A tool's
+   screenshots keep their own colors (the user's ask, 2026-11-26: printed in grays for an hour,
+   the grid's and the report's, they needn't be). */
+.row-media.is-print img {
+  filter: grayscale(1) contrast(1.05);
+  mix-blend-mode: multiply;
+}
+
+@media (min-width: 768px) {
+  .media-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--color-rule);
+  }
+
+  .media-grid > * + * {
+    border-top: 0;
   }
 }
 
@@ -4558,7 +4791,7 @@ mark.placeholder {
 /* Each section's heading as a detail callout (see Drawing system), the section's number over its
    line and the sheet's under it; the callout's line runs on to the heading's column's end, the
    heading on it. */
-.is-sheet .text-block > .section-heading {
+.is-sheet .text-block > .section-heading:not(.is-title) {
   display: flex;
   align-items: flex-start;
   color: var(--color-text);

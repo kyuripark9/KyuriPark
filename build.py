@@ -68,6 +68,7 @@ AXIS_LETTERS = "ABCDEFGH"  # a grid's columns, as an architect's axes are letter
 # to edge since 2026-11-13: a third of the window from 768px, half on phones.
 HOME_SIZES = "(min-width: 768px) 85vh, 100vw"
 WORK_SIZES = "(min-width: 768px) 33vw, 50vw"
+LEAD_SIZES = "(min-width: 768px) 67vw, 100vw"  # Work's first tile, two columns wide (WORK_LEAD)
 WIDE_SIZES = "100vw"
 PAIR_SIZES = "(min-width: 768px) 50vw, 100vw"
 SMALL_SUFFIX = "-small"
@@ -138,6 +139,13 @@ FOOTER_KEY = True
 # center line down from it to the grid's top line. False: none (since 2026-11-25, the user's
 # ask: on Work they named nothing, the columns mean nothing, and the user couldn't read them).
 GRID_AXES = False
+# Work's first tile two columns wide (since 2026-11-26, the user's pick, to close the last row:
+# with 5 items it was a hole; a tile leading on to the Archive was tried there the same morning,
+# the bare paper with words, then nine of its images, and dropped, unfinished, then dated). The
+# grid's cells then number one more than its items, so 5 fill it at 3 across (2 + 1, 3) and at 2
+# (the first tile a row to itself, then 2, 2). Its image is the project's "coverWide" in
+# content/projects.json if given, else its cover, cropped wider. False: every tile one column.
+WORK_LEAD = True
 # Archive drawn as a plan (since 2026-11-22, the user's ask: the drawing system and their story
 # in one page): content/site.json's "scales" are its columns, named axis bubbles A, B, C, D
 # (Object, Page, Screen, Space); each image in archive.json says its "scale" and stands in that
@@ -1839,20 +1847,25 @@ class Builder:
         plays it while the tile is hovered. An item with no page opens the lightbox, which shows
         its 'Type · Year' from a hidden span in the tile."""
         loading = "eager" if index < 3 else "lazy"
+        lead = WORK_LEAD and index == 0
+        sizes = LEAD_SIZES if lead else WORK_SIZES
         if "slug" in p:
             rel, video = self.cover(p)
-            img = self.tile_image(rel, "cover", p["title"], loading, sizes=WORK_SIZES)
+            if lead and (p.get("coverWide") or {}).get("src"):
+                rel = media_path(p["coverWide"]["src"], f"assets/images/{p['slug']}")
+            img = self.tile_image(rel, "cover", p["title"], loading, sizes=sizes)
             data = f' data-video="{url_for(video)}"' if video else ""
             tag, attrs = "a", f'href="/work/{p["slug"]}/"'
             meta, extra = "", ""
         else:
             rel = media_path(p["images"][0], PIECE_FOLDER)
-            img = self.tile_image(rel, "piece", p["title"], loading, sizes=WORK_SIZES)
+            img = self.tile_image(rel, "piece", p["title"], loading, sizes=sizes)
             data = ""
             tag, attrs = "button", 'type="button" data-item aria-haspopup="dialog"'
             meta = f'<span hidden data-lightbox-meta>{self.piece_meta(p)}</span>'
             extra = f'            {self.piece_images(p)}\n'
-        return (f'          <li data-categories="{" ".join(p["category"])}">\n'
+        cls = ' class="is-lead"' if lead else ""
+        return (f'          <li{cls} data-categories="{" ".join(p["category"])}">\n'
                 f'            <{tag} class="work-card" {attrs}>\n'
                 f'              <span class="work-caption">'
                 f'<span class="work-number" aria-hidden="true">{index + 1:03d}</span>'
@@ -2052,7 +2065,8 @@ class Builder:
         if head:
             head = f'    <div class="work-head wrap">\n{head}    </div>\n'
         content = render("work.html", cards=cards, lightbox=lightbox, opening=opening,
-                         head=head, slider=slider, ring=ring, axes=self.axes("      "))
+                         head=head, slider=slider, ring=ring, axes=self.axes("      "),
+                         grid_class=" has-lead" if WORK_LEAD and self.items else "")
         rel, path, title = (("work/index.html", "/work/", f"Work — {s['name']}") if HOME_TRACK
                             else ("index.html", "/", s["title"]))
         self.page(rel, "work", path, title, s["description"], content, "page-work",

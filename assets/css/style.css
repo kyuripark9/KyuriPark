@@ -2641,6 +2641,85 @@ mark.placeholder {
   }
 }
 
+/* Work's first tile two columns wide (WORK_LEAD in build.py, .has-lead; since 2026-11-26, the
+   user's pick to close the last row: 5 items left a hole at 3 across and at 2). It is as tall as
+   the others, its image cropped wider; on phones a row to itself. The grid then has one cell more
+   than tiles, so the lines at the right and the marks where they cross follow the cells, not the
+   tiles' count: from 768px no line after tiles 2, 5, 8... (the third column), on phones none after
+   tiles 1, 3, 5... (the second); and the empty cell closing a short row (above) comes after a tile
+   at 3n+1 (one cell) or 3n (two) from 768px, and after an even one on phones. */
+.work-grid.has-lead > li:first-child {
+  grid-column: span 2;
+}
+
+.work-grid.has-lead > li:nth-child(n) {
+  border-right: var(--trace-rule);
+}
+
+.work-grid.has-lead > li:nth-child(n)::before,
+.work-grid.has-lead > li:nth-child(n)::after {
+  content: "";
+}
+
+.work-grid.has-lead > li:nth-child(2n + 1) {
+  border-right: 0;
+}
+
+.work-grid.has-lead > li:nth-child(2n + 1)::before,
+.work-grid.has-lead > li:nth-child(2n + 1)::after {
+  content: none;
+}
+
+@media (min-width: 768px) {
+  .work-grid.has-lead > li:nth-child(2n + 1) {
+    border-right: var(--trace-rule);
+  }
+
+  .work-grid.has-lead > li:nth-child(2n + 1)::before,
+  .work-grid.has-lead > li:nth-child(2n + 1)::after {
+    content: "";
+  }
+
+  .work-grid.has-lead > li:nth-child(3n + 2) {
+    border-right: 0;
+  }
+
+  .work-grid.has-lead > li:nth-child(3n + 2)::before,
+  .work-grid.has-lead > li:nth-child(3n + 2)::after {
+    content: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .work-grid.has-lead::after {
+    content: none !important;
+  }
+
+  .work-grid.has-lead:has(> li:last-child:nth-child(2n + 2))::after {
+    content: "" !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .work-grid.has-lead::after {
+    --rest: 1;
+    --rest-line: 0;
+    content: none !important;
+  }
+
+  .work-grid.has-lead:has(> li:last-child:nth-child(3n + 1))::after {
+    --rest: 1;
+    --rest-line: 0;
+    content: "" !important;
+  }
+
+  .work-grid.has-lead:has(> li:last-child:nth-child(3n + 3))::after {
+    --rest: 2;
+    --rest-line: 1px;
+    content: "" !important;
+  }
+}
+
 /* Each tile: its image filling it from line to line (since 2026-11-25, the user's ask, after
    gougoucore.com's Work: "the image full inside its cell"), and under it a bar with the item's
    number and title (since 2026-11-25 evening, the user's ask: its words shown cleanly, as
@@ -4360,7 +4439,6 @@ mark.placeholder {
   .is-sheet .project-meta {
     grid-template-areas: "role team time";
   }
-}
 
   .is-sheet .project-meta:has(.timeline) {
     grid-template-areas: "role time time" "team time time";
@@ -4421,6 +4499,7 @@ mark.placeholder {
   .page-about::before {
     content: none;
   }
+}
 
 /* The paragraph: its first words, KYURI DESIGNS, in the accent face, Kalnia (as Work's
    sentence's key words, see Work; the whole first sentence until 2026-11-14, two lines and

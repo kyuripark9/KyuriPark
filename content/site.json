@@ -32,7 +32,7 @@
       "everyday life"
     ],
     "paragraphs": [
-      "Industrial, graphic, and UX design: different scales, same subject.",
+      "An app, a brand, or an object: different scales, same subject.",
       "I connect them, and use AI to rework the design process itself."
     ],
     "qa": [
@@ -93,23 +93,18 @@
     ],
     "key": [
       {
-        "label": "How I see the world",
-        "rows": [
-          { "word": "Living", "text": "Everything I've lived feeds the next thing I design." }
-        ]
-      },
-      {
         "label": "What I design",
         "rows": [
-          { "word": "Object", "text": "I design objects: 3D products, mobility, and home goods, like the [Light Life](/work/light-life/) lamp.", "works": ["Light Life"] },
-          { "word": "Branding", "text": "I design brands, posters, and books, like the Clayco rebrand and IP product concepts for [NBCUniversal](/work/nbcuniversal/).", "works": ["NBCUniversal"] },
-          { "word": "Digital", "text": "I design apps and web tools, like [TypeLab](/work/typelab/), a font design playground, and [Clack](/work/clack/), a browser extension. Grad school in HCI at DePaul added research and storytelling.", "works": ["TypeLab", "Clack"] }
+          { "word": "Digital", "text": "I design apps and web tools, like [TypeLab](/work/typelab/), a font design playground, and [Clack](/work/clack/), a browser extension;", "works": ["TypeLab", "Clack"] },
+          { "word": "Branding", "text": "brands, like the Clayco rebrand and IP product concepts for [NBCUniversal](/work/nbcuniversal/);", "works": ["NBCUniversal"] },
+          { "word": "Object", "text": "and objects, like the [Light Life](/work/light-life/) lamp.", "works": ["Light Life"] },
+          { "word": "Living", "text": "All of it is for how people actually live." }
         ]
       },
       {
         "label": "How I connect them",
         "rows": [
-          { "word": "Experience", "text": "I design one experience across an object and a screen: [Light Life](/work/light-life/)'s app suggests the light you need, and its lamp gives it.", "works": ["Light Life"] },
+          { "word": "Experience", "text": "Because I work at every scale, I can design one experience across them: [Light Life](/work/light-life/)'s app suggests the light you need, and its lamp gives it.", "works": ["Light Life"] },
           { "word": "AI", "text": "I use AI to rework the design process itself, at Clayco and in my own projects, like [TypeLab](/work/typelab/) and [Clack](/work/clack/).", "works": ["Clayco", "TypeLab", "Clack"] }
         ]
       },

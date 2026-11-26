@@ -1,6 +1,6 @@
 [
   {
-    "order": 2,
+    "order": 1,
     "category": ["digital", "brand"],
     "featured": true,
     "slug": "typelab",
@@ -315,7 +315,7 @@
     ]
   },
   {
-    "order": 1,
+    "order": 2,
     "category": ["digital", "physical"],
     "featured": true,
     "slug": "light-life",

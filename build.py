@@ -68,7 +68,7 @@ AXIS_LETTERS = "ABCDEFGH"  # a grid's columns, as an architect's axes are letter
 # to edge since 2026-11-13: a third of the window from 768px, half on phones.
 HOME_SIZES = "(min-width: 768px) 85vh, 100vw"
 WORK_SIZES = "(min-width: 768px) 33vw, 50vw"
-LEAD_SIZES = "(min-width: 768px) 67vw, 100vw"  # Work's first tile, two columns wide (WORK_LEAD)
+LEAD_SIZES = "(min-width: 768px) 67vw, 100vw"  # Work's tile two columns wide (WORK_LEAD)
 WIDE_SIZES = "100vw"
 PAIR_SIZES = "(min-width: 768px) 50vw, 100vw"
 SMALL_SUFFIX = "-small"
@@ -139,13 +139,18 @@ FOOTER_KEY = True
 # center line down from it to the grid's top line. False: none (since 2026-11-25, the user's
 # ask: on Work they named nothing, the columns mean nothing, and the user couldn't read them).
 GRID_AXES = False
-# Work's first tile two columns wide (since 2026-11-26, the user's pick, to close the last row:
-# with 5 items it was a hole; a tile leading on to the Archive was tried there the same morning,
-# the bare paper with words, then nine of its images, and dropped, unfinished, then dated). The
-# grid's cells then number one more than its items, so 5 fill it at 3 across (2 + 1, 3) and at 2
-# (the first tile a row to itself, then 2, 2). Its image is the project's "coverWide" in
-# content/projects.json if given, else its cover, cropped wider. False: every tile one column.
-WORK_LEAD = True
+# The project whose tile on Work is two columns wide, by its slug (since 2026-11-26, the user's
+# pick, to close the last row: with 5 items it was a hole; a tile leading on to the Archive was
+# tried there the same morning, the bare paper with words, then nine of its images, and dropped,
+# unfinished, then dated). Light Life, first until the same day, then second, after TypeLab
+# (the user's ask: the two swapped, Light Life still the bigger), so from 768px the first row is
+# TypeLab, then Light Life across the other two columns; style.css's .has-lead expects it in the
+# first row, first or second. On phones it comes first, a row to itself (two columns wide, it
+# can't follow one tile there without a hole), then 2, 2. The grid's cells number one more than
+# its items, so 5 fill it at 3 across (1 + 2 or 2 + 1, then 3) and at 2. Its image is the
+# project's "coverWide" in content/projects.json if given, else its cover, cropped wider.
+# None: every tile one column.
+WORK_LEAD = "light-life"
 # Archive drawn as a plan (since 2026-11-22, the user's ask: the drawing system and their story
 # in one page): content/site.json's "scales" are its columns, named axis bubbles A, B, C, D
 # (Object, Page, Screen, Space); each image in archive.json says its "scale" and stands in that
@@ -1847,7 +1852,7 @@ class Builder:
         plays it while the tile is hovered. An item with no page opens the lightbox, which shows
         its 'Type · Year' from a hidden span in the tile."""
         loading = "eager" if index < 3 else "lazy"
-        lead = WORK_LEAD and index == 0
+        lead = bool(WORK_LEAD) and p.get("slug") == WORK_LEAD
         sizes = LEAD_SIZES if lead else WORK_SIZES
         if "slug" in p:
             rel, video = self.cover(p)
@@ -2064,9 +2069,10 @@ class Builder:
                 + (render("work-tabs.html", tabs=tabs) if WORK_FILTERS else "") + views)
         if head:
             head = f'    <div class="work-head wrap">\n{head}    </div>\n'
+        has_lead = any(p.get("slug") == WORK_LEAD for p in self.items)
         content = render("work.html", cards=cards, lightbox=lightbox, opening=opening,
                          head=head, slider=slider, ring=ring, axes=self.axes("      "),
-                         grid_class=" has-lead" if WORK_LEAD and self.items else "")
+                         grid_class=" has-lead" if has_lead else "")
         rel, path, title = (("work/index.html", "/work/", f"Work — {s['name']}") if HOME_TRACK
                             else ("index.html", "/", s["title"]))
         self.page(rel, "work", path, title, s["description"], content, "page-work",

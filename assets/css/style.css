@@ -634,7 +634,18 @@ button {
 .map-title-field,
 .map-tag,
 .globe-key-tag,
-.globe-key-under {
+.globe-key-under,
+.brand-title,
+.brand-strip,
+.brand-label,
+.brand-tag,
+.brand-print-name,
+.brand-trace-no,
+.brand-legend,
+.brand-face dd,
+.brand-color,
+.brand-part-name,
+.brand-part-art {
   font-family: var(--font-mono);
   font-size: var(--size-label);
   font-weight: 400;
@@ -5260,6 +5271,707 @@ html:not(.js) .orbits-figure.is-globe {
   from {
     opacity: 0;
   }
+}
+
+/* Behind the Q&A (QA_LOGO in build.py, since 2026-11-25 night, the user's ask): the logo,
+   huge, soft and faint, as if printed under the tracing paper the page is, whole, about as tall
+   as the questions (30rem, or 62% of a narrow window across), from a step under the section's
+   top, so it stays put while an answer opens under it; kept inside the section, out of the
+   globe over it and the footer under it. The Q&A gets room over and under it. */
+.about-list.has-logo {
+  position: relative;
+  isolation: isolate;
+  padding-block: var(--step-6);
+}
+
+.qa-deep {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.qa-deep-logo {
+  position: absolute;
+  top: var(--step-4);
+  left: 50%;
+  width: auto;
+  height: min(30rem, 62vw);
+  aspect-ratio: 340.5 / 208;  /* the logo file's box */
+  translate: -50% 0;
+  opacity: 0.1;
+  filter: blur(6px);
+}
+
+/* The identity sheet (ABOUT_IDENTITY in build.py, since 2026-11-25 night, the user's ask, after
+   a poster on their moodboard: a collage printed under tracing paper, construction lines and
+   + marks in ink over it, numbered parts in a mono, big type). After the Q&A, the site's own
+   identity on one sheet, from the window-wide line over it to the footer's: under it the logo,
+   huge and soft, a print seen through the paper (.brand-deep); over it a strip (its title, what's
+   on it, its number) and five parts in construction lines, a + where they cross (as Work's
+   grid), each headed by a detail callout, its number over the sheet's. One under another on
+   phones; from 768px two across, the logo and the type, the website under both, then the paper
+   and the drawing; from 1200px the logo and the website (5 and 7 of 12 columns) over the type,
+   the paper, and the drawing (5, 3, 4). The specimen, the faces, and the alphabet set their own
+   type: they show it. */
+.brand {
+  position: relative;
+  isolation: isolate;  /* the print under it stays under its parts */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  margin-top: var(--section-gap);
+  border-top: var(--rule);
+}
+
+/* Last on the page, it ends on the footer's line. */
+main:has(> .brand:last-child) + .site-footer {
+  margin-top: 0;
+}
+
+.brand-deep {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;  /* not the sheet: its last + marks reach over the footer's line */
+  pointer-events: none;
+}
+
+.brand-deep-logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(110%, 720px);
+  translate: -50% -50%;
+  opacity: 0.07;
+  filter: blur(6px);
+}
+
+.brand-deep-word {
+  position: absolute;
+  font-family: var(--font-display);
+  font-size: clamp(5rem, 15vw, 15rem);
+  font-style: italic;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+  opacity: 0.07;
+  filter: blur(3px);
+}
+
+.brand-deep-word.is-1 {
+  top: 2%;
+  left: -1%;
+}
+
+.brand-deep-word.is-2 {
+  right: -2%;
+  bottom: 1%;
+}
+
+.brand-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--step-1) var(--step-3);
+  padding: var(--step-2) var(--gutter);
+  border-bottom: var(--trace-rule);
+}
+
+.brand-contents {
+  color: var(--color-subtle);
+}
+
+.brand-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--step-3);
+  min-width: 0;
+  padding: var(--step-2) var(--gutter) var(--step-5);
+  border-bottom: var(--trace-rule);
+}
+
+.brand-cell:last-child {
+  border-bottom: 0;
+}
+
+/* A + where the lines cross: a cell with a line at its right (--marks: "") marks that line's
+   ends, as a tile on Work does. */
+.brand-cell::before,
+.brand-cell::after {
+  content: var(--marks, none);
+  position: absolute;
+  right: calc(var(--mark) / -2 - 0.5px);
+  z-index: 2;
+  width: var(--mark);
+  height: var(--mark);
+  background: var(--mark-cross);
+  pointer-events: none;
+}
+
+.brand-cell::before {
+  top: calc(var(--mark) / -2 - 0.5px);
+}
+
+.brand-cell::after {
+  bottom: calc(var(--mark) / -2 - 0.5px);
+}
+
+.brand-label {
+  display: flex;
+  align-items: center;
+  gap: var(--step-2);
+}
+
+.brand-note {
+  max-width: 28em;
+  color: var(--color-subtle);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+/* 01, the logo on its construction: construction lines lighter than ink, the center lines long
+   dash and short, the lens where the rims cross hatched and dashed, the leaders, dimensions,
+   and dots in ink, the words over it in the label style. */
+.brand-drawing {
+  position: relative;
+  width: 100%;
+  max-width: 30rem;
+  margin: auto;
+}
+
+.brand-drawing svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.brand-drawing svg :is(path, circle) {
+  vector-effect: non-scaling-stroke;
+}
+
+.brand-construction {
+  fill: none;
+  stroke: var(--color-trace);
+  stroke-width: 1;
+}
+
+.brand-centerline {
+  stroke-dasharray: 14 3 3 3;
+}
+
+.brand-lens {
+  fill: url("#brand-hatch");
+  stroke: var(--color-text);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+#brand-hatch path {
+  stroke: var(--color-trace);
+  stroke-width: 0.75;
+}
+
+.brand-lines {
+  fill: none;
+  stroke: var(--color-text);
+  stroke-width: 1;
+}
+
+.brand-dots {
+  fill: var(--color-text);
+}
+
+.brand-tag {
+  position: absolute;
+  white-space: nowrap;
+}
+
+.brand-tag[data-at="bc"] { translate: -50% -100%; }
+.brand-tag[data-at="bl"] { translate: 0 -100%; }
+.brand-tag[data-at="br"] { translate: -100% -100%; }
+.brand-tag[data-at="tc"] { translate: -50% 0; }
+
+/* 02, the website: its pages as prints under a thin sheet of tracing paper, the parts the ink
+   traces on them crisp over it; the sheet lifts off a print under the pointer. Work's big, the
+   others beside it (under it on phones, two across). */
+.brand-prints {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--step-4) var(--step-2);
+  align-items: start;
+}
+
+.brand-print.is-1 {
+  grid-column: 1 / -1;
+}
+
+.brand-print a {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand-print-name {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--step-1);
+  margin-bottom: var(--step-1);
+}
+
+.brand-print-path {
+  color: var(--color-subtle);
+}
+
+.brand-print-sheet {
+  position: relative;
+  display: block;
+  outline: var(--rule);
+}
+
+.brand-print-sheet img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.brand-print-sheet::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--vellum-thin);
+  -webkit-backdrop-filter: blur(1.5px);
+  backdrop-filter: blur(1.5px);
+  transition: opacity var(--grow);
+}
+
+.brand-print a:is(:hover, :focus-visible) .brand-print-sheet::after {
+  opacity: 0;
+}
+
+.brand-print-traces {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.brand-trace {
+  position: absolute;
+  border: 1px dashed var(--color-text);
+}
+
+.brand-trace-no {
+  position: absolute;
+  top: 1px;
+  right: 2px;
+  padding-inline: 2px;
+  background: var(--color-bg);
+}
+
+.brand-legend {
+  display: grid;
+  gap: 2px;
+  margin-top: var(--step-2);
+}
+
+.brand-legend li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--step-1);
+}
+
+.brand-legend-note {
+  color: var(--color-subtle);
+}
+
+/* 03, the type: the name big in the display face (a fifth of the cell across, so it keeps to
+   about seven eighths of it), each face named in itself, the alphabet in the mono, and beside them
+   the ring (from 600px). */
+.brand-type {
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "label" "specimen" "faces" "alphabet";
+  align-content: start;
+  column-gap: var(--step-3);
+}
+
+.brand-type > .brand-label { grid-area: label; }
+
+.brand-specimen {
+  grid-area: specimen;
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 20cqi, 8.5rem);
+  font-weight: 300;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+}
+
+.brand-faces {
+  grid-area: faces;
+  display: grid;
+  gap: var(--step-2);
+  align-self: center;
+}
+
+.brand-face dt {
+  font-size: 1.25rem;
+  line-height: 1.25;
+}
+
+.brand-face.is-display dt {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 300;
+}
+
+.brand-face.is-mono dt {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+}
+
+.brand-face dd {
+  color: var(--color-subtle);
+}
+
+.brand-alphabet {
+  grid-area: alphabet;
+  color: var(--color-subtle);
+  font-family: var(--font-mono);
+  font-size: var(--size-label);
+  line-height: var(--leading-label);
+  overflow-wrap: anywhere;
+}
+
+.brand-ring {
+  display: none;
+  grid-area: ring;
+  align-self: center;
+  overflow: visible;
+}
+
+.brand-ring text {
+  fill: currentColor;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.brand-ring :is(circle, path:not([id])) {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+}
+
+@media (min-width: 600px) {
+  .brand-type {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "label label" "specimen specimen" "faces ring" "alphabet ring";
+  }
+
+  .brand-ring {
+    display: block;
+  }
+}
+
+/* 04, the paper and ink: a swatch each, its name over its value (style.css's). The tracing
+   paper's is a piece of it over ink and paper; the construction line's, its lines. */
+.brand-colors {
+  display: grid;
+}
+
+.brand-color {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  grid-template-areas: "chip name" "chip value";
+  align-items: center;
+  column-gap: var(--step-2);
+  padding-block: var(--step-1);
+  border-top: var(--trace-rule);
+}
+
+.brand-color:last-child {
+  border-bottom: var(--trace-rule);
+}
+
+.brand-chip {
+  grid-area: chip;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border: var(--rule);
+}
+
+.brand-chip.is-color-bg { background: var(--color-bg); }
+.brand-chip.is-color-text { background: var(--color-text); }
+.brand-chip.is-color-subtle { background: var(--color-subtle); }
+
+.brand-chip.is-vellum {
+  background: linear-gradient(to right, var(--color-text) 50%, var(--color-bg) 50%);
+}
+
+.brand-chip.is-vellum::after {
+  content: "";
+  position: absolute;
+  inset: 6px 6px 6px 12px;
+  background: var(--vellum);
+  -webkit-backdrop-filter: blur(var(--vellum-blur));
+  backdrop-filter: blur(var(--vellum-blur));
+}
+
+.brand-chip.is-color-trace {
+  background: repeating-linear-gradient(-45deg, var(--color-trace) 0 1px, transparent 1px 6px);
+}
+
+.brand-color-name { grid-area: name; }
+
+.brand-color-value {
+  grid-area: value;
+  color: var(--color-subtle);
+}
+
+/* 05, the drawing's parts, each drawn as the site draws it, its name under it. */
+.brand-part-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  gap: var(--step-3) var(--step-2);
+}
+
+.brand-part {
+  display: flex;
+  flex-direction: column;
+  gap: var(--step-1);
+}
+
+.brand-part-art {
+  display: flex;
+  align-items: center;
+  height: 56px;
+}
+
+.brand-part-art svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  overflow: visible;
+}
+
+.brand-part-art svg .is-dot {
+  fill: currentColor;
+}
+
+.brand-part-mark {
+  width: 24px;
+  height: 24px;
+  background: var(--mark-cross);
+}
+
+.brand-part-holes {
+  --hole-d: 10px;
+  width: 16px;
+  height: 56px;
+  background: var(--holes);
+}
+
+@media (min-width: 768px) {
+  .brand {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "strip strip"
+      "logo type"
+      "site site"
+      "paper parts";
+  }
+
+  .brand-strip { grid-area: strip; }
+  .brand-logo { grid-area: logo; }
+  .brand-type { grid-area: type; }
+  .brand-site { grid-area: site; }
+  .brand-paper { grid-area: paper; }
+  .brand-parts { grid-area: parts; }
+
+  .brand-logo,
+  .brand-paper {
+    --marks: "";
+    border-right: var(--trace-rule);
+  }
+
+  .brand-paper {
+    border-bottom: 0;
+  }
+
+  .brand-prints {
+    grid-template-columns: minmax(0, 8fr) minmax(0, 5fr);
+    gap: var(--step-4);
+  }
+
+  .brand-print.is-1 {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+}
+
+@media (min-width: 1200px) {
+  .brand {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-areas:
+      "strip strip strip strip strip strip strip strip strip strip strip strip"
+      "logo logo logo logo logo site site site site site site site"
+      "type type type type type paper paper paper parts parts parts parts";
+  }
+
+  .brand-type {
+    --marks: "";
+    border-right: var(--trace-rule);
+    border-bottom: 0;
+  }
+}
+
+/* The Q&A as a poster (ABOUT_POSTER in build.py, since 2026-11-25 night, the user's ask, after
+   a poster on their moodboard: its visual language, the Q&A for its words, all on one screen).
+   After the Q&A, a sheet as tall as the screen under the header (at least 30rem), ending on the
+   footer's line, the poster (an SVG, drawn in its own units) as big as fits in it: the wide
+   one where the screen is wider than tall, the tall one where it isn't. Under the paper (soft,
+   faint) the logo huge, a gray block, big words; over it in ink, 1px lines whatever its size,
+   the mono and the display face, images in grays multiplied into the paper. */
+.qp {
+  height: max(30rem, 100svh - var(--header-h));
+  scroll-margin-top: var(--header-h);  /* /about/#qa-poster shows it whole under the header */
+  margin-top: var(--section-gap);
+  padding: var(--step-2) var(--gutter);
+  border-top: var(--rule);
+}
+
+main:has(> .qp:last-child) + .site-footer {
+  margin-top: 0;
+}
+
+@media (max-width: 767px) {
+  .qp {
+    padding-inline: var(--step-1);  /* the poster a little bigger on a phone */
+  }
+}
+
+.qp-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  color: var(--color-text);
+}
+
+.qp-svg.is-tall {
+  display: none;
+}
+
+@media (orientation: portrait) {
+  .qp-svg.is-wide {
+    display: none;
+  }
+
+  .qp-svg.is-tall {
+    display: block;
+  }
+}
+
+.qp-mono {
+  fill: currentColor;
+  font-family: var(--font-mono);
+}
+
+.qp-serif {
+  fill: currentColor;
+  font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+
+.qp-serif.is-italic {
+  font-style: italic;
+}
+
+.qp-mono.is-quiet {
+  fill: var(--color-subtle);
+}
+
+.qp-line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.qp-trace {
+  stroke: var(--color-trace);
+}
+
+/* The drawing sheet's lines: heavy (its inner border, the title block's top, a drawing
+   title's line), center lines long dash and short in the construction lines' gray (the
+   column lines, the levels), a bubble or title circle filled with the paper so lines stop
+   at it, a cut wall's hatch. */
+.qp-heavy {
+  stroke-width: 2;
+}
+
+.qp-center {
+  stroke: var(--color-trace);
+  stroke-dasharray: 14 3 3 3;
+}
+
+.qp-line.qp-paper {
+  fill: var(--color-bg);
+}
+
+.qp-hatch {
+  stroke: var(--color-trace);
+  stroke-width: 1;
+}
+
+.qp-dash {
+  stroke-dasharray: 3 3;
+}
+
+.qp-fill,
+.qp-bar {
+  fill: currentColor;
+}
+
+.qp-svg .is-paper {
+  fill: var(--color-bg);
+}
+
+.qp-pill {
+  fill: var(--color-bg);
+  stroke: currentColor;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.qp-print {
+  mix-blend-mode: multiply;
+}
+
+.qp-logo {
+  color: currentColor;
+}
+
+.qp-deep-logo {
+  opacity: 0.17;
+}
+
+.qp-shade {
+  fill: currentColor;
+  opacity: 0.08;
+}
+
+.qp-deep-word {
+  opacity: 0.12;
 }
 
 /* 404 ------------------------------------------------------------------- */

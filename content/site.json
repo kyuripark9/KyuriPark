@@ -123,5 +123,74 @@
   },
   "archive": {
     "statement": ""
+  },
+  "identity": {
+    "title": "Identity",
+    "ring": "Where digital meets everyday life",
+    "logoNote": "Two suns: digital and everyday life. Where their rays cross, they meet.",
+    "drawingNote": "Drawn as an architect draws, on tracing paper: the architect I wanted to be as a kid.",
+    "pages": [
+      {
+        "src": "site-work.jpg",
+        "name": "Work",
+        "href": "/",
+        "traces": [
+          { "box": [0, 0, 100, 6.4], "name": "Header", "note": "The logo between two lines" },
+          { "box": [1.6, 8.6, 96.6, 25.4], "name": "Sentence", "note": "Source Serif Display, the first words in italic" },
+          { "box": [0, 40.9, 100, 59.1], "name": "Grid", "note": "Construction lines, a + where they cross" }
+        ]
+      },
+      { "src": "site-archive.jpg", "name": "Archive", "href": "/archive/" },
+      { "src": "site-light-life.jpg", "name": "Light Life", "href": "/work/light-life/" }
+    ]
+  },
+  "qaPoster": {
+    "big": "Kyuri",
+    "after": "(Q&A)",
+    "kid": {
+      "text": "I grew up poring over buildings in magazines, and at Temple University I took architecture classes and interned in spatial UX at Philly Fashion Week.",
+      "word": "Architect",
+      "caption": "What I wanted to be as a kid",
+      "rows": [
+        ["As a kid", "Buildings in magazines"],
+        ["Temple University", "Architecture classes"],
+        ["Philly Fashion Week", "Spatial UX"],
+        ["Clayco", "The rebrand"]
+      ],
+      "end": "I never became one."
+    },
+    "chicago": {
+      "text": "A fresh start, and the buildings. I came for an M.S. in HCI at DePaul and fell in love with the city.",
+      "places": [["Wrigley Building", "Tulips, every May"], ["Aqua", "Jeanne Gang"]],
+      "ring": "A fresh start, and the buildings"
+    },
+    "fields": {
+      "text": "In Korea I studied industrial and graphic design: 3D products, mobility, and home goods, then apps, posters, and books. Grad school added research and storytelling.",
+      "names": ["Industrial", "Graphic", "UX"],
+      "middle": "How people actually live",
+      "under": "Different scales, same subject"
+    },
+    "ai": {
+      "title": ["To rework the design", "process itself."],
+      "text": "At Clayco, we used AI and new tools to make the early stages of a rebrand faster and cleverer. I've kept testing that in my own projects, like TypeLab and Clack.",
+      "works": [["TypeLab", "assets/images/typelab/cover.jpg"], ["Clack", "assets/images/clack/cover.jpg"]]
+    },
+    "lightLife": {
+      "title": "Light Life",
+      "line": "A lamp for the winter blues.",
+      "image": "assets/images/light-life/pair-small.jpg",
+      "years": [
+        ["2023", "My team won a business competition with it at Temple University"],
+        ["2024", "I redesigned the lamp and its website for my graduation show at Sejong University"],
+        ["2026", "I rebuilt its app"]
+      ],
+      "quote": ["From an object to a screen,", "it has grown the way I have."]
+    },
+    "next": {
+      "title": ["Work where digital meets", "real lives and real spaces"],
+      "text": "Using everything I've picked up along the way: industrial design, graphic design, and a love of architecture. As for where: anywhere. I love exploring.",
+      "pills": ["Anywhere", "I love exploring"],
+      "end": "Anywhere"
+    }
   }
 }

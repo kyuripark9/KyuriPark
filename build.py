@@ -218,6 +218,24 @@ ABOUT_GLOBE = True
 # boxes): each group's heading, then its lines as one paragraph, no words or works beside them
 # (globe_key). False: a box ruled in ink lines, a cell a word, its work at its right.
 GLOBE_KEY_PROSE = True
+# About's identity sheet (since 2026-11-25 night, the user's ask, from a moodboard poster: a
+# collage on tracing paper, prints under the sheet, construction lines and + marks in ink over
+# them, numbered parts in a mono, big type): the site's own identity drawn on one sheet after
+# the Q&A, from site.json's "identity": the logo with its construction and key, the website's
+# pages as prints the ink traces, the type, the paper and ink, and the drawing's parts
+# (about_identity). False: none. (Off since the same night, the user's ask: it read as a design
+# system; ABOUT_POSTER in its place.)
+ABOUT_IDENTITY = False
+# About's Q&A as a poster (since 2026-11-25 night, the user's ask, after the same moodboard
+# poster: its visual language, the Q&A for its words, all of it on one screen): after the Q&A,
+# a sheet one screen tall, the six questions laid out on tracing paper as that poster's parts
+# are, from site.json's "qaPoster" (about_poster, Poster). False: none. (Off since the same
+# night, the user's ask: it said again what the Q&A over it says; QA_LOGO in its place.)
+ABOUT_POSTER = False
+# Behind About's Q&A, the logo, huge, soft and faint, as if under the tracing paper the page is
+# (since 2026-11-25 night, the user's ask, in place of the Q&A poster, whose under-the-paper
+# logo it keeps; about_qa). False: none.
+QA_LOGO = True
 # The opening's words take on the tracing paper as ink does (since 2026-11-24 night, the user's
 # ask, from a photocopied sheet of heavy type and a typewriter's mono printed over a photo): one
 # SVG filter, #intro-ink, on the words (style.css, "Home intro"), in CSS pixels at the opening's
@@ -453,6 +471,357 @@ def intro_ink(ink=INTRO_INK):
         f'<feMerge result="wet"><feMergeNode in="bleed"/><feMergeNode in="{printed}"/></feMerge>'
         f'<feGaussianBlur in="wet" stdDeviation="{n(ink["soft"])}"/>'
         '</filter></svg>\n')
+
+
+def num(v):
+    """A number for an SVG attribute: one decimal at most, no trailing zero."""
+    return f"{v:.1f}".rstrip("0").rstrip(".")
+
+
+def wrap(text, chars):
+    """Words in lines of at most chars characters (a mono's lines: every letter one width)."""
+    lines, line = [], ""
+    for word in text.split():
+        if line and len(line) + 1 + len(word) > chars:
+            lines.append(line)
+            line = word
+        else:
+            line = f"{line} {word}" if line else word
+    return lines + [line] if line else lines
+
+
+class Poster:
+    """About's Q&A as a poster (ABOUT_POSTER): one SVG, drawn in its own units (w x h) and
+    shown as big as one screen allows, so every piece keeps its place at any size. Two layers:
+    under the paper (deep: soft, faint, as a print seen through tracing paper) and over it
+    (ink). The text is in the site's faces: IBM Plex Mono, whose every letter is 0.6 of its
+    size across, so its lines are wrapped here, and Source Serif Display. Ids carry the
+    poster's key, so the wide and tall posters can share a page."""
+    MONO = 0.6
+
+    def __init__(self, key, w, h):
+        self.key, self.w, self.h = key, w, h
+        self.deep, self.ink, self.defs = [], [], []
+
+    def id(self, name):
+        return f"qp-{self.key}-{name}"
+
+    def put(self, svg, deep=False):
+        (self.deep if deep else self.ink).append(svg)
+
+    def mono(self, x, y, text, size, width=None, anchor="start", lead=1.4, cls="", caps=True,
+             deep=False):
+        """Mono text from its first baseline at y, wrapped to width; the last baseline."""
+        t = text.upper() if caps else text
+        lines = wrap(t, max(int(width / (self.MONO * size)), 1)) if width else [t]
+        step = size * lead
+        spans = "".join(f'<tspan x="{num(x)}" dy="{num(step) if i else 0}">{esc(line)}</tspan>'
+                        for i, line in enumerate(lines))
+        end = f' text-anchor="{anchor}"' if anchor != "start" else ""
+        self.put(f'<text class="qp-mono{" " + cls if cls else ""}" x="{num(x)}" y="{num(y)}" '
+                 f'font-size="{num(size)}"{end}>{spans}</text>', deep)
+        return y + step * (len(lines) - 1)
+
+    def serif(self, x, y, text, size, italic=False, anchor="start", cls="", deep=False):
+        end = f' text-anchor="{anchor}"' if anchor != "start" else ""
+        kind = " is-italic" if italic else ""
+        self.put(f'<text class="qp-serif{kind}{" " + cls if cls else ""}" x="{num(x)}" '
+                 f'y="{num(y)}" font-size="{num(size)}"{end}>{esc(text)}</text>', deep)
+
+    def path(self, d, cls="qp-line", deep=False):
+        self.put(f'<path class="{cls}" d="{d}"/>', deep)
+
+    def rect(self, x, y, w, h, cls, rx=0, deep=False):
+        r = f' rx="{num(rx)}"' if rx else ""
+        self.put(f'<rect class="{cls}" x="{num(x)}" y="{num(y)}" width="{num(w)}" '
+                 f'height="{num(h)}"{r}/>', deep)
+
+    def cross(self, x, y, arm, cls="qp-line"):
+        self.path(f"M{num(x - arm)} {num(y)}H{num(x + arm)}M{num(x)} {num(y - arm)}V{num(y + arm)}",
+                  cls)
+
+    def checker(self, x, y, s):
+        """A small square, two of its quarters filled, as a print's registration patch."""
+        h = s / 2
+        self.rect(x, y, s, s, "qp-line")
+        self.rect(x, y, h, h, "qp-fill")
+        self.rect(x + h, y + h, h, h, "qp-fill")
+
+    def head(self, x, y, w, no, question, size):
+        """A question's heading: a filled square, its number (01°), the question, a line
+        under them all; the line's y."""
+        s = size * 0.62
+        self.rect(x, y - s, s, s, "qp-fill")
+        at = x + s + size * 0.55
+        self.mono(at, y, f"{no:02d}°", size)
+        at += self.MONO * size * 4.5
+        last = self.mono(at, y, question, size, width=x + w - at)
+        rule = last + size * 0.65
+        self.path(f"M{num(x)} {num(rule)}H{num(x + w)}")
+        return rule
+
+    def frame(self, x, y, w, h, label=None, size=11, arm=9):
+        """A frame drawn on the sheet: its lines run past its corners, a + at each; its label,
+        [1], in its middle."""
+        self.path(f"M{num(x - arm)} {num(y)}H{num(x + w + arm)}M{num(x - arm)} {num(y + h)}"
+                  f"H{num(x + w + arm)}M{num(x)} {num(y - arm)}V{num(y + h + arm)}"
+                  f"M{num(x + w)} {num(y - arm)}V{num(y + h + arm)}")
+        if label:
+            self.mono(x + w / 2, y + h / 2 + size * 0.35, label, size, anchor="middle")
+
+    def rows(self, x, y, w, items, size, h, gap, stack=False):
+        """Rows in rounded outlines, a name at the left and its value at the right (stacked:
+        the value under the name); the y under the last."""
+        for name, value in items:
+            self.rect(x, y, w, h, "qp-line", rx=min(h * 0.22, 8))
+            if stack:
+                self.mono(x + size * 0.8, y + h / 2 - size * 0.25, name, size)
+                self.mono(x + size * 0.8, y + h / 2 + size * 1.05, value, size, cls="is-quiet")
+            else:
+                base = y + h / 2 + size * 0.36
+                self.mono(x + size * 0.8, base, name, size)
+                self.mono(x + w - size * 0.8, base, value, size, anchor="end", cls="is-quiet")
+            y += h + gap
+        return y - gap
+
+    def pills(self, cx, y, words, size, gap):
+        """Words standing up the page in pills, one over the next on a line, a ring at its
+        end; the y at the ring's foot."""
+        pw, pad = size * 1.9, size * 0.9
+        for i, word in enumerate(words):
+            ph = len(word) * self.MONO * size + 2 * pad
+            if i:
+                self.path(f"M{num(cx)} {num(y - gap)}V{num(y)}")
+            self.rect(cx - pw / 2, y, pw, ph, "qp-pill", rx=pw / 2)
+            self.put(f'<text class="qp-mono" font-size="{num(size)}" text-anchor="middle" '
+                     f'dy="0.36em" transform="translate({num(cx)} {num(y + ph / 2)}) rotate(90)">'
+                     f'{esc(word.upper())}</text>')
+            y += ph + gap
+        r = size * 0.6
+        self.path(f"M{num(cx)} {num(y - gap)}V{num(y)}")
+        self.put(f'<circle class="qp-line" cx="{num(cx)}" cy="{num(y + r)}" r="{num(r)}"/>'
+                 f'<circle class="qp-fill" cx="{num(cx)}" cy="{num(y + r)}" r="{num(r * 0.4)}"/>')
+        return y + 2 * r
+
+    def ring(self, cx, cy, r, text, size):
+        """Words round a ring, twice, a dot after each, a ring inside, and an X across all."""
+        rid = self.id("ring")
+        words = esc(" · ".join([text.upper()] * 2) + " · ")
+        self.defs.append(f'<path id="{rid}" d="M{num(cx - r)} {num(cy)}a{num(r)} {num(r)} 0 1 1 '
+                         f'{num(2 * r)} 0a{num(r)} {num(r)} 0 1 1 {num(-2 * r)} 0"/>')
+        self.put(f'<text class="qp-mono" font-size="{num(size)}"><textPath href="#{rid}" '
+                 f'textLength="{num(2 * math.pi * r)}" lengthAdjust="spacing">{words}</textPath>'
+                 '</text>')
+        inner = r - size * 0.55
+        self.put(f'<circle class="qp-line" cx="{num(cx)}" cy="{num(cy)}" r="{num(inner)}"/>')
+        d = (r + size * 2.2) * math.cos(math.radians(45))
+        self.path(f"M{num(cx - d)} {num(cy - d)}L{num(cx + d)} {num(cy + d)}"
+                  f"M{num(cx + d)} {num(cy - d)}L{num(cx - d)} {num(cy + d)}")
+
+    def image(self, x, y, w, h, href):
+        """An image printed on the sheet in grays, multiplied in, in a frame."""
+        gray = self.id("gray")
+        if not any(gray in d for d in self.defs):
+            self.defs.append(f'<filter id="{gray}"><feColorMatrix type="saturate" values="0"/>'
+                             '</filter>')
+        self.put(f'<image class="qp-print" href="{esc(href)}" x="{num(x)}" y="{num(y)}" '
+                 f'width="{num(w)}" height="{num(h)}" preserveAspectRatio="xMidYMid slice" '
+                 f'filter="url(#{gray})"/>')
+        self.frame(x, y, w, h, arm=7)
+
+    def net(self, cx, y, names, middle, size, spread):
+        """Fields as boxes in a row, each joined to one middle under them by a dashed line;
+        the middle's name under it. The y under it."""
+        h = size * 2.1
+        node = y + h + size * 3.6
+        n = len(names)
+        for i, name in enumerate(names):
+            bx = cx + (i - (n - 1) / 2) * spread
+            bw = len(name) * self.MONO * size + size * 1.6
+            self.rect(bx - bw / 2, y, bw, h, "qp-line")
+            self.mono(bx, y + h / 2 + size * 0.36, name, size, anchor="middle")
+            self.path(f"M{num(bx)} {num(y + h)}L{num(cx)} {num(node - 7)}", "qp-line qp-dash")
+        self.put(f'<circle class="qp-line" cx="{num(cx)}" cy="{num(node)}" r="7"/>')
+        self.cross(cx, node, 12)
+        return self.mono(cx, node + size * 2.4, middle, size, anchor="middle")
+
+    def dims(self, x, y, w, years, size, widths, notes=True):
+        """Years along a dimension line, spaced by the time between them: at each a slash and
+        a short upright, the year over the line, its note under it, wrapped to its width."""
+        ys = [int(a) for a, _ in years]
+        span = max(ys[-1] - ys[0], 1)
+        self.path(f"M{num(x)} {num(y)}H{num(x + w)}")
+        for i, ((year, note), width) in enumerate(zip(years, widths)):
+            at = x + (int(year) - ys[0]) / span * w
+            self.path(f"M{num(at - 5)} {num(y + 5)}L{num(at + 5)} {num(y - 5)}"
+                      f"M{num(at)} {num(y - 9)}V{num(y + 9)}")
+            last = i == len(years) - 1
+            anchor, tx = ("end", at - 4) if last else ("start", at + 4)
+            self.mono(tx, y - 9, year, size, anchor=anchor)
+            if notes:
+                self.mono(tx, y + size * 2, note, size, width=width, anchor=anchor,
+                          cls="is-quiet")
+
+    def logo(self, x, y, w, parts, cls, deep=False):
+        (x0, y0, lw, lh), shapes = parts
+        self.put(f'<svg class="{cls}" x="{num(x)}" y="{num(y)}" width="{num(w)}" '
+                 f'height="{num(w * lh / lw)}" viewBox="{num(x0)} {num(y0)} {num(lw)} {num(lh)}">'
+                 f'{shapes}</svg>', deep)
+
+    def sheet(self, cols, rows, inset=10, inner=34):
+        """A drawing sheet's border: a thin outer line, a heavy inner one, and between them
+        its zones, numbered across (1, 2, 3) and lettered down (A, B, C), as a drawing's
+        are, so a part can be found by its place."""
+        w, h = self.w, self.h
+        self.rect(inset, inset, w - 2 * inset, h - 2 * inset, "qp-line")
+        self.rect(inner, inner, w - 2 * inner, h - 2 * inner, "qp-line qp-heavy")
+        band = inner - inset
+        mid = inset + band / 2 + 4
+        size = band * 0.42
+        across, down = (w - 2 * inner) / cols, (h - 2 * inner) / rows
+        for i in range(cols):
+            x = inner + i * across
+            if i:
+                self.path(f"M{num(x)} {num(inset)}V{num(inner)}M{num(x)} {num(h - inner)}"
+                          f"V{num(h - inset)}")
+            for y in (mid, h - inset - band / 2 + 4):
+                self.mono(x + across / 2, y, str(i + 1), size, anchor="middle", cls="is-quiet")
+        for i in range(rows):
+            y = inner + i * down
+            if i:
+                self.path(f"M{num(inset)} {num(y)}H{num(inner)}M{num(w - inner)} {num(y)}"
+                          f"H{num(w - inset)}")
+            for x in (inset + band / 2, w - inset - band / 2):
+                self.mono(x, y + down / 2 + 4, "ABCDEFGH"[i], size, anchor="middle",
+                          cls="is-quiet")
+
+    def title_block(self, x, y, w, h, cells, size):
+        """The sheet's title block: a row of cells under a heavy line, each a small label
+        over its value (cells: (width, label, value, kind), kind "big" for a value in the
+        display face, or a callable drawing into the cell)."""
+        self.path(f"M{num(x)} {num(y)}H{num(x + w)}", "qp-line qp-heavy")
+        at = x
+        for i, (cw, label, value, kind) in enumerate(cells):
+            if i:
+                self.path(f"M{num(at)} {num(y)}V{num(y + h)}")
+            if label:
+                self.mono(at + size, y + size * 1.7, label, size * 0.8, cls="is-quiet")
+            if callable(kind):
+                kind(at, y, cw, h)
+            elif kind == "big":
+                self.serif(at + size * 0.9, y + h - size * 1.1, value, h * 0.56)
+            elif value:
+                self.mono(at + size, y + h - size * 1.2, value, size)
+            at += cw
+
+    def bubble(self, x, y, r, label, size):
+        self.put(f'<circle class="qp-line qp-paper" cx="{num(x)}" cy="{num(y)}" r="{num(r)}"/>')
+        self.mono(x, y + size * 0.36, label, size, anchor="middle")
+
+    def grid(self, xs, labels, top, foot, r, size, dims=None, dim_y=None):
+        """Column lines, dash and dot, each from its bubble at the top down the sheet, and
+        under the bubbles a chain of dimensions between them (dims: the x of each stop),
+        each length in the drawing's units."""
+        for x, label in zip(xs, labels):
+            self.path(f"M{num(x)} {num(top + r)}V{num(foot)}", "qp-line qp-center")
+            self.bubble(x, top, r, label, size)
+        if dims and dim_y:
+            self.path(f"M{num(dims[0])} {num(dim_y)}H{num(dims[-1])}")
+            for x in dims:
+                self.path(f"M{num(x - 5)} {num(dim_y + 5)}L{num(x + 5)} {num(dim_y - 5)}"
+                          f"M{num(x)} {num(dim_y - 9)}V{num(dim_y + 9)}")
+            for a, b in zip(dims, dims[1:]):
+                self.mono((a + b) / 2, dim_y - 7, str(round(b - a)), size * 0.8, anchor="middle")
+
+    def dtitle(self, x, y, w, no, text, size, sheet="000"):
+        """A drawing's title, as an architect titles one: a circle, its number over the
+        sheet's, its middle line running on under the title, heavy, a thin line under that;
+        the title over the line, wrapped (its last line just over it). y is the line's."""
+        r = size * 1.4
+        cx = x + r
+        self.put(f'<circle class="qp-line qp-paper" cx="{num(cx)}" cy="{num(y)}" r="{num(r)}"/>')
+        self.path(f"M{num(cx - r)} {num(y)}H{num(x + w)}", "qp-line qp-heavy")
+        self.path(f"M{num(cx + r)} {num(y + 4)}H{num(x + w)}")
+        self.mono(cx, y - r * 0.24, f"{no:02d}", size * 0.78, anchor="middle")
+        self.mono(cx, y + r * 0.66, sheet, size * 0.78, anchor="middle")
+        tx = cx + r + size * 0.6
+        t = text.upper()
+        lines = wrap(t, max(int((x + w - tx) / (self.MONO * size)), 1))
+        first = y - size * 0.55 - (len(lines) - 1) * size * 1.3
+        self.mono(tx, first, " ".join(lines), size, width=x + w - tx, lead=1.3)
+        return y + r
+
+    def table(self, x, y, w, fractions, header, rows, size, h):
+        """A schedule, as a drawing's door or room schedule: a header row between heavy lines,
+        then a row a line, columns ruled; the y under it."""
+        xs = [x]
+        for f in fractions:
+            xs.append(xs[-1] + f * w)
+        n = len(rows) + 1
+        self.path(f"M{num(x)} {num(y)}H{num(x + w)}M{num(x)} {num(y + h)}H{num(x + w)}",
+                  "qp-line qp-heavy")
+        for i in range(2, n + 1):
+            self.path(f"M{num(x)} {num(y + i * h)}H{num(x + w)}")
+        for cx in xs:
+            self.path(f"M{num(cx)} {num(y)}V{num(y + n * h)}")
+        for i, cells in enumerate([header] + rows):
+            for j, cell in enumerate(cells):
+                mid = y + i * h + h / 2
+                if isinstance(cell, (list, tuple)):
+                    self.mono(xs[j] + size * 0.6, mid - size * 0.2, cell[0], size)
+                    self.mono(xs[j] + size * 0.6, mid + size * 1.1, cell[1], size,
+                              cls="is-quiet")
+                else:
+                    self.mono(xs[j] + size * 0.6, mid + size * 0.36, cell, size,
+                              cls="is-quiet" if i == 0 else "")
+        return y + n * h
+
+    def levels(self, x0, x1, base, items, unit, size, note_x, width):
+        """Levels, as a drawing's section marks its floors: a line, dash and dot, a level a
+        year, each its height above the first by the years between (unit a year), a mark
+        on it (▽) with the year, and its note over the line, wrapped up from it."""
+        first = int(items[0][0])
+        for year, note in items:
+            y = base - (int(year) - first) * unit
+            self.path(f"M{num(x0)} {num(y)}H{num(x1)}", "qp-line qp-center")
+            t = x0 + 10
+            self.put(f'<path class="qp-fill" d="M{num(t - 7)} {num(y - 11)}H{num(t + 7)}'
+                     f'L{num(t)} {num(y)}Z"/>')
+            self.mono(t + 12, y - 4, year, size)
+            lines = wrap(note.upper(), max(int(width / (self.MONO * size)), 1))
+            self.mono(note_x, y - 5 - (len(lines) - 1) * size * 1.3, note, size, width=width,
+                      lead=1.3, cls="is-quiet")
+
+    def walls(self, x, y, w, h, t):
+        """A room in section: its walls t thick, cut, so hatched between two lines."""
+        hid = self.id("hatch")
+        if not any(hid in d for d in self.defs):
+            self.defs.append(f'<pattern id="{hid}" width="7" height="7" patternUnits='
+                             '"userSpaceOnUse" patternTransform="rotate(45)">'
+                             '<path class="qp-hatch" d="M0 0V7"/></pattern>')
+        self.put(f'<path fill="url(#{hid})" fill-rule="evenodd" d="M{num(x)} {num(y)}h{num(w)}'
+                 f'v{num(h)}h{num(-w)}ZM{num(x + t)} {num(y + t)}v{num(h - 2 * t)}'
+                 f'h{num(w - 2 * t)}v{num(-(h - 2 * t))}Z"/>')
+        self.rect(x, y, w, h, "qp-line")
+        self.rect(x + t, y + t, w - 2 * t, h - 2 * t, "qp-line")
+
+    def north(self, x, y, r, size):
+        """A north arrow: a circle, an arrow through it, half filled, N over it."""
+        self.put(f'<circle class="qp-line" cx="{num(x)}" cy="{num(y)}" r="{num(r)}"/>'
+                 f'<path class="qp-fill" d="M{num(x)} {num(y - r * 1.25)}L{num(x + r * 0.45)} '
+                 f'{num(y + r * 0.7)}L{num(x)} {num(y + r * 0.35)}Z"/>'
+                 f'<path class="qp-line" d="M{num(x)} {num(y - r * 1.25)}L{num(x - r * 0.45)} '
+                 f'{num(y + r * 0.7)}L{num(x)} {num(y + r * 0.35)}"/>')
+        self.mono(x + r + size * 0.5, y + size * 0.36, "N", size)
+
+    def svg(self, cls):
+        soft = self.id("soft")
+        return (f'<svg class="qp-svg {cls}" viewBox="0 0 {self.w} {self.h}" aria-hidden="true" '
+                f'focusable="false"><defs><filter id="{soft}" x="0" y="0" width="{self.w}" '
+                f'height="{self.h}" filterUnits="userSpaceOnUse"><feGaussianBlur '
+                f'stdDeviation="3"/></filter>{"".join(self.defs)}</defs>'
+                f'<g class="qp-deep" filter="url(#{soft})">{"".join(self.deep)}</g>'
+                f'<g class="qp-ink">{"".join(self.ink)}</g></svg>')
 
 
 def render(name, **values):
@@ -1233,12 +1602,14 @@ class Builder:
         """A drawing sheet's title block (SHEET_PROJECTS): Role, Team, Scale, the timeline as a
         dimension line, and the sheet's number with the logo's stamp. Every cell shows, a dash
         standing in for a missing value, so the block's lines stay whole."""
-        roles = p.get("roles")
+        roles, team = p.get("roles"), p.get("team")
         if isinstance(roles, list):
             roles = ", ".join(roles)
+        if isinstance(team, list):  # a list, as meta_rows takes it (Light Life's printed as
+            team = ", ".join(team)  # ['…', '…'] until 2026-11-25)
         scale = p.get("scale") or " / ".join(SCALES[c] for c in SCALES if c in p["category"])
         cells = (("role", "Role", inline(roles) if roles else "—"),
-                 ("team", "Team", inline(p["team"]) if p.get("team") else "—"),
+                 ("team", "Team", inline(team) if team else "—"),
                  ("scale", "Scale", inline(scale)),
                  ("time", "Timeline", self.dimension(p)),
                  ("stamp", "Sheet", f'<span class="sheet-no">{number} / {len(self.items):03d}</span>'
@@ -2603,7 +2974,10 @@ class Builder:
                 '        </details>')
         if not rows:
             return ""
-        return ('\n    <section class="about-list" aria-labelledby="qa-heading">\n'
+        deep = self.read_logo(FOOTER_LOGO, "qa-deep-logo") if QA_LOGO else None
+        under = f'      <div class="qa-deep" aria-hidden="true">{deep}</div>\n' if deep else ""
+        return (f'\n    <section class="about-list{" has-logo" if under else ""}" '
+                'aria-labelledby="qa-heading">\n' + under +
                 # Its label a detail callout since 2026-11-22 (the drawing system): Q over A.
                 f'      <h2 id="qa-heading" class="about-label">{self.callout("Q", "A")}'
                 '<span class="visually-hidden">Q&amp;A</span></h2>\n'
@@ -3029,6 +3403,500 @@ class Builder:
                 f'      <ol class="scales-list" style="--cols: {len(scales)}">\n'
                 + "\n".join(cells) + '\n      </ol>\n    </section>\n')
 
+    # About's identity sheet (ABOUT_IDENTITY, since 2026-11-25) ------------------------------
+
+    # The colors on the sheet, in order: the name each goes by, and its token in style.css,
+    # whose value the sheet prints (read from there, so it says what the site uses).
+    BRAND_COLORS = (("Paper", "--color-bg"), ("Ink", "--color-text"), ("Gray", "--color-subtle"),
+                    ("Tracing paper", "--vellum"), ("Construction line", "--color-trace"))
+    # The faces, as Type in style.css has them: the name, its cuts, what it sets, its family
+    # (a class: is-display, is-text, is-mono).
+    BRAND_FACES = (("Source Serif 4 Display", "300, italic", "Titles and sentences", "display"),
+                   ("Source Serif 4 Text", "400, 500", "What's read", "text"),
+                   ("IBM Plex Mono", "400", "What names, numbers, and leads somewhere", "mono"))
+    # How wide a print of the website shows on the sheet.
+    BRAND_PRINT_SIZES = "(min-width: 1200px) 36vw, (min-width: 768px) 60vw, 100vw"
+
+    def css_tokens(self):
+        """style.css's first :root block as {token: value}, read once."""
+        if getattr(self, "_css_tokens", None) is None:
+            with open(os.path.join(ASSET_DIR, "css", "style.css"), encoding="utf-8") as f:
+                css = re.sub(r"/\*.*?\*/", "", f.read(), flags=re.S)
+            root = re.search(r":root\s*\{(.*?)\n\}", css, re.S)
+            self._css_tokens = {k: " ".join(v.split()) for k, v in
+                                re.findall(r"(--[\w-]+)\s*:\s*([^;]+);", root.group(1) if root else "")}
+        return self._css_tokens
+
+    def brand_color(self, token):
+        """A color token's value as the sheet prints it: a hex in capitals, or a see-through
+        one as what it is at how much ("Paper at 72%"), the tracing paper with its blur."""
+        t = self.css_tokens()
+        value = t.get(token, "")
+        if re.fullmatch(r"#[0-9a-fA-F]{6}", value):
+            return value.upper()
+        m = re.fullmatch(r"rgb\((\d+) (\d+) (\d+) / ([\d.]+)\)", value)
+        if not m:
+            return value
+        hexed = "#{:02X}{:02X}{:02X}".format(*(int(v) for v in m.groups()[:3]))
+        named = {t.get("--color-bg", "").upper(): "Paper", t.get("--color-text", "").upper(): "Ink"}
+        said = f"{named.get(hexed, hexed)} at {round(float(m.group(4)) * 100)}%"
+        if token == "--vellum" and t.get("--vellum-blur"):
+            said += f", blur {t['--vellum-blur']}"
+        return said
+
+    def brand_logo(self):
+        """The logo drawn as a part on a drawing (about_identity): assets/logo/logo.svg, the
+        footer's cut, in ink over its construction in construction lines (the center line
+        through both suns and one down each, each sun's rim and hollow, and hatched, the lens
+        where their rims cross), called out as logo_key calls it out (DIGITAL, EVERYDAY LIFE,
+        WHERE THEY MEET) and measured (the suns' middles apart, the rim's radius, the hollow's),
+        in the logo's own units. The words are HTML over the drawing, placed in percent of it,
+        so they stay 12px at any size. Assumes the logo as assets/logo has it since 2026-11-15:
+        two suns side by side, each 100 to its rays' tips, its hollow 50."""
+        parts = self.logo_parts(FOOTER_LOGO)
+        if parts is None:
+            return ""
+        (x0, y0, w, h), shapes = parts
+        k = h / 208                      # the logo's units as drawn (208 tall)
+        rim, hollow = 100 * k, 50 * k
+        cy = y0 + h / 2
+        lx, rx = x0 + h / 2, x0 + w - h / 2
+        mx = (lx + rx) / 2
+        lens = math.sqrt(max(rim * rim - (mx - lx) ** 2, 0))  # half the lens, up and down
+        bx, by, bw, bh = x0 - 64 * k, y0 - 104 * k, w + 128 * k, h + 196 * k
+        edge_l, edge_r = bx + 8 * k, bx + bw - 8 * k
+        dim_y = y0 - 30 * k              # the dimension over the suns
+        shoulder = y0 - 78 * k           # the key's words' line
+        lean = (cy - shoulder) * math.tan(math.radians(25))
+        foot = y0 + h + 58 * k
+        diag = math.cos(math.radians(45))
+        turn = (rim + 26 * k) * diag     # where the radii's leaders turn level, across and down
+        low = cy + turn
+
+        def f(v):
+            return f"{v:.1f}"
+
+        def tag(x, y, text, at):
+            return (f'<span class="brand-tag" data-at="{at}" style="left: {(x - bx) / bw * 100:.2f}%; '
+                    f'top: {(y - by) / bh * 100:.2f}%">{text}</span>')
+
+        def units(v):
+            return f"{v / k:g}"
+
+        construction = (
+            f'<path class="brand-centerline" d="M{f(edge_l)} {f(cy)}H{f(edge_r)}'
+            f'M{f(lx)} {f(dim_y - 12 * k)}V{f(y0 + h + 16 * k)}'
+            f'M{f(rx)} {f(dim_y - 12 * k)}V{f(y0 + h + 16 * k)}"/>'
+            + "".join(f'<circle cx="{f(x)}" cy="{f(cy)}" r="{f(r)}"/>'
+                      for x in (lx, rx) for r in (rim, hollow)))
+        lens_d = (f'M{f(mx)} {f(cy - lens)}A{f(rim)} {f(rim)} 0 0 1 {f(mx)} {f(cy + lens)}'
+                  f'A{f(rim)} {f(rim)} 0 0 1 {f(mx)} {f(cy - lens)}Z')
+        s = 4 * k                        # a slash's reach, at each end of the dimension
+        ink = (f'M{f(lx)} {f(dim_y)}H{f(rx)}'
+               f'M{f(lx - s)} {f(dim_y + s)}L{f(lx + s)} {f(dim_y - s)}'
+               f'M{f(rx - s)} {f(dim_y + s)}L{f(rx + s)} {f(dim_y - s)}'
+               f'M{f(lx)} {f(cy)}L{f(lx - lean)} {f(shoulder)}H{f(edge_l)}'
+               f'M{f(rx)} {f(cy)}L{f(rx + lean)} {f(shoulder)}H{f(edge_r)}'
+               f'M{f(mx)} {f(cy)}V{f(foot)}'
+               f'M{f(rx)} {f(cy)}L{f(rx + turn)} {f(low)}H{f(edge_r)}'
+               f'M{f(lx)} {f(cy)}L{f(lx - turn)} {f(low)}H{f(edge_l)}')
+        dots = "".join(f'<circle cx="{f(x)}" cy="{f(y)}" r="{f(r * k)}"/>' for x, y, r in (
+            (lx, cy, 4), (rx, cy, 4), (mx, cy, 4),
+            (rx + rim * diag, cy + rim * diag, 2.5), (lx - hollow * diag, cy + hollow * diag, 2.5)))
+        svg = (f'<svg viewBox="{f(bx)} {f(by)} {f(bw)} {f(bh)}" aria-hidden="true" focusable="false">'
+               '<defs><pattern id="brand-hatch" width="5" height="5" patternUnits="userSpaceOnUse" '
+               'patternTransform="rotate(45)"><path d="M0 0V5"/></pattern></defs>'
+               f'<g class="brand-construction">{construction}</g>'
+               f'<path class="brand-lens" d="{lens_d}"/>'
+               f'{shapes}'
+               f'<path class="brand-lines" d="{ink}"/>'
+               f'<g class="brand-dots">{dots}</g></svg>')
+        tags = "".join((
+            tag(mx, dim_y - 7 * k, units(rx - lx), "bc"),
+            tag(edge_l, shoulder - 7 * k, "Digital", "bl"),
+            tag(edge_r, shoulder - 7 * k, "Everyday life", "br"),
+            tag(mx, foot + 7 * k, "Where they meet", "tc"),
+            tag(edge_r, low - 7 * k, f"R {units(rim)}", "br"),
+            tag(edge_l, low - 7 * k, f"R {units(hollow)}", "bl")))
+        return (f'        <div class="brand-drawing" style="aspect-ratio: {f(bw)} / {f(bh)}">'
+                f'{svg}{tags}</div>\n')
+
+    @staticmethod
+    def brand_ring(words, d=176):
+        """Words round a ring, twice, a dot after each, with an X across its middle (the user's
+        moodboard poster's ringed seal), d px across, its words 11px (style.css)."""
+        c = d / 2
+        r = c - 12                       # the words' line; they stand outside it
+        text = esc(" · ".join([words.upper()] * 2) + " · ")
+        x = (r - 6) * math.cos(math.radians(45))
+        return (f'<svg class="brand-ring" viewBox="0 0 {d} {d}" width="{d}" height="{d}" '
+                'aria-hidden="true" focusable="false">'
+                f'<path id="brand-ring-line" d="M{c - r:.1f} {c}a{r:.1f} {r:.1f} 0 1 1 {2 * r:.1f} 0'
+                f'a{r:.1f} {r:.1f} 0 1 1 {-2 * r:.1f} 0" fill="none"/>'
+                f'<circle cx="{c}" cy="{c}" r="{r - 6:.1f}"/>'
+                f'<path d="M{c - x:.1f} {c - x:.1f}L{c + x:.1f} {c + x:.1f}'
+                f'M{c + x:.1f} {c - x:.1f}L{c - x:.1f} {c + x:.1f}"/>'
+                f'<text><textPath href="#brand-ring-line" textLength="{2 * math.pi * r:.1f}" '
+                f'lengthAdjust="spacing">{text}</textPath></text></svg>')
+
+    def brand_prints(self, pages):
+        """The website's pages as prints on the sheet, each a link to its page, its name and
+        address over it, the parts its "traces" name boxed on it in ink and numbered ([1]), and
+        those listed under it by number, name, and note."""
+        prints = []
+        n = 0
+        for i, page in enumerate(pages):
+            where = f"content/site.json: identity.pages[{i}]"
+            name, href = need(page, "name", where), need(page, "href", where)
+            rel = media_path(need(page, "src", where), "assets/images/about")
+            img = self.img(rel, "", "wide", name, decorative=True, sizes=self.BRAND_PRINT_SIZES)
+            traces, legend = [], []
+            for t in page.get("traces") or []:
+                n += 1
+                box = t.get("box")
+                if not (isinstance(box, list) and len(box) == 4
+                        and all(isinstance(v, (int, float)) for v in box)):
+                    raise BuildError(f'{where}: a trace\'s "box" should be [left, top, width, '
+                                     'height], in percent of the print, like [0, 0, 100, 6.4].')
+                x, y, w, h = box
+                traces.append(f'<span class="brand-trace" style="left: {x:g}%; top: {y:g}%; '
+                              f'width: {w:g}%; height: {h:g}%"><span class="brand-trace-no">'
+                              f'[{n}]</span></span>')
+                note = (f' <span class="brand-legend-note">{inline(t["note"])}</span>'
+                        if t.get("note") else "")
+                legend.append(f'<li><span class="brand-legend-no">[{n}]</span> '
+                              f'{inline(need(t, "name", where))}{note}</li>')
+            legend = f'<ol class="brand-legend">{"".join(legend)}</ol>' if legend else ""
+            prints.append(
+                f'          <li class="brand-print is-{i + 1}"><a href="{esc(href)}">'
+                f'<span class="brand-print-name">{inline(name)} '
+                f'<span class="brand-print-path">{esc(href)}</span></span>'
+                f'<span class="brand-print-sheet">{img}'
+                f'<span class="brand-print-traces" aria-hidden="true">{"".join(traces)}</span>'
+                f'</span></a>{legend}</li>')
+        return '        <ul class="brand-prints">\n' + "\n".join(prints) + '\n        </ul>\n'
+
+    def about_identity(self):
+        """The site's identity on one sheet (ABOUT_IDENTITY, since 2026-11-25 night, the user's
+        ask: their logo, website, and identity, on tracing paper as a poster on their moodboard
+        is: a collage printed under the sheet, construction lines and registration marks over
+        it in ink, numbered parts in a mono, big type), after the Q&A. Under the sheet, as a
+        print seen through it, the logo, huge and soft. Over it, a strip (the sheet's title,
+        "Identity", what's on it, and its number: sheet 000, the set's cover, of as many as
+        Work has), then five parts, each headed by a detail callout (its number over the
+        sheet's, as a project's sections are): 01 the logo drawn with its construction, key,
+        and measures (brand_logo); 02 the website, its "pages" as prints that link to them,
+        the ink tracing their parts (brand_prints); 03 the type, the name set big in the
+        display face, the three faces each in itself, and beside them a ring of site.json's
+        "identity" "ring" words in the mono (brand_ring); 04 the paper and ink, each color's swatch,
+        name, and value (from style.css); 05 the drawing's parts, each drawn as the site draws
+        it, and the "drawing" note. Its lines are construction lines with a + where they
+        cross, as Work's grid's are. No "identity", no sheet."""
+        ident = self.site.get("identity") if ABOUT_IDENTITY else None
+        if not ident:
+            return ""
+        pages = ident.get("pages") or []
+        if not isinstance(pages, list):
+            raise BuildError('content/site.json (identity): "pages" should be a list like '
+                             '[{"src": "site-work.jpg", "name": "Work", "href": "/"}].')
+        sheet = "000"
+
+        def cell(cls, no, label, body):
+            return (f'      <div class="brand-cell brand-{cls}">\n'
+                    f'        <h3 class="brand-label">{self.callout(f"{no:02d}", sheet)}'
+                    f'<span>{label}</span></h3>\n{body}      </div>\n')
+
+        def note(text):
+            return f'        <p class="brand-note">{inline(text)}</p>\n' if text else ""
+
+        ring = self.brand_ring(ident["ring"]) if ident.get("ring") else ""
+        logo = self.brand_logo()
+        logo_cell = cell("logo", 1, "Logo", logo + note(ident.get("logoNote")))
+        site_cell = cell("site", 2, "Website", self.brand_prints(pages)) if pages else ""
+
+        first, _, rest = self.site["name"].partition(" ")
+        faces = "\n".join(
+            f'          <div class="brand-face is-{cls}"><dt>{esc(name)}</dt>'
+            f'<dd>{esc(cuts)} · {esc(use)}</dd></div>'
+            for name, cuts, use, cls in self.BRAND_FACES)
+        type_cell = cell("type", 3, "Type", (
+            f'        <p class="brand-specimen" aria-hidden="true"><em>{esc(first)}</em>'
+            f'{" " + esc(rest) if rest else ""}</p>\n'
+            f'        <dl class="brand-faces">\n{faces}\n        </dl>\n'
+            '        <p class="brand-alphabet" aria-hidden="true">'
+            'ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>abcdefghijklmnopqrstuvwxyz 0123456789</p>\n'
+            + (f'        {ring}\n' if ring else "")))
+
+        colors = "\n".join(
+            f'          <li class="brand-color"><span class="brand-chip is-{token[2:]}" '
+            f'aria-hidden="true"></span><span class="brand-color-name">{esc(name)}</span>'
+            f'<span class="brand-color-value">{esc(self.brand_color(token))}</span></li>'
+            for name, token in self.BRAND_COLORS)
+        color_cell = cell("paper", 4, "Paper and ink",
+                          f'        <ul class="brand-colors">\n{colors}\n        </ul>\n')
+
+        drawn = (
+            ("Registration mark", '<span class="brand-part-mark"></span>'),
+            ("Axis bubble", '<span class="bubble">A</span>'),
+            ("Detail callout", self.callout("01", sheet)),
+            ("Dimension line", '<svg viewBox="0 0 96 24" width="96" height="24"><path '
+                               'd="M4 12H92M4 4V20M92 4V20M0 16L8 8M88 16L96 8"/></svg>'),
+            ("Orbit", '<svg viewBox="0 0 96 40" width="96" height="40"><ellipse cx="48" cy="20" '
+                      'rx="45" ry="14" transform="rotate(-9 48 20)"/><circle class="is-dot" '
+                      'cx="90" cy="12.5" r="3"/><circle cx="48" cy="20" r="4"/></svg>'),
+            ("Binder holes", '<span class="brand-part-holes"></span>'))
+        parts = "\n".join(
+            f'          <li class="brand-part"><span class="brand-part-art" aria-hidden="true">'
+            f'{art}</span><span class="brand-part-name">{name}</span></li>' for name, art in drawn)
+        parts_cell = cell("parts", 5, "Drawing",
+                          f'        <ul class="brand-part-list">\n{parts}\n        </ul>\n'
+                          + note(ident.get("drawingNote")))
+
+        # Under the paper: the logo, and the two things its suns stand for, huge and soft.
+        deep = (self.read_logo(FOOTER_LOGO, "brand-deep-logo") or "") + (
+            '<span class="brand-deep-word is-1">Digital</span>'
+            '<span class="brand-deep-word is-2">Everyday life</span>')
+        title = inline(ident.get("title") or "Identity")
+        return (
+            '    <section class="brand" aria-labelledby="brand-heading">\n'
+            f'      <div class="brand-deep" aria-hidden="true">{deep}</div>\n'
+            '      <div class="brand-strip">\n'
+            f'        <h2 id="brand-heading" class="brand-title">{title}</h2>\n'
+            '        <p class="brand-contents">Logo, website, type, paper and ink, drawing</p>\n'
+            f'        <p class="brand-sheet-no">Sheet {sheet} / {len(self.items):03d}</p>\n'
+            '      </div>\n'
+            f'{logo_cell}{site_cell}{type_cell}{color_cell}{parts_cell}'
+            '    </section>\n')
+
+    # About's Q&A as a poster (ABOUT_POSTER, since 2026-11-25 night) --------------------------
+
+    def about_poster(self):
+        """The Q&A as a poster on tracing paper (ABOUT_POSTER; the user's ask, after a poster
+        on their moodboard: its visual language, the Q&A's words, all on one screen), after
+        the Q&A and ending on the footer's line: one sheet, as tall as the screen under the
+        header, the poster drawn as big as fits on it. Wide (16:10) where the screen is wider
+        than tall, tall (9:16) where it isn't (poster_wide, poster_tall). Each question its
+        heading (■ 01° and the question, from "qa"), its answer in the poster's parts, the
+        words from site.json's "qaPoster" (the user's own answers, cut down): 01 the
+        architect they wanted to be, big in the display face, the times life came near it in
+        rows, "I never became one."; 02 Chicago, its two buildings as empty frames, [1] and
+        [2], and the answer's first words round a ring; 03 the fields as boxes joined to how
+        people actually live; 04 AI, over a gray block under the paper, TypeLab and Clack as
+        prints; 05 Light Life, big, a print of the lamps, its years on a dimension line, its
+        last line; 06 what's next, under a black bar, big in the mono, "anywhere" and "I love
+        exploring" standing in pills on the middle line. Under the paper the logo, huge.
+        The poster repeats the Q&A, so screen readers skip it."""
+        poster = self.site.get("qaPoster") if ABOUT_POSTER else None
+        if not poster:
+            return ""
+        qs = [i.get("q", "") for i in self.site["about"].get("qa") or []]
+        if len(qs) < 6:
+            raise BuildError('content/site.json: the Q&A poster ("qaPoster") draws the six '
+                             'questions in "about" "qa"; it has fewer.')
+        logo, small = self.logo_parts(FOOTER_LOGO), self.logo_parts(HEADER_LOGO)
+        if logo is None or small is None:
+            return ""
+        return ('    <section id="qa-poster" class="qp" aria-label="The Q&amp;A as a poster">\n'
+                f'      {self.poster_wide(poster, qs, logo, small)}\n'
+                f'      {self.poster_tall(poster, qs, logo, small)}\n'
+                '    </section>\n')
+
+    def poster_src(self, rel):
+        rel = rel.lstrip("/")
+        if not exists(rel):
+            self.warnings.append(f"{rel} (the Q&A poster) is missing.")
+        return url_for(rel)
+
+    def poster_title_block(self, p, x, y, w, h, small, size):
+        """The poster's title block: the logo and the name, the drawing, the page, who drew
+        it, its scale (none: N.T.S.), the year, a north arrow, and the sheet's number big."""
+        def mark(at, top, cw, ch):
+            p.logo(at + size, top + (ch - ch * 0.56) / 2, ch * 0.56 * 512 / 313, small,
+                   "qp-logo")
+            p.serif(at + size * 2 + ch * 0.92, top + ch - size * 1.1, self.site["name"],
+                    ch * 0.5)
+
+        def arrow(at, top, cw, ch):
+            p.north(at + cw / 2 - size, top + ch / 2 + 2, ch * 0.24, size)
+        unit = (w - 0.26 * w - 0.12 * w) / 6
+        p.title_block(x, y, w, h, (
+            (0.26 * w, None, None, mark),
+            (unit, "Drawing", "Q&A", None),
+            (unit, "Page", "About", None),
+            (unit, "Drawn by", "K. Park", None),
+            (unit, "Scale", "N.T.S.", None),
+            (unit, "Date", "2026", None),
+            (unit, None, None, arrow),
+            (0.12 * w, "Sheet", "000", "big")), size)
+
+    def poster_wide(self, P, qs, logo, small):
+        """The poster 1600 x 1000 as a drawing sheet: its border and zones, a title block at
+        its foot, three column lines with their bubbles and dimensions; the architect and
+        the fields between the edge and line 1, Chicago between 1 and 2, the pills on 2, what's
+        next, Light Life, and AI from 3 to the edge, Light Life's years as levels from 2."""
+        p = Poster("wide", 1600, 1000)
+        T, L = 13, 14               # the small text, the titles
+        kid, chi, fld, ai, ll, nx = (P["kid"], P["chicago"], P["fields"], P["ai"],
+                                     P["lightLife"], P["next"])
+
+        # Under the paper: the logo huge, the fields' last words.
+        p.logo(150, -10, 940, logo, "qp-deep-logo", deep=True)
+        p.mono(452, 530, fld["under"], 30, cls="qp-deep-word", deep=True)
+
+        # The sheet: border and zones, the title block, the column lines.
+        p.sheet(8, 5)
+        self.poster_title_block(p, 34, 896, 1532, 70, small, 14)
+        p.grid((470, 790, 1000), ("1", "2", "3"), 62, 896, 14, 14,
+               dims=(34, 470, 790, 1000, 1566), dim_y=98)
+        for x, y, a in ((470, 520, 12), (790, 830, 16)):
+            p.cross(x, y, a)
+        p.checker(436, 790, 12)
+        p.checker(964, 122, 12)
+
+        # 01, the architect.
+        x, w = 56, 394
+        y = p.dtitle(x, 148, w, 1, qs[0], L)
+        p.mono(x, y + 16, kid["text"], T, width=w)
+        p.serif(x - 4, 306, kid["word"], 84)
+        p.mono(x, 328, kid["caption"], T, cls="is-quiet")
+        y = p.table(x, 340, w, (0.1, 0.42, 0.48), ("No.", "Where", "What"),
+                    [[f"{i + 1:02d}", a, b] for i, (a, b) in enumerate(kid["rows"])], T, 24)
+        p.serif(x, y + 44, kid["end"], 28, italic=True)
+
+        # 03, the fields.
+        y = p.dtitle(x, 586, w, 3, qs[2], L)
+        p.mono(x, y + 16, fld["text"], T, width=w)
+        p.net(x + w / 2, 700, fld["names"], fld["middle"], T, 132)
+
+        # 02, Chicago: its buildings as details, the first words round a ring.
+        bx, bw = 486, 290
+        y = p.dtitle(bx, 148, bw, 2, qs[1], L)
+        p.mono(bx, y + 16, chi["text"], T, width=bw)
+        (n1, w1), (n2, w2) = chi["places"][:2]
+        p.frame(bx + 14, 256, 150, 112, "[1]")
+        p.dtitle(bx + 14, 410, 168, 1, n1, 12, sheet="02")
+        p.mono(bx + 52, 432, w1, 12, cls="is-quiet")
+        p.frame(676, 280, 132, 96, "[2]")
+        p.dtitle(676, 420, 156, 2, n2, 12, sheet="02")
+        p.mono(714, 442, w2, 12, cls="is-quiet")
+        p.ring(630, 650, 84, chi["ring"], 13)
+
+        # On line 2: where.
+        p.pills(790, 480, nx["pills"], 14, 14)
+        p.serif(828, 424, "?", 236)
+
+        # 06, what's next.
+        rx, rw = 1016, 540
+        p.dtitle(rx, 148, rw, 6, qs[5], L)
+        p.mono(rx, 204, nx["title"][0], 28)
+        p.mono(rx, 238, nx["title"][1], 28)
+        p.mono(rx, 270, nx["text"], T, width=rw)
+
+        # 05, Light Life: its years as levels, a section's floors, from line 2.
+        p.dtitle(rx, 352, rw, 5, qs[4], L)
+        p.serif(rx - 3, 420, ll["title"], 60)
+        p.image(1388, 372, 168, 100, self.poster_src(ll["image"]))
+        p.mono(1556, 492, ll["line"], 11, anchor="end", cls="is-quiet")
+        p.levels(806, 1360, 594, ll["years"], 40, 12, 896, 470)
+        p.serif(806, 632, ll["quote"][0], 22, italic=True)
+        p.serif(806, 658, ll["quote"][1], 22, italic=True)
+
+        # 04, AI: a room in section, its walls hatched.
+        p.walls(1004, 674, 556, 214, 10)
+        p.dtitle(rx + 6, 714, rw - 28, 4, qs[3], L)
+        p.serif(rx + 6, 766, ai["title"][0], 30)
+        p.serif(rx + 6, 798, ai["title"][1], 30)
+        p.mono(rx + 6, 822, ai["text"], 11, width=316)
+        for i, (name, src) in enumerate(ai["works"][:2]):
+            ix = 1352 + i * 102
+            p.image(ix, 742, 88, 100, self.poster_src(src))
+            p.mono(ix, 864, f"[{name}]", 11)
+        return p.svg("is-wide")
+
+    def poster_tall(self, P, qs, logo, small):
+        """The poster 900 x 1600, for a screen taller than wide, as the wide one is drawn,
+        in two columns round column line 2: the architect and the fields down the left,
+        what's next, Chicago, Light Life and AI down the right; fewer words."""
+        p = Poster("tall", 900, 1600)
+        T, L = 19, 19
+        kid, chi, fld, ai, ll, nx = (P["kid"], P["chicago"], P["fields"], P["ai"],
+                                     P["lightLife"], P["next"])
+        p.logo(-90, 400, 1080, logo, "qp-deep-logo", deep=True)
+        p.mono(50, 1060, fld["under"], 26, cls="qp-deep-word", deep=True)
+
+        p.sheet(4, 8)
+        self.poster_title_block_tall(p, 34, 1466, 832, 100, small, 17)
+        p.grid((450,), ("2",), 64, 1466, 18, 19, dims=(34, 450, 866), dim_y=108)
+        for x, y, a in ((450, 770, 14), (866, 560, 12), (34, 1000, 12)):
+            p.cross(x, y, a)
+        p.checker(404, 1080, 16)
+
+        # Left: 01, 03, the ring.
+        x, w = 52, 380
+        y = p.dtitle(x, 176, w, 1, qs[0], L)
+        p.mono(x, y + 24, kid["text"], T, width=w)
+        p.serif(x - 4, 420, kid["word"], 80)
+        p.mono(x, 450, kid["caption"], 16, cls="is-quiet")
+        y = p.table(x, 466, w, (0.14, 0.86), ("No.", "Where, what"),
+                    [[f"{i + 1:02d}", (a, b)] for i, (a, b) in enumerate(kid["rows"])], 16, 50)
+        p.serif(x, y + 48, kid["end"], 32, italic=True)
+
+        y = p.dtitle(x, 860, w, 3, qs[2], L)
+        p.net(x + w / 2, y + 26, fld["names"], fld["middle"], 17, 128)
+        p.ring(214, 1250, 100, chi["ring"], 18)
+
+        # Right: 06, 02, 05, 04.
+        rx, rw = 472, 394
+        y = p.dtitle(rx, 176, rw, 6, qs[5], L)
+        p.mono(rx, y + 30, nx["title"][0], 23)
+        p.mono(rx, y + 62, nx["title"][1], 23)
+        p.mono(rx, y + 98, nx["text"], T, width=rw)
+
+        y = p.dtitle(rx, 490, rw, 2, qs[1], L)
+        p.mono(rx, y + 24, chi["text"], T, width=rw)
+        (n1, w1), (n2, w2) = chi["places"][:2]
+        p.frame(rx + 10, 640, 160, 104, "[1]", size=16)
+        p.frame(rx + 210, 660, 170, 84, "[2]", size=16)
+        p.mono(rx + 10, 776, n1, 16)
+        p.mono(rx + 210, 776, n2, 16)
+
+        p.pills(450, 812, nx["pills"], 19, 16)
+
+        y = p.dtitle(rx, 870, rw, 5, qs[4], L)
+        p.serif(rx - 3, y + 74, ll["title"], 62)
+        p.image(rx, y + 96, rw, 130, self.poster_src(ll["image"]))
+        p.levels(rx, 866, 1262, [(y_, "") for y_, _ in ll["years"]], 32, 16, rx + 120, 200)
+        p.serif(rx, 1290, ll["quote"][0], 21, italic=True)
+        p.serif(rx, 1314, ll["quote"][1], 21, italic=True)
+
+        p.walls(462, 1328, 404, 130, 9)
+        p.dtitle(rx + 4, 1368, rw - 24, 4, qs[3], 17)
+        p.serif(rx + 4, 1412, ai["title"][0], 27)
+        p.serif(rx + 4, 1441, ai["title"][1], 27)
+        return p.svg("is-tall")
+
+    def poster_title_block_tall(self, p, x, y, w, h, small, size):
+        """The tall poster's title block: two rows, the logo and the name over the drawing,
+        who drew it, the scale and the year, the sheet's number big at the right."""
+        half = h / 2
+        p.path(f"M{num(x)} {num(y)}H{num(x + w)}", "qp-line qp-heavy")
+        p.path(f"M{num(x)} {num(y + half)}H{num(x + w * 0.8)}")
+        p.path(f"M{num(x + w * 0.8)} {num(y)}V{num(y + h)}")
+        p.logo(x + size, y + 10, 52, small, "qp-logo")
+        p.serif(x + size + 66, y + half - 12, self.site["name"], 30)
+        p.north(x + w * 0.8 - 46, y + half / 2 + 2, 12, 14)
+        cells = (("Drawing", "Q&A"), ("Drawn by", "K. Park"), ("Scale", "N.T.S."),
+                 ("Date", "2026"))
+        cw = w * 0.8 / len(cells)
+        for i, (label, value) in enumerate(cells):
+            cx = x + i * cw
+            if i:
+                p.path(f"M{num(cx)} {num(y + half)}V{num(y + h)}")
+            p.mono(cx + 12, y + half + 18, label, 13, cls="is-quiet")
+            p.mono(cx + 12, y + h - 10, value, size)
+        p.mono(x + w * 0.8 + 14, y + 22, "Sheet", 13, cls="is-quiet")
+        p.serif(x + w * 0.8 + 12, y + h - 16, "000", 50)
+
     def build_about(self):
         s = self.site
         about = s["about"]
@@ -3059,7 +3927,8 @@ class Builder:
                        f'?v={file_version("assets/js/globe.js")}" defer></script>\n')
         content = render("about.html", statement=self.about_statement(about),
                          scales=scales, experience=experience,
-                         qa=self.about_qa(about))
+                         qa=self.about_qa(about), identity=self.about_identity(),
+                         poster=self.about_poster())
         self.page("about/index.html", "about", "/about/", f"About — {s['name']}",
                   s["description"], content, "page-about", current="about",
                   image=self.og_image())

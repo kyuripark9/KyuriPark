@@ -398,6 +398,11 @@
     video.controls = false;
     looper.observe(video);
   });
+  // Work tiles' detail loops (build.py's tile_motion) too, but never with reduced motion:
+  // style.css then hides them, and the still detail under each shows.
+  if (!reduceMotion.matches) {
+    document.querySelectorAll(".tile-motion").forEach((video) => looper.observe(video));
+  }
 
   // Archive's sheets (since 2026-11-23; style.css's Archive as a binder), and About's parts
   // (since 2026-11-26, ABOUT_SHEETS): each stays as the page scrolls on, so the next is laid

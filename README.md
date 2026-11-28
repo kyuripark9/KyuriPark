@@ -596,6 +596,45 @@ in the folders and push them with the rest; running it again only makes the miss
 build reminds you while large images have no copy. Not on a Mac? Save the copies by hand under
 those names. (Since 2026-11-09; Archive's only before.)
 
+**Thumbnail rule (Work's tiles, since 2026-11-26):** every tile follows one rule, so the grid
+reads as one wall, as gougoucore.com's does (its tiles are all shot one way). Each tile has two
+images, set in `projects.json`:
+
+- **Detail** (`"detail"`, shown at rest): one part of the work grown to fill the tile. No UI,
+  captions, or labels; the work's own letters are fine. `"zoom"` is how much it grows (1 to 6),
+  `"at"` the point it grows from (`"50% 40%"`, across then down the tile), `"fit"` which part of
+  the image the tile starts from (optional), and `"src"` another of the project's images to use
+  (optional; the cover if not given). An item with no page takes a list, one for each of its
+  first images (a wide tile's two halves).
+- **Life** (`"life"`, shown on hover): the work as a real thing in a real place. A screen on a
+  phone, tablet, or laptop; a print on paper. A real surface (concrete, wood, a desk; no plain
+  studio backdrop), one direction of daylight with its shadows, the work at 40–60% of the frame,
+  shot upright (18:25). `"src"` is the file, `"fit"` which part of it the tile shows (optional).
+  A tile with no life image pulls back to its own image whole instead.
+
+- **Motion** (`"motion"`, optional, over the detail): the detail moving, as gougoucore.com's
+  tiles are short loops. One rule for all of them: 6 seconds, 30 fps, seamless, silent, the
+  camera still, framed as the still detail (its first frame the detail itself), the work doing
+  its one thing, no cursor, UI, or words. An H.264 `.mp4` at 720 × 1000 (a wide tile's at
+  1440 × 1000, both halves in one, so they never drift apart), about 1 MB. It plays while on
+  screen and never with reduced motion (the still shows). Clack's (`clack/loop.mp4`) is
+  recorded from Clack's own page, its Cyanotype exposed by one stroke and sinking back;
+  Editorial Collection's (`pieces/editorial-loop.mp4`) flips through its four posters, each
+  held 1.5 s with a slow push in, the halves never on the same one. TypeLab, Light Life, and
+  NBCUniversal have none yet.
+
+All of a tile's images and its loop take one grade (style.css, `--tile-filter` and
+`--tile-paper` on `.work-media`): a little calmer and warmer, the whites taken down to the paper,
+and the paper's grain laid on them once more, so the five sit in one light, as prints on one
+sheet. `none` and `0` turn it off.
+
+Hovered or focused, a tile pulls back from its detail to the whole work. `TILE_REST` in
+`build.py` turns it round (`"life"`: the life image at rest, the detail on hover), for once every
+tile has its life image. Light Life has one (`tablet-app.webp`); TypeLab, Clack, and NBCUniversal
+still need theirs: TypeLab's letter editor on a laptop or tablet on a desk in window light;
+Clack running on a laptop, or a Cyanotype print in the sun; NBCUniversal's product concepts or
+trend report, printed or on a tablet, on a desk.
+
 **Video on the Work tile:** put `cover.mp4` next to the cover image (same name, `.mp4`).
 Hovering that project's tile on the Work page then plays it muted on a loop over the
 image. Keep it short (3–8 s), silent, H.264, and under ~3 MB.

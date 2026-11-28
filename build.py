@@ -169,6 +169,17 @@ WORK_LEAD = True
 # two posters, the user's ask that it feel like a place holding many works). False: its first
 # image alone, cropped wider.
 WIDE_PAIR = True
+# One rule for Work's tile images (since 2026-11-26, the user's ask, after asking why the site
+# didn't feel as strong, unified, and clean as gougoucore.com, whose tiles are all shot one way;
+# "both are good, apply them well" to the two rules offered; README's Thumbnail rule). Each
+# tile has two images: its DETAIL (rule B), one part of the work grown to fill the tile, with no
+# UI or words but the work's own ("detail" in projects.json: how much it grows and from where),
+# and its LIFE (rule A), the work as a real thing in a real place in daylight ("life": an image
+# file). "detail": at rest the tile shows the detail, and hovered or focused it pulls back to the
+# whole work, the life image where there is one, else its own image whole. "life": the other way
+# round, for once every tile has its life image (TypeLab, Clack, and NBCUniversal had none yet).
+TILE_REST = "detail"
+TILE_POINT_RE = re.compile(r"^\d{1,3}% \d{1,3}%$")  # a "detail"'s "at" or "fit": "50% 40%"
 # Archive drawn as a plan (since 2026-11-22, the user's ask: the drawing system and their story
 # in one page): content/site.json's "scales" are its columns, named axis bubbles A, B, C, D
 # (Object, Page, Screen, Space); each image in archive.json says its "scale" and stands in that
@@ -1978,6 +1989,77 @@ class Builder:
         return ""
 
     @staticmethod
+    def tile_details(p):
+        """An item's "detail" (TILE_REST): one, or for an item with no page a list, one for each
+        of its first images (a wide pair's two halves). Each: "zoom", how much the image grows
+        (1 to 6), "at", the point it grows from, as "x% y%" of the tile, and optionally "fit",
+        which part of the image the tile shows before it grows (CSS object-position, "50% 50%"
+        if not given), and, for a project, "src", another of its images to use. None: []."""
+        detail = p.get("detail")
+        if detail is None:
+            return []
+        where = f'content/projects.json ({p.get("slug") or p["title"]}): "detail"'
+        ds = detail if isinstance(detail, list) else [detail]
+        for d in ds:
+            if not isinstance(d, dict):
+                raise BuildError(f'{where} should be like {{"zoom": 1.5, "at": "50% 40%"}}.')
+            zoom = d.get("zoom", 1)
+            if isinstance(zoom, bool) or not isinstance(zoom, (int, float)) or not 1 <= zoom <= 6:
+                raise BuildError(f'{where}: "zoom" should be a number from 1 to 6, like 1.5.')
+            for key in ("at", "fit"):
+                if key in d and not TILE_POINT_RE.match(str(d[key])):
+                    raise BuildError(f'{where}: "{key}" should be two percentages, like "50% 40%".')
+        return ds
+
+    @staticmethod
+    def detail_sizes(details, sizes):
+        """A tile image's sizes, or None (no smaller copy) when it's grown to a detail: grown,
+        the tile shows a part of it at more than the tile's width, so it takes the full file."""
+        return None if details and details[0].get("zoom", 1) > 1 else sizes
+
+    @staticmethod
+    def with_detail(img, details):
+        """A tile's image grown to its detail: --zoom from --at (style.css, Work's tile rule)."""
+        if not img or not details:
+            return img
+        d = details[0]
+        style = f'--zoom: {d.get("zoom", 1)}; --at: {d.get("at", "50% 50%")}'
+        if d.get("fit"):
+            style += f'; --fit: {d["fit"]}'
+        return img.replace("<img ", f'<img class="tile-detail" style="{style}" ', 1)
+
+    def tile_motion(self, p, folder):
+        """An item's "motion" (TILE_REST): its detail moving, a short silent loop over the still
+        detail, played while on screen (main.js), the still alone with reduced motion. "src", the
+        file (an .mp4 the tile's shape, or a wide tile's, both halves in one), or nothing."""
+        motion = p.get("motion")
+        if not motion:
+            return ""
+        where = f'content/projects.json ({p.get("slug") or p["title"]}): "motion"'
+        rel = media_path(need(motion, "src", where), folder)
+        if not exists(rel):
+            self.missing_media.add(rel)
+            return ""
+        return (f'<video class="tile-motion" src="{url_for(rel)}" muted loop playsinline '
+                'preload="metadata" aria-hidden="true" tabindex="-1"></video>')
+
+    def tile_life(self, p, folder, sizes):
+        """An item's "life" image (TILE_REST), over its detail, or nothing. "src", the file, and
+        optionally "fit", which part of it the tile shows ("50% 50%" if not given)."""
+        life = p.get("life")
+        if not life:
+            return ""
+        where = f'content/projects.json ({p.get("slug") or p["title"]}): "life"'
+        rel = media_path(need(life, "src", where), folder)
+        if "fit" in life and not TILE_POINT_RE.match(str(life["fit"])):
+            raise BuildError(f'{where}: "fit" should be two percentages, like "50% 40%".')
+        img = self.tile_image(rel, "cover", p["title"], "lazy", sizes=sizes)
+        if not img:
+            return ""
+        style = f' style="--fit: {life["fit"]}"' if life.get("fit") else ""
+        return img.replace("<img ", f'<img class="tile-life"{style} ', 1)
+
+    @staticmethod
     def is_lead(p):
         """Whether an item is Work's tile two columns wide (WORK_LEAD, "wide" in projects.json)."""
         return WORK_LEAD and p.get("wide") is True
@@ -2025,24 +2107,41 @@ class Builder:
         loading = "eager" if index < 3 else "lazy"
         lead = self.is_lead(p)
         sizes = LEAD_SIZES if lead else WORK_SIZES
+        details = self.tile_details(p)
         if "slug" in p:
+            folder = f"assets/images/{p['slug']}"
             rel, video = self.cover(p)
             if lead and (p.get("coverWide") or {}).get("src"):
-                rel = media_path(p["coverWide"]["src"], f"assets/images/{p['slug']}")
-            img = self.tile_image(rel, "cover", p["title"], loading, sizes=sizes)
+                rel = media_path(p["coverWide"]["src"], folder)
+            if details and details[0].get("src"):
+                rel = media_path(details[0]["src"], folder)
+            img = self.with_detail(self.tile_image(rel, "cover", p["title"], loading,
+                                                   sizes=self.detail_sizes(details[:1], sizes)),
+                                   details[:1])
             data = f' data-video="{url_for(video)}"' if video else ""
             tag, attrs = "a", f'href="/work/{p["slug"]}/"'
             meta, extra = "", ""
         else:
+            folder = PIECE_FOLDER
             rels = [media_path(src, PIECE_FOLDER) for src in p["images"]]
             if lead and WIDE_PAIR and len(rels) > 1:
-                img = "".join(
-                    f'<span>{self.tile_image(rel, "piece", p["title"], loading, sizes=WORK_SIZES)}'
-                    '</span>' for rel in rels[:2])
+                halves = (self.with_detail(self.tile_image(
+                    rel, "piece", p["title"], loading,
+                    sizes=self.detail_sizes(details[i:i + 1], WORK_SIZES)), details[i:i + 1])
+                          for i, rel in enumerate(rels[:2]))
+                img = "".join(f"<span>{half}</span>" for half in halves)
                 data = ' data-pair'
             else:
-                img = self.tile_image(rels[0], "piece", p["title"], loading, sizes=sizes)
+                img = self.with_detail(
+                    self.tile_image(rels[0], "piece", p["title"], loading,
+                                    sizes=self.detail_sizes(details[:1], sizes)),
+                    details[:1])
                 data = ""
+        life = self.tile_life(p, folder, sizes)
+        img += self.tile_motion(p, folder) + life
+        if life and TILE_REST == "life":
+            data += ' data-rest="life"'
+        if "slug" not in p:
             tag, attrs = "button", 'type="button" data-item aria-haspopup="dialog"'
             meta = f'<span hidden data-lightbox-meta>{self.piece_meta(p)}</span>'
             extra = f'            {self.piece_images(p)}\n'

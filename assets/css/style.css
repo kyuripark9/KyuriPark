@@ -2940,10 +2940,6 @@ mark.placeholder {
   pointer-events: none;
 }
 
-.work-media::after {
-  z-index: 2;
-}
-
 .work-media[data-rest="life"] .tile-detail {
   transform: scale(1);
 }
@@ -2985,8 +2981,9 @@ mark.placeholder {
 /* Tracing paper over the rest (since 2026-11-23, the user's moodboard): while a tile is hovered,
    the other tiles' images go under a thin sheet of vellum (--vellum-thin), soft and pale, as seen
    through tracing paper, and the one hovered stays sharp, as a print laid on top. Only with a
-   mouse; the sheets come and go over --grow (at once with reduced motion). */
-:is(.work-media, .archive-media)::after {
+   mouse; the sheets come and go over --grow (at once with reduced motion). Archive only since
+   2026-11-28: Work's other tiles stay sharp while one is hovered (the user's ask). */
+.archive-media::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -2999,7 +2996,7 @@ mark.placeholder {
 }
 
 @media (hover: hover) {
-  :is(.work-grid, .archive-grid):has(> li:hover) > li:not(:hover) :is(.work-media, .archive-media)::after,
+  .archive-grid:has(> li:hover) > li:not(:hover) .archive-media::after,
   .plan-bays:has(.plan-items > li:hover) .plan-items > li:not(:hover) .archive-media::after {
     opacity: 1;
   }

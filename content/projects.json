@@ -18,8 +18,10 @@
       "alt": "TypeLab's letter editor in Points mode: a serif R drawn as an outline with its points"
     },
     "detail": {
-      "zoom": 1.55,
-      "at": "50% 52%"
+      "src": "stage.jpg"
+    },
+    "motion": {
+      "src": "stage.mp4"
     },
     "meta": {
       "link": {
@@ -200,11 +202,10 @@
       "alt": "Clack's Cyanotype: white halftone dots exposed on cobalt blue where the cursor passed"
     },
     "detail": {
-      "zoom": 1.3,
-      "at": "60% 45%"
+      "src": "stage.jpg"
     },
     "motion": {
-      "src": "loop.mp4"
+      "src": "stage.mp4"
     },
     "meta": {
       "link": {
@@ -306,10 +307,10 @@
       "alt": "The Universal globe in front of a theme park entrance"
     },
     "detail": {
-      "src": "pitch-products.jpg",
-      "fit": "0% 50%",
-      "zoom": 2,
-      "at": "25% 20%"
+      "src": "stage.jpg"
+    },
+    "motion": {
+      "src": "stage.mp4"
     },
     "meta": {
       "link": null
@@ -444,12 +445,10 @@
       "alt": "Light Life poster: the name in a warm yellow glow on black"
     },
     "detail": {
-      "zoom": 2.4,
-      "at": "0% 100%"
+      "src": "stage.jpg"
     },
-    "life": {
-      "src": "tablet-app.webp",
-      "fit": "52% 50%"
+    "motion": {
+      "src": "stage.mp4"
     },
     "meta": {
       "link": null
@@ -533,11 +532,11 @@
       "editorial-7.webp"
     ],
     "detail": [
-      { "zoom": 1.8, "at": "30% 40%" },
-      { "zoom": 2, "at": "35% 75%" }
+      { "src": "editorial-stage-left.jpg" },
+      { "src": "editorial-stage-right.jpg" }
     ],
     "motion": {
-      "src": "editorial-loop.mp4"
+      "src": "editorial-stage.mp4"
     },
     "alt": "Editorial work: a dance festival poster, an exhibition poster, a letter drawn on its construction grid, and a typeface's letters"
   }

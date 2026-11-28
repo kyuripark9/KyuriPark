@@ -628,8 +628,21 @@ images, set in `projects.json`:
   screen and never with reduced motion (the still shows). Clack's (`clack/loop.mp4`) is
   recorded from Clack's own page, its Cyanotype exposed by one stroke and sinking back;
   Editorial Collection's (`pieces/editorial-loop.mp4`) flips through its four posters, each
-  held 1.5 s with a slow push in, the halves never on the same one. TypeLab, Light Life, and
-  NBCUniversal have none yet.
+  held 1.5 s with a slow push in, the halves never on the same one. (Both since replaced by
+  the stage loops, below.)
+
+- **Stage** (since 2026-11-27, every tile; the user's ask after gougoucore.com, with the digital
+  work to read as digital): one black stage, one light, the work doing its one thing. Work on
+  a screen is the real app on a laptop seen straight on in a dark room, or on a phone (Light
+  Life's app), lit only by its own screen, the cursor in it where it has one; printed work lies
+  on the black under a light from above, the top print drawn away to show the next. Each tile's
+  `"detail"` is its still, `stage.jpg` (1440 × 2000, no zoom; Editorial Collection's wide tile
+  takes two halves, `editorial-stage-left.jpg` and `-right.jpg`, as `"src"`), and its `"motion"`
+  the loop, `stage.mp4` (as above, opening on the still). Made by `tools/tile-stage` (its
+  README: what each tile shows, and `python3 tools/tile-stage/make.py all` to make them again),
+  no mockup files. A tile whose detail is its whole picture and has no life image keeps its
+  loop playing when hovered (`data-whole`), so none pull back now; Light Life's tablet photo
+  (`tablet-app.webp`), Clack's and Editorial's earlier loops are kept, unused.
 
 All of a tile's images and its loop take one grade (style.css, `--tile-filter` and
 `--tile-paper` on `.work-media`): a little calmer and warmer, the whites taken down to the paper,

@@ -2029,7 +2029,8 @@ class Builder:
         of its first images (a wide pair's two halves). Each: "zoom", how much the image grows
         (1 to 6), "at", the point it grows from, as "x% y%" of the tile, and optionally "fit",
         which part of the image the tile shows before it grows (CSS object-position, "50% 50%"
-        if not given), and, for a project, "src", another of its images to use. None: []."""
+        if not given), and "src", another image to use: a project's, or for an item with no
+        page one in its place on the tile (a stage still). None: []."""
         detail = p.get("detail")
         if detail is None:
             return []
@@ -2159,6 +2160,11 @@ class Builder:
         else:
             folder = PIECE_FOLDER
             rels = [media_path(src, PIECE_FOLDER) for src in p["images"]]
+            # a detail's "src": another image in its place on the tile (a stage still, half
+            # of one on a wide tile), not one of the item's own; the lightbox keeps those
+            for i, d in enumerate(details[:len(rels)]):
+                if d.get("src"):
+                    rels[i] = media_path(d["src"], PIECE_FOLDER)
             if lead and WIDE_PAIR and len(rels) > 1:
                 halves = (self.with_detail(self.tile_image(
                     rel, "piece", p["title"], loading,
@@ -2176,6 +2182,10 @@ class Builder:
         img += self.tile_motion(p, folder) + life
         if life and TILE_REST == "life":
             data += ' data-rest="life"'
+        elif not life and p.get("motion") and details and details[0].get("zoom", 1) == 1:
+            # its detail is the whole image (a stage still, README's Thumbnail rule), so there is
+            # nothing to pull back to: hovered, its loop keeps playing (style.css, data-whole)
+            data += ' data-whole'
         if "slug" not in p:
             tag, attrs = "button", 'type="button" data-item aria-haspopup="dialog"'
             meta = f'<span hidden data-lightbox-meta>{self.piece_meta(p)}</span>'

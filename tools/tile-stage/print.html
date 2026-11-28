@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  /* The same black stage as the screens (stage.html), for work that is printed: the prints
+     lying on a black table under one light from above, seen from above. A stack per print
+     position; every so often the top print is drawn away toward you, out of the light, and the
+     next lies under it. Seamless over 6 s. */
+  :root { --light: 255, 244, 228; }
+  html, body { margin: 0; background: #050505; }
+  .stage { position: relative; overflow: hidden; background: #050505; }
+  .pool { position: absolute; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(closest-side, rgba(var(--light), .10), rgba(var(--light), .045) 55%, transparent); }
+  .stack { position: absolute; }
+  /* the prints under the top two: only their edges show, a stack of paper */
+  .under { position: absolute; inset: 0; background: #e9e6df; box-shadow: 0 1px 2px rgba(0,0,0,.6); }
+  .sheet { position: absolute; inset: 0; background: #f2efe8; transform-origin: 50% 0%;
+    box-shadow: 0 1px 1px rgba(0,0,0,.55), 0 8px 18px rgba(0,0,0,.5), 0 26px 50px rgba(0,0,0,.45); }
+  .sheet img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  /* the light from above on the paper: a touch brighter at the top, falling off to the foot and corners */
+  .sheet::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      linear-gradient(rgba(255,250,240,.07), transparent 35%, rgba(0,0,0,.14)),
+      radial-gradient(140% 110% at 50% 20%, transparent 55%, rgba(0,0,0,.22)); }
+  .sheet .tooth { position: absolute; inset: 0; mix-blend-mode: multiply; opacity: .22; pointer-events: none; }
+  .grain { position: absolute; inset: 0; opacity: .5; mix-blend-mode: overlay; pointer-events: none; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage"></div>
+<script>
+  const SETUPS = {
+    // NBCUniversal: four of the internship's pitch boards, printed 16:9, one stack
+    nbcu: { W: 720, H: 1000, T: 6, stacks: [
+      { cx: 360, cy: 516, w: 600, h: 337.5, offset: 0,
+        imgs: ['nbcuniversal/pitch-products.jpg', 'nbcuniversal/pitch-set.jpg', 'nbcuniversal/felix.jpg', 'nbcuniversal/little-lulu.jpg'] } ] },
+    // Editorial Collection, the wide tile: two posters, a stack under each column, taking turns
+    editorial: { W: 1440, H: 1000, T: 6, stacks: [
+      { cx: 360, cy: 500, w: 438, h: 620, offset: 0, imgs: ['pieces/editorial-1.webp', 'pieces/editorial-7.webp'] },
+      { cx: 1080, cy: 500, w: 438, h: 620, offset: 1.5, imgs: ['pieces/editorial-2.webp', 'pieces/editorial-8.webp'] } ] },
+  };
+  const BASE = new URL('../../assets/images/', location.href).href;  // the site's own images
+  const SLIDE = 0.6;  // seconds a print takes to be drawn away
+  const q = new URLSearchParams(location.search), S = SETUPS[q.get('setup') || 'nbcu'];
+  const stage = document.getElementById('stage');
+  stage.style.width = S.W + 'px'; stage.style.height = S.H + 'px';
+  const noise = (id) => `<svg class="tooth" width="100%" height="100%"><filter id="${id}"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="3" seed="${id.length * 7}"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#${id})"/></svg>`;
+  const stacks = S.stacks.map((s, k) => {
+    const pool = document.createElement('div'); pool.className = 'pool';
+    Object.assign(pool.style, { left: s.cx - s.w * 0.95 + 'px', top: s.cy - s.h * 0.95 + 'px', width: s.w * 1.9 + 'px', height: s.h * 1.9 + 'px' });
+    stage.append(pool);
+    const el = document.createElement('div'); el.className = 'stack';
+    Object.assign(el.style, { left: s.cx - s.w / 2 + 'px', top: s.cy - s.h / 2 + 'px', width: s.w + 'px', height: s.h + 'px' });
+    el.innerHTML = `<div class="under" style="transform: translate(4px, 5px) rotate(.5deg)"></div>
+      <div class="under" style="transform: translate(-3px, 3px) rotate(-.4deg)"></div>
+      <div class="sheet" data-n="next"><img>${noise('a' + k)}</div>
+      <div class="sheet" data-n="top"><img>${noise('bb' + k)}</div>`;
+    stage.append(el);
+    return { ...s, next: el.querySelector('[data-n=next]'), top: el.querySelector('[data-n=top]') };
+  });
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  g.setAttribute('class', 'grain'); g.setAttribute('width', S.W); g.setAttribute('height', S.H);
+  g.innerHTML = '<filter id="n"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="4" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#n)"/>';
+  stage.append(g);
+  const ease = u => u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+  const setSrc = (sheet, src) => { const img = sheet.querySelector('img'); if (img.dataset.src !== src) { img.dataset.src = src; img.src = BASE + src; } return img; };
+  // the stage at time t (seconds)
+  window.at = async (t) => {
+    const imgs = [];
+    for (const s of stacks) {
+      const n = s.imgs.length, L = S.T / n, tt = ((t + s.offset) % S.T + S.T) % S.T;
+      const i = Math.floor(tt / L), u = tt - i * L;
+      imgs.push(setSrc(s.top, s.imgs[i]), setSrc(s.next, s.imgs[(i + 1) % n]));
+      const k = u > L - SLIDE ? ease((u - (L - SLIDE)) / SLIDE) : 0;
+      const D = S.H - (s.cy - s.h / 2) + 80;  // far enough to leave the frame
+      s.top.style.transform = `translateY(${k * D}px) rotate(${-2.5 * k}deg) scale(${1 + 0.03 * Math.sin(Math.PI * k)})`;
+      s.top.style.filter = `brightness(${1 - 0.55 * k})`;
+    }
+    await Promise.all(imgs.map(i => i.decode().catch(() => {})));
+    return true;
+  };
+  at(+(q.get('t') || 0));
+</script>
+</body>
+</html>

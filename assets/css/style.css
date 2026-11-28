@@ -2888,7 +2888,9 @@ mark.placeholder {
 /* The detail moving (since 2026-11-26, the user's ask, after gougoucore.com's tiles, short
    silent loops): a 6-second loop of the work doing its one thing, framed as the still detail,
    over it (build.py's tile_motion, "motion" in projects.json). Hovered or focused it fades as
-   the tile pulls back to the whole. Never with reduced motion: the still detail shows. */
+   the tile pulls back to the whole, except on a tile whose still is already the whole picture
+   (data-whole: the stage tiles, since 2026-11-27), which keeps playing. Never with reduced
+   motion: the still detail shows. */
 .work-media .tile-motion {
   position: absolute;
   inset: 0;
@@ -2905,12 +2907,12 @@ mark.placeholder {
   }
 }
 
-.work-card:focus-visible .work-media:not([data-rest="life"]) .tile-motion {
+.work-card:focus-visible .work-media:not([data-rest="life"], [data-whole]) .tile-motion {
   opacity: 0;
 }
 
 @media (hover: hover) {
-  .work-card:hover .work-media:not([data-rest="life"]) .tile-motion {
+  .work-card:hover .work-media:not([data-rest="life"], [data-whole]) .tile-motion {
     opacity: 0;
   }
 }

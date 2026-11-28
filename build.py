@@ -258,8 +258,21 @@ WIDE_MIN_PX = 1200  # an image narrower than this is a poor pick to span two col
 # order themselves, which they did in Figma, the Archive file's page "Archive — order"), its
 # images marked "wide": true there two columns wide, at both widths (placed_rows). False: by
 # field and project as on the board (archive_in_groups), the wide ones picked by flow_rows, as
-# they are, in either order, when archive.json marks none.
+# they are, in either order. Since 2026-11-27 (the user's ask: three images a row, not a wide and
+# a single), with an image Figma page to lay out, "Archive — 3 across"; later that day the user
+# laid it out: rows of three cells, some images wide again (from 768px; on phones a wide one
+# with one cell left in its row takes just that cell, placed_rows), and beside some cells the
+# images that take turns in them (CYCLE_SECONDS, "cycle" in archive.json).
 ARCHIVE_FILE_ORDER = True
+# Images taking turns in one cell of Archive's grid, like a GIF (since 2026-11-27, the user's
+# ask, with their Figma page: each cell's other images set beside it, joined by a line, "양 옆
+# 이미지들은 gif 처럼 바뀌는 설정"): an image's "cycle" in archive.json lists the ids of the
+# others, in turn after it; they get no cell of their own. A hard cut every CYCLE_SECONDS, every
+# cell on the same beat (style.css, .archive-frames); still on the first with reduced motion.
+# The lightbox opens on the one showing, and its arrows step through every image. Up to
+# CYCLE_MAX images a cell (style.css has a rule per count).
+CYCLE_SECONDS = 1  # as 014's GIF had (2026-11-26, the user's ask)
+CYCLE_MAX = 4
 # About's scales (since 2026-11-22, the user's ask: About carrying the drawing system and their
 # story): under the paragraph, site.json's "scales" as a title block, a cell each, A to D, its
 # bubble and name, the field it comes from and a line of the user's own account, and a link to
@@ -1204,6 +1217,28 @@ def validate_archive(images):
                 and isinstance(extra.get("label", ""), str)):
             raise BuildError(f'{where}: "link" should be {{ "label": "See full project", '
                              f'"url": "https://..." }}.')
+    # "cycle": the ids of other images that take turns in this one's cell (archive_frames).
+    hosts, taken = set(), {}
+    for i, image in enumerate(images, 1):
+        cycle = image.get("cycle")
+        if cycle is None:
+            continue
+        where = f'content/archive.json (item {i}, id "{image["id"]}"): "cycle"'
+        if not (isinstance(cycle, list) and cycle and all(isinstance(c, str) for c in cycle)):
+            raise BuildError(f'{where} should be a list of other images\' ids, like ["007"].')
+        if len(cycle) > CYCLE_MAX - 1:
+            raise BuildError(f'{where}: at most {CYCLE_MAX - 1} other images can share a cell.')
+        hosts.add(str(image["id"]))
+        for c in cycle:
+            if c not in ids or c == str(image["id"]):
+                raise BuildError(f'{where}: "{c}" is not another image\'s id in archive.json.')
+            if c in taken:
+                raise BuildError(f'{where}: "{c}" already takes turns in "{taken[c]}"\'s cell.')
+            taken[c] = str(image["id"])
+    for c, host in taken.items():
+        if c in hosts:
+            raise BuildError(f'content/archive.json: "{c}" takes turns in "{host}"\'s cell, so '
+                             f'it can\'t have a "cycle" of its own.')
 
 
 # ---------------------------------------------------------------------------
@@ -3133,24 +3168,28 @@ class Builder:
     def placed_rows(sizes, wide, cols):
         """flow_rows' answer for wide images chosen in archive.json ("wide": true, with
         ARCHIVE_FILE_ORDER): the images placed as the browser places them, in order, left to
-        right and down, a wide one spanning two columns, so on phones a row to itself; one that
-        finds a single cell left in its row starts the next, leaving a hole (lay them out so
-        none does). Each row the shape of ARCHIVE_ROW_RATIOS that crops its images least."""
+        right and down, a wide one spanning two columns, so on phones a row to itself. One
+        that finds a single cell left in its row takes just that cell (since 2026-11-27: the
+        user's rows of three, wide ones in the middle of a row, left holes on phones), and
+        where the last row would end one cell short, its last image spans two if it's wide
+        enough (WIDE_MIN_PX). Each row the shape of ARCHIVE_ROW_RATIOS that crops its images
+        least."""
         def loss(ratio, cell):
             return 1 - min(ratio, cell) / max(ratio, cell)
 
         n, col, rows, row, ends = len(sizes), 0, [], [], [False] * len(sizes)
+        wide = [bool(w) for w in wide]
         for i in range(n):
-            span = min(2 if wide[i] else 1, cols)
-            if col + span > cols:
-                rows.append(row)
-                row, col = [], 0
+            if wide[i] and (cols < 2 or col + 2 > cols):
+                wide[i] = False
             row.append(i)
-            col += span
+            col += 2 if wide[i] else 1
             if col == cols:
                 ends[i] = True
                 rows.append(row)
                 row, col = [], 0
+        if row and cols - col == 1 and not wide[row[-1]] and sizes[row[-1]][0] >= WIDE_MIN_PX:
+            wide[row[-1]], ends[row[-1]], col = True, True, 0
         if row:
             rows.append(row)
         shapes = {}
@@ -3158,7 +3197,7 @@ class Builder:
             cell = min(ARCHIVE_ROW_RATIOS, key=lambda c: sum(
                 loss(sizes[i][0] / sizes[i][1], c * (2 if wide[i] else 1)) for i in r))
             shapes.update((i, cell) for i in r)
-        return [bool(w) for w in wide], ends, [shapes[i] for i in range(n)], (cols - col) % cols
+        return wide, ends, [shapes[i] for i in range(n)], (cols - col) % cols
 
     def archive_grid(self):
         """Archive as one grid with no gaps (ARCHIVE_GRID, since 2026-11-26, the user's asks: a
@@ -3171,6 +3210,9 @@ class Builder:
         in archive.json's order, the ones it marks "wide" spanning two (placed_rows)."""
         items = (list(self.archive) if ARCHIVE_FILE_ORDER
                  else [item for item, _ in self.archive_in_groups(leads_first=True)])
+        by_id = {str(item["id"]): item for item in items}
+        turns = {c for item in items for c in item.get("cycle") or ()}
+        items = [item for item in items if str(item["id"]) not in turns]
         sizes = []
         for item in items:
             rel = media_path(item["src"], ARCHIVE_FOLDER)
@@ -3178,28 +3220,31 @@ class Builder:
                          or ARCHIVE_BOXES[0])
         leads = [bool(item.get("lead")) for item in items]
         chosen = [bool(item.get("wide")) for item in items]
-        if ARCHIVE_FILE_ORDER and any(chosen):
+        if ARCHIVE_FILE_ORDER:
             layouts = (self.placed_rows(sizes, chosen, cols) for cols in ARCHIVE_GRID_COLS)
         else:
             layouts = (self.flow_rows(sizes, leads, cols) for cols in ARCHIVE_GRID_COLS)
         (p_wide, p_ends, p_cell, p_rest), (d_wide, d_ends, d_cell, d_rest) = layouts
         cells = [self.grid_cell(item, n + 1, (p_wide[n], d_wide[n]), (p_ends[n], d_ends[n]),
                                 (p_cell[n], d_cell[n]),
-                                "eager" if n < ARCHIVE_GRID_COLS[-1] else "lazy")
+                                "eager" if n < ARCHIVE_GRID_COLS[-1] else "lazy",
+                                [by_id[c] for c in item.get("cycle") or ()])
                  for n, item in enumerate(items)]
         rest = "".join(f" rest-{name}-{k}" for name, k in (("phone", p_rest),
                                                            ("desktop", d_rest)) if k)
         return (f'    <ol class="archive-grid is-flow{rest}">\n' + "\n".join(cells)
                 + '\n    </ol>\n')
 
-    def grid_cell(self, item, number, wide, ends, cell, loading):
+    def grid_cell(self, item, number, wide, ends, cell, loading, others=()):
         """One image on Archive's grid (archive_grid): a link opening the lightbox, as on the
         board, the image filling its cell, cropped round its "focus" in archive.json (a CSS
         position, "90% 50%") when its subject is off its middle, or whole with "fit": "contain"
         on its "background" color (since 2026-11-26, the user's pick in Figma: Palette's
         screens, 011, on #323232). wide, ends and cell: whether
         it spans two columns, whether it ends a row, and its row's shape (--row), on phones
-        and from 768px."""
+        and from 768px. others: the images of its "cycle", taking turns with it in the cell
+        (CYCLE_SECONDS), each with its own focus, fit and background, and its own caption for
+        the lightbox (data-frame: 0 for the cell's own image, then 1, 2)."""
         rel = media_path(item["src"], ARCHIVE_FOLDER)
         alt, title = item.get("alt") or "", f"Archive {item['id']}"
         sizes = (f"(min-width: 768px) {67 if wide[1] else 33}vw, {100 if wide[0] else 50}vw")
@@ -3213,13 +3258,28 @@ class Builder:
             large = (f'          <template>'
                      f'{self.img(rel, alt, "archive", title, "eager", decorative=True, box=box)}'
                      f'</template>\n')
-        caption = inline(item.get("caption") or "")
-        name_cls = "archive-name" if caption else "archive-name visually-hidden"
-        caption = caption or f"Image {esc(item['id'])}"  # names the lightbox for screen readers
-        meta = " · ".join(x for x in (inline(item.get("date") or ""), archive_link(item)) if x)
+        frames = []  # (image, its caption) of each image taking turns, the cell's own first
+        if thumb:
+            for other in others:
+                o_rel = media_path(other["src"], ARCHIVE_FOLDER)
+                o_img = self.tile_image(o_rel, "archive", f"Archive {other['id']}", "lazy",
+                                        alt=other.get("alt") or "", sizes=sizes)
+                if o_img:
+                    look = (f'--fit: {esc(other.get("fit") or "cover")}; '
+                            f'--focus: {esc(other.get("focus") or "50% 50%")}; '
+                            f'--backdrop: {esc(other.get("background") or "transparent")}')
+                    frames.append((o_img, look, other))
+        texts = [self.archive_text(item, 0 if frames else None)]
+        if frames:
+            thumb = thumb.replace("<img ", '<img data-frame="0" ', 1)
+            for k, (o_img, look, other) in enumerate(frames, 1):
+                thumb += o_img.replace("<img ", f'<img data-frame="{k}" style="{look}" ', 1)
+                texts.append(self.archive_text(other, k))
         classes = [name for name, on in (("is-wide-phone", wide[0]), ("is-wide-desktop", wide[1]),
                                          ("row-end-phone", ends[0]), ("row-end-desktop", ends[1]))
                    if on]
+        if frames:
+            classes += ["archive-frames", f"frames-{len(frames) + 1}"]
         cls = f' class="{" ".join(classes)}"' if classes else ""
         style = f"--row-phone: {cell[0]:.4g}; --row-desktop: {cell[1]:.4g}"
         if item.get("focus"):
@@ -3228,15 +3288,30 @@ class Builder:
             style += f'; --fit: {esc(item["fit"])}'
         if item.get("background"):
             style += f'; --backdrop: {esc(item["background"])}'
+        if frames:
+            style += f"; --frames: {len(frames) + 1}; --frame-time: {CYCLE_SECONDS}s"
         return (f'      <li{cls} style="{style}">\n'
                 f'        <a class="archive-tile" href="{href}" data-item aria-haspopup="dialog">\n'
                 f'          <span class="archive-media">{thumb}</span>\n'
                 f'          <span class="visually-hidden">Image {number:03d}</span>\n'
                 f'        </a>\n'
-                f'        <p class="archive-text"><span class="{name_cls}" data-lightbox-name>'
-                f'{caption}</span> <span class="archive-date" data-lightbox-meta>{meta}</span></p>\n'
+                + "".join(texts) +
                 f'{large}'
                 f'      </li>')
+
+    @staticmethod
+    def archive_text(item, frame=None):
+        """An Archive image's caption for the lightbox: its caption ("Image 003", for screen
+        readers only, until it has one) and its date and link; frame: its place in a cell's
+        turns (grid_cell), or None."""
+        caption = inline(item.get("caption") or "")
+        name_cls = "archive-name" if caption else "archive-name visually-hidden"
+        caption = caption or f"Image {esc(item['id'])}"  # names the lightbox for screen readers
+        meta = " · ".join(x for x in (inline(item.get("date") or ""), archive_link(item)) if x)
+        at = "" if frame is None else f' data-frame="{frame}"'
+        return (f'        <p class="archive-text"{at}><span class="{name_cls}" data-lightbox-name>'
+                f'{caption}</span> <span class="archive-date" data-lightbox-meta>{meta}</span>'
+                f'</p>\n')
 
     def archive_map(self):
         """Archive as one map (ARCHIVE_MAP, since 2026-11-24, the user's asks: images rather

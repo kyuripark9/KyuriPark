@@ -3101,6 +3101,54 @@ mark.placeholder {
   object-position: var(--focus, 50% 50%);
 }
 
+/* Images taking turns in one cell, like a GIF (since 2026-11-27, the user's ask, with their
+   Figma page: "cycle" in archive.json, CYCLE_SECONDS in build.py): stacked in the cell, each
+   with its own crop and background, one showing at a time, a hard cut every --frame-time, every
+   cell on the same beat. Still on the cell's own image with reduced motion. */
+.archive-grid .archive-frames .archive-media > img {
+  position: absolute;
+  inset: 0;
+  background: var(--backdrop, transparent);
+}
+
+.archive-grid .archive-frames .archive-media > img:not([data-frame="0"]) {
+  opacity: 0;
+}
+
+.archive-frames [data-frame="1"] { --frame: 1; }
+.archive-frames [data-frame="2"] { --frame: 2; }
+.archive-frames [data-frame="3"] { --frame: 3; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .archive-grid .archive-frames .archive-media > img {
+    animation: frame-turn-2 calc(var(--frames) * var(--frame-time)) step-end infinite;
+    animation-delay: calc((var(--frame, 0) - var(--frames)) * var(--frame-time));
+  }
+
+  .archive-grid .frames-3 .archive-media > img {
+    animation-name: frame-turn-3;
+  }
+
+  .archive-grid .frames-4 .archive-media > img {
+    animation-name: frame-turn-4;
+  }
+}
+
+@keyframes frame-turn-2 {
+  0% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@keyframes frame-turn-3 {
+  0% { opacity: 1; }
+  33.333%, 100% { opacity: 0; }
+}
+
+@keyframes frame-turn-4 {
+  0% { opacity: 1; }
+  25%, 100% { opacity: 0; }
+}
+
 @media (max-width: 767px) {
   .archive-grid.is-flow > li.is-wide-phone {
     grid-column: span 2;

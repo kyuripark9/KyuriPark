@@ -351,13 +351,21 @@ of each image on average). Where the last row wouldn't be full, one image spans 
 least, an image under `WIDE_MIN_PX` wide counting against it and a lead for it): Palette (010)
 from 768px, RO+A (015) on phones. An image whose subject is off its middle is cropped round its
 `"focus"` (a CSS position, `"90% 50%"` for RO+A). Since the user's order, the images marked
-`"wide": true` in archive.json span two columns instead, at both widths (`placed_rows`): from
-768px each row one wide image and one not, the wide one at the left, then the right, down the
-page, as the user laid them out; on phones a wide one is a row to itself, the others two to a
-row. Lay them out so no wide image finds one cell left in its row (it would start the next,
-leaving a hole). An image shown whole, not cropped, takes `"fit": "contain"` and its
-`"background"`, the color round it (Palette's screens, 011, on `#323232`). With no `"wide"` in
-archive.json, `flow_rows` picks them. For an hour that morning each field was a
+`"wide": true` in archive.json span two columns instead, at both widths (`placed_rows`); on
+phones a wide one is a row to itself, the others two to a row. A wide one that finds one cell
+left in its row takes just that cell (so on phones no holes), and where the last row would end
+one cell short, its last image spans two. From 2026-11-26 each row from 768px was one wide
+image and one not, as the user laid them out; since 2026-11-27 (the user's asks: three to a row,
+then their layout in the Archive Figma file's page "Archive — 3 across") rows of three cells,
+some wide images among them. **Images taking turns in a cell, like a GIF** (the same day, the
+user's ask: in Figma, a cell's other images beside it, joined by a line): an image's `"cycle"`
+lists the ids of the images that take turns with it, in order (`"cycle": ["025", "020"]` on
+014: its A–Z page, then the D–X page, then the K); they get no cell of their own but keep their
+own alt, caption, crop and background. A hard cut every second, every cell on the same beat
+(`CYCLE_SECONDS`, up to `CYCLE_MAX` images a cell); still with reduced motion. The lightbox
+opens on the one showing, and its arrows step through every image. An image shown whole, not cropped, takes `"fit": "contain"` and its
+`"background"`, the color round it (Palette's screens, 011, on `#323232`). With `ARCHIVE_FILE_ORDER` off,
+`flow_rows` picks them. For an hour that morning each field was a
 section under its name, a bar under each image with its number and its project.
 
 **Since 2026-11-25 the map is a board of groups** (`ARCHIVE_MAP_BOARD` with

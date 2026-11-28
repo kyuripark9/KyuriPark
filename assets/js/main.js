@@ -232,7 +232,9 @@
   // (copied from the item's <template>, or else the tile's own image at full size) with the
   // item's [data-lightbox-name] and [data-lightbox-meta] text under them. Esc, Close, or a click
   // outside the images and caption closes it, and focus goes back to that tile. Left/right arrow
-  // keys and buttons step through the items on screen, looping at the ends.
+  // keys and buttons step through the items on screen, looping at the ends. An Archive cell
+  // whose images take turns (data-frame, "cycle" in archive.json) is one stop per image, each
+  // with its own caption, and opens on the one showing.
   const lightbox = document.getElementById("lightbox");
   if (lightbox) {
     document.body.append(lightbox);  // out of <main>, so the rest of the page can go inert
@@ -242,8 +244,14 @@
     const meta = lightbox.querySelector(".lightbox-meta");
     const closeButton = lightbox.querySelector(".lightbox-close");
     const allThumbs = [...document.querySelectorAll("[data-item]")];  // one per item, in order
-    let thumbs = allThumbs;  // the ones on screen when the lightbox opened
-    let current = -1;  // the item shown, or -1 when closed
+    // A stop per item, or per image of a cell whose images take turns: { thumb, frame }.
+    const stopsOf = (list) => list.flatMap((thumb) => {
+      const frames = [...thumb.closest("li").querySelectorAll(".archive-media > [data-frame]")];
+      return frames.length ? frames.map((img) => ({ thumb, frame: img.dataset.frame }))
+                           : [{ thumb, frame: null }];
+    });
+    let entries = stopsOf(allThumbs);  // the ones on screen when the lightbox opened
+    let current = -1;  // the stop shown, or -1 when closed
     let hiding;
 
     // Several images can run taller than the screen; then the stage takes a Tab stop
@@ -252,21 +260,26 @@
       stage.tabIndex = stage.scrollHeight > stage.clientHeight ? 0 : -1;
     };
     const show = (index) => {
-      current = (index + thumbs.length) % thumbs.length;
-      const item = thumbs[current].closest("li");
+      current = (index + entries.length) % entries.length;
+      const { thumb, frame } = entries[current];
+      const item = thumb.closest("li");
       const template = item.querySelector("template");
+      const pick = frame === null ? "" : `[data-frame="${frame}"]`;
       if (template) {
         images.replaceChildren(template.content.cloneNode(true));
       } else {
-        const image = item.querySelector("img").cloneNode();
-        ["srcset", "sizes", "loading"].forEach((attr) => image.removeAttribute(attr));
+        const image = item.querySelector(frame === null ? "img" : `.archive-media > img${pick}`)
+          .cloneNode();
+        ["srcset", "sizes", "loading", "style", "data-frame"]
+          .forEach((attr) => image.removeAttribute(attr));
         images.replaceChildren(image);
       }
-      const nameSource = item.querySelector("[data-lightbox-name]");
+      const text = frame === null ? item : item.querySelector(`.archive-text${pick}`);
+      const nameSource = text.querySelector("[data-lightbox-name]");
       name.innerHTML = nameSource.innerHTML;
       // A name only for screen readers stays that way, and takes no room in the caption.
       name.classList.toggle("visually-hidden", nameSource.classList.contains("visually-hidden"));
-      meta.innerHTML = item.querySelector("[data-lightbox-meta]").innerHTML;
+      meta.innerHTML = text.querySelector("[data-lightbox-meta]").innerHTML;
       // A link from text only the lightbox shows (the "link" of an image on Archive's map) was
       // kept out of the page's Tab order; here it's in sight, so it takes a stop.
       for (const a of lightbox.querySelectorAll(".lightbox-caption [tabindex]")) {
@@ -292,7 +305,7 @@
       if (current < 0) return;
       lightbox.classList.remove("is-open");
       setPageInert(false);
-      thumbs[current].focus();
+      entries[current].thumb.focus();
       current = -1;
       hiding = setTimeout(() => {
         lightbox.hidden = true;
@@ -306,8 +319,13 @@
       e.preventDefault();
       // On screen: not under a filter that's off, nor in the view that's not showing (Work's
       // grid and slider each have a button per item with no page).
-      thumbs = allThumbs.filter((other) => other.getClientRects().length > 0);
-      open(thumbs.indexOf(thumb));
+      entries = stopsOf(allThumbs.filter((other) => other.getClientRects().length > 0));
+      // A cell whose images take turns opens on the one showing (the cell's own, when still).
+      const showing = [...thumb.querySelectorAll(".archive-media > [data-frame]")]
+        .find((img) => getComputedStyle(img).opacity !== "0");
+      const frame = showing ? showing.dataset.frame : null;
+      open(Math.max(0, entries.findIndex((e) => e.thumb === thumb
+                                              && (e.frame === null || e.frame === frame))));
     }));
     lightbox.addEventListener("click", (e) => {
       const arrow = e.target.closest(".lightbox-arrow");

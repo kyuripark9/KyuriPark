@@ -8,7 +8,7 @@
   { "id": "002", "src": "002.webp", "scale": "page", "caption": "", "date": "", "alt": "A poster titled A Designer's Anatomy, in red, blue and pink" },
   { "id": "005", "wide": true, "src": "005.gif", "scale": "screen", "caption": "", "date": "", "alt": "White shapes in a row on black, each with a blue dot, squeezing and stretching" },
   { "id": "019", "wide": true, "src": "019.jpg", "scale": "page", "caption": "", "date": "", "alt": "Two posters hung on a concrete wall: stacked black shapes with a blue dot, and white looping lines on black" },
-  { "id": "014", "src": "014.webp", "project": "Editorial", "scale": "page", "caption": "Editorial design: a typeface", "date": "2024", "alt": "Letters of a typeface in thin, squared strokes, in rows on white" },
+  { "id": "014", "src": "014.gif", "project": "Editorial", "scale": "page", "caption": "Editorial design: a typeface", "date": "2024", "alt": "Two pages of a typeface's letters in thin, squared strokes, in rows on white, showing in turn: A, B, C and on, then D, E, F and on with Wave Length at the foot" },
   { "id": "020", "src": "020.jpg", "scale": "page", "caption": "", "date": "", "alt": "A sheet with a large pink letter K drawn over construction lines, lying on a laptop" },
   { "id": "021", "wide": true, "src": "021.jpg", "scale": "object", "caption": "", "date": "", "alt": "A render of a dark room lit blue by an upright panel framed in strips of light" },
   { "id": "015", "wide": true, "lead": true, "src": "015.webp", "focus": "90% 50%", "project": "3D Products", "scale": "object", "caption": "3D product design: RO+A, a mobility vehicle", "date": "2025", "alt": "A render of RO+A, a small blue mobility vehicle, with a smaller view of it above" },
